@@ -1,6 +1,7 @@
 module src.billiardsmanagement {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.sql;
 
     opens src.billiardsmanagement to javafx.fxml;
     exports src.billiardsmanagement.controller;

@@ -1,14 +1,19 @@
 package src.billiardsmanagement.controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 
 public class HelloController {
     @FXML
-    private Label welcomeText;
+    private TextField Height;
 
-    @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
+    public void Submit (ActionEvent event){
+        String height = Height.getText();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText("Chiều cao của bạn:" + height + "cm");
+        alert.show();
     }
 }
