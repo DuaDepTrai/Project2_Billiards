@@ -28,7 +28,9 @@
      <Text fx:id="currentTableText" layoutX="409.0" layoutY="24.0" text="Current Table: " />
      <Text fx:id="customerNameText" layoutX="10.0" layoutY="25.0" text="Customer Name: " />
      <Text fx:id="phoneText" layoutX="232.0" layoutY="25.0" text="Phone: " />
-      <Text fx:id="customerNameData" layoutX="110.0" layoutY="25.0" text="Nguyen Manh" AnchorPane.leftAnchor="110.0" AnchorPane.topAnchor="10.9716796875" />
+
+
+    <Text fx:id="customerNameData" layoutX="110.0" layoutY="25.0" text="Nguyen Manh" AnchorPane.leftAnchor="110.0" AnchorPane.topAnchor="10.9716796875" />
       <Text fx:id="currentTableData" layoutX="493.0" layoutY="24.0" text="VIP1" />
       <Text fx:id="phoneData" layoutX="275.0" layoutY="25.0" text="0963872314" />
       <Text fx:id="tableStatusData" layoutX="656.0" layoutY="25.0" text="Playing" />

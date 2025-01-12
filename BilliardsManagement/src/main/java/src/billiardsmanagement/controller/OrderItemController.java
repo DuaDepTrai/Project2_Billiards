@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-public class OrderItemsController {
+public class OrderItemController {
     @FXML
     protected TableView orderItemsTable;
     @FXML private TableColumn<?, String> productName;
