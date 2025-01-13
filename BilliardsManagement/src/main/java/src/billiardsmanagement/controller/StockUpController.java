@@ -25,6 +25,8 @@ public class StockUpController {
     @FXML
     public void initialize() {
         loadProducts();
+
+        setupAutoCompleteComboBox(comboProduct);
     }
 
     private void loadProducts() {
@@ -111,4 +113,38 @@ public class StockUpController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
+    private void setupAutoCompleteComboBox(ComboBox<Product> comboBox) {
+        comboBox.setEditable(true); // Cho phép người dùng nhập liệu
+
+        TextField editor = comboBox.getEditor();
+        ObservableList<Product> items = comboBox.getItems();
+
+        editor.textProperty().addListener((observable, oldValue, newValue) -> {
+            // Lọc danh sách sản phẩm dựa trên nội dung nhập vào
+            ObservableList<Product> filteredItems = FXCollections.observableArrayList();
+            String lowerCaseFilter = newValue.toLowerCase();
+
+            for (Product product : items) {
+                if (product.getName().toLowerCase().contains(lowerCaseFilter)) {
+                    filteredItems.add(product);
+                }
+            }
+
+            comboBox.setItems(filteredItems);
+
+            // Nếu danh sách có kết quả, hiển thị menu gợi ý
+            if (!filteredItems.isEmpty()) {
+                comboBox.show();
+            }
+        });
+
+        // Khôi phục danh sách đầy đủ khi người dùng xóa nội dung
+        editor.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) { // Khi mất focus
+                comboBox.setItems(items);
+            }
+        });
+    }
+
 }
