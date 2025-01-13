@@ -20,6 +20,13 @@
         </columns>
     </TableView>
     <Button fx:id="btnAddNewProduct" text="Add New Product" AnchorPane.bottomAnchor="10.0"
+            AnchorPane.rightAnchor="470.0"/>
+    <Button fx:id="btnStockUp" text="Stock Up" AnchorPane.bottomAnchor="10.0"
+            AnchorPane.rightAnchor="350.0"/>
+    <Button fx:id="btnUpdateProduct" text="Update Product" AnchorPane.bottomAnchor="10.0"
+            AnchorPane.rightAnchor="200.0"/>
+    <Button fx:id="btnRemoveProduct" text="Remove Product" AnchorPane.bottomAnchor="10.0"
             AnchorPane.rightAnchor="50.0"/>
+
 </AnchorPane>
 

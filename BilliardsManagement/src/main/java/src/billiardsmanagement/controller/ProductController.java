@@ -38,6 +38,13 @@ public class ProductController {
     private TableColumn<Product, Integer> columnQuantity;
     @FXML
     private Button btnAddNewProduct;
+    @FXML
+    private Button btnStockUp;
+    @FXML
+    private Button btnUpdateProduct;
+    @FXML
+    private Button btnRemoveProduct;
+
 
     private ObservableList<Product> productList = FXCollections.observableArrayList();
 
@@ -50,61 +57,71 @@ public class ProductController {
         columnUnit.setCellValueFactory(new PropertyValueFactory<>("unit"));
         columnQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
-        // Thêm cột "Update"
-        TableColumn<Product, Void> colUpdate = new TableColumn<>();
-        colUpdate.setCellFactory(param -> new TableCell<>() {
-            private final Button btnUpdate = new Button("Update");
+//        // Thêm cột "Update"
+//        TableColumn<Product, Void> colUpdate = new TableColumn<>();
+//        colUpdate.setCellFactory(param -> new TableCell<>() {
+//            private final Button btnUpdate = new Button("Update");
+//
+//            {
+//                btnUpdate.setOnAction(event -> {
+//                    Product product = getTableView().getItems().get(getIndex());
+//                    openUpdateWindow(product);
+//                });
+//            }
+//
+//            @Override
+//            protected void updateItem(Void item, boolean empty) {
+//                super.updateItem(item, empty);
+//                if (empty) {
+//                    setGraphic(null);
+//                } else {
+//                    setGraphic(btnUpdate);
+//                }
+//            }
+//        });
+//
+//        tableProducts.getColumns().add(colUpdate);
 
-            {
-                btnUpdate.setOnAction(event -> {
-                    Product product = getTableView().getItems().get(getIndex());
-                    openUpdateWindow(product);
-                });
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(btnUpdate);
-                }
-            }
-        });
-
-        tableProducts.getColumns().add(colUpdate);
-
-        // Thêm cột "Remove"
-        TableColumn<Product, Void> colRemove = new TableColumn<>();
-        colRemove.setCellFactory(param -> new TableCell<>() {
-            private final Button btnRemove = new Button("Remove");
-
-            {
-                btnRemove.setOnAction(event -> {
-                    Product product = getTableView().getItems().get(getIndex());
-                    confirmAndRemoveProduct(product);
-                });
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(btnRemove);
-                }
-            }
-        });
-
-        tableProducts.getColumns().add(colRemove);
+//        // Thêm cột "Remove"
+//        TableColumn<Product, Void> colRemove = new TableColumn<>();
+//        colRemove.setCellFactory(param -> new TableCell<>() {
+//            private final Button btnRemove = new Button("Remove");
+//
+//            {
+//                btnRemove.setOnAction(event -> {
+//                    Product product = getTableView().getItems().get(getIndex());
+//                    confirmAndRemoveProduct(product);
+//                });
+//            }
+//
+//            @Override
+//            protected void updateItem(Void item, boolean empty) {
+//                super.updateItem(item, empty);
+//                if (empty) {
+//                    setGraphic(null);
+//                } else {
+//                    setGraphic(btnRemove);
+//                }
+//            }
+//        });
+//
+//        tableProducts.getColumns().add(colRemove);
 
         // Load dữ liệu từ database
         loadProducts();
 
         //button Add New Product
         btnAddNewProduct.setOnAction(event -> handleAddNewProduct());
+
+        //button Stock Up
+        btnStockUp.setOnAction(event -> handleStockUp());
+
+        // button Update Product
+        btnUpdateProduct.setOnAction(event -> handleUpdateSelectedProduct());
+
+        // button Remove Product
+        btnRemoveProduct.setOnAction(event -> handleRemoveSelectedProduct());
+
     }
 
     private void loadProducts() {
@@ -166,6 +183,41 @@ public class ProductController {
         loadProducts();
     }
 
+    //handleStockUp
+    private void handleStockUp(){
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/stock_up.fxml"));
+            Parent root = loader.load();
+
+            // Tạo cửa sổ mới cho Stock Up
+            Stage stage = new Stage();
+            stage.setTitle("Stock Up Product");
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+
+            // Làm mới bảng sau khi nhập hàng
+            stage.setOnHidden(event -> refreshTable());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //handleRemoveSelectedProduct
+    private void handleRemoveSelectedProduct() {
+        Product selectedProduct = tableProducts.getSelectionModel().getSelectedItem();
+        if (selectedProduct == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("No Selection");
+            alert.setHeaderText("No Product Selected");
+            alert.setContentText("Please select a product to remove");
+            alert.showAndWait();
+            return;
+        }
+        confirmAndRemoveProduct(selectedProduct);
+    }
+
+
     //Confirm remove product
     private void confirmAndRemoveProduct(Product product) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -204,6 +256,20 @@ public class ProductController {
             // Xử lý lỗi từ getConnection()
             e.printStackTrace();
         }
+    }
+
+    //handleUpdateSelectedProduct
+    private void handleUpdateSelectedProduct() {
+        Product selectedProduct = tableProducts.getSelectionModel().getSelectedItem();
+        if (selectedProduct == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("No Selection");
+            alert.setHeaderText("No Product Selected");
+            alert.setContentText("Please select a product to update");
+            alert.showAndWait();
+            return;
+        }
+        openUpdateWindow(selectedProduct);
     }
 
     //Update product

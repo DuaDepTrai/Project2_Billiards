@@ -50,4 +50,8 @@ public class Product {
         return formatter.format(price) + "đ";
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }
