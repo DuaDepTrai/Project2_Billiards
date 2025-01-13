@@ -3,11 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 09, 2025 at 04:44 AM
+-- Generation Time: Jan 11, 2025 at 11:45 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
-CREATE DATABASE biamanagement;
-USE biamanagement;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -69,7 +67,7 @@ INSERT INTO `category` (`category_id`, `category_name`) VALUES
 --
 
 CREATE TABLE `customers` (
-  `customers_id` int(11) NOT NULL,
+  `customer_id` int(11) NOT NULL,
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
   `total_playtime` double DEFAULT NULL
@@ -79,7 +77,7 @@ CREATE TABLE `customers` (
 -- Dumping data for table `customers`
 --
 
-INSERT INTO `customers` (`customers_id`, `name`, `phone`, `total_playtime`) VALUES
+INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUES
 (6, 'Nguyen Anh Tuan', '1234567890', 0),
 (7, 'Le Thi Mai', '2345678901', 0),
 (8, 'Tran Minh Tu', '3456789012', 0),
@@ -119,8 +117,8 @@ INSERT INTO `employees` (`employee_id`, `username`, `password`, `name`, `phone`,
 --
 
 CREATE TABLE `orders` (
-  `orders_id` int(11) NOT NULL,
-  `customers_id` int(11) DEFAULT NULL,
+  `order_id` int(11) NOT NULL,
+  `customer_id` int(11) DEFAULT NULL,
   `total_cost` double DEFAULT NULL,
   `order_status` enum('đã book','đang chơi','kết thúc') NOT NULL DEFAULT 'đã book'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -129,7 +127,7 @@ CREATE TABLE `orders` (
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`orders_id`, `customers_id`, `total_cost`, `order_status`) VALUES
+INSERT INTO `orders` (`order_id`, `customer_id`, `total_cost`, `order_status`) VALUES
 (14, 6, 850000, ''),
 (15, 7, 1250000, ''),
 (16, 8, 950000, ''),
@@ -383,7 +381,7 @@ ALTER TABLE `category`
 -- Indexes for table `customers`
 --
 ALTER TABLE `customers`
-  ADD PRIMARY KEY (`customers_id`);
+  ADD PRIMARY KEY (`customer_id`);
 
 --
 -- Indexes for table `employees`
@@ -396,8 +394,8 @@ ALTER TABLE `employees`
 -- Indexes for table `orders`
 --
 ALTER TABLE `orders`
-  ADD PRIMARY KEY (`orders_id`),
-  ADD KEY `customers_id` (`customers_id`);
+  ADD PRIMARY KEY (`order_id`),
+  ADD KEY `customers_id` (`customer_id`);
 
 --
 -- Indexes for table `orders_items`
@@ -482,7 +480,7 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `customers_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `employees`
@@ -494,7 +492,7 @@ ALTER TABLE `employees`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `orders_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `orders_items`
@@ -558,7 +556,7 @@ ALTER TABLE `role_permissions`
 -- Constraints for table `bookings`
 --
 ALTER TABLE `bookings`
-  ADD CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`orders_id`) REFERENCES `orders` (`orders_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`orders_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `bookings_ibfk_2` FOREIGN KEY (`tables_id`) REFERENCES `pooltables` (`tables_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `bookings_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`id`);
 
@@ -572,13 +570,13 @@ ALTER TABLE `employees`
 -- Constraints for table `orders`
 --
 ALTER TABLE `orders`
-  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`customers_id`) REFERENCES `customers` (`customers_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `orders_items`
 --
 ALTER TABLE `orders_items`
-  ADD CONSTRAINT `orders_items_ibfk_1` FOREIGN KEY (`orders_id`) REFERENCES `orders` (`orders_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `orders_items_ibfk_1` FOREIGN KEY (`orders_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `orders_items_ibfk_2` FOREIGN KEY (`products_id`) REFERENCES `products` (`products_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `orders_items_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -592,7 +590,7 @@ ALTER TABLE `products`
 -- Constraints for table `rent_cues`
 --
 ALTER TABLE `rent_cues`
-  ADD CONSTRAINT `rent_cues_ibfk_1` FOREIGN KEY (`orders_id`) REFERENCES `orders` (`orders_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `rent_cues_ibfk_1` FOREIGN KEY (`orders_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `rent_cues_ibfk_2` FOREIGN KEY (`products_id`) REFERENCES `products` (`products_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `rent_cues_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 

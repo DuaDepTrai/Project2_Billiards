@@ -69,43 +69,39 @@
     </left>
     <center>
         <AnchorPane prefHeight="424.0" prefWidth="489.0" BorderPane.alignment="CENTER">
-         <children>
-            <StackPane fx:id="contentArea" prefHeight="150.0" prefWidth="200.0" />
-             <TableView fx:id="orderTable" prefHeight="287.0" prefWidth="500.0">
-                 <columns>
-                     <TableColumn fx:id="orderIdColumn" text="Order ID" />
-                     <TableColumn fx:id="customerNameColumn" text="Customer Name" />
-                     <TableColumn fx:id="totalCostColumn" text="Total Cost" />
-                     <TableColumn fx:id="orderStatusColumn" text="Status" />
-                 </columns>
-             </TableView>
-            <GridPane layoutY="287.0">
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <Button mnemonicParsing="false" onAction="#addOrder" text="Add">
-                     <GridPane.margin>
-                        <Insets top="10.0" />
-                     </GridPane.margin></Button>
-                  <Button mnemonicParsing="false" onAction="#updateOrder" text="Update" GridPane.columnIndex="1">
-                     <GridPane.margin>
-                        <Insets top="10.0" />
-                     </GridPane.margin></Button>
-                  <Button mnemonicParsing="false" onAction="#deleteButton" text="Delete" GridPane.columnIndex="2">
-                     <GridPane.margin>
-                        <Insets top="10.0" />
-                     </GridPane.margin></Button>
-               </children>
-            </GridPane>
-         </children>
+            <children>
+                <StackPane fx:id="contentArea" prefHeight="150.0" prefWidth="200.0" />
+                <TableView fx:id="orderTable" prefHeight="287.0" prefWidth="500.0">
+                    <columns>
+                        <TableColumn fx:id="orderIdColumn" prefWidth="59.0" text="order_id" />
+                        <TableColumn fx:id="customerNameColumn" prefWidth="122.0" text="customer_name" />
+                        <TableColumn fx:id="totalCostColumn" prefWidth="96.0" text="cost" />
+                        <TableColumn fx:id="orderStatusColumn" prefWidth="156.0" text="status" />
+                    </columns>
+                </TableView>
+                <GridPane layoutY="287.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#addOrder" text="Add" />
+                        <Button mnemonicParsing="false" text="Update" onAction="#updateOrder" GridPane.columnIndex="1" />
+                        <Button mnemonicParsing="false" text="Delete" onAction="#deleteOrder" GridPane.columnIndex="2" />
+                    </children>
+                </GridPane>
+            </children>
+            <children>
+                <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                <!--code ở chỗ này này-->
+                <fx:include source="forEachOrder.fxml" />
+            </children>
         </AnchorPane>
     </center>
 </BorderPane>

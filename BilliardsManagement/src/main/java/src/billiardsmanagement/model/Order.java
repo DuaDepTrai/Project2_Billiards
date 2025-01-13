@@ -7,6 +7,7 @@ public class Order {
     private double totalCost;
     private String orderStatus;
 
+    public Order(){}
     // Constructor
     public Order(int customerId,double totalCost,String orderStatus){
         this.customerId = customerId;

@@ -87,40 +87,39 @@ public class OrderDAO {
     }
 
     public Order getOrderById(int orderId) {
-        // Truy vấn SQL để lấy thông tin đơn hàng
+        // Truy vấn từ database và kiểm tra dữ liệu trả về
         String query = "SELECT * FROM orders WHERE order_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, orderId);
+            ResultSet rs = pstmt.executeQuery();
 
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-
-            // Gán giá trị cho tham số truy vấn
-            statement.setInt(1, orderId);
-
-            // Thực thi truy vấn
-            ResultSet resultSet = statement.executeQuery();
-
-            // Kiểm tra kết quả
-            if (resultSet.next()) {
-                // Lấy các giá trị từ bảng orders
-                int id = resultSet.getInt("order_id");
-                int customerId = resultSet.getInt("customer_id");
-                double totalCost = resultSet.getDouble("total_cost");
-                String orderStatus = resultSet.getString("order_status");
-
-                // Tạo đối tượng Customer (nếu cần liên kết)
-             // Giả sử Customer có constructor nhận customer_id
-
-                // Tạo và trả về đối tượng Order
-                return new Order( customerId, totalCost, orderStatus);
+            if (rs.next()) {
+                // Tạo đối tượng Order từ dữ liệu trả về
+                Order order = new Order();
+                order.setOrderId(rs.getInt("order_id")); // Kiểm tra xem dữ liệu có đúng không
+                order.setTotalCost(rs.getDouble("total_cost"));
+                order.setOrderStatus(rs.getString("order_status"));
+                return order;
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        // Trả về null nếu không tìm thấy hoặc có lỗi
         return null;
     }
+    public boolean deleteOrder(int orderId) {
+        String sql = "DELETE FROM orders WHERE order_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, orderId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;  // Nếu xóa thành công, trả về true
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;  // Nếu có lỗi xảy ra, trả về false
+        }
+    }
+
 
     // Thêm các phương thức khác nếu cần (thêm, xóa, sửa order)
 }

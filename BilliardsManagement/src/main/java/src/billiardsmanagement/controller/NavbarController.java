@@ -7,19 +7,18 @@ import javafx.fxml.Initializable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.OrderDAO;
@@ -147,7 +146,44 @@ public class NavbarController implements Initializable {
         }
     }
 
-    public void deleteButton(ActionEvent actionEvent) {
+    public void deleteOrder(ActionEvent actionEvent) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Confirmation");
+        alert.setHeaderText("Are you sure you want to delete this order?");
+        alert.setContentText("This action cannot be undone.");
+
+        // Hiển thị cảnh báo và chờ người dùng trả lời
+        Optional<ButtonType> result = alert.showAndWait();
+
+        // Nếu người dùng chọn OK, thực hiện xóa bản ghi
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            // Lấy ID đơn hàng hoặc thông tin cần thiết từ dòng được chọn trong TableView
+            Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
+            if (selectedOrder != null) {
+                boolean success = orderDAO.deleteOrder(selectedOrder.getOrderId());
+
+                if (success) {
+                    // Xóa thành công, làm mới bảng
+                    loadOrderList();  // Tải lại danh sách đơn hàng
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Order deleted successfully!");
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete the order.");
+                }
+            } else {
+                showAlert(Alert.AlertType.WARNING, "Warning", "No order selected.");
+            }
+        }
+    }
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    private void loadOrderList() {
+        List<Order> orders = orderDAO.getAllOrders(); // Lấy tất cả các đơn hàng từ DB
+        orderTable.setItems(FXCollections.observableArrayList(orders)); // Cập nhật lại TableView
     }
 
     public void loadOrders() {
