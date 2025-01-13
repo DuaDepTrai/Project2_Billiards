@@ -43,17 +43,21 @@ public class CategoryController {
         try {
             // Lấy dữ liệu từ cơ sở dữ liệu
             Connection connection = TestDBConnection.getConnection();
-            String sql = "SELECT c.category_id, c.category_name FROM category c";
+            String sql = "SELECT c.category_id, c.category_name, c.image_path FROM category c";
 
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
 
+            // Xóa danh sách cũ
+            categoryList.clear();
+
             while (resultSet.next()) {
                 int id = resultSet.getInt("category_id");
                 String name = resultSet.getString("category_name");
+                String imagePath = resultSet.getString("image_path");
 
                 // Tạo thumbnail cho mỗi danh mục
-                createCategoryThumbnail(id, name);
+                createCategoryThumbnail(id, name, imagePath);
             }
 
             resultSet.close();
@@ -65,16 +69,24 @@ public class CategoryController {
         }
     }
 
-    private void createCategoryThumbnail(int id, String name) {
+    private void createCategoryThumbnail(int id, String name, String imagePath) {
         try {
             // Đường dẫn tới hình ảnh
-            String imagePath = "/src/billiardsmanagement/images/" + id + ".png";
-            Image image = new Image(getClass().getResource(imagePath).toExternalForm());
+            String fullPath = "/src/billiardsmanagement/images/category/" + imagePath;
+
+            // Kiểm tra nếu hình ảnh tồn tại, nếu không dùng ảnh mặc định
+            Image image;
+            if (getClass().getResource(fullPath) != null) {
+                image = new Image(getClass().getResource(fullPath).toExternalForm());
+            } else {
+                // Dùng ảnh mặc định nếu không tìm thấy
+                image = new Image(getClass().getResource("/src/billiardsmanagement/images/category/default.png").toExternalForm());
+            }
 
             // Tạo ImageView
             ImageView imageView = new ImageView(image);
-            imageView.setFitWidth(150);
-            imageView.setFitHeight(150);
+            imageView.setFitWidth(100);
+            imageView.setFitHeight(100);
             imageView.setPreserveRatio(true);
 
             // Tạo Text hiển thị tên danh mục
@@ -147,6 +159,10 @@ public class CategoryController {
 
     //Refresh table
     private void refreshTable() {
+        // Xóa các phần tử cũ trong FlowPane
+        flowPaneCategories.getChildren().clear();
+
+        // Xóa danh sách cũ và tải lại danh sách mới
         categoryList.clear();
         loadCategories();
     }
