@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 13, 2025 at 06:26 PM
+-- Generation Time: Jan 14, 2025 at 05:24 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -70,10 +70,12 @@ CREATE TABLE `category` (
 --
 
 INSERT INTO `category` (`category_id`, `category_name`, `image_path`) VALUES
-(1, 'Cues', ''),
-(3, 'Drinks', ''),
-(4, 'Food', ''),
-(6, 'Board Game', '');
+(1, 'Cues-sale', 'cues-sale.png'),
+(2, 'Cues-rent', 'cues-rent.png'),
+(3, 'Drinks', 'drinks.png'),
+(4, 'Food', 'food.png'),
+(6, 'Board Game', 'board_game.png'),
+(19, 'Game 1', 'attention.png');
 
 -- --------------------------------------------------------
 
@@ -245,9 +247,12 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `quantity`) VALUES
-(1, 'Standard Cue', 1, 500000, 'Piece', 20),
-(2, 'Deluxe Cue', 1, 1000000, 'Piece', 15),
-(3, 'Professional Cue', 1, 1500000, 'Piece', 10),
+(1, 'Standard Cue - Sale', 1, 500000, 'Piece', 20),
+(2, 'Deluxe Cue - Sale', 1, 1000000, 'Piece', 15),
+(3, 'Professional Cue - Sale', 1, 1500000, 'Piece', 10),
+(4, 'Standard Cue - Rent', 2, 50000, 'hour', 10),
+(5, 'Deluxe Cue - Rent', 2, 100000, 'hour', 10),
+(6, 'Professional Cue - Rent', 2, 150000, 'hour', 10),
 (7, 'Soda', 3, 15000, 'Can', 100),
 (8, 'Juice', 3, 25000, 'Bottle', 80),
 (9, 'Water', 3, 10000, 'Bottle', 120),
@@ -289,6 +294,40 @@ INSERT INTO `promotions` (`promotion_id`, `name`, `promotion_type`, `discount`, 
 (8, 'Group Discount', 'Combo', 15, 'Giảm giá 15% cho các nhóm từ 4 người trở lên.'),
 (9, 'Student Offer', 'SinglePlaytime', 10, 'Giảm giá 10% cho sinh viên có thẻ sinh viên hợp lệ.'),
 (10, 'Early Bird Discount', 'SinglePlaytime', 20, 'Giảm giá 20% cho các lượt chơi trước 12:00 trưa.');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `rent_cues`
+--
+
+CREATE TABLE `rent_cues` (
+  `rent_cue_id` int(11) NOT NULL,
+  `order_id` int(11) DEFAULT NULL,
+  `product_id` int(11) DEFAULT NULL,
+  `start_time` timestamp NOT NULL DEFAULT current_timestamp(),
+  `end_time` timestamp NULL DEFAULT NULL,
+  `timeplay` double DEFAULT NULL,
+  `net_total` double DEFAULT NULL,
+  `subtotal` double NOT NULL,
+  `promotion_id` int(10) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `rent_cues`
+--
+
+INSERT INTO `rent_cues` (`rent_cue_id`, `order_id`, `product_id`, `start_time`, `end_time`, `timeplay`, `net_total`, `subtotal`, `promotion_id`) VALUES
+(11, 14, 1, '2024-12-31 20:00:00', '2024-12-31 22:00:00', 2, 100000, 95000, 1),
+(12, 15, 2, '2025-01-02 01:00:00', '2025-01-02 02:30:00', 1.5, 105000, 100000, 2),
+(13, 16, 3, '2025-01-03 04:00:00', '2025-01-03 06:30:00', 2.5, 250000, 240000, 3),
+(14, 17, 1, '2025-01-03 19:00:00', '2025-01-03 21:00:00', 2, 100000, 95000, 4),
+(15, 18, 2, '2025-01-05 00:00:00', '2025-01-05 01:30:00', 1.5, 105000, 100000, 5),
+(16, 19, 3, '2025-01-06 05:00:00', '2025-01-06 08:00:00', 3, 300000, 270000, 6),
+(17, 20, 1, '2025-01-06 20:00:00', '2025-01-06 21:00:00', 1, 50000, 47500, 7),
+(18, 21, 2, '2025-01-07 23:00:00', '2025-01-08 01:00:00', 2, 140000, 133000, 8),
+(19, 22, 3, '2025-01-09 02:00:00', '2025-01-09 04:30:00', 2.5, 250000, 237500, 9),
+(20, 23, 1, '2025-01-09 19:00:00', '2025-01-09 21:00:00', 2, 100000, 95000, 10);
 
 -- --------------------------------------------------------
 
@@ -444,7 +483,7 @@ ALTER TABLE `bookings`
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `customers`

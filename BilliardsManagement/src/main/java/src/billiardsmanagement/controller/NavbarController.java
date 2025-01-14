@@ -9,24 +9,18 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import javafx.event.ActionEvent;
+
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import src.billiardsmanagement.controller.orders.UpdateOrderController;
 import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.model.Order;
-import java.net.URL;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class NavbarController implements Initializable {
 
@@ -84,7 +78,7 @@ public class NavbarController implements Initializable {
     }
 
     public void order(ActionEvent actionEvent) throws IOException {
-        Parent fxml = FXMLLoader.load(getClass().getResource("/src/billiardsmanagement/order.fxml"));
+        Parent fxml = FXMLLoader.load(getClass().getResource("/src/billiardsmanagement/orders/order.fxml"));
         contentArea.getChildren().removeAll();
         contentArea.getChildren().setAll(fxml);
     }
@@ -104,7 +98,7 @@ public class NavbarController implements Initializable {
     public void addOrder(ActionEvent actionEvent) {
         try {
             // Load FXML cho form thêm Order
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/add_order.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/add_order.fxml"));
             Parent root = loader.load();
 
             // Tạo một Scene mới
@@ -128,7 +122,7 @@ public class NavbarController implements Initializable {
             int orderId = selectedOrder.getOrderId();
 
             // Load giao diện update_order.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/update_order.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/update_order.fxml"));
             Parent root = loader.load();
 
             // Lấy controller của update_order.fxml
