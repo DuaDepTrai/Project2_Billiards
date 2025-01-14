@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" alignment="CENTER" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml" fx:controller="src.billiardsmanagement.controller.category.UpdateCategoryController"
+      prefWidth="500" prefHeight="250">
+
+    <Label text="Update Category" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+    <GridPane hgap="10" vgap="10" alignment="CENTER_LEFT">
+        <Label text="Select Category:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <ComboBox fx:id="comboBoxCategory" promptText="Select category" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="New Category Name:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <TextField fx:id="txtNewCategoryName" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Upload Image:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <Label fx:id="lblImagePath" text="No file selected" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <Button text="Upload" onAction="#handleUploadImage" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Save" onAction="#handleSave" />
+        <Button text="Cancel" onAction="#handleCancel" />
+    </HBox>
+</VBox>

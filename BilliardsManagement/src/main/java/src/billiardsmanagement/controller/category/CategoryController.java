@@ -29,6 +29,10 @@ public class CategoryController {
     private FlowPane flowPaneCategories; // FlowPane chứa các thumbnail
     @FXML
     private Button btnAddNewCategory;
+    @FXML
+    private Button btnUpdateCategory;
+    @FXML
+    private Button btnRemoveCategory;
 
     private ObservableList<Category> categoryList = FXCollections.observableArrayList();
 
@@ -37,6 +41,9 @@ public class CategoryController {
 
         //button Add New Category
         btnAddNewCategory.setOnAction(event -> handleAddNewCategory());
+        btnUpdateCategory.setOnAction(event -> handleUpdateCategory());
+        btnRemoveCategory.setOnAction(event -> handleRemoveCategory());
+
 
     }
 
@@ -70,6 +77,7 @@ public class CategoryController {
         }
     }
 
+    //show category by thumbnail
     private void createCategoryThumbnail(int id, String name, String imagePath) {
         try {
             // Đường dẫn tới hình ảnh
@@ -118,6 +126,7 @@ public class CategoryController {
         alert.showAndWait();
     }
 
+    //Show products by category
     private void showProductList(int categoryId) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/products.fxml"));
@@ -138,11 +147,12 @@ public class CategoryController {
         }
     }
 
+    //Add category
     @FXML
     private void handleAddNewCategory() {
         try {
             // Load the Add Category scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/add_category.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/addCategory.fxml"));
             Parent root = loader.load();
 
             // Create a new stage for the Add Category window
@@ -167,4 +177,43 @@ public class CategoryController {
         categoryList.clear();
         loadCategories();
     }
+
+    //Update category
+    private void handleUpdateCategory() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/updateCategory.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Update Category");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+            // Refresh table when update window is closed
+            stage.setOnHidden(event -> refreshTable());
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Could not load the Update Category interface: " + e.getMessage());
+        }
+    }
+
+    //Remove category
+    private void handleRemoveCategory() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/removeCategory.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Remove Category");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+            // Refresh table when update window is closed
+            stage.setOnHidden(event -> refreshTable());
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Could not load the Remove Category interface: " + e.getMessage());
+        }
+    }
+
 }

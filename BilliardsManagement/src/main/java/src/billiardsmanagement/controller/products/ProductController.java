@@ -158,7 +158,7 @@ public class ProductController {
     private void handleAddNewProduct() {
         try {
             // Load the Add Product scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/add_product.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/addProduct.fxml"));
             Parent root = loader.load();
 
             // Create a new stage for the Add Product window
@@ -183,7 +183,7 @@ public class ProductController {
     //handleStockUp
     private void handleStockUp(){
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/stock_up.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/stockUp.fxml"));
             Parent root = loader.load();
 
             // Tạo cửa sổ mới cho Stock Up
@@ -272,7 +272,7 @@ public class ProductController {
     //Update product
     private void openUpdateWindow(Product product) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/update_product.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/updateProduct.fxml"));
             Parent root = loader.load();
 
             UpdateProductController controller = loader.getController();
