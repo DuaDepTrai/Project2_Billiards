@@ -6,7 +6,7 @@ public class Booking {
     private int bookingId;
     private int tableId;
     private int orderId;
-
+    private String bookingStatus;
     private String tableName; // [PoolTables.tableName]
     private LocalDateTime startTime;
     private LocalDateTime endTime;
@@ -15,15 +15,26 @@ public class Booking {
     private int promotionId;
     private double netTotal;
 
-    public Booking(String tableName, LocalDateTime startTime, LocalDateTime endTime, double timeplay, double subTotal) {
+    public Booking(){}
+
+
+    public Booking(String tableName, LocalDateTime startTime, LocalDateTime endTime, double timeplay, double subTotal, String bookingStatus) {
         this.tableName = tableName;
         this.startTime = startTime;
         this.endTime = endTime;
         this.timeplay = timeplay;
         this.subTotal = subTotal;
+        this.bookingStatus = bookingStatus;
     } // Constructor dùng để "đổ" data vào table
 
-    public int bookingId() {
+    public String getBookingStatus() {
+        return bookingStatus;
+    }
+
+    public void setBookingStatus(String bookingStatus) {
+        this.bookingStatus = bookingStatus;
+    }
+    public int getBookingId() {
         return bookingId;
     }
 
@@ -32,7 +43,7 @@ public class Booking {
         return this;
     }
 
-    public int tableId() {
+    public int getTableId() {
         return tableId;
     }
 
@@ -41,7 +52,7 @@ public class Booking {
         return this;
     }
 
-    public int orderId() {
+    public int getOrderId() {
         return orderId;
     }
 
@@ -50,7 +61,7 @@ public class Booking {
         return this;
     }
 
-    public String tableName() {
+    public String getTableName() {
         return tableName;
     }
 
@@ -59,7 +70,7 @@ public class Booking {
         return this;
     }
 
-    public LocalDateTime startTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
@@ -68,7 +79,7 @@ public class Booking {
         return this;
     }
 
-    public LocalDateTime endTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
@@ -77,7 +88,7 @@ public class Booking {
         return this;
     }
 
-    public double timeplay() {
+    public double getTimeplay() {
         return timeplay;
     }
 
@@ -86,7 +97,7 @@ public class Booking {
         return this;
     }
 
-    public double subTotal() {
+    public double getSubTotal() {
         return subTotal;
     }
 
@@ -95,7 +106,7 @@ public class Booking {
         return this;
     }
 
-    public int promotionId() {
+    public int getPromotionId() {
         return promotionId;
     }
 
@@ -104,7 +115,7 @@ public class Booking {
         return this;
     }
 
-    public double netTotal() {
+    public double getNetTotal() {
         return netTotal;
     }
 

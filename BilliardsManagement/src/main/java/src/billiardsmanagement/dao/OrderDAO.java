@@ -15,7 +15,7 @@ public class OrderDAO {
         String query = """
             SELECT o.order_id, o.customer_id, c.name AS customer_name, o.total_cost, o.order_status
             FROM orders o
-            JOIN customers c ON o.customer_id = c.customer_id
+            JOIN customers c ON o.customer_id = c.customer_id ORDER BY o.order_id
         """;  // Câu truy vấn SQL để lấy danh sách đơn hàng
 
         // Sử dụng DatabaseConnection để lấy kết nối
@@ -64,27 +64,32 @@ public class OrderDAO {
     }
 
     public boolean updateOrder(Order currentOrder) {
-        String query = "UPDATE orders SET  total_cost = ?, order_status = ? WHERE order_id = ?";
+        // Cập nhật câu lệnh SQL với logic tính toán total_cost
+        String query = "UPDATE orders o SET total_cost = ("
+                + "  COALESCE((SELECT oi.net_total FROM orders_items oi WHERE oi.order_id = o.order_id LIMIT 1), 0)"
+                + "  + COALESCE((SELECT rc.net_total FROM rent_cues rc WHERE rc.order_id = o.order_id LIMIT 1), 0)"
+                + "  + COALESCE((SELECT b.net_total FROM bookings b WHERE b.order_id = o.order_id LIMIT 1), 0)"
+                + "), order_status = ? WHERE order_id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            // Cập nhật các trường
-            stmt.setDouble(1, currentOrder.getTotalCost());     // total_cost
-            stmt.setString(2, currentOrder.getOrderStatus());   // order_status
-            stmt.setInt(3, currentOrder.getOrderId());          // order_id
+            // Cập nhật order_status và order_id
+            stmt.setString(1, currentOrder.getOrderStatus());   // order_status
+            stmt.setInt(2, currentOrder.getOrderId());          // order_id
 
             // Thực thi câu lệnh UPDATE
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("Order updated successfully!");
+                return true;
             }
-            return true;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
+
 
     public Order getOrderById(int orderId) {
         // Truy vấn từ database và kiểm tra dữ liệu trả về

@@ -11,13 +11,11 @@
 <?import javafx.scene.control.TableView?>
 <GridPane alignment="CENTER" hgap="10" prefHeight="196.0" prefWidth="303.0" vgap="10" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.UpdateOrderController">
 
-    <Label text="Total Cost:" GridPane.rowIndex="2" />
-    <TextField fx:id="totalCostField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+
     <TextField fx:id="orderIdField" GridPane.columnIndex="1" GridPane.rowIndex="1" visible="false" />
 
-    <TableView fx:id="orderTable" visible="false">
-        <!-- Các cột trong bảng -->
-    </TableView>
+
     <Label text="Status:" GridPane.rowIndex="3" />
     <ComboBox fx:id="orderStatusComboBox" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 

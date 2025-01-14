@@ -22,7 +22,6 @@ import java.util.List;
 
 public class UpdateOrderController {
     @FXML private TextField orderIdField;
-    @FXML private TextField totalCostField;
     @FXML private ComboBox<String> orderStatusComboBox;
 
     @FXML
@@ -50,7 +49,6 @@ public class UpdateOrderController {
         if (order != null) {
             System.out.println(order.getOrderId()); // In ra orderId
             orderIdField.setText(String.valueOf(order.getOrderId())); // order_id không thể chỉnh sửa
-            totalCostField.setText(String.valueOf(order.getTotalCost()));
             orderStatusComboBox.setValue(order.getOrderStatus());
 
             // Chọn đúng khách hàng trong ComboBox (Giả sử bạn có thông tin khách hàng trong Order)
@@ -67,11 +65,9 @@ public class UpdateOrderController {
         try {
             // Lấy thông tin từ form
             int orderId = Integer.parseInt(orderIdField.getText());
-            double totalCost = Double.parseDouble(totalCostField.getText());
             String orderStatus = orderStatusComboBox.getValue();
 
             // Cập nhật thông tin đơn hàng
-            currentOrder.setTotalCost(totalCost);
             currentOrder.setOrderStatus(orderStatus);
             // Cập nhật vào database
            boolean success = orderDAO.updateOrder(currentOrder);
@@ -108,7 +104,7 @@ public class UpdateOrderController {
     private void loadNavbarScene() {
         try {
             // Tải tệp FXML của navbar
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/navbar.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/main.fxml"));
 
             // Tạo một scene mới từ FXML
             Parent root = loader.load();

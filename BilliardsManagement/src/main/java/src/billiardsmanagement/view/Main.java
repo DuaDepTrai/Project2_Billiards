@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -23,25 +24,31 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/src/billiardsmanagement/navbar.fxml")));
-        primaryStage.initStyle(StageStyle.UNDECORATED);
-
-        root.setOnMousePressed((event->{
-            x = event.getSceneX();
-            y = event.getSceneY();
-        }));
-
-        root.setOnMouseDragged(event->{
-            primaryStage.setX(event.getScreenX()-x);
-            primaryStage.setY(event.getScreenY()-y);
-        });
-
-         Scene scene = new Scene(root, 600, 400); // scene cũ
-
-        // Manh
-//        Scene scene = new Scene(root,1000,750);
-        primaryStage.setScene(scene);
-
-        primaryStage.show();
+//        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/src/billiardsmanagement/navbar.fxml")));
+//        primaryStage.initStyle(StageStyle.UNDECORATED);
+//
+//        root.setOnMousePressed((event->{
+//            x = event.getSceneX();
+//            y = event.getSceneY();
+//        }));
+//
+//        root.setOnMouseDragged(event->{
+//            primaryStage.setX(event.getScreenX()-x);
+//            primaryStage.setY(event.getScreenY()-y);
+//        });
+//
+//         Scene scene = new Scene(root, 600, 400); // scene cũ
+//
+//        // Manh
+////        Scene scene = new Scene(root,1000,750);
+//        primaryStage.setScene(scene);
+//
+//        primaryStage.show();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/main.fxml"));
+            BorderPane root = loader.load();
+            Scene scene = new Scene(root, 800, 600);
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("Billiards Management");
+            primaryStage.show();
     }
 }
