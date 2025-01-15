@@ -8,5 +8,7 @@ module src.billiardsmanagement {
     exports src.billiardsmanagement.controller;
     exports src.billiardsmanagement.view;
     opens src.billiardsmanagement.view to javafx.fxml;
+    opens src.billiardsmanagement.model to javafx.base;
+
 }
 

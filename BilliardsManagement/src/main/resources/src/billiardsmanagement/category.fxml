@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="src.billiardsmanagement.controller.CategoryController" prefWidth="1000" prefHeight="750">
+    <ScrollPane fitToWidth="true" AnchorPane.topAnchor="10.0" AnchorPane.leftAnchor="10.0"
+                AnchorPane.rightAnchor="10.0" AnchorPane.bottomAnchor="10.0">
+        <FlowPane fx:id="flowPaneCategories" hgap="20" vgap="20" alignment="CENTER"
+                  prefWidth="980" prefHeight="730" />
+    </ScrollPane>
+    <Button fx:id="btnAddNewCategory" text="Add New Category" AnchorPane.bottomAnchor="20.0"
+            AnchorPane.rightAnchor="50.0"/>
+</AnchorPane>

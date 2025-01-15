@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" alignment="CENTER" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="src.billiardsmanagement.controller.AddCategoryController"
+      prefWidth="500" prefHeight="350">
+
+    <Label text="Add New Category" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="10" alignment="CENTER_LEFT">
+        <Label text="Category Name:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <TextField fx:id="txtName" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="300"/>
+        <Label text="Upload Image:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <Button text="Choose File" fx:id="btnUpload" onAction="#handleUploadImage" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label fx:id="lblImagePath" text="No file chosen" GridPane.rowIndex="2" GridPane.columnIndex="1" style="-fx-text-fill: gray;"/>
+
+    </GridPane>
+
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Add" onAction="#handleAdd" prefWidth="100"/>
+        <Button text="Cancel" onAction="#handleCancel" prefWidth="100"/>
+    </HBox>
+</VBox>
