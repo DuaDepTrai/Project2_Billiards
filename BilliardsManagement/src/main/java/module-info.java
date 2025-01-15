@@ -21,6 +21,8 @@ module src.billiardsmanagement {
     opens src.billiardsmanagement.controller.orders.items to javafx.fxml;
     exports src.billiardsmanagement.controller.orders.rent;
     opens src.billiardsmanagement.controller.orders.rent to javafx.fxml;
+    exports src.billiardsmanagement.dao;
+    opens src.billiardsmanagement.dao to javafx.base;
 
 }
 

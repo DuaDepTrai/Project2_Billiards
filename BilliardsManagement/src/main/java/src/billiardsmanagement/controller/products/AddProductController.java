@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.model.TestDBConnection;
 
 import java.sql.Connection;
@@ -25,6 +26,7 @@ public class AddProductController {
     private TextField txtQuantity;
 
     private ObservableList<String> categoryList = FXCollections.observableArrayList();
+    private ProductDAO productDAO = new ProductDAO();
 
     public void initialize() {
         loadCategories();
@@ -65,19 +67,12 @@ public class AddProductController {
             ResultSet resultSet = categoryStmt.executeQuery();
             int categoryId = resultSet.next() ? resultSet.getInt("category_id") : 0;
 
-            // Insert new product
-            String sql = "INSERT INTO products (name, category_id, price, unit, quantity) VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, name);
-            statement.setInt(2, categoryId);
-            statement.setDouble(3, Double.parseDouble(price));
-            statement.setString(4, unit);
-            statement.setInt(5, Integer.parseInt(quantity));
+            // Thêm sản phẩm mới
+            productDAO.addProduct(name, categoryId, Double.parseDouble(price), unit, Integer.parseInt(quantity));
 
-            statement.executeUpdate();
             System.out.println("Product added successfully!");
 
-            // Close the Add Product window
+            // Đóng cửa sổ Add Product
             Stage stage = (Stage) txtName.getScene().getWindow();
             stage.close();
         } catch (Exception e) {
