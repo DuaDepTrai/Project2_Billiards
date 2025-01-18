@@ -29,4 +29,7 @@ public class Category {
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
+    public String toString() {
+        return name;
+    }
 }
