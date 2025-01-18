@@ -5,6 +5,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import src.billiardsmanagement.model.Product;
+import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.model.TestDBConnection;
 
 import java.sql.Connection;
@@ -17,6 +18,9 @@ public class UpdateProductController {
     @FXML private TextField txtPrice;
     @FXML private TextField txtUnit;
     @FXML private TextField txtQuantity;
+
+    private int productId;  // Biến để lưu trữ product_id
+    private ProductDAO productDAO = new ProductDAO();
 
     public void initialize() {
         loadCategories();
@@ -34,7 +38,6 @@ public class UpdateProductController {
         }
     }
 
-    private int productId;  // Thêm biến để lưu trữ product_id
     public void setProductData(Product product) {
         this.productId = product.getId();  // Lưu product_id vào biến
         txtName.setText(product.getName());
@@ -65,20 +68,12 @@ public class UpdateProductController {
             ResultSet resultSet = categoryStmt.executeQuery();
             int categoryId = resultSet.next() ? resultSet.getInt("category_id") : 0;
 
-            // Update product information
-            String sql = "UPDATE products SET name = ?, category_id = ?, price = ?, unit = ?, quantity = ? WHERE product_id = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, name);
-            statement.setInt(2, categoryId);
-            statement.setDouble(3, Double.parseDouble(price));
-            statement.setString(4, unit);
-            statement.setInt(5, Integer.parseInt(quantity));
-            statement.setInt(6, productId/* Pass product id here*/);
+            // Cập nhật thông tin sản phẩm
+            productDAO.updateProduct(productId, name, categoryId, Double.parseDouble(price), unit, Integer.parseInt(quantity));
 
-            statement.executeUpdate();
             System.out.println("Product updated successfully!");
 
-            // Close the Update Product window
+            // Đóng cửa sổ Update Product
             Stage stage = (Stage) txtName.getScene().getWindow();
             stage.close();
         } catch (Exception e) {
@@ -92,4 +87,3 @@ public class UpdateProductController {
         stage.close();
     }
 }
-

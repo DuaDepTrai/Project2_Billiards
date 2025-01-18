@@ -17,12 +17,14 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.products.ProductController;
 import src.billiardsmanagement.model.Category;
+import src.billiardsmanagement.model.CategoryDAO;
 import src.billiardsmanagement.model.TestDBConnection;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.List;
 
 public class CategoryController {
     @FXML
@@ -35,49 +37,32 @@ public class CategoryController {
     private Button btnRemoveCategory;
 
     private ObservableList<Category> categoryList = FXCollections.observableArrayList();
+    private CategoryDAO categoryDAO = new CategoryDAO();
 
     public void initialize() {
         loadCategories();
 
-        //button Add New Category
+        // Button Add New Category
         btnAddNewCategory.setOnAction(event -> handleAddNewCategory());
         btnUpdateCategory.setOnAction(event -> handleUpdateCategory());
         btnRemoveCategory.setOnAction(event -> handleRemoveCategory());
-
-
     }
 
     private void loadCategories() {
         try {
-            // Lấy dữ liệu từ cơ sở dữ liệu
-            Connection connection = TestDBConnection.getConnection();
-            String sql = "SELECT c.category_id, c.category_name, c.image_path FROM category c";
-
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
-
             // Xóa danh sách cũ
             categoryList.clear();
 
-            while (resultSet.next()) {
-                int id = resultSet.getInt("category_id");
-                String name = resultSet.getString("category_name");
-                String imagePath = resultSet.getString("image_path");
-
-                // Tạo thumbnail cho mỗi danh mục
-                createCategoryThumbnail(id, name, imagePath);
+            List<Category> categories = categoryDAO.getAllCategories();
+            for (Category category : categories) {
+                createCategoryThumbnail(category.getId(), category.getName(), category.getImagePath());
             }
-
-            resultSet.close();
-            statement.close();
-            connection.close();
         } catch (Exception e) {
             e.printStackTrace();
             showError("Error loading categories: " + e.getMessage());
         }
     }
 
-    //show category by thumbnail
     private void createCategoryThumbnail(int id, String name, String imagePath) {
         try {
             // Đường dẫn tới hình ảnh
@@ -88,7 +73,6 @@ public class CategoryController {
             if (getClass().getResource(fullPath) != null) {
                 image = new Image(getClass().getResource(fullPath).toExternalForm());
             } else {
-                // Dùng ảnh mặc định nếu không tìm thấy
                 image = new Image(getClass().getResource("/src/billiardsmanagement/images/category/default.png").toExternalForm());
             }
 
@@ -126,7 +110,6 @@ public class CategoryController {
         alert.showAndWait();
     }
 
-    //Show products by category
     private void showProductList(int categoryId) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/products.fxml"));
@@ -140,56 +123,44 @@ public class CategoryController {
             Stage stage = new Stage();
             stage.setTitle("Products");
             stage.setScene(new Scene(root));
-            stage.initModality(Modality.APPLICATION_MODAL); // Chặn tương tác với cửa sổ khác
+            stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    //Add category
     @FXML
     private void handleAddNewCategory() {
         try {
-            // Load the Add Category scene
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/addCategory.fxml"));
             Parent root = loader.load();
-
-            // Create a new stage for the Add Category window
             Stage stage = new Stage();
             stage.setTitle("Add New Category");
             stage.setScene(new Scene(root));
             stage.show();
 
-            // Reload the category table after adding a new category
             stage.setOnHidden(event -> refreshTable());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    //Refresh table
-    private void refreshTable() {
-        // Xóa các phần tử cũ trong FlowPane
+    public void refreshTable() {
         flowPaneCategories.getChildren().clear();
-
-        // Xóa danh sách cũ và tải lại danh sách mới
         categoryList.clear();
         loadCategories();
     }
 
-    //Update category
     private void handleUpdateCategory() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/updateCategory.fxml"));
             Parent root = loader.load();
-
             Stage stage = new Stage();
             stage.setTitle("Update Category");
             stage.setScene(new Scene(root));
             stage.show();
 
-            // Refresh table when update window is closed
             stage.setOnHidden(event -> refreshTable());
         } catch (IOException e) {
             e.printStackTrace();
@@ -197,23 +168,19 @@ public class CategoryController {
         }
     }
 
-    //Remove category
     private void handleRemoveCategory() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/removeCategory.fxml"));
             Parent root = loader.load();
-
             Stage stage = new Stage();
             stage.setTitle("Remove Category");
             stage.setScene(new Scene(root));
             stage.show();
 
-            // Refresh table when update window is closed
             stage.setOnHidden(event -> refreshTable());
         } catch (IOException e) {
             e.printStackTrace();
             showError("Could not load the Remove Category interface: " + e.getMessage());
         }
     }
-
 }

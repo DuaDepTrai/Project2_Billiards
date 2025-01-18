@@ -1,11 +1,13 @@
 package src.billiardsmanagement.controller.category;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import src.billiardsmanagement.model.TestDBConnection;
+import src.billiardsmanagement.model.CategoryDAO;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,8 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 
 public class AddCategoryController {
     @FXML
@@ -23,9 +23,10 @@ public class AddCategoryController {
     private Label lblImagePath;
 
     private String uploadedImagePath = null; // Đường dẫn file đã upload
+    private CategoryDAO categoryDAO = new CategoryDAO();
 
     @FXML
-    private void handleAdd() {
+    private void handleAdd() throws IOException {
         String name = txtName.getText();
 
         if (name.isEmpty()) {
@@ -37,20 +38,17 @@ public class AddCategoryController {
 
         if (uploadedImagePath != null && !uploadedImagePath.isEmpty()) {
             try {
-                // Tạo thư mục đích nếu chưa tồn tại
                 File destinationDir = new File("BilliardsManagement/src/main/resources/src/billiardsmanagement/images/category");
                 if (!destinationDir.exists()) {
                     destinationDir.mkdirs();
                 }
 
-                // Đường dẫn nguồn và đích
                 Path sourcePath = Paths.get(uploadedImagePath); // File ảnh được chọn
                 finalImageName = sourcePath.getFileName().toString(); // Lấy tên file ảnh
                 Path destinationPath = Paths.get(destinationDir.getAbsolutePath(), finalImageName);
 
                 // Sao chép ảnh
                 Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("File copied to: " + destinationPath.toString());
             } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println("Error copying file: " + e.getMessage());
@@ -58,32 +56,26 @@ public class AddCategoryController {
             }
         }
 
-        try (Connection connection = TestDBConnection.getConnection()) {
-            // Chèn category mới vào cơ sở dữ liệu
-            String sql = "INSERT INTO category (category_name, image_path) VALUES (?, ?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, name);
-            statement.setString(2, finalImageName);
+        // Thêm danh mục mới vào DB
+        categoryDAO.addCategory(name, finalImageName);
+        System.out.println("Category added successfully!");
 
-            statement.executeUpdate();
-            System.out.println("Category added successfully!");
+        // Tìm controller của CategoryController và gọi refreshTable()
+        Stage stage = (Stage) txtName.getScene().getWindow();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/category.fxml"));
+        Parent root = loader.load();
+        CategoryController categoryController = loader.getController();
+        categoryController.refreshTable();
 
-            // Đóng cửa sổ Add Category
-            Stage stage = (Stage) txtName.getScene().getWindow();
-            stage.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error adding category to database: " + e.getMessage());
-        }
+        // Đóng cửa sổ Add Category
+        stage.close();
     }
 
     @FXML
     private void handleUploadImage() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose Image File");
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
-        );
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
 
         File file = fileChooser.showOpenDialog(txtName.getScene().getWindow());
         if (file != null) {
