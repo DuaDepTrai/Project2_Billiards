@@ -13,11 +13,9 @@
             <TableColumn fx:id="endTimeColumn" prefWidth="122.0" text="End Time" />
             <TableColumn fx:id="timeplayColumn" prefWidth="100.0" text="Timeplay" />
             <TableColumn fx:id="priceColumn" prefWidth="145.0" text="Price" />
-         <TableColumn fx:id="statusColumn" prefWidth="75.0" text="Status" />
+            <TableColumn fx:id="statusColumn" prefWidth="75.0" text="Status" />
             <TableColumn fx:id="costColumn" prefWidth="135.0" text="Cost" />
         </columns>
     </TableView>
-    <Button fx:id="addNewBooking" onAction="#addBooking" prefWidth="130" text="Add New Booking" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="0.0" />
-    <Button fx:id="editBooking" prefWidth="110" text="Edit Booking" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="140.0" />
-    <Button fx:id="deleteBooking" prefWidth="130" text="Delete Booking" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="260.0" />
+
 </AnchorPane>

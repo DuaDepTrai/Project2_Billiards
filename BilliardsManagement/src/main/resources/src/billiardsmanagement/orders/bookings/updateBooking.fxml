@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.HBox?>
+
+<VBox xmlns="http://javafx.com/javafx/23.0.1"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="src.billiardsmanagement.controller.orders.bookings.UpdateBookingController"
+      spacing="10"
+      alignment="CENTER"
+      prefWidth="300" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      >
+
+    <Label text="Trạng Thái Bàn"
+           style="-fx-font-weight: bold; -fx-alignment: center;"/>
+
+    <VBox spacing="10" alignment="CENTER" prefWidth="250">
+        <RadioButton fx:id="preBookedRadio"
+                     text="Đã được đặt trước"
+                     toggleGroup="$tableStatusGroup"
+                     style="-fx-padding: 5px; -fx-alignment: center-left;"
+                     maxWidth="Infinity"/>
+
+        <RadioButton fx:id="occupiedRadio"
+                     text="Đang có người chơi"
+                     toggleGroup="$tableStatusGroup"
+                     style="-fx-padding: 5px; -fx-alignment: center-left;"
+                     maxWidth="Infinity"/>
+
+        <RadioButton fx:id="finishedRadio"
+                     text="Đã kết thúc"
+                     toggleGroup="$tableStatusGroup"
+                     style="-fx-padding: 5px; -fx-alignment: center-left;"
+                     maxWidth="Infinity"/>
+    </VBox>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Cập Nhật"
+                onAction="#updateBooking"/>
+
+        <Button text="Hủy"
+                onAction="#handleCancel"/>
+    </HBox>
+</VBox>

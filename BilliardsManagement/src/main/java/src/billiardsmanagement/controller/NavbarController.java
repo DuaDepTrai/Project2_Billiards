@@ -77,7 +77,7 @@ public class NavbarController implements Initializable {
 
     @FXML
     private void showOrder() {
-        loadPage("/src/billiardsmanagement/order.fxml");
+        loadPage("/src/billiardsmanagement/orders/order.fxml");
     }
 
     @FXML

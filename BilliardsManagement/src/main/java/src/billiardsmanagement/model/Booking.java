@@ -1,5 +1,6 @@
 package src.billiardsmanagement.model;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 public class Booking {
@@ -13,6 +14,8 @@ public class Booking {
     private double timeplay;
     private double subTotal;
     private int promotionId;
+
+
     private double netTotal;
 
     public Booking(){}
@@ -27,9 +30,37 @@ public class Booking {
         this.bookingStatus = bookingStatus;
     } // Constructor dùng để "đổ" data vào table
 
-    public String getBookingStatus() {
-        return bookingStatus;
+
+    public Booking(int orderId, int tableId, Timestamp timeStamp, String bookingStatus) {
+        this.orderId = orderId;
+        this.tableId = tableId;
+        this.startTime = timeStamp.toLocalDateTime();
+        this.bookingStatus = bookingStatus;
     }
+
+    public Booking(int bookingId, int orderId, int tableId, String tableName, LocalDateTime localDateTime, LocalDateTime localDateTime1, double timeplay, double netTotal, double subtotal, String bookingStatus, int promotionId) {
+        this.bookingId = bookingId;
+        this.orderId = orderId;
+        this.tableId = tableId;
+        this.tableName = tableName;
+        this.startTime = localDateTime;
+        this.endTime = localDateTime1;
+        this.timeplay = timeplay;
+        this.netTotal = netTotal;
+        this.subTotal = subtotal;
+        this.bookingStatus = bookingStatus;
+        this.promotionId = promotionId;
+
+    }
+
+
+    public String getTableName() { return tableName; }
+    public Timestamp getStartTime() { return Timestamp.valueOf(startTime); }
+    public LocalDateTime getEndTime() { return endTime; }
+    public double getTimeplay() { return timeplay; }
+    public double getSubTotal() { return subTotal; }
+    public double getNetTotal() { return netTotal; }
+    public String getBookingStatus() { return bookingStatus; }
 
     public void setBookingStatus(String bookingStatus) {
         this.bookingStatus = bookingStatus;
@@ -61,35 +92,10 @@ public class Booking {
         return this;
     }
 
-    public String getTableName() {
-        return tableName;
-    }
-
-    public Booking setTableName(String tableName) {
-        this.tableName = tableName;
-        return this;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public Booking setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-        return this;
-    }
-
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
 
     public Booking setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
         return this;
-    }
-
-    public double getTimeplay() {
-        return timeplay;
     }
 
     public Booking setTimeplay(double timeplay) {
@@ -97,9 +103,7 @@ public class Booking {
         return this;
     }
 
-    public double getSubTotal() {
-        return subTotal;
-    }
+
 
     public Booking setSubTotal(double subTotal) {
         this.subTotal = subTotal;
@@ -115,12 +119,38 @@ public class Booking {
         return this;
     }
 
-    public double getNetTotal() {
-        return netTotal;
-    }
 
     public Booking setNetTotal(double netTotal) {
         this.netTotal = netTotal;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Booking{" +
+                "bookingId=" + bookingId +
+                ", tableId=" + tableId +
+                ", orderId=" + orderId +
+                ", bookingStatus='" + bookingStatus + '\'' +
+                ", tableName='" + tableName + '\'' +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", timeplay=" + timeplay +
+                ", subTotal=" + subTotal +
+                ", promotionId=" + promotionId +
+                ", netTotal=" + netTotal +
+                '}';
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getTableStatus() {
+        return bookingStatus;
     }
 }
