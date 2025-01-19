@@ -6,7 +6,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane style="-fx-padding: 10;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.AddOrderItemController">
+<AnchorPane style="-fx-padding: 10;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.items.AddOrderItemController">
     <Label layoutX="15.0" layoutY="26.0" text="Product Name: " />
     <ComboBox fx:id="productNameComboBox" layoutX="108.0" layoutY="21.0" style="-fx-pref-width: 170.0;" />
 

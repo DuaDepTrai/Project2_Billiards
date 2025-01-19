@@ -4,6 +4,10 @@ public class Order {
     private int orderId;
     private int customerId;
     private String customerName; // Để hiển thị tên khách hàng từ bảng `customers`
+    private String customerPhone;
+
+    private String currentTableName;
+
     private double totalCost;
     private String orderStatus;
 
@@ -66,6 +70,22 @@ public class Order {
 
     public void setOrderStatus(String orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+    
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
+    }
+    
+    public String getCurrentTableName() {
+        return currentTableName;
+    }
+    
+    public void setCurrentTableName(String currentTableName) {
+        this.currentTableName = currentTableName;
     }
 
     @Override

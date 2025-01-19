@@ -6,7 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import src.billiardsmanagement.model.Category;
-import src.billiardsmanagement.model.CategoryDAO;
+import src.billiardsmanagement.dao.CategoryDAO;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

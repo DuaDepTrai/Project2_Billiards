@@ -201,8 +201,6 @@ public class OrderController implements Initializable {
                 ForEachOrderController controller = loader.getController();
                 controller.setOrderID(orderId); // Truyền orderId
 
-
-
                 // Kiểm tra orderID (debug)
                 System.out.println("Order ID in BookingController: " + orderId);
 

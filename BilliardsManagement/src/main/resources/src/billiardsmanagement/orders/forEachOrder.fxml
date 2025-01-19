@@ -8,7 +8,7 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
 
-<AnchorPane prefHeight="584.0" prefWidth="770.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
+<AnchorPane prefHeight="584.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
 
     <!-- Top Information Section -->
     <HBox spacing="10" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="0.0">
@@ -20,7 +20,7 @@
 
     <!-- Booking Pane -->
     <AnchorPane fx:id="bookingPane" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0">
-        <TableView fx:id="bookingPoolTable" prefHeight="100.0" prefWidth="750.0">
+        <TableView fx:id="bookingPoolTable" prefHeight="100.0" prefWidth="830.0">
             <columns>
                 <TableColumn fx:id="tableNameColumn" prefWidth="133.5" text="Table Name" />
                 <TableColumn fx:id="startTimeColumn" prefWidth="113.5" text="Start Time" />
@@ -38,31 +38,39 @@
 
     <!-- Order Items Pane -->
     <AnchorPane fx:id="orderPane" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="200.0">
-        <TableView fx:id="orderItemsTable" layoutY="-27.0" prefHeight="185.0" prefWidth="750.0">
+        <TableView fx:id="orderItemsTable" layoutY="-8.0" prefHeight="166.0" prefWidth="830.0">
             <columns>
-                <TableColumn fx:id="productNameColumn" prefWidth="231.5" text="Product Name" />
-                <TableColumn fx:id="quantityColumn" prefWidth="166.5" text="Quantity" />
-                <TableColumn fx:id="priceOrderItemColumn" prefWidth="183.5" text="Price" />
-                <TableColumn fx:id="costOrderItemColumn" prefWidth="167.0" text="Cost" />
+                <TableColumn fx:id="productNameColumn" prefWidth="245.5" text="Product Name" />
+                <TableColumn fx:id="quantityColumn" prefWidth="170.0" text="Quantity" />
+                <TableColumn fx:id="priceOrderItemColumn" prefWidth="213.5" text="Price" />
+                <TableColumn fx:id="costOrderItemColumn" prefWidth="200.0" text="Cost" />
             </columns>
         </TableView>
         <Button fx:id="addOrderItem" onAction="#addOrderItem" prefWidth="130" text="Add Order Item" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="0.0" />
-        <Button fx:id="editOrderItem" prefWidth="110" text="Edit Order Item" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="140.0" />
-        <Button fx:id="deleteOrderItem" prefWidth="130" text="Delete Order Item" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="260.0" />
+        <Button fx:id="editOrderItem" onAction="#updateOrderItem" prefWidth="110" text="Edit Order Item" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="140.0" />
+        <Button fx:id="deleteOrderItem" onAction="#deleteOrderItem" prefWidth="130" text="Delete Order Item" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="260.0" />
     </AnchorPane>
 
     <!-- Rent Cue Pane -->
     <AnchorPane fx:id="rentCuePane" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="450.0">
-        <TableView fx:id="rentCueTable" layoutY="-31.0" prefHeight="79.0" prefWidth="750.0">
+        <TableView fx:id="rentCueTable" layoutY="-52.0" prefHeight="100.0" prefWidth="830.0">
             <columns>
-                <TableColumn fx:id="productNameCue" prefWidth="199.0" text="Product Name" />
-                <TableColumn fx:id="startTime" prefWidth="141.0" text="Start Time" />
-                <TableColumn fx:id="timeplay" prefWidth="124.0" text="Timeplay" />
-                <TableColumn fx:id="priceCue" prefWidth="153.0" text="Price" />
-                <TableColumn fx:id="costCue" prefWidth="89.5" text="Cost" />
-                <TableColumn fx:id="endTime" prefWidth="133.5" text="End Time" />
+                <TableColumn fx:id="productNameCue" prefWidth="176.5" text="Product Name" />
+                <TableColumn fx:id="startTimeCue" prefWidth="97.5" text="Start Time" />
+                <TableColumn fx:id="timeplayCue" prefWidth="65.0" text="Timeplay" />
+                <TableColumn fx:id="priceCue" prefWidth="82.0" text="Price" />
+                <TableColumn fx:id="costCue" prefWidth="75.0" text="Cost" />
+                <TableColumn fx:id="endTimeCue" minWidth="4.0" prefWidth="95.5" text="End Time" />
+                <TableColumn fx:id="quantityCue" prefWidth="57.0" text="Quantity" />
+                <TableColumn fx:id="promotionCue" prefWidth="114.5" text="Promotion" />
+                <TableColumn fx:id="statusCue" prefWidth="70.0" text="Status" />
             </columns>
         </TableView>
+        <Button fx:id="addRentCue" onAction="#addRentCue" prefWidth="130" text="Add Rent Cue" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="0.0" />
+        <Button fx:id="editRentCue" onAction="#updateRentCue" prefWidth="110" text="Edit Rent Cue" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="140.0" />
+        <Button fx:id="deleteRentCue" onAction="#deleteRentCue" prefWidth="130" text="Delete Rent Cue" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="260.0" />
+        <Button fx:id="endCueRental" onAction="#endCueRental" prefWidth="130" text="End This Cue Rental" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="400.0" />
+
     </AnchorPane>
 
     <!-- Text Labels -->
@@ -72,10 +80,10 @@
     <Text fx:id="tableStatusText" layoutX="580.0" layoutY="25.0" text="Table Status: " />
 
     <!-- Dynamic Text Data -->
-    <Text fx:id="customerNameData" layoutX="110.0" layoutY="25.0" text="Nguyen Manh" />
-    <Text fx:id="phoneData" layoutX="275.0" layoutY="25.0" text="0963872314" />
-    <Text fx:id="currentTableData" layoutX="493.0" layoutY="24.0" text="VIP1" />
-    <Text fx:id="tableStatusData" layoutX="656.0" layoutY="25.0" text="Playing" />
+    <Text fx:id="customerNameData" layoutX="110.0" layoutY="25.0" />
+    <Text fx:id="phoneData" layoutX="275.0" layoutY="25.0" />
+    <Text fx:id="currentTableData" layoutX="493.0" layoutY="24.0" />
+    <Text fx:id="tableStatusData" layoutX="656.0" layoutY="25.0" />
 
     <!-- Action Buttons -->
     <HBox spacing="30" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="120.0">

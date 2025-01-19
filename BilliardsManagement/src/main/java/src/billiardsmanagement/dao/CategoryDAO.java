@@ -1,10 +1,13 @@
-package src.billiardsmanagement.model;
+package src.billiardsmanagement.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+
+import src.billiardsmanagement.model.Category;
+import src.billiardsmanagement.model.TestDBConnection;
 
 public class CategoryDAO {
 

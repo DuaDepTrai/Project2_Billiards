@@ -10,7 +10,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import src.billiardsmanagement.model.Category;
-import src.billiardsmanagement.model.CategoryDAO;
+import src.billiardsmanagement.dao.CategoryDAO;
 import src.billiardsmanagement.model.TestDBConnection;
 
 import java.io.File;

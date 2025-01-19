@@ -310,7 +310,8 @@ CREATE TABLE `rent_cues` (
   `timeplay` double DEFAULT NULL,
   `net_total` double DEFAULT NULL,
   `subtotal` double NOT NULL,
-  `promotion_id` int(10) UNSIGNED DEFAULT NULL
+  `promotion_id` int(10) UNSIGNED DEFAULT NULL,
+  `quantity` int(10) default 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

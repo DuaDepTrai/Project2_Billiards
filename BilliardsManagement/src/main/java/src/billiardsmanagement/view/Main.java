@@ -46,7 +46,8 @@ public class Main extends Application {
 //        primaryStage.show();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/main.fxml"));
             BorderPane root = loader.load();
-            Scene scene = new Scene(root, 800, 600);
+            // Scene scene = new Scene(root, 800, 600);
+            Scene scene = new Scene(root,1000,750);
             primaryStage.setScene(scene);
             primaryStage.setTitle("Billiards Management");
             primaryStage.show();

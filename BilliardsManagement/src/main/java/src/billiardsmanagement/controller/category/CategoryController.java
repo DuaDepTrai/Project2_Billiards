@@ -16,8 +16,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.products.ProductController;
+import src.billiardsmanagement.dao.CategoryDAO;
 import src.billiardsmanagement.model.Category;
-import src.billiardsmanagement.model.CategoryDAO;
 import src.billiardsmanagement.model.TestDBConnection;
 
 import java.io.IOException;
