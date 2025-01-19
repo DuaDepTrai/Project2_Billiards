@@ -561,6 +561,7 @@ public class ForEachOrderController implements Initializable {
         }
     }
 
+    // Sửa thêm, sao cho không thể end một hàng rentcue 2 lần
     @FXML
     public void endCueRental(ActionEvent event) {
         try {
