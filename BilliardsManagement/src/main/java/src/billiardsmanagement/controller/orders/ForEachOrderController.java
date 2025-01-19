@@ -407,6 +407,7 @@ public class ForEachOrderController implements Initializable {
 
             loadOrderDetail();
         } catch (IOException e) {
+            e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to load Add Booking form.");
         }
     }
