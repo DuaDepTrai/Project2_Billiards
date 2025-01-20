@@ -8,7 +8,7 @@
 <AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.rent.RentCueController">
     <!-- TableView -->
 
-
+ủa
     <!-- Buttons below TableView -->
     <Button fx:id="addRentCue" prefWidth="130" text="Add Rent Cue" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="0.0" />
     <Button fx:id="editRentCue" prefWidth="110" text="Edit Rent Cue" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="140.0" />

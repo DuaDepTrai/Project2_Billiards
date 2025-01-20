@@ -32,7 +32,7 @@ public class UpdateOrderController {
 
     // Khởi tạo combo box trạng thái đơn hàng
     private void initializeOrderStatusComboBox() {
-        ObservableList<String> statuses = FXCollections.observableArrayList("đã book", "đang chơi", "kết thúc");
+        ObservableList<String> statuses = FXCollections.observableArrayList("Pending", "Paid", "Canceled");
         orderStatusComboBox.setItems(statuses);
     }
 

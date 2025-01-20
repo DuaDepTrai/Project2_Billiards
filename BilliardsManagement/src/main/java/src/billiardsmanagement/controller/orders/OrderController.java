@@ -192,7 +192,7 @@ public class OrderController implements Initializable {
             if (selectedOrder != null) {
                 // Lấy orderId từ selectedOrder
                 int orderId = selectedOrder.getOrderId();
-
+                int customerId = selectedOrder.getCustomerId();
                 // Tạo loader và tải forEachOrder.fxml
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
                 Parent root = loader.load();
@@ -200,6 +200,7 @@ public class OrderController implements Initializable {
                 // Lấy controller của ForEachOrderController
                 ForEachOrderController controller = loader.getController();
                 controller.setOrderID(orderId); // Truyền orderId
+                controller.setCustomerID(customerId);
 
                 // Kiểm tra orderID (debug)
                 System.out.println("Order ID in BookingController: " + orderId);

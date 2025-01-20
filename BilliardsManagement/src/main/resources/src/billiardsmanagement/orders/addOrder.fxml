@@ -20,9 +20,9 @@
     <ComboBox fx:id="statusComboBox" GridPane.columnIndex="1" GridPane.rowIndex="2">
         <items>
             <FXCollections fx:factory="observableArrayList">
-                <String fx:value="Đã book" />
-                <String fx:value="Đang chơi" />
-                <String fx:value="Kết thúc" />
+                <String fx:value="Pending" />
+                <String fx:value="Paid" />
+                <String fx:value="Canceled" />
             </FXCollections>
         </items>
     </ComboBox>

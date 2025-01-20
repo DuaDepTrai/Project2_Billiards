@@ -23,7 +23,8 @@ import src.billiardsmanagement.model.*;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.SQLException;
+import java.sql.*;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -43,6 +44,14 @@ public class ForEachOrderController implements Initializable {
     @FXML
     private TableView<RentCue> rentCueTable;
 
+    @FXML
+    private Text customerText;
+
+    @FXML
+    private Text phoneText;
+
+    @FXML
+    private Text orderStatusText;
     // Bookings
     @FXML
     private TableColumn<Booking, String> tableNameColumn;
@@ -121,11 +130,13 @@ public class ForEachOrderController implements Initializable {
     private final ObservableList<RentCue> rentCueList = FXCollections.observableArrayList();
     
     private final BookingDAO bookingDAO = new BookingDAO();
+    private final OrderDAO orderDAO = new OrderDAO();
+    private final CustomerDAO customerDAO = new CustomerDAO();
     private final OrderItemDAO orderItemDAO = new OrderItemDAO();
     private final RentCueDAO rentCueDAO = new RentCueDAO();
 
     private int orderID;
-
+    private int customerID;
     public void setOrderID(int orderID) {
         this.orderID = orderID;
         if (orderID > 0) {
@@ -163,6 +174,7 @@ public class ForEachOrderController implements Initializable {
     }
 
     private void loadRentCue() {
+
         // Retrieve rent cue items for the current order
         List<RentCue> rentCues = new ArrayList<>();
 
@@ -206,8 +218,43 @@ public class ForEachOrderController implements Initializable {
         });
 
         timeplayColumn.setCellValueFactory(new PropertyValueFactory<>("timeplay"));
+
+// Sử dụng CellFactory để làm tròn giá trị đến chữ số thập phân thứ nhất
+        timeplayColumn.setCellFactory(column -> {
+            return new TableCell<Booking, Double>() {
+                @Override
+                protected void updateItem(Double item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        // Làm tròn số và hiển thị ra dưới dạng chuỗi
+                        setText(String.format("%.1f", item));  // Làm tròn đến 1 chữ số thập phân
+                    }
+                }
+            };
+        });
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
+        priceColumn.setCellFactory(column -> new TableCell<>() {
+            private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
+
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                setText((empty || item == null) ? null : decimalFormat.format(item));
+            }
+        });
+
         costColumn.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
+        costColumn.setCellFactory(column -> new TableCell<>() {
+            private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
+
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                setText((empty || item == null) ? null : decimalFormat.format(item));
+            }
+        });
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("bookingStatus"));
     }
 
@@ -264,37 +311,10 @@ public class ForEachOrderController implements Initializable {
             phoneData.setText(order.getCustomerPhone()!=null ? order.getCustomerPhone() : "");
             currentTableData.setText(order.getCurrentTableName()!=null ? order.getCurrentTableName() : "");
             
-            OrderStatus status = OrderStatus.valueOf(order.getOrderStatus());
-            tableStatusData.setText(convertOrderStatusToDisplayString(status));
-            tableStatusData.setStyle(getStyleForStatus(status));
+
         }
     }
-    
-    private String convertOrderStatusToDisplayString(OrderStatus status) {
-        switch (status) {
-            case Booked:
-                return "Đã được đặt trước";
-            case Playing:
-                return "Đang chơi";
-            case Finished:
-                return "Đã kết thúc";
-            default:
-                return "Không Xác Định";
-        }
-    }
-    
-    private String getStyleForStatus(OrderStatus status) {
-        switch (status) {
-            case Booked:
-                return "-fx-text-fill: orange;";
-            case Playing:
-                return "-fx-text-fill: green;";
-            case Finished:
-                return "-fx-text-fill: gray;";
-            default:
-                return "-fx-text-fill: black;";
-        }
-    }
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -331,6 +351,10 @@ public class ForEachOrderController implements Initializable {
             return;
         }
 
+        if (selectedBooking.getBookingStatus().equals("finish")) {
+            showAlert(Alert.AlertType.WARNING, "Can't Update", "Please select a booking different to update.");
+            return;
+        }
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bookings/updateBooking.fxml"));
             Parent root = loader.load();
@@ -362,7 +386,10 @@ public class ForEachOrderController implements Initializable {
             showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a booking to delete.");
             return;
         }
-
+        if (selectedBooking.getBookingStatus().equals("finish")) {
+            showAlert(Alert.AlertType.WARNING, "Can't Delete", "Please select a booking different to update.");
+            return;
+        }
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmationAlert.setTitle("Delete Confirmation");
         confirmationAlert.setHeaderText("Are you sure you want to delete this booking?");
@@ -488,22 +515,22 @@ public class ForEachOrderController implements Initializable {
 
     // Rent Cue Functions
     public void addRentCue(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/rent/addRentCue.fxml"));
-            Parent root = loader.load();
-
-            AddRentCueController addRentCueController = loader.getController();
-            addRentCueController.setOrderId(orderID);
-            
-            Stage stage = new Stage();
-            stage.setTitle("Add new Rent Cue");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
-
-            loadRentCue();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/rent/addRentCue.fxml"));
+//            Parent root = loader.load();
+//
+//            AddRentCueController addRentCueController = loader.getController();
+//            addRentCueController.setOrderId(orderID);
+//
+//            Stage stage = new Stage();
+//            stage.setTitle("Add new Rent Cue");
+//            stage.setScene(new Scene(root));
+//            stage.showAndWait();
+//
+//            loadRentCue();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     @FXML
@@ -622,6 +649,115 @@ public class ForEachOrderController implements Initializable {
             }
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể kết thúc thuê cơ: " + e.getMessage());
+        }
+    }
+
+    public void stopBooking(ActionEvent event) {
+        Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
+
+        if (selectedBooking == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a booking to update.");
+            return;
+        }
+        if (selectedBooking.getBookingStatus().equals("finish") || selectedBooking.getBookingStatus().equals("order")) {
+            showAlert(Alert.AlertType.WARNING, "Can't Stop", "Please select a booking different to stop.");
+            return;
+        }
+
+        if(selectedBooking.getEndTime() != null){
+            showAlert(Alert.AlertType.WARNING, "Can't Stop", "Please select a booking different to stop.");
+            return;
+        }
+
+        int bookingId = selectedBooking.getBookingId();  // Giả sử bạn có phương thức này trong class Booking
+        Timestamp startTime = selectedBooking.getStartTime();
+        int poolTableId = selectedBooking.getTableId();  // Giả sử có phương thức này
+
+        try (Connection conn = DatabaseConnection.getConnection()){
+            // Bắt đầu một transaction
+            conn.setAutoCommit(false);
+
+            // Lấy thời gian hiện tại (endtime)
+            String currentTimeQuery = "SELECT NOW()";
+            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(currentTimeQuery)) {
+                rs.next();
+                Timestamp currentTime = rs.getTimestamp(1);
+
+                // Tính thời gian chơi (timeplay) theo phút
+                String timeplayQuery = "SELECT TIMESTAMPDIFF(MINUTE, ?, ?) AS timeplay";
+                try (PreparedStatement timeplayStmt = conn.prepareStatement(timeplayQuery)) {
+                    timeplayStmt.setTimestamp(1, startTime);
+                    timeplayStmt.setTimestamp(2, currentTime);
+                    try (ResultSet timeplayRs = timeplayStmt.executeQuery()) {
+                        timeplayRs.next();
+                        int timeplayInMinutes = timeplayRs.getInt("timeplay");
+
+                        // Chuyển thời gian chơi từ phút sang giờ
+                        double timeplayInHours = timeplayInMinutes / 60.0; // Chia cho 60 để có số giờ
+                        Double.parseDouble(String.format("%.1f", timeplayInHours)); // Làm tròn đến 1 chữ số thập phân
+
+                        // Lấy giá của bàn pool từ bảng pooltables
+                        String priceQuery = "SELECT price FROM pooltables WHERE table_id = ?";
+                        try (PreparedStatement priceStmt = conn.prepareStatement(priceQuery)) {
+                            priceStmt.setInt(1, poolTableId);
+                            try (ResultSet priceRs = priceStmt.executeQuery()) {
+                                priceRs.next();
+                                double price = priceRs.getDouble("price");
+                                        
+                                // Tính subtotal
+                                double subtotal = timeplayInHours * price;
+
+                                // Cập nhật thông tin vào bảng bookings
+                                String updateQuery = "UPDATE bookings SET end_time = ?, timeplay = ?, subtotal = ? WHERE booking_id = ?";
+                                try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+                                    updateStmt.setTimestamp(1, currentTime);
+                                    updateStmt.setDouble(2, timeplayInHours);
+                                    updateStmt.setDouble(3, subtotal);
+                                    updateStmt.setInt(4, bookingId);
+                                    updateStmt.executeUpdate();
+
+                                    // Commit transaction
+                                    conn.commit();
+
+                                    // Thông báo thành công
+                                    showAlert(Alert.AlertType.INFORMATION, "Booking Stopped", "Booking has been stopped and updated.");
+                                    loadBookings();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+            // Nếu có lỗi, rollback transaction
+            try (Connection conn = DatabaseConnection.getConnection()) {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to stop booking: " + e.getMessage());
+        }
+    }
+
+    public void setCustomerID(int customerId) {
+        this.customerID = customerId;
+        if(customerId > 0 ){
+            loadInfo();
+        }
+    }
+
+    private void loadInfo() {
+        List<Customer> customerList = customerDAO.getInfoCustomer(customerID);
+        Order  orderList = orderDAO.getOrderById(orderID);
+
+        if(customerList != null && !customerList.isEmpty() && orderList != null ){
+            Customer customer = customerList.get(0);
+
+            customerText.setText(customer.getName());
+            phoneText.setText(customer.getPhone());
+            orderStatusText.setText(orderList.getOrderStatus());
         }
     }
 }

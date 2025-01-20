@@ -1,5 +1,7 @@
 package src.billiardsmanagement.controller.orders;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -10,32 +12,52 @@ import src.billiardsmanagement.dao.CustomerDAO;
 import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.model.Order;
 
-import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class AddOrderController {
     @FXML
-    private ComboBox<Integer> customerIdComboBox; // ComboBox để hiển thị customer_id
+    private ComboBox<String> customerIdComboBox;
     @FXML
     private TextField totalCostField;
 
     @FXML
     private ComboBox<String> statusComboBox;
+
+    private Map<String, Integer> customerNameToIdMap; // Lưu trữ bản đồ customer_name -> customer_id
+
     @FXML
     private void initialize() {
-        // Lấy danh sách customer_id từ CustomerDAO và thêm vào ComboBox
+        // Lấy danh sách customer_id và customer_name từ CustomerDAO
         CustomerDAO customerDAO = new CustomerDAO();
-        List<Integer> customerIds = customerDAO.getAllCustomerIds();
-        customerIdComboBox.getItems().addAll(customerIds);
+        Map<Integer, String> customerMap = customerDAO.getAllCustomerIds();
+
+        // Đảo ngược Map từ customerMap (lấy tên khách hàng làm key và customer_id làm value)
+        customerNameToIdMap = customerMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+
+        // Thêm tên khách hàng vào ComboBox (để người dùng chọn tên khách hàng)
+        customerIdComboBox.getItems().addAll(customerNameToIdMap.keySet());
+
+
+
     }
 
     public void saveOrder(ActionEvent actionEvent) {
         try {
             // Lấy dữ liệu từ các trường
-            Integer customerId = customerIdComboBox.getValue(); // Lấy giá trị từ ComboBox (nên kiểm tra giá trị null)
-            if (customerId == null) {
-                throw new IllegalArgumentException("Vui lòng chọn Customer ID.");
+            String customerName = customerIdComboBox.getValue();
+            if (customerName == null) {
+                throw new IllegalArgumentException("Vui lòng chọn Customer.");
             }
 
+            // Lấy customer_id từ customerName (sử dụng customerNameToIdMap)
+            Integer customerId = customerNameToIdMap.get(customerName);
+            if (customerId == null) {
+                throw new IllegalArgumentException("Không tìm thấy Customer ID.");
+            }
+
+            // Kiểm tra tổng chi phí
             double totalCost;
             try {
                 totalCost = Double.parseDouble(totalCostField.getText());
@@ -43,7 +65,8 @@ public class AddOrderController {
                 throw new IllegalArgumentException("Tổng chi phí phải là một số hợp lệ.");
             }
 
-            String status = statusComboBox.getValue(); // Lấy giá trị được chọn từ ComboBox
+            // Kiểm tra trạng thái
+            String status = statusComboBox.getValue();
             if (status == null || status.isEmpty()) {
                 throw new IllegalArgumentException("Vui lòng chọn trạng thái.");
             }
@@ -73,5 +96,4 @@ public class AddOrderController {
             alert.showAndWait();
         }
     }
-
 }

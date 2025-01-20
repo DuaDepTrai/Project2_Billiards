@@ -13,7 +13,10 @@ public class Customer {
         this.phone = phone;
         this.totalPlaytime = totalPlaytime;
     }
-
+    public Customer (String name, String phone){
+        this.name = name;
+        this.phone = phone;
+    }
     // Getter and Setter methods
     public int getCustomerId() {
         return customerId;
