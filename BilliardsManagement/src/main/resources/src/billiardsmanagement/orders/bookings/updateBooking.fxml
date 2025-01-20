@@ -24,13 +24,7 @@
                      toggleGroup="$tableStatusGroup"
                      style="-fx-padding: 5px; -fx-alignment: center-left;"
                      maxWidth="Infinity"/>
-
-        <RadioButton fx:id="occupiedRadio"
-                     text="Đang có người chơi"
-                     toggleGroup="$tableStatusGroup"
-                     style="-fx-padding: 5px; -fx-alignment: center-left;"
-                     maxWidth="Infinity"/>
-
+                     
         <RadioButton fx:id="finishedRadio"
                      text="Đã kết thúc"
                      toggleGroup="$tableStatusGroup"
