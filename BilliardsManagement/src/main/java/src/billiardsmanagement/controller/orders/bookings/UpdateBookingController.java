@@ -23,7 +23,7 @@ public class UpdateBookingController {
     // private Label timeplayLabel;
 
     @FXML
-    private RadioButton preBookedRadio;
+    private RadioButton playingRadio;
 
     @FXML
     private RadioButton finishedRadio;
@@ -43,7 +43,7 @@ public class UpdateBookingController {
         tableStatusGroup = new ToggleGroup();
 
         // Gán ToggleGroup cho các RadioButton
-        preBookedRadio.setToggleGroup(tableStatusGroup);
+        playingRadio.setToggleGroup(tableStatusGroup);
         finishedRadio.setToggleGroup(tableStatusGroup);
     }
 
@@ -89,7 +89,7 @@ public class UpdateBookingController {
         //         readyToPlayRadio.setSelected(true);
         //         break;
         //     case "Đã được đặt trước":
-        //         preBookedRadio.setSelected(true);
+        //         playingRadio.setSelected(true);
         //         break;
         //     case "Đã có người chơi":
         //         occupiedRadio.setSelected(true);
@@ -119,9 +119,9 @@ public class UpdateBookingController {
         // Lấy text của radio button được chọn
         String newTableStatus = "";
         String newBookingStatus = "";
-        if (selectedRadio == preBookedRadio) {
-            newTableStatus = "Ordered";
-            newBookingStatus = "order";
+        if (selectedRadio == playingRadio) {
+            newTableStatus = "Playing";
+            newBookingStatus = "playing";
         } else if (selectedRadio == finishedRadio) {
             newTableStatus = "Available";
             newBookingStatus = "finish";

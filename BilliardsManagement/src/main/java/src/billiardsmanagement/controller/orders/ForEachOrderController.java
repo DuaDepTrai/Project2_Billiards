@@ -264,7 +264,8 @@ public class ForEachOrderController implements Initializable {
             phoneData.setText(order.getCustomerPhone()!=null ? order.getCustomerPhone() : "");
             currentTableData.setText(order.getCurrentTableName()!=null ? order.getCurrentTableName() : "");
             
-            OrderStatus status = OrderStatus.valueOf(order.getOrderStatus());
+            System.out.println("Status : "+order.getOrderStatus());
+            OrderStatus status = order.getOrderStatus() != null ? OrderStatus.valueOf(order.getOrderStatus()) : OrderStatus.Finished;
             tableStatusData.setText(convertOrderStatusToDisplayString(status));
             tableStatusData.setStyle(getStyleForStatus(status));
         }
