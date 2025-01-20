@@ -26,9 +26,6 @@ public class UpdateBookingController {
     private RadioButton preBookedRadio;
 
     @FXML
-    private RadioButton occupiedRadio;
-
-    @FXML
     private RadioButton finishedRadio;
 
     @FXML
@@ -47,7 +44,6 @@ public class UpdateBookingController {
 
         // Gán ToggleGroup cho các RadioButton
         preBookedRadio.setToggleGroup(tableStatusGroup);
-        occupiedRadio.setToggleGroup(tableStatusGroup);
         finishedRadio.setToggleGroup(tableStatusGroup);
     }
 
@@ -126,9 +122,6 @@ public class UpdateBookingController {
         if (selectedRadio == preBookedRadio) {
             newTableStatus = "Ordered";
             newBookingStatus = "order";
-        } else if (selectedRadio == occupiedRadio) {
-            newTableStatus = "Playing";
-            newBookingStatus = "playing";
         } else if (selectedRadio == finishedRadio) {
             newTableStatus = "Available";
             newBookingStatus = "finish";
