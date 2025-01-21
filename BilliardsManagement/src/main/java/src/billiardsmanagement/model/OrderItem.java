@@ -9,6 +9,7 @@ public class OrderItem {
     private double netTotal;
     private double subTotal;
     private int promotionId;
+    private double promotionDiscount;
 
     public OrderItem(int orderId, int productId, int quantity, double netTotal, double subTotal, int promotionId) {
         this.orderId = orderId;
@@ -29,6 +30,10 @@ public class OrderItem {
         this.subTotal = subTotal;
         this.promotionId = promotionId;
     } // Full-model constructor
+
+    public OrderItem() {
+        //TODO Auto-generated constructor stub
+    }
 
     @Override
     public String toString() {
@@ -104,6 +109,15 @@ public class OrderItem {
 
     public OrderItem setPromotionId(int promotionId) {
         this.promotionId = promotionId;
+        return this;
+    }
+
+    public double getPromotionDiscount() {
+        return promotionDiscount;
+    }
+
+    public OrderItem setPromotionDiscount(double promotionDiscount) {
+        this.promotionDiscount = promotionDiscount;
         return this;
     }
 }
