@@ -33,10 +33,11 @@
     <AnchorPane fx:id="orderPane" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="200.0">
         <TableView fx:id="orderItemsTable" layoutY="-8.0" prefHeight="166.0" prefWidth="830.0">
             <columns>
-                <TableColumn fx:id="productNameColumn" prefWidth="245.5" text="Product Name" />
-                <TableColumn fx:id="quantityColumn" prefWidth="170.0" text="Quantity" />
-                <TableColumn fx:id="priceOrderItemColumn" prefWidth="213.5" text="Price" />
-                <TableColumn fx:id="costOrderItemColumn" prefWidth="200.0" text="Cost" />
+                <TableColumn fx:id="productNameColumn" prefWidth="227.0" text="Product Name" />
+                <TableColumn fx:id="quantityColumn" prefWidth="115.0" text="Quantity" />
+                <TableColumn fx:id="priceOrderItemColumn" prefWidth="129.5" text="Price" />
+                <TableColumn fx:id="subTotalOrderItemColumn" prefWidth="190.5" text="Sub Total" />
+                <TableColumn fx:id="netTotalOrderItemColumn" prefWidth="167.0" text="Net Total" />
             </columns>
         </TableView>
         <Button fx:id="addOrderItem" onAction="#addOrderItem" prefWidth="130" text="Add Order Item" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="0.0" />
@@ -48,12 +49,13 @@
     <AnchorPane fx:id="rentCuePane" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="450.0">
         <TableView fx:id="rentCueTable" layoutY="-52.0" prefHeight="100.0" prefWidth="830.0">
             <columns>
-                <TableColumn fx:id="productNameCue" prefWidth="176.5" text="Product Name" />
-                <TableColumn fx:id="startTimeCue" prefWidth="97.5" text="Start Time" />
-                <TableColumn fx:id="timeplayCue" prefWidth="65.0" text="Timeplay" />
-                <TableColumn fx:id="priceCue" prefWidth="82.0" text="Price" />
-                <TableColumn fx:id="costCue" prefWidth="75.0" text="Cost" />
+                <TableColumn fx:id="productNameCue" prefWidth="157.5" text="Product Name" />
+                <TableColumn fx:id="startTimeCue" prefWidth="87.0" text="Start Time" />
                 <TableColumn fx:id="endTimeCue" minWidth="4.0" prefWidth="95.5" text="End Time" />
+                <TableColumn fx:id="timeplayCue" prefWidth="94.5" text="Timeplay" />
+                <TableColumn fx:id="priceCue" prefWidth="82.0" text="Price" />
+                <TableColumn fx:id="subTotalCue" prefWidth="75.0" text="Sub Total" />
+                <TableColumn fx:id="netTotalCue" prefWidth="75.0" text="Net Total" />
                 <TableColumn fx:id="quantityCue" prefWidth="57.0" text="Quantity" />
                 <TableColumn fx:id="promotionCue" prefWidth="114.5" text="Promotion" />
                 <TableColumn fx:id="statusCue" prefWidth="70.0" text="Status" />

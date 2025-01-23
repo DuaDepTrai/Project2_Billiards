@@ -5,6 +5,7 @@ public class OrderItem {
     private int orderId;
     private int productId;
     private String productName; // products.name
+    private double productPrice;
     private int quantity;
     private double netTotal;
     private double subTotal;
@@ -33,6 +34,14 @@ public class OrderItem {
 
     public OrderItem() {
         //TODO Auto-generated constructor stub
+    }
+
+    public double getProductPrice() {
+        return productPrice;
+    }
+
+    public void setProductPrice(double productPrice) {
+        this.productPrice = productPrice;
     }
 
     @Override

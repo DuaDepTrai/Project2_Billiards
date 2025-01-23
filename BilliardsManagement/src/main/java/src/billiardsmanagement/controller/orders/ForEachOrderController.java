@@ -85,7 +85,10 @@ public class ForEachOrderController implements Initializable {
     private TableColumn<OrderItem, Double> priceOrderItemColumn;
 
     @FXML
-    private TableColumn<OrderItem, Double> costOrderItemColumn;
+    private TableColumn<OrderItem, Double> netTotalOrderItemColumn;
+
+    @FXML
+    private TableColumn<OrderItem, Double> subTotalOrderItemColumn;
 
     // Rent Cue
     @FXML
@@ -95,16 +98,13 @@ public class ForEachOrderController implements Initializable {
     private TableColumn<RentCue, LocalDateTime> startTimeCue;
 
     @FXML
+    private TableColumn<RentCue, LocalDateTime> endTimeCue;
+
+    @FXML
     private TableColumn<RentCue, String> timeplayCue;
 
     @FXML
     private TableColumn<RentCue, String> priceCue;
-
-    @FXML
-    private TableColumn<RentCue, String> costCue;
-
-    @FXML
-    private TableColumn<RentCue, LocalDateTime> endTimeCue;
 
     @FXML
     private TableColumn<RentCue, String> quantityCue;
@@ -114,6 +114,12 @@ public class ForEachOrderController implements Initializable {
 
     @FXML
     private TableColumn<RentCue, String> statusCue;
+
+    @FXML
+    private TableColumn<RentCue, String> subTotalCue;
+
+    @FXML
+    private TableColumn<RentCue, String> netTotalCue;
 
     // Order + Customer Overview Details
     @FXML
@@ -259,17 +265,28 @@ public class ForEachOrderController implements Initializable {
     }
 
     private void initializeOrderDetailColumn() {
-        // Implement this method to initialize additional order detail columns, if needed
         productNameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        productNameColumn.setSortType(TableColumn.SortType.ASCENDING);
+
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-        priceOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
-        costOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
+        quantityColumn.setSortType(TableColumn.SortType.ASCENDING);
+
+        priceOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("productPrice"));
+        priceOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+
+        netTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
+        netTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+
+        subTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
+        subTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
     }
 
     private void initializeRentCueColumn() {
         productNameCue.setCellValueFactory(new PropertyValueFactory<>("productName"));
-        
+        productNameCue.setSortType(TableColumn.SortType.ASCENDING);
+
         startTimeCue.setCellValueFactory(new PropertyValueFactory<>("startTime"));
+        startTimeCue.setSortType(TableColumn.SortType.ASCENDING);
         startTimeCue.setCellFactory(column -> new TableCell<RentCue, LocalDateTime>() {
             @Override
             protected void updateItem(LocalDateTime item, boolean empty) {
@@ -281,12 +298,15 @@ public class ForEachOrderController implements Initializable {
                 }
             }
         });
-        
+
         timeplayCue.setCellValueFactory(new PropertyValueFactory<>("timeplay"));
+        timeplayCue.setSortType(TableColumn.SortType.ASCENDING);
+
         priceCue.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
-        costCue.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
-        
+        priceCue.setSortType(TableColumn.SortType.ASCENDING);
+
         endTimeCue.setCellValueFactory(new PropertyValueFactory<>("endTime"));
+        endTimeCue.setSortType(TableColumn.SortType.ASCENDING);
         endTimeCue.setCellFactory(column -> new TableCell<RentCue, LocalDateTime>() {
             @Override
             protected void updateItem(LocalDateTime item, boolean empty) {
@@ -298,10 +318,21 @@ public class ForEachOrderController implements Initializable {
                 }
             }
         });
-        
+
         quantityCue.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+        quantityCue.setSortType(TableColumn.SortType.ASCENDING);
+
         promotionCue.setCellValueFactory(new PropertyValueFactory<>("promotionName"));
+        promotionCue.setSortType(TableColumn.SortType.ASCENDING);
+
         statusCue.setCellValueFactory(new PropertyValueFactory<>("status"));
+        statusCue.setSortType(TableColumn.SortType.ASCENDING);
+
+        subTotalCue.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
+        subTotalCue.setSortType(TableColumn.SortType.ASCENDING);
+
+        netTotalCue.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
+        netTotalCue.setSortType(TableColumn.SortType.ASCENDING);
     }
 
     private void initializeOrderCustomerDetail() {
@@ -314,8 +345,6 @@ public class ForEachOrderController implements Initializable {
 
         }
     }
-
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initializeBookingColumn();

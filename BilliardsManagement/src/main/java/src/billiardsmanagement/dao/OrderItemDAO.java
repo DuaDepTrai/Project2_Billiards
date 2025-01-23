@@ -66,23 +66,23 @@ public class OrderItemDAO {
                 return new ArrayList<>();
             }
             ArrayList<OrderItem> orderItemList = new ArrayList<>();
-            String query = "SELECT ori.*, p.name, promo.discount FROM orders_items ori JOIN products p ON ori.product_id = p.product_id LEFT JOIN promotions promo ON ori.promotion_id = promo.promotion_id WHERE ori.order_id = ?;";
+            String query = "SELECT ori.*, p.name AS product_name, p.price AS product_price, promo.discount FROM orders_items ori JOIN products p ON ori.product_id = p.product_id LEFT JOIN promotions promo ON ori.promotion_id = promo.promotion_id WHERE ori.order_id = ?;";
             PreparedStatement prep = con.prepareStatement(query);
             prep.setInt(1, orderId);
             ResultSet rs = prep.executeQuery();
 
             while (rs.next()) {
-                OrderItem orderItem = new OrderItem(
-                        rs.getInt("order_item_id"),
-                        rs.getInt("order_id"),
-                        rs.getInt("product_id"),
-                        rs.getString("name"),
-                        rs.getInt("quantity"),
-                        rs.getDouble("net_total"),
-                        rs.getDouble("subtotal"),
-                        rs.getInt("promotion_id")
-                );
-                
+                OrderItem orderItem = new OrderItem();
+                orderItem.setOrderItemId(rs.getInt("order_item_id"));
+                orderItem.setOrderId(rs.getInt("order_id"));
+                orderItem.setProductId(rs.getInt("product_id"));
+                orderItem.setProductName(rs.getString("product_name"));
+                orderItem.setProductPrice(rs.getDouble("product_price"));
+                orderItem.setQuantity(rs.getInt("quantity"));
+                orderItem.setNetTotal(rs.getDouble("net_total"));
+                orderItem.setSubTotal(rs.getDouble("subtotal"));
+                orderItem.setPromotionId(rs.getInt("promotion_id"));
+
                 // Check if promotion_id is null
                 if (rs.wasNull()) {
                     orderItem.setPromotionDiscount(1.0);
@@ -90,7 +90,7 @@ public class OrderItemDAO {
                     // If not null, set the actual discount from the database
                     orderItem.setPromotionDiscount(rs.getDouble("discount"));
                 }
-                
+
                 orderItemList.add(orderItem);
             }
             return orderItemList;
@@ -99,6 +99,7 @@ public class OrderItemDAO {
             return null;
         }
     }
+
 
     public static boolean updateOrderItem(OrderItem orderItem) {
         try (Connection con = DatabaseConnection.getConnection()) {
