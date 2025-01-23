@@ -13,8 +13,10 @@ import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.dao.PromotionDAO;
 import src.billiardsmanagement.model.OrderItem;
 import src.billiardsmanagement.model.Pair;
+import src.billiardsmanagement.model.Product;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,19 +25,23 @@ public class UpdateOrderItemController {
     public TextField quantityTextField;
     @FXML
     public ComboBox<String> productNameComboBox;
+
     @FXML
     public ComboBox<String> promotionComboBox;
     private int orderId;
-    private int orderItemId; // Add this field
+    private int orderItemId;
 
-    // Promotion list as a class-level variable
     private List<Pair<String, Integer>> promotions;
+
+    private HashMap<String,Integer> productsMap = new HashMap<>();
 
     @FXML
     public void initialize(){
         ArrayList<String> list = new ArrayList<>();
-        for (String s : Objects.requireNonNull(ProductDAO.getAllProductsName())) {
-            if (!s.endsWith("Rent")) list.add(s); // cũ là "Sale"
+        for (String s : ProductDAO.getAllProductsName()) {
+            if (!s.endsWith("Rent")) {
+                list.add(s); // cũ là "Sale"
+            }
         }
         productNameComboBox.getItems().setAll(list);
         
@@ -95,8 +101,6 @@ public class UpdateOrderItemController {
             if (selectedPromotion == null || selectedPromotion.trim().isEmpty()) {
                 throw new IllegalArgumentException("Vui lòng chọn khuyến mãi!");
             }
-
-        
 
             int promotionId = -1; // Default value if no promotion
             if (!selectedPromotion.equals("Không có khuyến mãi")) {

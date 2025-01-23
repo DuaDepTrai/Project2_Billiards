@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Button?>
@@ -19,8 +18,8 @@
            style="-fx-font-weight: bold; -fx-alignment: center;"/>
 
     <VBox spacing="10" alignment="CENTER" prefWidth="250">
-        <RadioButton fx:id="preBookedRadio"
-                     text="Đã được đặt trước"
+        <RadioButton fx:id="playingRadio"
+                     text="Đang có người chơi"
                      toggleGroup="$tableStatusGroup"
                      style="-fx-padding: 5px; -fx-alignment: center-left;"
                      maxWidth="Infinity"/>

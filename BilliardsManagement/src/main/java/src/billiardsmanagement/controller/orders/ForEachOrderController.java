@@ -321,7 +321,7 @@ public class ForEachOrderController implements Initializable {
         initializeBookingColumn();
         initializeOrderDetailColumn();
         initializeRentCueColumn();
-        initializeOrderCustomerDetail();
+
     }
 
     public void addBooking(ActionEvent event) {

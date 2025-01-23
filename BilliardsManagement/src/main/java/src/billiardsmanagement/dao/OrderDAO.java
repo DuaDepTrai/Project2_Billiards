@@ -128,8 +128,7 @@ public class OrderDAO {
 
     // Thêm các phương thức khác nếu cần (thêm, xóa, sửa order)
     public static Order getOrderByIdStatic(int orderID) {
-        Order order = null;
-
+        Order order = new Order();
         // First query: Get basic order and customer details
         String sqlOrderCustomer = "SELECT o.order_id, o.order_status, " +
                                   "c.name AS customer_name, c.phone AS customer_phone " +
@@ -137,11 +136,13 @@ public class OrderDAO {
                                   "JOIN customers c ON o.customer_id = c.customer_id " +
                                   "WHERE o.order_id = ?";
 
-        // Second query: Get table name from bookings
-        String sqlBookingTable = "SELECT pt.name AS current_table_name " +
-                                 "FROM bookings b " +
-                                 "JOIN pooltables pt ON b.table_id = pt.table_id " +
-                                 "WHERE b.order_id = ?";
+        // Query to get the most recent booking for this order
+        String sqlBookingTable = "SELECT pb.name AS current_table_name " +
+                                 "FROM bookings bk " +
+                                 "JOIN pooltables pb ON pb.table_id = bk.table_id " +
+                                 "WHERE bk.order_id = ? " +
+                                 "ORDER BY bk.booking_id DESC " +
+                                 "LIMIT 1";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmtOrderCustomer = conn.prepareStatement(sqlOrderCustomer);
@@ -153,25 +154,19 @@ public class OrderDAO {
                 if (rsOrderCustomer.next()) {
                     order.setOrderId(rsOrderCustomer.getInt("order_id"));
                     order.setOrderStatus(rsOrderCustomer.getString("order_status"));
+                    System.out.println("Order Status: " + order.getOrderStatus());
                     order.setCustomerName(rsOrderCustomer.getString("customer_name"));
                     order.setCustomerPhone(rsOrderCustomer.getString("customer_phone"));
                 }
             }
 
-            System.out.println("Order : "+order);
-
             // Execute second query if first query was successful
-            if (order != null) {
-                pstmtBookingTable.setInt(1, orderID);
-                try (ResultSet rsBookingTable = pstmtBookingTable.executeQuery()) {
-                    if (rsBookingTable.next()) {
-                        order.setCurrentTableName(rsBookingTable.getString("current_table_name"));
-                    }
+            pstmtBookingTable.setInt(1, orderID);
+            try (ResultSet rsBookingTable = pstmtBookingTable.executeQuery()) {
+                if (rsBookingTable.next()) {
+                    order.setCurrentTableName(rsBookingTable.getString("current_table_name"));
                 }
             }
-
-            
-
         } catch (SQLException e) {
             e.printStackTrace();
             System.err.println("Error retrieving order details: " + e.getMessage());

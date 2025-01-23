@@ -55,10 +55,36 @@ public class AddOrderItemController {
 
             Pair<Integer, Double> productPair = ProductDAO.getProductIdAndPriceByName(selectedProductName);
             if(productPair==null) throw new SQLException("Lỗi kết nối : Không thể kết nối với Database. Hãy thử lại sau !");
-
+            
             int productId = productPair.getFirstValue();
             double productPrice = productPair.getSecondValue();
+            // divide
 
+            for(OrderItem orderItem : OrderItemDAO.getForEachOrderItem(orderId)){
+                if(orderItem.getProductId()==productId){
+                    OrderItem newItem = new OrderItem();
+                    newItem.setOrderId(orderId);
+                    newItem.setOrderItemId(orderItem.getOrderItemId());
+                    newItem.setQuantity(orderItem.getQuantity()+quantity);
+                    newItem.setProductId(orderItem.getProductId());
+
+                    if(orderItem.getPromotionDiscount()>1) newItem.setNetTotal(orderItem.getNetTotal()+(quantity*productPrice)-((orderItem.getPromotionDiscount()*quantity*productPrice)/100));
+                    else newItem.setNetTotal(orderItem.getNetTotal()+quantity*productPrice);
+
+                    newItem.setSubTotal(orderItem.getSubTotal()+quantity*productPrice);
+                    OrderItemDAO.addOrderItemDuplicate(newItem);
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Thông báo");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Một Order Item đã được thêm vào thành công !");
+                    alert.showAndWait();
+
+                    Stage stage = (Stage) productNameComboBox.getScene().getWindow();
+                    stage.close();
+                    return;
+                }
+            }
+            
             double subTotal;
             double netTotal;
             OrderItem orderItem;
