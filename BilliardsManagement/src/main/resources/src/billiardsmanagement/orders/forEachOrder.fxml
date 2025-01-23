@@ -18,13 +18,15 @@
     <AnchorPane fx:id="bookingPane" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0">
         <TableView fx:id="bookingPoolTable" prefHeight="100.0" prefWidth="830.0">
             <columns>
+            <TableColumn fx:id="sttColumn" prefWidth="75.0" text="STT" />
                 <TableColumn fx:id="tableNameColumn" prefWidth="133.5" text="Table Name" />
                 <TableColumn fx:id="startTimeColumn" prefWidth="113.5" text="Start Time" />
                 <TableColumn fx:id="endTimeColumn" prefWidth="122.0" text="End Time" />
-                <TableColumn fx:id="timeplayColumn" prefWidth="100.0" text="Timeplay" />
-                <TableColumn fx:id="priceColumn" prefWidth="145.0" text="Price" />
-                <TableColumn fx:id="statusColumn" prefWidth="75.0" text="Status" />
-                <TableColumn fx:id="costColumn" prefWidth="135.0" text="Cost" />
+                <TableColumn fx:id="timeplayColumn" prefWidth="70.0" text="Timeplay" />
+                <TableColumn fx:id="priceColumn" prefWidth="94.0" text="Price" />
+                <TableColumn fx:id="subTotalColumn" prefWidth="73.0" text="SubTotal" />
+                <TableColumn fx:id="costColumn" prefWidth="68.0" text="Total" />
+                <TableColumn fx:id="statusColumn" prefWidth="79.0" text="Status" />
             </columns>
         </TableView>
     </AnchorPane>

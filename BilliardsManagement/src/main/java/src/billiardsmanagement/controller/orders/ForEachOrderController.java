@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -69,10 +70,13 @@ public class ForEachOrderController implements Initializable {
     private TableColumn<Booking, Double> timeplayColumn;
 
     @FXML
-    private TableColumn<Booking, Double> priceColumn;
+    private TableColumn<Booking, Double> subTotalColumn;
 
     @FXML
     private TableColumn<Booking, Double> costColumn;
+
+    @FXML
+    private TableColumn<Booking,Double> priceColumn;
 
     // Order Items
     @FXML
@@ -225,7 +229,7 @@ public class ForEachOrderController implements Initializable {
 
         timeplayColumn.setCellValueFactory(new PropertyValueFactory<>("timeplay"));
 
-// Sử dụng CellFactory để làm tròn giá trị đến chữ số thập phân thứ nhất
+        // Use CellFactory to round values to one decimal place
         timeplayColumn.setCellFactory(column -> {
             return new TableCell<Booking, Double>() {
                 @Override
@@ -234,14 +238,15 @@ public class ForEachOrderController implements Initializable {
                     if (empty || item == null) {
                         setText(null);
                     } else {
-                        // Làm tròn số và hiển thị ra dưới dạng chuỗi
-                        setText(String.format("%.1f", item));  // Làm tròn đến 1 chữ số thập phân
+                        // Round and display as a string
+                        setText(String.format("%.1f", item));  // Round to 1 decimal place
                     }
                 }
             };
         });
-        priceColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
-        priceColumn.setCellFactory(column -> new TableCell<>() {
+
+        subTotalColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
+        subTotalColumn.setCellFactory(column -> new TableCell<>() {
             private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
 
             @Override
@@ -261,24 +266,63 @@ public class ForEachOrderController implements Initializable {
                 setText((empty || item == null) ? null : decimalFormat.format(item));
             }
         });
+
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("bookingStatus"));
+
+        // Add priceColumn for table price
+        priceColumn.setCellValueFactory(new PropertyValueFactory<>("priceTable"));
+        priceColumn.setCellFactory(column -> new TableCell<>() {
+            private final DecimalFormat decimalFormat = new DecimalFormat("#,###"); // Display as whole numbers
+
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                setText((empty || item == null) ? null : decimalFormat.format(item) ); // Append "VND" to indicate currency
+            }
+        });
+
     }
+
 
     private void initializeOrderDetailColumn() {
         productNameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
-        productNameColumn.setSortType(TableColumn.SortType.ASCENDING);
 
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-        quantityColumn.setSortType(TableColumn.SortType.ASCENDING);
 
         priceOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("productPrice"));
-        priceOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+        priceOrderItemColumn.setCellFactory(column -> new TableCell<>() {
+            private final DecimalFormat decimalFormat = new DecimalFormat("#,###"); // Không có phần thập phân
 
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                setText((empty || item == null) ? null : decimalFormat.format(item));
+            }
+        });
+
+// Định dạng cho netTotalOrderItemColumn
         netTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
-        netTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+        netTotalOrderItemColumn.setCellFactory(column -> new TableCell<>() {
+            private final DecimalFormat decimalFormat = new DecimalFormat("#,###"); // Không có phần thập phân
 
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                setText((empty || item == null) ? null : decimalFormat.format(item));
+            }
+        });
+
+// Định dạng cho subTotalOrderItemColumn
         subTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
-        subTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+        subTotalOrderItemColumn.setCellFactory(column -> new TableCell<>() {
+            private final DecimalFormat decimalFormat = new DecimalFormat("#,###"); // Không có phần thập phân
+
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                setText((empty || item == null) ? null : decimalFormat.format(item));
+            }
+        });
     }
 
     private void initializeRentCueColumn() {
@@ -381,7 +425,13 @@ public class ForEachOrderController implements Initializable {
         }
 
         if (selectedBooking.getBookingStatus().equals("finish")) {
-            showAlert(Alert.AlertType.WARNING, "Can't Update", "Please select a booking different to update.");
+            showAlert(Alert.AlertType.WARNING, "Can't Update Status", "Cannot update the status of a booking that is already finished.");
+            return;
+        }
+
+        LocalDate startDate = selectedBooking.getStartTime().toLocalDateTime().toLocalDate();
+        if (!startDate.equals(LocalDate.now())) {
+            showAlert(Alert.AlertType.WARNING, "Invalid Date", "You can only update bookings with today's start time.");
             return;
         }
         try {
@@ -416,7 +466,7 @@ public class ForEachOrderController implements Initializable {
             return;
         }
         if (selectedBooking.getBookingStatus().equals("finish")) {
-            showAlert(Alert.AlertType.WARNING, "Can't Delete", "Please select a booking different to update.");
+            showAlert(Alert.AlertType.WARNING, "Can't Delete", "Bookings marked as 'finish' cannot be deleted.");
             return;
         }
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -689,31 +739,38 @@ public class ForEachOrderController implements Initializable {
             showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a booking to update.");
             return;
         }
+
         if (selectedBooking.getBookingStatus().equals("finish") || selectedBooking.getBookingStatus().equals("order")) {
             showAlert(Alert.AlertType.WARNING, "Can't Stop", "Please select a booking different to stop.");
             return;
         }
 
-        if(selectedBooking.getEndTime() != null){
+        if (selectedBooking.getEndTime() != null) {
             showAlert(Alert.AlertType.WARNING, "Can't Stop", "Please select a booking different to stop.");
             return;
         }
 
-        int bookingId = selectedBooking.getBookingId();  // Giả sử bạn có phương thức này trong class Booking
+        int bookingId = selectedBooking.getBookingId();
         Timestamp startTime = selectedBooking.getStartTime();
-        int poolTableId = selectedBooking.getTableId();  // Giả sử có phương thức này
+        int poolTableId = selectedBooking.getTableId();
 
-        try (Connection conn = DatabaseConnection.getConnection()){
-            // Bắt đầu một transaction
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            // Start a transaction
             conn.setAutoCommit(false);
 
-            // Lấy thời gian hiện tại (endtime)
+            // Get the current time (end time)
             String currentTimeQuery = "SELECT NOW()";
             try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(currentTimeQuery)) {
                 rs.next();
                 Timestamp currentTime = rs.getTimestamp(1);
 
-                // Tính thời gian chơi (timeplay) theo phút
+                // Validate: Ensure endTime is not earlier than startTime
+                if (currentTime.before(startTime)) {
+                    showAlert(Alert.AlertType.WARNING, "Invalid End Time", "End time cannot be earlier than start time. Please try again.");
+                    return;
+                }
+
+                // Calculate time played (timeplay) in minutes
                 String timeplayQuery = "SELECT TIMESTAMPDIFF(MINUTE, ?, ?) AS timeplay";
                 try (PreparedStatement timeplayStmt = conn.prepareStatement(timeplayQuery)) {
                     timeplayStmt.setTimestamp(1, startTime);
@@ -722,23 +779,22 @@ public class ForEachOrderController implements Initializable {
                         timeplayRs.next();
                         int timeplayInMinutes = timeplayRs.getInt("timeplay");
 
-                        // Chuyển thời gian chơi từ phút sang giờ
-                        double timeplayInHours = timeplayInMinutes / 60.0; // Chia cho 60 để có số giờ
-                        Double.parseDouble(String.format("%.1f", timeplayInHours)); // Làm tròn đến 1 chữ số thập phân
+                        // Convert time played from minutes to hours and round to 1 decimal place
+                        double timeplayInHours = Math.round((timeplayInMinutes / 60.0) * 10.0) / 10.0;
 
-                        // Lấy giá của bàn pool từ bảng pooltables
+                        // Get the price of the pool table
                         String priceQuery = "SELECT price FROM pooltables WHERE table_id = ?";
                         try (PreparedStatement priceStmt = conn.prepareStatement(priceQuery)) {
                             priceStmt.setInt(1, poolTableId);
                             try (ResultSet priceRs = priceStmt.executeQuery()) {
                                 priceRs.next();
                                 double price = priceRs.getDouble("price");
-                                        
-                                // Tính subtotal
+
+                                // Calculate subtotal
                                 double subtotal = timeplayInHours * price;
 
-                                // Cập nhật thông tin vào bảng bookings
-                                String updateQuery = "UPDATE bookings SET end_time = ?, timeplay = ?, subtotal = ? WHERE booking_id = ?";
+                                // Update the booking record
+                                String updateQuery = "UPDATE bookings SET end_time = ?, timeplay = ?, subtotal = ?, booking_status = 'finish' WHERE booking_id = ?";
                                 try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
                                     updateStmt.setTimestamp(1, currentTime);
                                     updateStmt.setDouble(2, timeplayInHours);
@@ -746,10 +802,10 @@ public class ForEachOrderController implements Initializable {
                                     updateStmt.setInt(4, bookingId);
                                     updateStmt.executeUpdate();
 
-                                    // Commit transaction
+                                    // Commit the transaction
                                     conn.commit();
 
-                                    // Thông báo thành công
+                                    // Success notification
                                     showAlert(Alert.AlertType.INFORMATION, "Booking Stopped", "Booking has been stopped and updated.");
                                     loadBookings();
                                 }
@@ -758,9 +814,10 @@ public class ForEachOrderController implements Initializable {
                     }
                 }
             }
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
-            // Nếu có lỗi, rollback transaction
+
+            // Rollback transaction on error
             try (Connection conn = DatabaseConnection.getConnection()) {
                 conn.rollback();
             } catch (SQLException rollbackEx) {
@@ -770,6 +827,7 @@ public class ForEachOrderController implements Initializable {
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to stop booking: " + e.getMessage());
         }
     }
+
 
     public void setCustomerID(int customerId) {
         this.customerID = customerId;
