@@ -1,5 +1,6 @@
 package src.billiardsmanagement.controller.orders;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -54,6 +55,8 @@ public class ForEachOrderController implements Initializable {
     @FXML
     private Text orderStatusText;
     // Bookings
+    @FXML
+    private TableColumn<Booking,Integer> sttColumn;
     @FXML
     private TableColumn<Booking, String> tableNameColumn;
 
@@ -213,6 +216,10 @@ public class ForEachOrderController implements Initializable {
 
 
     private void initializeBookingColumn() {
+        sttColumn.setCellValueFactory(param -> {
+            int index = sttColumn.getTableView().getItems().indexOf(param.getValue());
+            return new SimpleIntegerProperty(index + 1).asObject();
+        });
         tableNameColumn.setCellValueFactory(new PropertyValueFactory<>("tableName"));
 
         startTimeColumn.setCellValueFactory(cellData -> {
