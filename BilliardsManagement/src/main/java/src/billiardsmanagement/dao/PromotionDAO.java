@@ -11,6 +11,7 @@ import java.sql.Statement;
 import src.billiardsmanagement.model.Pair;
 
 public class PromotionDAO {
+    
     public static double getPromotionDiscountById(int promotionId){
         try(Connection con = DatabaseConnection.getConnection()){
             if(con==null) throw new SQLException("Lỗi kết nối: Không thể kết nối đến cơ sở dữ liệu!");
@@ -24,6 +25,8 @@ public class PromotionDAO {
             return -1;
         }
     }
+
+    
 
     public static int getPromotionIdByName(String promotionName) {
         try(Connection con = DatabaseConnection.getConnection()) {
@@ -40,6 +43,23 @@ public class PromotionDAO {
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
+        }
+    }
+
+    public static List<String> getAllPromotionsNameByList(){
+        try(Connection con = DatabaseConnection.getConnection();
+            PreparedStatement pstmt = con.prepareStatement("SELECT name FROM promotions");
+            ResultSet rs = pstmt.executeQuery()){
+            
+            List<String> promotionNames = new ArrayList<>();
+            while(rs.next()){
+                promotionNames.add(rs.getString("name"));
+            }
+            return promotionNames;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -63,6 +83,24 @@ public class PromotionDAO {
             
             return promotions;
         } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String getPromotionNameById(int promotionId) {
+        try(Connection con = DatabaseConnection.getConnection()) {
+            if(con == null) throw new SQLException("Error connecting to database");
+            
+            PreparedStatement pstmt = con.prepareStatement("SELECT name FROM promotions WHERE promotion_id = ?");
+            pstmt.setInt(1, promotionId);
+            
+            ResultSet rs = pstmt.executeQuery();
+            if(rs.next()) {
+                return rs.getString("name");
+            }
+            return null;
+        } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }

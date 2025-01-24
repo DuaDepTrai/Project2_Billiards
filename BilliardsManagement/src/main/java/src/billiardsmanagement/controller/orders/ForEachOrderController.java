@@ -1,6 +1,8 @@
 package src.billiardsmanagement.controller.orders;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -18,6 +20,7 @@ import src.billiardsmanagement.controller.orders.bookings.UpdateBookingControlle
 import src.billiardsmanagement.controller.orders.items.AddOrderItemController;
 import src.billiardsmanagement.controller.orders.items.UpdateOrderItemController;
 import src.billiardsmanagement.controller.orders.rent.AddRentCueController;
+import src.billiardsmanagement.controller.orders.rent.UpdateRentCueController;
 import src.billiardsmanagement.dao.*;
 import src.billiardsmanagement.model.*;
 
@@ -33,6 +36,16 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class ForEachOrderController implements Initializable {
+
+    // stt (index)
+    @FXML
+    private TableColumn<Booking,Integer> sttColumn;
+
+    @FXML
+    private TableColumn<OrderItem,Integer> sttOrderItemColumn;
+
+    @FXML
+    private TableColumn<RentCue, Integer> sttRentCueColumn;
 
     // Tables 
     @FXML
@@ -104,7 +117,7 @@ public class ForEachOrderController implements Initializable {
     private TableColumn<RentCue, String> timeplayCue;
 
     @FXML
-    private TableColumn<RentCue, String> priceCue;
+    private TableColumn<RentCue, Double> priceCue;
 
     @FXML
     private TableColumn<RentCue, String> quantityCue;
@@ -116,10 +129,10 @@ public class ForEachOrderController implements Initializable {
     private TableColumn<RentCue, String> statusCue;
 
     @FXML
-    private TableColumn<RentCue, String> subTotalCue;
+    private TableColumn<RentCue, Double> subTotalCue;
 
     @FXML
-    private TableColumn<RentCue, String> netTotalCue;
+    private TableColumn<RentCue, Double> netTotalCue;
 
     // Order + Customer Overview Details
     @FXML
@@ -180,7 +193,6 @@ public class ForEachOrderController implements Initializable {
     }
 
     private void loadRentCue() {
-
         // Retrieve rent cue items for the current order
         List<RentCue> rentCues = new ArrayList<>();
 
@@ -209,6 +221,7 @@ public class ForEachOrderController implements Initializable {
 
 
     private void initializeBookingColumn() {
+        sttColumn.setCellValueFactory(this::call);
         tableNameColumn.setCellValueFactory(new PropertyValueFactory<>("tableName"));
 
         startTimeColumn.setCellValueFactory(cellData -> {
@@ -265,6 +278,7 @@ public class ForEachOrderController implements Initializable {
     }
 
     private void initializeOrderDetailColumn() {
+        sttOrderItemColumn.setCellValueFactory(this::orderItemCall);
         productNameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
         productNameColumn.setSortType(TableColumn.SortType.ASCENDING);
 
@@ -273,15 +287,49 @@ public class ForEachOrderController implements Initializable {
 
         priceOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("productPrice"));
         priceOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+        priceOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(String.format("%,d", Math.round(item)));
+                }
+            }
+        });
 
         netTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
         netTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+        netTotalOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(String.format("%,d", Math.round(item)));
+                }
+            }
+        });
 
         subTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
         subTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+        subTotalOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(String.format("%,d", Math.round(item)));
+                }
+            }
+        });
     }
 
     private void initializeRentCueColumn() {
+        sttRentCueColumn.setCellValueFactory(this::rentCueCall);
         productNameCue.setCellValueFactory(new PropertyValueFactory<>("productName"));
         productNameCue.setSortType(TableColumn.SortType.ASCENDING);
 
@@ -304,6 +352,17 @@ public class ForEachOrderController implements Initializable {
 
         priceCue.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
         priceCue.setSortType(TableColumn.SortType.ASCENDING);
+        priceCue.setCellFactory(column -> new TableCell<RentCue, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(String.format("%,d", Math.round(item)));
+                }
+            }
+        });
 
         endTimeCue.setCellValueFactory(new PropertyValueFactory<>("endTime"));
         endTimeCue.setSortType(TableColumn.SortType.ASCENDING);
@@ -330,9 +389,31 @@ public class ForEachOrderController implements Initializable {
 
         subTotalCue.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
         subTotalCue.setSortType(TableColumn.SortType.ASCENDING);
+        subTotalCue.setCellFactory(column -> new TableCell<RentCue, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(String.format("%,d", Math.round(item)));
+                }
+            }
+        });
 
         netTotalCue.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
         netTotalCue.setSortType(TableColumn.SortType.ASCENDING);
+        netTotalCue.setCellFactory(column -> new TableCell<RentCue, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(String.format("%,d", Math.round(item)));
+                }
+            }
+        });
     }
 
     private void initializeOrderCustomerDetail() {
@@ -368,6 +449,7 @@ public class ForEachOrderController implements Initializable {
 
             loadBookings();
         } catch (IOException e) {
+            e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to load Add Booking form.");
         }
     }
@@ -474,7 +556,7 @@ public class ForEachOrderController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText(null);
-            alert.setContentText("Bạn chưa chọn sản phẩm nào để chỉnh sửa !");
+            alert.setContentText("No product selected for editing!");
             alert.showAndWait();
             return;
         }
@@ -506,15 +588,15 @@ public class ForEachOrderController implements Initializable {
             
             // Check if an item is selected
             if (selectedItem == null) {
-                showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Bạn chưa chọn mục để xóa!");
+                showAlert(Alert.AlertType.WARNING, "Warning", "No product selected for deletion!");
                 return;
             }
 
             // Confirm deletion
             Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmAlert.setTitle("Xác nhận xóa");
-            confirmAlert.setHeaderText("Bạn có chắc chắn muốn xóa mục này?");
-            confirmAlert.setContentText("Mục đã chọn sẽ bị xóa vĩnh viễn khỏi đơn hàng.");
+            confirmAlert.setTitle("Confirm Deletion");
+            confirmAlert.setHeaderText("Are you sure you want to delete this item?");
+            confirmAlert.setContentText("The selected item will be permanently deleted from the order.");
             
             Optional<ButtonType> result = confirmAlert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -529,55 +611,77 @@ public class ForEachOrderController implements Initializable {
                     loadOrderDetail();
                     
                     // Show success message
-                    showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã xóa mục khỏi đơn hàng!");
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Item removed from order!");
                 } else {
                     // Show error if deletion fails
-                    showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa mục. Vui lòng thử lại!");
+                    showAlert(Alert.AlertType.ERROR, "Error", "Unable to delete item. Please try again!");
                 }
             }
         } catch (Exception e) {
             // Handle any unexpected errors
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Đã xảy ra lỗi: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred: " + e.getMessage());
         }
     }
 
 
     // Rent Cue Functions
     public void addRentCue(ActionEvent event) {
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/rent/addRentCue.fxml"));
-//            Parent root = loader.load();
-//
-//            AddRentCueController addRentCueController = loader.getController();
-//            addRentCueController.setOrderId(orderID);
-//
-//            Stage stage = new Stage();
-//            stage.setTitle("Add new Rent Cue");
-//            stage.setScene(new Scene(root));
-//            stage.showAndWait();
-//
-//            loadRentCue();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+       try {
+           FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/rent/addRentCue.fxml"));
+           Parent root = loader.load();
+
+           AddRentCueController addRentCueController = loader.getController();
+           addRentCueController.setOrderId(orderID);
+
+           Stage stage = new Stage();
+           stage.setTitle("Add new Rent Cue");
+           stage.setScene(new Scene(root));
+           stage.showAndWait();
+
+           loadRentCue();
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
     }
 
     @FXML
     public void updateRentCue(ActionEvent event) {
         try {
             // Get the selected rent cue from the table
-            Object selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
+            RentCue selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
             
             if (selectedItem == null) {
-                showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Bạn chưa chọn mục để sửa!");
+                showAlert(Alert.AlertType.WARNING, "Warning", "No item selected to update!");
                 return;
             }
 
-            // Open a dialog or window to edit the selected rent cue
-            // TODO: Implement logic to open edit rent cue window
-            showAlert(Alert.AlertType.INFORMATION, "Sửa thuê cơ", "Chức năng sửa thuê cơ đang được phát triển.");
+            if(selectedItem.getStatus().equals(RentCueStatus.Returned)){
+                showAlert(Alert.AlertType.WARNING, "Warning", "This cue rental has already been returned !");
+                return;   
+            }
+
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/rent/updateRentCue.fxml"));
+                Parent root = loader.load();
+    
+                UpdateRentCueController updateRentCueController = loader.getController();
+                updateRentCueController.setOrderID(orderID);
+                updateRentCueController.setRentCueId(selectedItem.getRentCueId());
+                updateRentCueController.setPromotionId(selectedItem.getPromotionId());
+                updateRentCueController.setPromotionName(selectedItem.getPromotionName()==null ? "" : selectedItem.getPromotionName());
+                
+                Stage stage = new Stage();
+                stage.setTitle("Update Booking");
+                stage.setScene(new Scene(root));
+                stage.showAndWait();
+    
+                loadRentCue();
+            } catch (IOException e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to load Update Rent Cue form.");
+            }
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể mở cửa sổ sửa thuê cơ: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load Update Rent Cue form: " + e.getMessage());
         }
     }
 
@@ -588,15 +692,15 @@ public class ForEachOrderController implements Initializable {
             RentCue selectedItem = (RentCue) rentCueTable.getSelectionModel().getSelectedItem();
             
             if (selectedItem == null) {
-                showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Bạn chưa chọn mục để xóa!");
+                showAlert(Alert.AlertType.WARNING, "Warning", "No item selected to delete!");
                 return;
             }
 
             // Confirm deletion
             Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmAlert.setTitle("Xác nhận xóa");
-            confirmAlert.setHeaderText("Bạn có chắc chắn muốn xóa mục này?");
-            confirmAlert.setContentText("Mục đã chọn sẽ bị xóa vĩnh viễn.");
+            confirmAlert.setTitle("Confirm Deletion");
+            confirmAlert.setHeaderText("Are you sure you want to delete this item?");
+            confirmAlert.setContentText("The selected item will be permanently deleted.");
             
             Optional<ButtonType> result = confirmAlert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -607,13 +711,13 @@ public class ForEachOrderController implements Initializable {
                     rentCueTable.getItems().remove(selectedItem);
                     
                     // Show success message
-                    showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã xóa mục thuê cơ!");
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Cue rental item deleted!");
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa mục thuê cơ. Vui lòng thử lại.");
+                    showAlert(Alert.AlertType.ERROR, "Error", "Unable to delete cue rental item. Please try again.");
                 }
             }
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa mục: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Unable to delete item: " + e.getMessage());
         }
     }
 
@@ -625,15 +729,20 @@ public class ForEachOrderController implements Initializable {
             RentCue selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
             
             if (selectedItem == null) {
-                showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Bạn chưa chọn mục thuê cơ để kết thúc!");
+                showAlert(Alert.AlertType.WARNING, "Warning", "No cue rental item selected to end!");
                 return;
+            }
+
+            if(selectedItem.getStatus().equals(RentCueStatus.Returned)){
+                showAlert(Alert.AlertType.WARNING, "Warning", "This cue rental item has already been returned !");
+                return;   
             }
 
             // Confirm ending the rental
             Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmAlert.setTitle("Xác nhận kết thúc thuê cơ");
-            confirmAlert.setHeaderText("Bạn có chắc chắn muốn kết thúc thuê cơ này?");
-            confirmAlert.setContentText("Thao tác này sẽ đánh dấu mục thuê cơ là đã kết thúc.");
+            confirmAlert.setTitle("Confirm End Cue Rental");
+            confirmAlert.setHeaderText("Are you sure you want to end this cue rental?");
+            confirmAlert.setContentText("This action will mark the cue rental item as completed.");
             
             Optional<ButtonType> result = confirmAlert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -672,13 +781,13 @@ public class ForEachOrderController implements Initializable {
                     loadRentCue();
                     
                     // Show success message
-                    showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã kết thúc thuê cơ thành công!");
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Cue rental ended successfully!");
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể kết thúc thuê cơ. Vui lòng thử lại.");
+                    showAlert(Alert.AlertType.ERROR, "Error", "Unable to end cue rental. Please try again.");
                 }
             }
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể kết thúc thuê cơ: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Unable to end cue rental: " + e.getMessage());
         }
     }
 
@@ -707,13 +816,13 @@ public class ForEachOrderController implements Initializable {
             // Bắt đầu một transaction
             conn.setAutoCommit(false);
 
-            // Lấy thời gian hiện tại (endtime)
+            // Lấy thởi gian hiện tại (endtime)
             String currentTimeQuery = "SELECT NOW()";
             try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(currentTimeQuery)) {
                 rs.next();
                 Timestamp currentTime = rs.getTimestamp(1);
 
-                // Tính thời gian chơi (timeplay) theo phút
+                // Tính thởi gian chơi (timeplay) theo phút
                 String timeplayQuery = "SELECT TIMESTAMPDIFF(MINUTE, ?, ?) AS timeplay";
                 try (PreparedStatement timeplayStmt = conn.prepareStatement(timeplayQuery)) {
                     timeplayStmt.setTimestamp(1, startTime);
@@ -722,7 +831,7 @@ public class ForEachOrderController implements Initializable {
                         timeplayRs.next();
                         int timeplayInMinutes = timeplayRs.getInt("timeplay");
 
-                        // Chuyển thời gian chơi từ phút sang giờ
+                        // Chuyển thởi gian chơi từ phút sang giờ
                         double timeplayInHours = timeplayInMinutes / 60.0; // Chia cho 60 để có số giờ
                         Double.parseDouble(String.format("%.1f", timeplayInHours)); // Làm tròn đến 1 chữ số thập phân
 
@@ -789,5 +898,23 @@ public class ForEachOrderController implements Initializable {
             phoneText.setText(customer.getPhone());
             orderStatusText.setText(orderList.getOrderStatus());
         }
+    }
+
+    private ObservableValue<Integer> call(TableColumn.CellDataFeatures<Booking, Integer> cellData) {
+        // Lấy vị trí (index) của dòng hiện tại trong danh sách
+        int index = bookingPoolTable.getItems().indexOf(cellData.getValue()) + 1;
+        return new SimpleIntegerProperty(index).asObject();
+    }
+
+    private ObservableValue<Integer> orderItemCall(TableColumn.CellDataFeatures<OrderItem, Integer> cellData) {
+        // Lấy vị trí (index) của dòng hiện tại trong danh sách
+        int index = orderItemsTable.getItems().indexOf(cellData.getValue()) + 1;
+        return new SimpleIntegerProperty(index).asObject();
+    }
+
+    private ObservableValue<Integer> rentCueCall(TableColumn.CellDataFeatures<RentCue, Integer> cellData) {
+        // Lấy vị trí (index) của dòng hiện tại trong danh sách
+        int index = rentCueTable.getItems().indexOf(cellData.getValue()) + 1;
+        return new SimpleIntegerProperty(index).asObject();
     }
 }

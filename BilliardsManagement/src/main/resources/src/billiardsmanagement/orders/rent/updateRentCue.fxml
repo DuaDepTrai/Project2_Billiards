@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="src.billiardsmanagement.controller.orders.rent.UpdateRentCueController"
+      spacing="10"
+      alignment="CENTER"
+      prefWidth="300"
+      prefHeight="400">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+    
+    <Label text="Update Rent Cue" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+    
+    <ComboBox fx:id="promotionComboBox" promptText="Select Promotion" prefWidth="260"/>
+        
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Confirm Update" onAction="#updateRentCue" prefWidth="120"/>
+        <Button text="Cancel" onAction="#cancelUpdate" prefWidth="120"/>
+    </HBox>
+</VBox>

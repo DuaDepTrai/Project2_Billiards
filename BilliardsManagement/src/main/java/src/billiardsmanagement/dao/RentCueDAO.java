@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.scene.chart.PieChart.Data;
+
 public class RentCueDAO {
     public static List<RentCue> getAllRentCuesByOrderId(int orderId) {
         List<RentCue> rentCues = new ArrayList<>();
@@ -234,6 +236,25 @@ public class RentCueDAO {
                 }
             }
         }
+    }
+
+    public static boolean updateRentCue(RentCue rentCue){
+        try(Connection con = DatabaseConnection.getConnection()){
+            if(con==null) throw new SQLException("Lỗi kết nối: Không thể kết nối đến cơ sở dữ liệu!");
+            String query = "UPDATE rent_cues SET promotion_id = ? WHERE rent_cue_id = ?";
+            PreparedStatement pre = con.prepareStatement(query);
+            pre.setInt(1,rentCue.getPromotionId());
+            pre.setInt(2,rentCue.getRentCueId());
+            int rowsAffected = pre.executeUpdate();
+            
+            if(rowsAffected>0){
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return false;
     }
 
     // Additional method to get next rent cue ID
