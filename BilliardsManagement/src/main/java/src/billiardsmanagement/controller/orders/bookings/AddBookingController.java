@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.BookingDAO;
@@ -36,9 +37,13 @@ public class AddBookingController implements Initializable {
     private ComboBox<Integer> hourComboBox;
 
     @FXML
+    private DatePicker datePicker;
+
+    @FXML
     private ComboBox<Integer> minuteComboBox;
     @FXML
     private TextField orderIDField;
+
     private Order order;
     private int orderID;
 
@@ -58,21 +63,25 @@ public class AddBookingController implements Initializable {
                 throw new IllegalArgumentException("Vui lòng chọn table_id");
             }
 
-
             Integer selectedHour = hourComboBox.getValue();
             Integer selectedMinute = minuteComboBox.getValue();
             if (selectedHour == null || selectedMinute == null) {
                 throw new IllegalArgumentException("Vui lòng nhập thời gian chơi");
             }
 
+            LocalDate selectedDate = datePicker.getValue();
+            if (selectedDate == null) {
+                throw new IllegalArgumentException("Vui lòng chọn ngày");
+            }
+
             String startTime = String.format("%02d:%02d", selectedHour, selectedMinute);
             LocalTime time = LocalTime.parse(startTime);
-            LocalDateTime datatime = time.atDate(LocalDate.now());
-            Timestamp timeStamp = Timestamp.valueOf(datatime);
+            LocalDateTime dateTime = LocalDateTime.of(selectedDate, time);
+            Timestamp timeStamp = Timestamp.valueOf(dateTime);
 
             String bookingStatus = bookingStatusComboBox.getValue();
             if (bookingStatus == null || bookingStatus.isEmpty()) {
-                throw new IllegalArgumentException("Vui lòng nhập trạng thái bàn ");
+                throw new IllegalArgumentException("Vui lòng nhập trạng thái bàn");
             }
 
             Booking newBooking = new Booking(order_id, tableId, timeStamp, bookingStatus);
@@ -98,6 +107,7 @@ public class AddBookingController implements Initializable {
             alert.showAndWait();
         }
     }
+
     private void initializeOrderId(){
         orderIDField.setText(String.valueOf(orderID));
         System.out.println("OrderIdField: " + orderIDField.getText());
@@ -105,16 +115,15 @@ public class AddBookingController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         PoolTableDAO poolTableDAO = new PoolTableDAO();
-        Map<Integer,String> tableMap = poolTableDAO.getAvailableTable();
-        tableNameToIdMap = tableMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue,Map.Entry::getKey));
+        Map<Integer, String> tableMap = poolTableDAO.getAvailableTable();
+        tableNameToIdMap = tableMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
         tableIdComboBox.getItems().addAll(tableNameToIdMap.keySet());
 
         LocalTime now = LocalTime.now();
         int currentHour = now.getHour();
         int currentMinute = now.getMinute();
-        // Định dạng thời gian
-        // Thêm dữ liệu cho ComboBox giờ (0-23)
 
+        // Thêm dữ liệu cho ComboBox giờ (0-23)
         for (int i = 0; i < 24; i++) {
             hourComboBox.getItems().add(i);
         }
@@ -124,8 +133,10 @@ public class AddBookingController implements Initializable {
             minuteComboBox.getItems().add(i);
         }
 
-        hourComboBox.setValue(currentHour);  // Đặt giá trị giờ hiện tại
-        minuteComboBox.setValue(currentMinute);  // Đặt giá trị phút hiện tại
+        // Đặt giá trị mặc định
+        hourComboBox.setValue(currentHour);
+        minuteComboBox.setValue(currentMinute);
+        datePicker.setValue(LocalDate.now());  // Đặt giá trị mặc định là ngày hiện tại
     }
 
     public void setOrderId(int orderID) {

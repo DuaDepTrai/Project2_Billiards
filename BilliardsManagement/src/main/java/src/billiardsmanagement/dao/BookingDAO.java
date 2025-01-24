@@ -76,8 +76,8 @@ public class BookingDAO {
 
     public List<Booking> getBookingByOrderId(int orderId) {
         List<Booking> bookings = new ArrayList<>();
-        String query = "SELECT b.booking_id, b.table_id, b.order_id, pt.name AS table_name, b.start_time, " +
-                "b.end_time, b.timeplay, b.subtotal, b.promotion_id, b.net_total, b.booking_status " +
+        String query = "SELECT b.booking_id, b.table_id, b.order_id, pt.name AS table_name, pt.price AS table_price, " +
+                "b.start_time, b.end_time, b.timeplay, b.subtotal, b.promotion_id, b.net_total, b.booking_status " +
                 "FROM bookings b " +
                 "JOIN pooltables pt ON b.table_id = pt.table_id " +
                 "WHERE b.order_id = ? " +
@@ -95,7 +95,7 @@ public class BookingDAO {
                         resultSet.getInt("order_id"),
                         resultSet.getInt("table_id"),
                         resultSet.getString("table_name"),
-
+                        resultSet.getDouble("table_price"), // New field for table price
                         resultSet.getTimestamp("start_time") != null
                                 ? resultSet.getTimestamp("start_time").toLocalDateTime()
                                 : null,
@@ -116,6 +116,7 @@ public class BookingDAO {
         }
         return bookings;
     }
+
 
     public void addBooking(Booking newBooking) {
         String query = "INSERT INTO bookings (order_id, table_id, start_time, booking_status) VALUES (?, ?, ?, ?)";

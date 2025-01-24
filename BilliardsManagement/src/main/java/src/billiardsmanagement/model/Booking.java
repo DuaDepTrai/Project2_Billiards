@@ -9,62 +9,52 @@ public class Booking {
     private int orderId;
     private String bookingStatus;
     private String tableName; // [PoolTables.tableName]
+    private double priceTable; // [PoolTables.price]
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private double timeplay;
     private double subTotal;
     private int promotionId;
-
-
     private double netTotal;
 
-    public Booking(){}
+    public Booking() {}
 
-
-    public Booking(String tableName, LocalDateTime startTime, LocalDateTime endTime, double timeplay, double subTotal, String bookingStatus) {
+    // Constructor for table data display
+    public Booking(String tableName, double priceTable, LocalDateTime startTime, LocalDateTime endTime, double timeplay, double subTotal, String bookingStatus) {
         this.tableName = tableName;
+        this.priceTable = priceTable;
         this.startTime = startTime;
         this.endTime = endTime;
         this.timeplay = timeplay;
         this.subTotal = subTotal;
         this.bookingStatus = bookingStatus;
-    } // Constructor dùng để "đổ" data vào table
+    }
 
-
-    public Booking(int orderId, int tableId, Timestamp timeStamp, String bookingStatus) {
+    // Constructor for minimal booking details
+    public Booking(int orderId, int tableId, Timestamp startTime, String bookingStatus) {
         this.orderId = orderId;
         this.tableId = tableId;
-        this.startTime = timeStamp.toLocalDateTime();
+        this.startTime = startTime.toLocalDateTime();
         this.bookingStatus = bookingStatus;
     }
 
-    public Booking(int bookingId, int orderId, int tableId, String tableName, LocalDateTime localDateTime, LocalDateTime localDateTime1, double timeplay, double netTotal, double subtotal, String bookingStatus, int promotionId) {
+    // Full constructor for DAO usage
+    public Booking(int bookingId, int orderId, int tableId, String tableName, double priceTable, LocalDateTime startTime, LocalDateTime endTime, double timeplay, double netTotal, double subTotal, String bookingStatus, int promotionId) {
         this.bookingId = bookingId;
         this.orderId = orderId;
         this.tableId = tableId;
         this.tableName = tableName;
-        this.startTime = localDateTime;
-        this.endTime = localDateTime1;
+        this.priceTable = priceTable;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.timeplay = timeplay;
         this.netTotal = netTotal;
-        this.subTotal = subtotal;
+        this.subTotal = subTotal;
         this.bookingStatus = bookingStatus;
         this.promotionId = promotionId;
-
     }
 
-
-    public String getTableName() { return tableName; }
-    public Timestamp getStartTime() { return Timestamp.valueOf(startTime); }
-    public LocalDateTime getEndTime() { return endTime; }
-    public double getTimeplay() { return timeplay; }
-    public double getSubTotal() { return subTotal; }
-    public double getNetTotal() { return netTotal; }
-    public String getBookingStatus() { return bookingStatus; }
-
-    public void setBookingStatus(String bookingStatus) {
-        this.bookingStatus = bookingStatus;
-    }
+    // Getters and Setters
     public int getBookingId() {
         return bookingId;
     }
@@ -92,10 +82,49 @@ public class Booking {
         return this;
     }
 
+    public String getBookingStatus() {
+        return bookingStatus;
+    }
+
+    public void setBookingStatus(String bookingStatus) {
+        this.bookingStatus = bookingStatus;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public double getPriceTable() {
+        return priceTable;
+    }
+
+    public void setPriceTable(double priceTable) {
+        this.priceTable = priceTable;
+    }
+
+    public Timestamp getStartTime() {
+        return startTime != null ? Timestamp.valueOf(startTime) : null;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
 
     public Booking setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
         return this;
+    }
+
+    public double getTimeplay() {
+        return timeplay;
     }
 
     public Booking setTimeplay(double timeplay) {
@@ -103,7 +132,9 @@ public class Booking {
         return this;
     }
 
-
+    public double getSubTotal() {
+        return subTotal;
+    }
 
     public Booking setSubTotal(double subTotal) {
         this.subTotal = subTotal;
@@ -119,6 +150,9 @@ public class Booking {
         return this;
     }
 
+    public double getNetTotal() {
+        return netTotal;
+    }
 
     public Booking setNetTotal(double netTotal) {
         this.netTotal = netTotal;
@@ -133,6 +167,7 @@ public class Booking {
                 ", orderId=" + orderId +
                 ", bookingStatus='" + bookingStatus + '\'' +
                 ", tableName='" + tableName + '\'' +
+                ", priceTable=" + priceTable +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", timeplay=" + timeplay +
@@ -142,15 +177,9 @@ public class Booking {
                 '}';
     }
 
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
     public String getTableStatus() {
         return bookingStatus;
     }
+
+
 }
