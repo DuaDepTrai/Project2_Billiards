@@ -81,7 +81,7 @@
          <Insets />
       </opaqueInsets>
    </Button>
-   <Button layoutX="136.0" layoutY="160.0" mnemonicParsing="false" onAction="#updateBooking" text="Update Booking" />
+   <Button layoutX="136.0" layoutY="160.0" mnemonicParsing="false" onAction="#updateBooking" text="Start Playing" />
    <Button layoutX="275.0" layoutY="160.0" mnemonicParsing="false" onAction="#deleteBooking" text="Delete Booking" />
    <Button layoutX="409.0" layoutY="160.0" mnemonicParsing="false" onAction="#stopBooking" text="Stop Booking" />
    <HBox layoutX="14.0" prefHeight="48.0" prefWidth="698.0">

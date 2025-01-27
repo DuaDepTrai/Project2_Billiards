@@ -13,10 +13,12 @@ public class OrderDAO {
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
         String query = """
-            SELECT o.order_id, o.customer_id, c.name AS customer_name, o.total_cost, o.order_status
-            FROM orders o
-            JOIN customers c ON o.customer_id = c.customer_id ORDER BY o.order_id
-        """;  // Câu truy vấn SQL để lấy danh sách đơn hàng
+        SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
+               o.total_cost, o.order_status
+        FROM orders o
+        JOIN customers c ON o.customer_id = c.customer_id
+        ORDER BY o.order_id
+    """;  // Câu truy vấn SQL để lấy danh sách đơn hàng (bao gồm số điện thoại khách hàng)
 
         // Sử dụng DatabaseConnection để lấy kết nối
         try (Connection conn = DatabaseConnection.getConnection();
@@ -29,6 +31,7 @@ public class OrderDAO {
                         rs.getInt("order_id"),
                         rs.getInt("customer_id"),
                         rs.getString("customer_name"),
+                        rs.getString("customer_phone"),  // Thêm phone vào đối tượng Order
                         rs.getDouble("total_cost"),
                         rs.getString("order_status")
                 );
@@ -41,17 +44,15 @@ public class OrderDAO {
         return orders;  // Trả về danh sách các đơn hàng
     }
 
+
     public void addOrder(Order newOrder) {
-        String query = "INSERT INTO orders (customer_id, total_cost, order_status) VALUES (?, ?, ?)";
+        String query = "INSERT INTO orders (customer_id,order_status) VALUES ( ?, 'Pending')";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             // Set các giá trị vào PreparedStatement
             stmt.setInt(1, newOrder.getCustomerId());        // customer_id
-            stmt.setDouble(2, newOrder.getTotalCost());      // total_cost
-            stmt.setString(3, newOrder.getOrderStatus());    // order_status
-
             // Thực thi câu lệnh INSERT
             int rowsAffected = stmt.executeUpdate();
 

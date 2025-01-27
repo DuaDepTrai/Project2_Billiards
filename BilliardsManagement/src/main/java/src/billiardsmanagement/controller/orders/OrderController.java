@@ -1,100 +1,227 @@
 package src.billiardsmanagement.controller.orders;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
-import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
 import javafx.collections.FXCollections;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.util.Callback;
-import src.billiardsmanagement.controller.orders.bookings.BookingController;
-
 import src.billiardsmanagement.dao.OrderDAO;
+import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.model.Order;
 
 public class OrderController implements Initializable {
 
     @FXML
-    private Label exit;
-    @FXML
-    private BorderPane mainLayout;
-    @FXML
-    private TableColumn<Order, Integer> orderIdColumn;
+    private TableColumn<Order, Integer> sttColumn;
     @FXML
     private TableColumn<Order, String> customerNameColumn;
     @FXML
     private TableColumn<Order, Double> totalCostColumn;
     @FXML
     private TableColumn<Order, String> orderStatusColumn;
-
+    @FXML
+    private TableColumn<Order, String> phoneCustomerColumn;
+    @FXML
+    private TextField autoCompleteTextField;
     @FXML
     private TableView<Order> orderTable;
+    @FXML
+    private Label statusLabel;
+    @FXML
+    private ComboBox<String> statusComboBox;
 
+    private Popup popup;
+    private ListView<String> listView;
 
-    OrderDAO orderDAO = new OrderDAO();
+    private final Connection conn = DatabaseConnection.getConnection();
+    private final OrderDAO orderDAO = new OrderDAO();
+    private final Map<String, Integer> customerNameToIdMap = new HashMap<>();
     @FXML
     public void addOrder(ActionEvent actionEvent) {
         try {
-            // Load FXML cho form thêm Order
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/addOrder.fxml"));
-            Parent root = loader.load();
+            String customerName = autoCompleteTextField.getText();
+            if (customerName == null || customerName.trim().isEmpty()) {
+                throw new IllegalArgumentException("Please select a valid Customer.");
+            }
 
-            // Tạo một Scene mới
-            Stage stage = new Stage();
-            stage.setTitle("Add Order");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
+            Integer customerId = customerNameToIdMap.get(customerName);
+            if (customerId == null) {
+                throw new IllegalArgumentException("Customer not found: " + customerName);
+            }
 
-            // Sau khi đóng form, refresh bảng Order
-            loadOrders();
-        } catch (IOException e) {
+            Order newOrder = new Order(customerId);
+            orderDAO.addOrder(newOrder);
+            loadOrderList();
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Order added successfully!");
+
+        } catch (IllegalArgumentException e) {
+            showAlert(Alert.AlertType.ERROR, "Validation Error", e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while saving the order. Please try again.");
+        }
+    }
+
+    private void loadCustomerNameToIdMap() {
+        String query = "SELECT customer_id, name FROM customers";
+        try (PreparedStatement statement = conn.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            customerNameToIdMap.clear();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("customer_id");
+                String name = resultSet.getString("name");
+                customerNameToIdMap.put(name, id);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load customer data.");
+        }
+    }
+
+    private void loadOrderList() {
+        List<Order> orders = orderDAO.getAllOrders();
+        orderTable.setItems(FXCollections.observableArrayList(orders));
+    }
+
+    private List<String> fetchCustomersByPhone(String phonePrefix) {
+        List<String> customers = new ArrayList<>();
+        String query = "SELECT phone, name FROM customers WHERE phone LIKE ?";
+        try (PreparedStatement statement = conn.prepareStatement(query)) {
+            statement.setString(1, phonePrefix + "%");
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                String name = resultSet.getString("name");
+                customers.add(name);
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+        return customers;
     }
 
-    public void updateOrder(ActionEvent actionEvent) throws IOException {
-//        // Lấy đối tượng được chọn trong TableView
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        loadCustomerNameToIdMap();
+        loadOrderList();
+        statusLabel.setVisible(false);
+        statusComboBox.setVisible(false);
+        totalCostColumn.setCellValueFactory(new PropertyValueFactory<>("totalCost"));
+        sttColumn.setCellValueFactory(param -> {
+            int index = sttColumn.getTableView().getItems().indexOf(param.getValue());
+            return new SimpleIntegerProperty(index + 1).asObject();
+        });
+        customerNameColumn.setCellValueFactory(new PropertyValueFactory<>("customerName"));
+        orderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("orderStatus"));
+        phoneCustomerColumn.setCellValueFactory(new PropertyValueFactory<>("customerPhone"));
+
+        totalCostColumn.setCellFactory(param -> new TableCell<Order, Double>() {
+            private final DecimalFormat df = new DecimalFormat("#,###");
+
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? null : df.format(item));
+            }
+        });
+
+        popup = new Popup();
+        listView = new ListView<>();
+        popup.getContent().add(listView);
+
+        autoCompleteTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.isEmpty()) {
+                List<String> filteredCustomers = fetchCustomersByPhone(newValue);
+                listView.getItems().setAll(filteredCustomers);
+
+                if (!filteredCustomers.isEmpty() && !popup.isShowing()) {
+                    popup.show(autoCompleteTextField,
+                            autoCompleteTextField.localToScreen(autoCompleteTextField.getBoundsInLocal()).getMinX(),
+                            autoCompleteTextField.localToScreen(autoCompleteTextField.getBoundsInLocal()).getMaxY());
+                }
+            } else {
+                popup.hide();
+            }
+        });
+
+        listView.setOnMouseClicked(event -> {
+            if (!listView.getSelectionModel().isEmpty()) {
+                autoCompleteTextField.setText(listView.getSelectionModel().getSelectedItem());
+                popup.hide();
+            }
+        });
+
+        autoCompleteTextField.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case ENTER:
+                    if (!listView.getSelectionModel().isEmpty()) {
+                        autoCompleteTextField.setText(listView.getSelectionModel().getSelectedItem());
+                        popup.hide();
+                    }
+                    break;
+                case ESCAPE:
+                    popup.hide();
+                    break;
+                default:
+                    break;
+            }
+        });
+        orderTable.setOnMouseClicked(event -> {
+            try {
+                showItem(event);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void updateOrder(ActionEvent event) {
         Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
-
         if (selectedOrder != null) {
-            int orderId = selectedOrder.getOrderId();
-
-            // Load giao diện update_order.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/updateOrder.fxml"));
-            Parent root = loader.load();
-
-            // Lấy controller của update_order.fxml
-            UpdateOrderController updateOrderController = loader.getController();
-
-            // Truyền order_id sang controller của update_order.fxml
-            updateOrderController.setData(orderId);
-            // Hiển thị giao diện mới
-            Stage stage = new Stage();
-            stage.setTitle("Add Order");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
+            String orderStatus = statusComboBox.getValue();
+            selectedOrder.setOrderStatus(orderStatus);
+            boolean success = orderDAO.updateOrder(selectedOrder);
+            if (success) {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Order updated successfully!");
+                loadOrderList();
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to update the order.");
+            }
         } else {
-            System.out.println("No order selected.");
+            showAlert(Alert.AlertType.INFORMATION, "Error", "Please select an order to update.");
         }
+
+
     }
 
-    public void deleteOrder(ActionEvent actionEvent) {
+    public void deleteOrder(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete Confirmation");
         alert.setHeaderText("Are you sure you want to delete this order?");
@@ -122,68 +249,16 @@ public class OrderController implements Initializable {
             }
         }
     }
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+
+    public void addCustomer(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/addCustomer.fxml"));
+        Parent root = loader.load();
+        Stage stage = new Stage();
+        stage.setTitle("Add Customer");
+        stage.setScene(new Scene(root));
+        stage.show();
+
     }
-    private void loadOrderList() {
-        List<Order> orders = orderDAO.getAllOrders(); // Lấy tất cả các đơn hàng từ DB
-        orderTable.setItems(FXCollections.observableArrayList(orders)); // Cập nhật lại TableView
-    }
-
-    public void loadOrders() {
-        List<Order> orders = orderDAO.getAllOrders();  // Lấy danh sách orders từ OrderDAO
-
-        // Xóa tất cả các dòng hiện tại trong TableView
-        orderTable.getItems().clear();
-
-        // Thêm tất cả các đơn hàng vào TableView
-        orderTable.getItems().addAll(orders);
-    }
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        totalCostColumn.setCellValueFactory(new PropertyValueFactory<>("totalCost"));
-        orderIdColumn.setCellValueFactory(new PropertyValueFactory<>("orderId"));
-        customerNameColumn.setCellValueFactory(new PropertyValueFactory<>("customerName"));
-        orderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("orderStatus"));
-        // Load data
-        // Định dạng cột totalCost
-        totalCostColumn.setCellFactory(new Callback<TableColumn<Order, Double>, TableCell<Order, Double>>() {
-            @Override
-            public TableCell<Order, Double> call(TableColumn<Order, Double> param) {
-                return new TableCell<Order, Double>() {
-                    @Override
-                    protected void updateItem(Double item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            setText(null);
-                        } else {
-                            // Định dạng số theo kiểu 1.000.000
-                            DecimalFormat df = new DecimalFormat("#,###");
-                            setText(df.format(item));
-                        }
-                    }
-                };
-            }
-        });
-        loadOrders();
-        orderTable.setOnMouseClicked(event -> {
-            try {
-                showItem(event);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    public void getClass(BorderPane mainLayout) {
-        this.mainLayout = mainLayout;
-    }
-
 
     private void showItem(MouseEvent mouseEvent) throws IOException {
         if (mouseEvent.getClickCount() == 2) {
@@ -212,7 +287,33 @@ public class OrderController implements Initializable {
                 stage.show();
             }
         }
+        if(mouseEvent.getClickCount() == 1){
+            statusLabel.setVisible(true);
+            statusComboBox.setVisible(true);
+            Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
+            if(selectedOrder != null){
+                autoCompleteTextField.setText(selectedOrder.getCustomerName());
+                statusComboBox.setValue(selectedOrder.getOrderStatus());
+            }
+        }
     }
 
+    public void paymentOrder(ActionEvent event) throws IOException {
+        Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
+        if(selectedOrder != null){
+            int orderId = selectedOrder.getOrderId();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/payment.fxml"));
+            Parent root = loader.load();
+            PaymentController paymentController = loader.getController();
+            paymentController.setOrderId(orderId);
 
+            Stage stage = new Stage();
+            stage.setTitle("Payment Details");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+        }else{
+            showAlert(Alert.AlertType.INFORMATION, "Error", "Please select an order to payment.");
+        }
+    }
 }

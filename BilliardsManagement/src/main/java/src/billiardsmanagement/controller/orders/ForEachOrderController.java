@@ -15,10 +15,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.orders.bookings.AddBookingController;
-import src.billiardsmanagement.controller.orders.bookings.UpdateBookingController;
 import src.billiardsmanagement.controller.orders.items.AddOrderItemController;
 import src.billiardsmanagement.controller.orders.items.UpdateOrderItemController;
-import src.billiardsmanagement.controller.orders.rent.AddRentCueController;
 import src.billiardsmanagement.dao.*;
 import src.billiardsmanagement.model.*;
 
@@ -147,6 +145,7 @@ public class ForEachOrderController implements Initializable {
     private final CustomerDAO customerDAO = new CustomerDAO();
     private final OrderItemDAO orderItemDAO = new OrderItemDAO();
     private final RentCueDAO rentCueDAO = new RentCueDAO();
+    private final Connection conn = DatabaseConnection.getConnection();
 
     private int orderID;
     private int customerID;
@@ -402,6 +401,8 @@ public class ForEachOrderController implements Initializable {
         initializeOrderDetailColumn();
         initializeRentCueColumn();
 
+
+
     }
 
     public void addBooking(ActionEvent event) {
@@ -424,44 +425,46 @@ public class ForEachOrderController implements Initializable {
     }
 
     public void updateBooking(ActionEvent event) {
+        // Lấy booking được chọn
         Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
 
+        // Kiểm tra xem có booking nào được chọn không
         if (selectedBooking == null) {
             showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a booking to update.");
             return;
         }
 
-        if (selectedBooking.getBookingStatus().equals("finish")) {
+        // Kiểm tra trạng thái booking
+        if ("finish".equals(selectedBooking.getBookingStatus())) {
             showAlert(Alert.AlertType.WARNING, "Can't Update Status", "Cannot update the status of a booking that is already finished.");
             return;
         }
 
-        LocalDate startDate = selectedBooking.getStartTime().toLocalDateTime().toLocalDate();
-        if (!startDate.equals(LocalDate.now())) {
-            showAlert(Alert.AlertType.WARNING, "Invalid Date", "You can only update bookings with today's start time.");
+        if("playing".equals(selectedBooking.getBookingStatus())){
+            showAlert(Alert.AlertType.WARNING, "Can't Update Status", "Cannot update the status of a booking that is already finished.");
             return;
         }
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bookings/updateBooking.fxml"));
-            Parent root = loader.load();
 
-            UpdateBookingController updateController = loader.getController();
-            updateController.setBookingDetails(
-                    selectedBooking.getBookingId(),
-                    selectedBooking.getOrderId(),
-                    selectedBooking.getTableId(),
-                    selectedBooking.getTableStatus(),
-                    selectedBooking.getBookingStatus()
-            );
 
-            Stage stage = new Stage();
-            stage.setTitle("Update Booking");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
 
-            loadBookings();
-        } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load Update Booking form.");
+        // Xác định trạng thái mới
+        String newTableStatus = "Playing";
+        String newBookingStatus = "playing";
+
+        // Gọi phương thức updateBooking từ BookingDAO
+        boolean updateSuccess = BookingDAO.updateBooking(
+                selectedBooking.getBookingId(),
+                selectedBooking.getOrderId(),
+                selectedBooking.getTableId(),
+                newTableStatus
+        );
+
+        // Kiểm tra kết quả cập nhật và hiển thị thông báo
+        if (updateSuccess) {
+            showAlert(Alert.AlertType.INFORMATION, "Update Successful", "The booking status has been updated successfully.");
+            loadBookings(); // Tải lại danh sách booking sau khi cập nhật
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Update Failed", "Failed to update the booking status. Please try again.");
         }
     }
 
@@ -761,7 +764,7 @@ public class ForEachOrderController implements Initializable {
         Timestamp startTime = selectedBooking.getStartTime();
         int poolTableId = selectedBooking.getTableId();
 
-        try (Connection conn = DatabaseConnection.getConnection()) {
+        try  {
             // Start a transaction
             conn.setAutoCommit(false);
 
@@ -800,13 +803,17 @@ public class ForEachOrderController implements Initializable {
                                 // Calculate subtotal
                                 double subtotal = timeplayInHours * price;
 
+                                // Assuming net_total is same as subtotal
+                                double netTotal = subtotal;
+
                                 // Update the booking record
-                                String updateQuery = "UPDATE bookings SET end_time = ?, timeplay = ?, subtotal = ?, booking_status = 'finish' WHERE booking_id = ?";
+                                String updateQuery = "UPDATE bookings SET end_time = ?, timeplay = ?, subtotal = ?, net_total = ?, booking_status = 'finish' WHERE booking_id = ?";
                                 try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
                                     updateStmt.setTimestamp(1, currentTime);
                                     updateStmt.setDouble(2, timeplayInHours);
                                     updateStmt.setDouble(3, subtotal);
-                                    updateStmt.setInt(4, bookingId);
+                                    updateStmt.setDouble(4, netTotal);
+                                    updateStmt.setInt(5, bookingId);
                                     updateStmt.executeUpdate();
 
                                     // Commit the transaction
@@ -836,6 +843,7 @@ public class ForEachOrderController implements Initializable {
     }
 
 
+
     public void setCustomerID(int customerId) {
         this.customerID = customerId;
         if(customerId > 0 ){
@@ -854,5 +862,22 @@ public class ForEachOrderController implements Initializable {
             phoneText.setText(customer.getPhone());
             orderStatusText.setText(orderList.getOrderStatus());
         }
+    }
+    
+    private List<String> fetchTableByName(String name){
+        List<String> tableNames = new ArrayList<>();
+        String query = "SELECT name FROM pooltables WHERE name = ?";
+        try(PreparedStatement stament = conn.prepareStatement(query)) {
+            stament.setString(1,name + "%");
+            ResultSet resultSet = stament.executeQuery();
+            while (resultSet.next()){
+                String tableName = resultSet.getString("name");
+                tableNames.add(tableName);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } ;
+
+        return tableNames;
     }
 }

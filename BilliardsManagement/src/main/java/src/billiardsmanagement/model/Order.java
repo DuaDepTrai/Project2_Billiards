@@ -7,7 +7,6 @@ public class Order {
     private String customerPhone;
 
     private String currentTableName;
-
     private double totalCost;
     private String orderStatus;
 
@@ -29,6 +28,19 @@ public class Order {
     public Order(double totalCost, String orderStatus) {
         this.totalCost = totalCost;
         this.orderStatus = orderStatus;
+    }
+
+    public Order(int orderId, int customerId, String customerName, String customerPhone, double totalCost, String orderStatus) {
+        this.orderId = orderId;
+        this.customerId = customerId;
+        this.customerName = customerName;
+        this.customerPhone = customerPhone;
+        this.totalCost = totalCost;
+        this.orderStatus = orderStatus;
+    }
+
+    public Order(Integer customerId) {
+        this.customerId = customerId;
     }
 
     // Getters and Setters

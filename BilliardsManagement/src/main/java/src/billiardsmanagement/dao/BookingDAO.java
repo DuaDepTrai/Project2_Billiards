@@ -13,9 +13,9 @@ public class BookingDAO {
     public static void main(){
 
     }
-
-    public static boolean updateBooking(int bookingId, int orderId, int tableId, String tableStatus, String bookingStatus) {
-        String sqlBooking = "UPDATE bookings SET booking_status = ? WHERE booking_id = ? AND order_id = ?";
+    public static boolean updateBooking(int bookingId, int orderId, int tableId, String tableStatus) {
+        // SQL cố định booking_status là 'playing'
+        String sqlBooking = "UPDATE bookings SET booking_status = 'playing', start_time = NOW() WHERE booking_id = ? AND order_id = ?";
         String sqlPoolTable = "UPDATE pooltables SET status = ? WHERE table_id = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
@@ -27,14 +27,12 @@ public class BookingDAO {
 
             try {
                 // Cập nhật trạng thái đặt bàn
-                pstBooking.setString(1, bookingStatus);
-                pstBooking.setInt(2, bookingId);
-                pstBooking.setInt(3, orderId);
+                pstBooking.setInt(1, bookingId);
+                pstBooking.setInt(2, orderId);
                 int bookingRowsAffected = pstBooking.executeUpdate();
 
                 // Kiểm tra cập nhật đặt bàn
                 if (bookingRowsAffected <= 0) {
-                    // Ghi log lỗi không cập nhật được đặt bàn
                     System.err.println("Không thể cập nhật trạng thái đặt bàn. Mã đặt bàn: " + bookingId + ", Mã đơn hàng: " + orderId);
                     return false;
                 }
@@ -46,7 +44,6 @@ public class BookingDAO {
 
                 // Kiểm tra cập nhật bàn
                 if (tableRowsAffected <= 0) {
-                    // Ghi log lỗi không cập nhật được bàn
                     System.err.println("Không thể cập nhật trạng thái bàn. Mã bàn: " + tableId);
                     return false;
                 }
@@ -58,18 +55,13 @@ public class BookingDAO {
             } catch (SQLException e) {
                 // Hoàn tác giao dịch nếu có lỗi
                 con.rollback();
-                // Ghi log lỗi chi tiết
                 System.err.println("Lỗi cập nhật trạng thái: " + e.getMessage());
-                System.err.println("Mã đặt bàn: " + bookingId + ", Mã đơn hàng: " + orderId + ", Mã bàn: " + tableId);
                 return false;
             } finally {
-                // Đảm bảo chế độ tự động commit được khôi phục
                 con.setAutoCommit(true);
             }
         } catch (SQLException e) {
-            // Ghi log lỗi kết nối hoặc thực thi
             System.err.println("Lỗi kết nối cơ sở dữ liệu: " + e.getMessage());
-            System.err.println("Mã đặt bàn: " + bookingId + ", Mã đơn hàng: " + orderId + ", Mã bàn: " + tableId);
             return false;
         }
     }

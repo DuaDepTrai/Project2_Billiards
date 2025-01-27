@@ -25,7 +25,6 @@ import java.util.ResourceBundle;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 public class AddBookingController implements Initializable {
     @FXML
     private ComboBox<String> tableIdComboBox;
@@ -48,7 +47,9 @@ public class AddBookingController implements Initializable {
     private int orderID;
 
     private Map<String,Integer> tableNameToIdMap;
-    public void saveBooking(ActionEvent actionEvent) {
+
+    @FXML
+    private void saveBooking(ActionEvent actionEvent) {
         try {
             int order_id = Integer.parseInt(orderIDField.getText());
             if (order_id == 0) {
@@ -91,7 +92,6 @@ public class AddBookingController implements Initializable {
             Stage stage = (Stage) tableIdComboBox.getScene().getWindow();
             stage.close();
         } catch (IllegalArgumentException e) {
-            // Hiển thị thông báo lỗi cho người dùng
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Lỗi");
             alert.setHeaderText(null);
@@ -99,7 +99,6 @@ public class AddBookingController implements Initializable {
             alert.showAndWait();
         } catch (Exception e) {
             e.printStackTrace();
-            // Thêm xử lý lỗi nếu cần
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Lỗi");
             alert.setHeaderText("Đã xảy ra lỗi khi lưu dữ liệu.");
@@ -108,17 +107,13 @@ public class AddBookingController implements Initializable {
         }
     }
 
-    private void initializeOrderId(){
-        orderIDField.setText(String.valueOf(orderID));
-        System.out.println("OrderIdField: " + orderIDField.getText());
-    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         PoolTableDAO poolTableDAO = new PoolTableDAO();
         Map<Integer, String> tableMap = poolTableDAO.getAvailableTable();
         tableNameToIdMap = tableMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
         tableIdComboBox.getItems().addAll(tableNameToIdMap.keySet());
-
+        
         LocalTime now = LocalTime.now();
         int currentHour = now.getHour();
         int currentMinute = now.getMinute();
@@ -136,11 +131,38 @@ public class AddBookingController implements Initializable {
         // Đặt giá trị mặc định
         hourComboBox.setValue(currentHour);
         minuteComboBox.setValue(currentMinute);
-        datePicker.setValue(LocalDate.now());  // Đặt giá trị mặc định là ngày hiện tại
+        datePicker.setValue(LocalDate.now());
+
+        // Lắng nghe thay đổi của bookingStatusComboBox để hiển thị/ẩn các trường giờ và ngày
+        bookingStatusComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            toggleDateTimeFields(newValue);
+        });
+        datePicker.setDisable(true);
+        hourComboBox.setDisable(true);
+        minuteComboBox.setDisable(true);
+    }
+
+    private void toggleDateTimeFields(String bookingStatus) {
+        if ("Order".equals(bookingStatus)) {
+            // Hiển thị các trường ngày giờ khi trạng thái là "order"
+            datePicker.setDisable(false);
+            hourComboBox.setDisable(false);
+            minuteComboBox.setDisable(false);
+        } else {
+            // Ẩn các trường ngày giờ nếu trạng thái không phải là "order"
+            datePicker.setDisable(true);
+            hourComboBox.setDisable(true);
+            minuteComboBox.setDisable(true);
+        }
     }
 
     public void setOrderId(int orderID) {
         this.orderID = orderID;
         initializeOrderId();
+    }
+
+    private void initializeOrderId(){
+        orderIDField.setText(String.valueOf(orderID));
+        System.out.println("OrderIdField: " + orderIDField.getText());
     }
 }

@@ -28,8 +28,6 @@ public class MainController {
         NavbarController navbarController = loader.getController();
         navbarController.getClass(mainLayout);
 
-        OrderController orderController = new OrderController();
-        orderController.getClass(mainLayout);
         mainLayout.setLeft(navbar);
     }
 }

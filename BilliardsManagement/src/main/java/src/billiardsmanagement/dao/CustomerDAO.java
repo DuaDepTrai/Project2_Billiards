@@ -3,10 +3,7 @@ package src.billiardsmanagement.dao;
 import src.billiardsmanagement.model.Customer;
 import src.billiardsmanagement.model.DatabaseConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,8 +54,23 @@ public class CustomerDAO {
         }
         return customers;
     }
+    public void addCustomer(Customer customer) {
+        String sql = "INSERT INTO customers (name, phone) VALUES (?, ?)";
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-    public Object getAllCustomers() {
-        return null;
+            pstmt.setString(1, customer.getName());
+            pstmt.setString(2, customer.getPhone());
+            pstmt.executeUpdate();
+
+            // Lấy ID được tạo tự động
+            ResultSet generatedKeys = pstmt.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                customer.setCustomerId(generatedKeys.getInt(1));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

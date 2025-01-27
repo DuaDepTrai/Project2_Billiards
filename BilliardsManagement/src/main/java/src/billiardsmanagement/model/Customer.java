@@ -6,6 +6,9 @@ public class Customer {
     private String phone;    // phone
     private double totalPlaytime; // total_playtime
 
+    public Customer(){
+
+    }
     // Constructor
     public Customer(int customerId, String name, String phone, double totalPlaytime) {
         this.customerId = customerId;
