@@ -19,11 +19,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import javafx.collections.FXCollections;
 import javafx.scene.control.cell.PropertyValueFactory;
 import src.billiardsmanagement.dao.OrderDAO;
+import src.billiardsmanagement.model.Bill;
 import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.model.Order;
 
@@ -54,6 +56,10 @@ public class OrderController implements Initializable {
     private final Connection conn = DatabaseConnection.getConnection();
     private final OrderDAO orderDAO = new OrderDAO();
     private final Map<String, Integer> customerNameToIdMap = new HashMap<>();
+
+    public TableView<Order> getOrderTable() {
+        return orderTable;
+    }
     @FXML
     public void addOrder(ActionEvent actionEvent) {
         try {
@@ -204,6 +210,11 @@ public class OrderController implements Initializable {
 
     public void updateOrder(ActionEvent event) {
         Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
+
+        if(selectedOrder.getOrderStatus().equals("Paid")){
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot update an order that has already been paid.");
+            return;
+        }
         if (selectedOrder != null) {
             String orderStatus = statusComboBox.getValue();
             selectedOrder.setOrderStatus(orderStatus);
@@ -217,8 +228,6 @@ public class OrderController implements Initializable {
         } else {
             showAlert(Alert.AlertType.INFORMATION, "Error", "Please select an order to update.");
         }
-
-
     }
 
     public void deleteOrder(ActionEvent event) {
@@ -257,14 +266,17 @@ public class OrderController implements Initializable {
         stage.setTitle("Add Customer");
         stage.setScene(new Scene(root));
         stage.show();
-
     }
 
     private void showItem(MouseEvent mouseEvent) throws IOException {
         if (mouseEvent.getClickCount() == 2) {
             Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
 
-            if (selectedOrder != null) {
+            if(selectedOrder.getOrderStatus().equals("Paid")){
+                showAlert(Alert.AlertType.INFORMATION, "Error", "Can't select order paided");
+                return;
+            }
+            if (selectedOrder != null ) {
                 // Lấy orderId từ selectedOrder
                 int orderId = selectedOrder.getOrderId();
                 int customerId = selectedOrder.getCustomerId();
@@ -276,6 +288,8 @@ public class OrderController implements Initializable {
                 ForEachOrderController controller = loader.getController();
                 controller.setOrderID(orderId); // Truyền orderId
                 controller.setCustomerID(customerId);
+                controller.setOrderTable(orderTable);
+
 
                 // Kiểm tra orderID (debug)
                 System.out.println("Order ID in BookingController: " + orderId);
@@ -300,12 +314,15 @@ public class OrderController implements Initializable {
 
     public void paymentOrder(ActionEvent event) throws IOException {
         Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
+
+
         if(selectedOrder != null){
             int orderId = selectedOrder.getOrderId();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/payment.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bill.fxml"));
             Parent root = loader.load();
             PaymentController paymentController = loader.getController();
-            paymentController.setOrderId(orderId);
+            Bill bill = createBill(); // Phương thức tạo hóa đơn từ dữ liệu hiện có
+            paymentController.setBill(bill);
 
             Stage stage = new Stage();
             stage.setTitle("Payment Details");
@@ -315,5 +332,24 @@ public class OrderController implements Initializable {
         }else{
             showAlert(Alert.AlertType.INFORMATION, "Error", "Please select an order to payment.");
         }
+    }
+
+    private Bill createBill() {
+        // Lấy thông tin đơn hàng hiện tại
+        Order currentOrder = orderTable.getSelectionModel().getSelectedItem();
+        if (currentOrder == null) return null;
+
+        return new Bill(
+                currentOrder.getOrderId(),
+                currentOrder.getCustomerId(),  // Lấy customerId từ Order
+                currentOrder.getCustomerName(), // Tránh gọi getCustomer()
+                currentOrder.getCustomerPhone(), // Tránh lỗi null
+                currentOrder.getTotalCost(),
+                currentOrder.getOrderStatus(),
+                new ArrayList<>(), // Giả sử chưa có danh sách OrderItems, Booking, RentCues
+                new ArrayList<>(),
+                new ArrayList<>(),
+                LocalDateTime.now()
+        );
     }
 }

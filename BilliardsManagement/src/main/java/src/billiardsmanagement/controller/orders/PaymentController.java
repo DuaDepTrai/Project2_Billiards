@@ -3,90 +3,128 @@ package src.billiardsmanagement.controller.orders;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import src.billiardsmanagement.dao.*;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import src.billiardsmanagement.model.Bill;
 import src.billiardsmanagement.model.Booking;
 import src.billiardsmanagement.model.OrderItem;
 import src.billiardsmanagement.model.RentCue;
 
-import java.net.URL;
 import java.text.DecimalFormat;
-import java.util.List;
-import java.util.ResourceBundle;
 
-public class PaymentController implements Initializable {
+public class PaymentController {
+
     @FXML
-    private TableView<Booking> hoursPlayedTable;
+    private Label customerNameLabel;
     @FXML
-    private TableColumn<Booking,Double> colHoursPlayed;
+    private Label customerPhoneLabel;
     @FXML
-    private TableColumn<Booking,Double> colAmountPlayed;
+    private Label totalCostLabel;
+    @FXML
+    private TableView<OrderItem> orderItemTable;
+    @FXML
+    private TableView<Booking> bookingsTable;
+    @FXML
+    //order Item table
+    private TableColumn<OrderItem, String> productNameColumn;
+    @FXML
+    private TableColumn<OrderItem, Integer> quantityColumn;
+    @FXML
+    private TableColumn<OrderItem, Double> priceColumn;
+    @FXML
+    private TableColumn<OrderItem, Double> totalColumn;
+    //bookings table
+
+    @FXML
+    private TableColumn<Booking, String> tableNameColumn;
+    @FXML
+    private TableColumn<Booking,Double> hoursColumn;
+    @FXML
+    private TableColumn<Booking,Double>tablePriceColumn;
+    @FXML
+    private TableColumn<Booking,Double>bookingTotalColumn;
+//    Rent Cue Table
+    @FXML
+    private TableView<RentCue> rentCuesTable;
+    @FXML
+    private TableColumn<RentCue, String> cueNameColumn;
+    @FXML
+    private TableColumn<RentCue, Integer> cueQuantityColumn;
+    @FXML
+    private TableColumn<RentCue, Double> cueHoursColumn;
+    @FXML
+    private TableColumn<RentCue, Double> cuePriceColumn;
+    @FXML
+    private TableColumn<RentCue, Double> cueTotalColumn;
 
 
-    private final ObservableList<Booking> bookingList = FXCollections.observableArrayList();
-    private final ObservableList<OrderItem> orderItemList = FXCollections.observableArrayList();
-    private final ObservableList<RentCue> rentCueList = FXCollections.observableArrayList();
+    private Bill bill;
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0");
 
-    private final BookingDAO bookingDAO = new BookingDAO();
-    private final OrderDAO orderDAO = new OrderDAO();
-    private final CustomerDAO customerDAO = new CustomerDAO();
-    private final OrderItemDAO orderItemDAO = new OrderItemDAO();
-    private final RentCueDAO rentCueDAO = new RentCueDAO();
-    private int orderId;
-
-    public void setOrderId(int orderId) {
-        this.orderId = orderId;
-        loadBooking();
+    @FXML
+    public void printBill() {
+        // TODO: Thêm logic in hóa đơn
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        initializeBooking();
+    public void setBill(Bill bill) {
+        if (bill == null) {
+            System.err.println("Bill is null. Cannot display payment details.");
+            return;
+        }
+
+        this.bill = bill;
+        customerNameLabel.setText(bill.getCustomerName());
+        customerPhoneLabel.setText(bill.getCustomerPhone());
+        totalCostLabel.setText(DECIMAL_FORMAT.format(bill.getTotalCost()));
+        initializeOrderItemTable();
+        initializeBookingTable();
+        initializeRentCueTable();
     }
 
-    private void initializeBooking() {
+    private void initializeOrderItemTable() {
+        ObservableList<OrderItem> orderItems = FXCollections.observableArrayList(bill.getOrderItemsFromDB());
+        orderItemTable.setItems(orderItems);
 
-        colHoursPlayed.setCellValueFactory(new PropertyValueFactory<>("timeplay"));
-
-        // Use CellFactory to round values to one decimal place
-        colHoursPlayed.setCellFactory(column -> {
-            return new TableCell<Booking, Double>() {
-                @Override
-                protected void updateItem(Double item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        // Round and display as a string
-                        setText(String.format("%.1f", item));  // Round to 1 decimal place
-                    }
-                }
-            };
-        });
-
-        colAmountPlayed.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
-        colAmountPlayed.setCellFactory(column -> new TableCell<>() {
-            private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
-
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                setText((empty || item == null) ? null : decimalFormat.format(item));
-            }
-        });
+        productNameColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getProductName()));
+        quantityColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().getQuantity()));
+        priceColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().getProductPrice()));
+        totalColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().getSubTotal()));
     }
 
-    public void loadBooking() {
+    private void initializeBookingTable(){
+        ObservableList<Booking> bookings = FXCollections.observableArrayList(bill.getBookingsFromDB());
+        bookingsTable.setItems(bookings);
+        tableNameColumn.setCellValueFactory(cellData->
+                new SimpleObjectProperty<>(cellData.getValue().getTableName()));
+        hoursColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().getTimeplay()));
+        tablePriceColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().getPriceTable()));
+        bookingTotalColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().getSubTotal()));
+    }
 
-        List<Booking> bookings = bookingDAO.getBookingByOrderId(orderId);
-        bookingList.clear();
-        bookingList.addAll(bookings);
-        hoursPlayedTable.setItems(bookingList);
-        System.out.println("Hour Table: " + hoursPlayedTable.getItems());
+    private void initializeRentCueTable() {
+        // Lấy dữ liệu từ Bill (giả sử có phương thức getRentCuesFromDB trong Bill)
+        ObservableList<RentCue> rentCues = FXCollections.observableArrayList(bill.getRentCuesFromDB());
+        rentCuesTable.setItems(rentCues);
 
+        // Cài đặt giá trị cho các cột
+        cueNameColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getProductName())); // Tên gậy
+        cueQuantityColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().getQuantity())); // Số lượng
+        cueHoursColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().getTimeplay())); // Số giờ thuê
+        cuePriceColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().getProductPrice())); // Đơn giá
+        cueTotalColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().getSubTotal())); // Thành tiền (Tính từ productPrice * quantity * timeplay)
     }
 }

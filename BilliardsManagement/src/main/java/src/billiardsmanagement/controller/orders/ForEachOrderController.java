@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -42,6 +43,9 @@ public class ForEachOrderController implements Initializable {
     private TableView<OrderItem> orderItemsTable;
 
     @FXML
+    private TableView<Order> orderTable;
+
+    @FXML
     private TableView<RentCue> rentCueTable;
 
     @FXML
@@ -52,7 +56,12 @@ public class ForEachOrderController implements Initializable {
 
     @FXML
     private Text orderStatusText;
+
+
     // Bookings
+    @FXML
+    private Label totalBookingLabel;
+
     @FXML
     private TableColumn<Booking,Integer> sttColumn;
     @FXML
@@ -84,6 +93,9 @@ public class ForEachOrderController implements Initializable {
     private TableColumn<OrderItem, String> productNameColumn;
 
     @FXML
+    private Label totalItemLabel;
+
+    @FXML
     private TableColumn<OrderItem, Integer> quantityColumn;
 
     @FXML
@@ -98,6 +110,9 @@ public class ForEachOrderController implements Initializable {
     // Rent Cue
     @FXML
     private TableColumn<RentCue, String> productNameCue;
+
+    @FXML
+    private Label totalRentCueLabel;
 
     @FXML
     private TableColumn<RentCue, LocalDateTime> startTimeCue;
@@ -139,7 +154,7 @@ public class ForEachOrderController implements Initializable {
     private final ObservableList<Booking> bookingList = FXCollections.observableArrayList();
     private final ObservableList<OrderItem> orderItemList = FXCollections.observableArrayList();
     private final ObservableList<RentCue> rentCueList = FXCollections.observableArrayList();
-    
+
     private final BookingDAO bookingDAO = new BookingDAO();
     private final OrderDAO orderDAO = new OrderDAO();
     private final CustomerDAO customerDAO = new CustomerDAO();
@@ -165,6 +180,7 @@ public class ForEachOrderController implements Initializable {
         bookingList.clear();
         bookingList.addAll(bookings);
         bookingPoolTable.setItems(bookingList);
+        caculateTotals();
     }
 
     private void loadOrderDetail() {
@@ -183,6 +199,7 @@ public class ForEachOrderController implements Initializable {
         orderItemsTable.setItems(orderItemList);
         System.out.println("Order Item" + orderItemsTable.getItems());
         // Implement this method to load and display order details
+        caculateTotals();
     }
 
     private void loadRentCue() {
@@ -207,9 +224,10 @@ public class ForEachOrderController implements Initializable {
             System.out.println("No rent cue items found for order ID: " + orderID);
             return;
         }
-
         // Add retrieved rent cue items to the table
         rentCueTable.getItems().addAll(rentCues);
+        caculateTotals();
+
     }
 
 
@@ -427,7 +445,7 @@ public class ForEachOrderController implements Initializable {
     public void updateBooking(ActionEvent event) {
         // Lấy booking được chọn
         Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
-
+        System.out.println("Status Booking: " + selectedBooking.getBookingStatus());
         // Kiểm tra xem có booking nào được chọn không
         if (selectedBooking == null) {
             showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a booking to update.");
@@ -435,12 +453,14 @@ public class ForEachOrderController implements Initializable {
         }
 
         // Kiểm tra trạng thái booking
-        if ("finish".equals(selectedBooking.getBookingStatus())) {
+        if ("Finish".equals(selectedBooking.getBookingStatus())) {
+            System.out.println("Status finish");
             showAlert(Alert.AlertType.WARNING, "Can't Update Status", "Cannot update the status of a booking that is already finished.");
             return;
         }
 
-        if("playing".equals(selectedBooking.getBookingStatus())){
+        if("Playing".equals(selectedBooking.getBookingStatus())){
+            System.out.println("Status playing");
             showAlert(Alert.AlertType.WARNING, "Can't Update Status", "Cannot update the status of a booking that is already finished.");
             return;
         }
@@ -475,8 +495,13 @@ public class ForEachOrderController implements Initializable {
             showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a booking to delete.");
             return;
         }
-        if (selectedBooking.getBookingStatus().equals("finish")) {
+        if (selectedBooking.getBookingStatus().equals("Finish")) {
             showAlert(Alert.AlertType.WARNING, "Can't Delete", "Bookings marked as 'finish' cannot be deleted.");
+            return;
+        }
+
+        if(selectedBooking.getBookingStatus().equals("Playing")){
+            showAlert(Alert.AlertType.WARNING, "Can't Delete", "Bookings marked as 'playing' cannot be deleted.");
             return;
         }
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -755,10 +780,6 @@ public class ForEachOrderController implements Initializable {
             return;
         }
 
-        if (selectedBooking.getEndTime() != null) {
-            showAlert(Alert.AlertType.WARNING, "Can't Stop", "Please select a booking different to stop.");
-            return;
-        }
 
         int bookingId = selectedBooking.getBookingId();
         Timestamp startTime = selectedBooking.getStartTime();
@@ -863,21 +884,104 @@ public class ForEachOrderController implements Initializable {
             orderStatusText.setText(orderList.getOrderStatus());
         }
     }
-    
-    private List<String> fetchTableByName(String name){
-        List<String> tableNames = new ArrayList<>();
-        String query = "SELECT name FROM pooltables WHERE name = ?";
-        try(PreparedStatement stament = conn.prepareStatement(query)) {
-            stament.setString(1,name + "%");
-            ResultSet resultSet = stament.executeQuery();
-            while (resultSet.next()){
-                String tableName = resultSet.getString("name");
-                tableNames.add(tableName);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } ;
 
-        return tableNames;
+    private double caculateTotals(){
+        double totalBooking = 0.0;
+        double totalProductAmount = 0.0;
+        double totalRentalAmount = 0.0;
+
+        ObservableList<Booking> bookingList = bookingPoolTable.getItems();
+        for (Booking booking : bookingList){
+            if(booking != null){
+                totalBooking += booking.getNetTotal();
+            }
+        }
+        totalBookingLabel.setText("Total: " + formatTotal(totalBooking));
+
+        ObservableList<OrderItem> orderItemList = orderItemsTable.getItems();
+        for(OrderItem item : orderItemList){
+            totalProductAmount += item.getNetTotal();
+        }
+        totalItemLabel.setText("Total: " + formatTotal(totalProductAmount));
+
+        ObservableList<RentCue> rentCueList = rentCueTable.getItems();
+        for(RentCue rentCue : rentCueList){
+            System.out.println("Rent Cue List: " + rentCue);
+            totalRentalAmount += rentCue.getNetTotal();
+        }
+        totalRentCueLabel.setText("Total: " + formatTotal(totalRentalAmount));
+
+        return totalBooking + totalProductAmount+ totalRentalAmount;
     }
+
+    private String formatTotal(double total) {
+        DecimalFormat decimalFormat = new DecimalFormat("#,###");
+        return decimalFormat.format(total);
+    }
+    public void payment(ActionEvent event) {
+        // Kiểm tra điều kiện trước khi thanh toán
+        if (allBookingsFinished() && allRentCuesFinished()) {
+            double totalCost = caculateTotals(); // Lấy tổng tiền từ phương thức tính toán
+
+            // Câu lệnh SQL để cập nhật tổng tiền và trạng thái đơn hàng
+            String query = "UPDATE orders SET total_cost = ?, order_status = 'Paid' WHERE order_id = ?";
+
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(query)) {
+
+                stmt.setDouble(1, totalCost);  // Cập nhật tổng tiền vào cột total_cost
+                stmt.setInt(2, orderID);       // Cập nhật đúng đơn hàng theo order_id
+
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected > 0) {
+                    System.out.println("Order total cost updated successfully!");
+
+                    // Đóng cửa sổ hiện tại sau khi cập nhật thành công
+                    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                    stage.close();
+
+                    // Cập nhật giao diện sau khi thanh toán (giả sử bạn có phương thức để làm điều này)
+                    loadOrderList();  // Gọi lại phương thức cập nhật giao diện
+                } else {
+                    System.out.println("Failed to update order total cost.");
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Payment Error", "All bookings and rent cues must have 'finish' status before payment.");
+        }
+    }
+
+
+    // Giả sử bạn có phương thức refreshOrderDetails để cập nhật giao diện
+    public void setOrderTable(TableView<Order> orderTable) {
+        this.orderTable = orderTable;
+    }
+    private void loadOrderList() {
+        List<Order> orders = orderDAO.getAllOrders();
+        orderTable.setItems(FXCollections.observableArrayList(orders));
+    }
+    private boolean allBookingsFinished() {
+        // Kiểm tra trạng thái của tất cả các booking
+        for (Booking booking : bookingList) {
+            if (!"finish".equalsIgnoreCase(booking.getBookingStatus())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Phương thức kiểm tra trạng thái rent cue
+    private boolean allRentCuesFinished() {
+        // Kiểm tra trạng thái của tất cả các rent cue
+        for (RentCue rentCue : rentCueList) {
+            if (!"finish".equalsIgnoreCase(String.valueOf(rentCue.getStatus()))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

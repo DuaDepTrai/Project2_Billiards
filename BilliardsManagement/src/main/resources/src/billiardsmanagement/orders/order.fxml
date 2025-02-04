@@ -50,7 +50,7 @@
             <Button mnemonicParsing="false" onAction="#updateOrder" text="Update" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Button mnemonicParsing="false" onAction="#deleteOrder" text="Delete" GridPane.columnIndex="2" GridPane.rowIndex="2" />
             <Button mnemonicParsing="false" onAction="#addCustomer" text="Add Customer" GridPane.rowIndex="1" />
-            <Button mnemonicParsing="false" onAction="#paymentOrder" text="Payment" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+            <Button mnemonicParsing="false" onAction="#paymentOrder" text="Bill" GridPane.columnIndex="3" GridPane.rowIndex="2" />
             </children>
         </GridPane>
 

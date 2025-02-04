@@ -4,70 +4,165 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.PoolTableDAO;
 import src.billiardsmanagement.model.Booking;
+import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.model.Order;
 
 import java.net.URL;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 public class AddBookingController implements Initializable {
-    @FXML
-    private ComboBox<String> tableIdComboBox;
 
     @FXML
     private ComboBox<String> bookingStatusComboBox;
 
-    @FXML
-    private ComboBox<Integer> hourComboBox;
+
 
     @FXML
     private DatePicker datePicker;
 
     @FXML
-    private ComboBox<Integer> minuteComboBox;
+    private TextField hourTextField;
+
+    @FXML
+    private TextField minuteTextField;
+
     @FXML
     private TextField orderIDField;
 
-    private Order order;
-    private int orderID;
-
-    private Map<String,Integer> tableNameToIdMap;
+    @FXML
+    private TextField tableNameColumn;
 
     @FXML
-    private void saveBooking(ActionEvent actionEvent) {
+    private Label startTimeLabel;
+
+    private Popup popup;
+    private ListView<String> listView;
+    private int orderID;
+
+    Connection conn = DatabaseConnection.getConnection();
+    private final Map<String,Integer> getTableNameToIdMap = new HashMap<>();
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        loadTableNameToIdMap();
+        popup = new Popup();
+        listView = new ListView<>();
+        popup.getContent().add(listView);
+
+        tableNameColumn.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.isEmpty()) {
+                List<String> filteredCustomers = fetchTableByName(newValue);
+
+                System.out.println("List view: " + filteredCustomers);
+                listView.getItems().setAll(filteredCustomers);
+
+                if (!filteredCustomers.isEmpty() && !popup.isShowing()) {
+                    popup.show(tableNameColumn,
+                            tableNameColumn.localToScreen(tableNameColumn.getBoundsInLocal()).getMinX(),
+                            tableNameColumn.localToScreen(tableNameColumn.getBoundsInLocal()).getMaxY());
+                }
+            } else {
+                popup.hide();
+            }
+        });
+
+        listView.setOnMouseClicked(event -> {
+            if (!listView.getSelectionModel().isEmpty()) {
+                tableNameColumn.setText(listView.getSelectionModel().getSelectedItem());
+                popup.hide();
+            }
+        });
+
+        tableNameColumn.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case ENTER:
+                    if (!listView.getSelectionModel().isEmpty()) {
+                        tableNameColumn.setText(listView.getSelectionModel().getSelectedItem());
+                        popup.hide();
+                    }
+                    break;
+                case ESCAPE:
+                    popup.hide();
+                    break;
+                default:
+                    break;
+            }
+        });
+        LocalTime now = LocalTime.now();
+        int currentHour = now.getHour();
+        int currentMinute = now.getMinute();
+
+        hourTextField.setText(String.valueOf(currentHour));
+        minuteTextField.setText(String.valueOf(currentMinute));
+
+// Validate khi nhập liệu
+        hourTextField.textProperty().addListener((observable, oldValue, newValue) -> validateTimeInput(hourTextField, 23));
+        minuteTextField.textProperty().addListener((observable, oldValue, newValue) -> validateTimeInput(minuteTextField, 59));
+
+        datePicker.setValue(LocalDate.now());
+
+        bookingStatusComboBox.setItems(FXCollections.observableArrayList("Order", "Playing"));
+        // Lắng nghe thay đổi của bookingStatusComboBox để hiển thị/ẩn các trường giờ và ngày
+        bookingStatusComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            toggleDateTimeFields(newValue);
+        });
+        datePicker.setVisible(false);
+        hourTextField.setVisible(false);
+        minuteTextField.setVisible(false);
+        startTimeLabel.setVisible(false);
+    }
+
+    private void validateTimeInput(TextField textField, int maxValue) {
+        String input = textField.getText();
+        if (!input.matches("\\d*")) {
+            textField.setText(input.replaceAll("[^\\d]", "")); // Chỉ giữ lại số
+        }
+
+        if (!input.isEmpty()) {
+            int value = Integer.parseInt(input);
+            if (value > maxValue) {
+                textField.setText(String.valueOf(maxValue)); // Giới hạn giá trị tối đa
+            }
+        }
+    }
+
+    public void setOrderId(int orderID) {
+        this.orderID = orderID;
+        initializeOrderId();
+    }
+
+    public void saveBooking(ActionEvent event) {
         try {
             int order_id = Integer.parseInt(orderIDField.getText());
             if (order_id == 0) {
                 throw new IllegalArgumentException("Vui lòng chọn order_id");
             }
 
-            String selectedTableName = tableIdComboBox.getValue();
+            String selectedTableName = tableNameColumn.getText();
             int tableId;
             if (selectedTableName != null) {
-                tableId = tableNameToIdMap.get(selectedTableName);
+                tableId = getTableNameToIdMap.get(selectedTableName);
             } else {
                 throw new IllegalArgumentException("Vui lòng chọn table_id");
             }
 
-            Integer selectedHour = hourComboBox.getValue();
-            Integer selectedMinute = minuteComboBox.getValue();
-            if (selectedHour == null || selectedMinute == null) {
-                throw new IllegalArgumentException("Vui lòng nhập thời gian chơi");
+            int selectedHour = Integer.parseInt(hourTextField.getText());
+            int selectedMinute = Integer.parseInt(minuteTextField.getText());
+
+            if (selectedHour < 0 || selectedHour > 23 || selectedMinute < 0 || selectedMinute > 59) {
+                throw new IllegalArgumentException("Vui lòng nhập giờ từ 0-23 và phút từ 0-59");
             }
 
             LocalDate selectedDate = datePicker.getValue();
@@ -88,9 +183,16 @@ public class AddBookingController implements Initializable {
             Booking newBooking = new Booking(order_id, tableId, timeStamp, bookingStatus);
             BookingDAO bookingDAO = new BookingDAO();
             bookingDAO.addBooking(newBooking);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Thành công");
+            alert.setHeaderText(null);
+            alert.setContentText("Đặt chỗ thành công!");
+            alert.showAndWait();
 
-            Stage stage = (Stage) tableIdComboBox.getScene().getWindow();
-            stage.close();
+            // Navigate back to the previous scene
+            Stage currentStage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+            currentStage.close(); // Close the current stage
+
         } catch (IllegalArgumentException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Lỗi");
@@ -106,63 +208,69 @@ public class AddBookingController implements Initializable {
             alert.showAndWait();
         }
     }
+    private void initializeOrderId(){
+        orderIDField.setText(String.valueOf(orderID));
+        System.out.println("OrderIdField: " + orderIDField.getText());
+    }
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        PoolTableDAO poolTableDAO = new PoolTableDAO();
-        Map<Integer, String> tableMap = poolTableDAO.getAvailableTable();
-        tableNameToIdMap = tableMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-        tableIdComboBox.getItems().addAll(tableNameToIdMap.keySet());
-        
-        LocalTime now = LocalTime.now();
-        int currentHour = now.getHour();
-        int currentMinute = now.getMinute();
+    private void loadTableNameToIdMap() {
+        String query = "SELECT table_id,name FROM pooltables";
+        try (PreparedStatement statement = conn.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
 
-        // Thêm dữ liệu cho ComboBox giờ (0-23)
-        for (int i = 0; i < 24; i++) {
-            hourComboBox.getItems().add(i);
+            getTableNameToIdMap.clear();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("table_id");
+                String name = resultSet.getString("name");
+
+                getTableNameToIdMap.put(name, id);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load table data.");
         }
-
-        // Thêm dữ liệu cho ComboBox phút (0-59)
-        for (int i = 0; i < 60; i++) {
-            minuteComboBox.getItems().add(i);
-        }
-
-        // Đặt giá trị mặc định
-        hourComboBox.setValue(currentHour);
-        minuteComboBox.setValue(currentMinute);
-        datePicker.setValue(LocalDate.now());
-
-        // Lắng nghe thay đổi của bookingStatusComboBox để hiển thị/ẩn các trường giờ và ngày
-        bookingStatusComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            toggleDateTimeFields(newValue);
-        });
-        datePicker.setDisable(true);
-        hourComboBox.setDisable(true);
-        minuteComboBox.setDisable(true);
     }
 
     private void toggleDateTimeFields(String bookingStatus) {
         if ("Order".equals(bookingStatus)) {
             // Hiển thị các trường ngày giờ khi trạng thái là "order"
-            datePicker.setDisable(false);
-            hourComboBox.setDisable(false);
-            minuteComboBox.setDisable(false);
+            datePicker.setVisible(true);
+            hourTextField.setVisible(true);
+            minuteTextField.setVisible(true);
+            startTimeLabel.setVisible(true);
         } else {
             // Ẩn các trường ngày giờ nếu trạng thái không phải là "order"
-            datePicker.setDisable(true);
-            hourComboBox.setDisable(true);
-            minuteComboBox.setDisable(true);
+            datePicker.setVisible(false);
+            hourTextField.setVisible(false);
+            minuteTextField.setVisible(false);
+            startTimeLabel.setVisible(false);
         }
+    }private List<String> fetchTableByName(String name) {
+        List<String> tableNames = new ArrayList<>();
+        String query = "SELECT name FROM pooltables WHERE name LIKE ? AND status = 'available'";
+
+        try (PreparedStatement statement = conn.prepareStatement(query)) {
+            statement.setString(1, name + "%"); // Use LIKE with a wildcard for partial matches
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                String tableName = resultSet.getString("name");
+                tableNames.add(tableName);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error while fetching table names", e);
+        }
+        System.out.println("Query executed: " + query + " with name: " + name + "%");
+        return tableNames;
     }
 
-    public void setOrderId(int orderID) {
-        this.orderID = orderID;
-        initializeOrderId();
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
-    private void initializeOrderId(){
-        orderIDField.setText(String.valueOf(orderID));
-        System.out.println("OrderIdField: " + orderIDField.getText());
-    }
 }

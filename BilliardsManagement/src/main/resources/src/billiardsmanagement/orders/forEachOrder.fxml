@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="584.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
+<AnchorPane fx:id="totalBooking" prefHeight="584.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
 
     <!-- Top Information Section -->
   
@@ -71,11 +71,7 @@
     </AnchorPane>
 
     <!-- Action Buttons -->
-    <HBox spacing="30" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="120.0">
-        <Button fx:id="addNewOrder" prefWidth="150.0" text="Add New Order" />
-        <Button fx:id="editOrder" prefWidth="150.0" text="Edit Order" />
-        <Button fx:id="deleteOrder" prefWidth="150.0" text="Delete Order" />
-    </HBox>
+    <HBox spacing="30" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="120.0" />
    <Button layoutX="10.0" layoutY="160.0" mnemonicParsing="false" onAction="#addBooking" text="Add Booking">
       <opaqueInsets>
          <Insets />
@@ -118,5 +114,9 @@
          </Text>
       </children>
    </HBox>
+   <Label fx:id="totalBookingLabel" layoutX="698.0" layoutY="164.0" text="Total: " />
+   <Label fx:id="totalItemLabel" layoutX="698.0" layoutY="368.0" text="Total" />
+   <Label fx:id="totalRentCueLabel" layoutX="698.0" layoutY="511.0" text="Total:" />
+   <Button layoutX="347.0" layoutY="545.0" mnemonicParsing="false" onAction="#payment" text="Payment" />
 
 </AnchorPane>

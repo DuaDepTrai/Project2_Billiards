@@ -2,9 +2,6 @@ package src.billiardsmanagement.model;
 
 import java.time.LocalDateTime;
 
-/**
- * 
- */
 public class RentCue {
     private int rentCueId;
     private int orderId;
@@ -22,27 +19,33 @@ public class RentCue {
     private int quantity;
     private RentCueStatus status;
 
-    // Default constructor
-    public RentCue() {
-    }
+    // Constructor mặc định
+    public RentCue() {}
 
-    // Full constructor
-    public RentCue(int rentCueId, int orderId, int productId, String productName, 
-                   LocalDateTime startTime, LocalDateTime endTime, double timeplay, 
-                   double netTotal, double subTotal, int promotionId) {
+    // Constructor đầy đủ
+    public RentCue(int rentCueId, int orderId, int productId, String productName,
+                   double productPrice, LocalDateTime startTime, LocalDateTime endTime,
+                   double timeplay, double netTotal, double subTotal,
+                   int promotionId, String promotionName, double promotionDiscount,
+                   int quantity, RentCueStatus status) {
         this.rentCueId = rentCueId;
         this.orderId = orderId;
         this.productId = productId;
         this.productName = productName;
+        this.productPrice = productPrice;
         this.startTime = startTime;
         this.endTime = endTime;
         this.timeplay = timeplay;
         this.netTotal = netTotal;
         this.subTotal = subTotal;
         this.promotionId = promotionId;
+        this.promotionName = promotionName;
+        this.promotionDiscount = promotionDiscount;
+        this.quantity = quantity;
+        this.status = status;
     }
 
-    // Getters and Setters
+    // Getter và Setter cho các thuộc tính
     public int getRentCueId() {
         return rentCueId;
     }
@@ -147,12 +150,12 @@ public class RentCue {
         this.promotionDiscount = promotionDiscount;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
     public int getQuantity() {
         return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public RentCueStatus getStatus() {
@@ -161,5 +164,14 @@ public class RentCue {
 
     public void setStatus(RentCueStatus status) {
         this.status = status;
+    }
+
+    // Phương thức tính tổng tiền cho thuê gậy
+    public double calculateSubTotal() {
+        return this.productPrice * this.quantity * this.timeplay;
+    }
+
+    public double calculateNetTotal() {
+        return calculateSubTotal() - (calculateSubTotal() * this.promotionDiscount / 100);
     }
 }

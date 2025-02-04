@@ -10,9 +10,6 @@ import java.util.List;
 
 public class BookingDAO {
 
-    public static void main(){
-
-    }
     public static boolean updateBooking(int bookingId, int orderId, int tableId, String tableStatus) {
         // SQL cố định booking_status là 'playing'
         String sqlBooking = "UPDATE bookings SET booking_status = 'playing', start_time = NOW() WHERE booking_id = ? AND order_id = ?";
@@ -66,7 +63,7 @@ public class BookingDAO {
         }
     }
 
-    public List<Booking> getBookingByOrderId(int orderId) {
+    public static List<Booking> getBookingByOrderId(int orderId) {
         List<Booking> bookings = new ArrayList<>();
         String query = "SELECT b.booking_id, b.table_id, b.order_id, pt.name AS table_name, pt.price AS table_price, " +
                 "b.start_time, b.end_time, b.timeplay, b.subtotal, b.promotion_id, b.net_total, b.booking_status " +

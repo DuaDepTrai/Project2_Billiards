@@ -65,30 +65,20 @@ public class OrderDAO {
     }
 
     public boolean updateOrder(Order currentOrder) {
-        // Cập nhật câu lệnh SQL với logic tính toán total_cost
-        String query = "UPDATE orders o SET total_cost = ("
-                + "  COALESCE((SELECT oi.net_total FROM orders_items oi WHERE oi.order_id = o.order_id LIMIT 1), 0)"
-                + "  + COALESCE((SELECT rc.net_total FROM rent_cues rc WHERE rc.order_id = o.order_id LIMIT 1), 0)"
-                + "  + COALESCE((SELECT b.net_total FROM bookings b WHERE b.order_id = o.order_id LIMIT 1), 0)"
-                + "), order_status = ? WHERE order_id = ?";
+        String query = "UPDATE orders SET order_status = ? WHERE order_id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            // Cập nhật order_status và order_id
-            stmt.setString(1, currentOrder.getOrderStatus());   // order_status
-            stmt.setInt(2, currentOrder.getOrderId());          // order_id
+            stmt.setString(1, currentOrder.getOrderStatus()); // order_status
+            stmt.setInt(2, currentOrder.getOrderId());        // order_id
 
-            // Thực thi câu lệnh UPDATE
             int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Order updated successfully!");
-                return true;
-            }
+            return rowsAffected > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
 
