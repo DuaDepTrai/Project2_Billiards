@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" spacing="10" style="-fx-padding: 7;" stylesheets="@payOrderBill.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.billing.PayBillController">
+    
+    <!-- Combined Order Details Table -->
+    <TableView fx:id="orderAllDetailsTable" prefHeight="400" style="-fx-border-width: 0;">
+        <columns>
+            <TableColumn fx:id="productNameColumn" prefWidth="143.0" styleClass="product-name-column" text="Product/Table Name" />
+            <TableColumn fx:id="quantityColumn" minWidth="0.0" prefWidth="45.5" styleClass="quantity-column" text="Quantity" />
+            <TableColumn fx:id="unitColumn" prefWidth="39.5" styleClass="unit-column" text="Unit" />
+            <TableColumn fx:id="unitPriceColumn" prefWidth="88.5" styleClass="unit-price-column" text="Unit Price" />
+            <TableColumn fx:id="totalPriceColumn" prefWidth="83.5" styleClass="total-price-column" text="Total Price" />
+        </columns>
+    </TableView>
+
+    <!-- Promotions Table -->
+    <Label style="-fx-font-weight: bold;" text="Applied Promotions" />
+    <TableView fx:id="promotionsTable" prefHeight="100">
+        <columns>
+            <TableColumn fx:id="promotionNameColumn" styleClass="promotion-name-column" text="Promotion Name" />
+            <TableColumn fx:id="promotionDiscountColumn" styleClass="promotion-discount-column" text="Discount %" />
+        </columns>
+    </TableView>
+
+    <!-- Bill Summary -->
+    <VBox alignment="CENTER_LEFT" spacing="5" style="-fx-border-width: 0; -fx-padding: 10;">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Total Amount: 0.00" />
+            <Label fx:id="totalAmountDetail" text="" style="-fx-text-fill: gray;"/>
+        </HBox>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Discount Amount: 0.00" />
+            <Label fx:id="discountAmountDetail" text="" style="-fx-text-fill: gray;"/>
+        </HBox>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label style="-fx-font-weight: bold;" text="Final Amount to Pay: 0.00" />
+            <Label fx:id="finalAmountDetail" text="" style="-fx-text-fill: gray;"/>
+        </HBox>
+    </VBox>
+
+    <!-- Buttons -->
+    <HBox alignment="CENTER" spacing="10">
+        <Button onAction="#handlePayNow" style="-fx-background-color: green; -fx-text-fill: white;" text="Pay Now" />
+        <Button onAction="#handleCancel" style="-fx-background-color: red; -fx-text-fill: white;" text="Cancel" />
+    </HBox>
+</VBox>

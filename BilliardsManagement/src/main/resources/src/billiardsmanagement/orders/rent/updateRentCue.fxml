@@ -8,6 +8,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.geometry.Insets?>
 
+<?import javafx.scene.control.TextField?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="src.billiardsmanagement.controller.orders.rent.UpdateRentCueController"
@@ -19,10 +20,8 @@
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
-    
-    <Label text="Update Rent Cue" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-    
-    <ComboBox fx:id="promotionComboBox" promptText="Select Promotion" prefWidth="260"/>
+
+    <TextField fx:id="promotionNameAutoCompleteText" prefWidth="260"/>
         
     <HBox spacing="10" alignment="CENTER">
         <Button text="Confirm Update" onAction="#updateRentCue" prefWidth="120"/>

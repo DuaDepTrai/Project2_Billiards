@@ -1,11 +1,17 @@
 package src.billiardsmanagement.controller.orders.items;
 
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+
+import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.dao.OrderItemDAO;
 import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.dao.PromotionDAO;
@@ -15,16 +21,22 @@ import src.billiardsmanagement.model.Pair;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-public class AddOrderItemController {
+public class AddOrderItemController  {
+    @FXML
+    protected TextField productNameAutoCompleteText;
+    @FXML
+    protected TextField promotionNameAutoCompleteText;
+
     private int orderId;
     private int promotionId;
 
     @FXML
     private TextField quantityTextField;
-    @FXML
-    private ComboBox<String> productNameComboBox;
 
     @FXML
     public void initialize(){
@@ -32,107 +44,99 @@ public class AddOrderItemController {
         for (String s : Objects.requireNonNull(ProductDAO.getAllProductsName())) {
             if (!s.endsWith("Rent")) list.add(s);
         }
-//        list.forEach(System.out::println);
-        productNameComboBox.getItems().setAll(list);
+        TextFields.bindAutoCompletion(productNameAutoCompleteText,list);
+
+        ArrayList<String> promotionList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
+        TextFields.bindAutoCompletion(promotionNameAutoCompleteText,promotionList);
     }
-    
+
     @FXML
-    public void saveOrderItem(ActionEvent event) {
+    public void saveOrderItem(ActionEvent event){
         try{
-            if(!(orderId>0)) throw new Exception("Lỗi : Không tìm thấy Order ! Vui lòng thử lại.");
+            if(!(orderId>0)) throw new Exception("Error: Order not found ! Please try again.");
 
-            String selectedProductName = productNameComboBox.getSelectionModel().getSelectedItem();
-            if(selectedProductName==null) throw new IllegalArgumentException("Bạn chưa chọn sản phẩm !");
-
-            int quantity;
-            try{
-                quantity = Integer.parseInt(quantityTextField.getText());
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Số lượng bạn nhập vào không hợp lệ, hãy thử lại !");
-            }
-
-            if(quantity<=0) throw new IllegalArgumentException("Số lượng phải lớn hơn 0, hãy thử lại !");
-
+            String selectedProductName = productNameAutoCompleteText.getText();
             Pair<Integer, Double> productPair = ProductDAO.getProductIdAndPriceByName(selectedProductName);
-            if(productPair==null) throw new SQLException("Lỗi kết nối : Không thể kết nối với Database. Hãy thử lại sau !");
-            
+            if (productPair==null) throw new SQLException("Connection Error: Can't connect to Database. Please try again later.");
+
             int productId = productPair.getFirstValue();
             double productPrice = productPair.getSecondValue();
-            // divide
+
+            promotionId = PromotionDAO.getPromotionIdByName(promotionNameAutoCompleteText.getText());
 
             for(OrderItem orderItem : OrderItemDAO.getForEachOrderItem(orderId)){
-                if(orderItem.getProductId()==productId){
+                if (orderItem.getProductId()==productId){
                     OrderItem newItem = new OrderItem();
                     newItem.setOrderId(orderId);
                     newItem.setOrderItemId(orderItem.getOrderItemId());
-                    newItem.setQuantity(orderItem.getQuantity()+quantity);
+                    newItem.setQuantity(orderItem.getQuantity()+Integer.parseInt(quantityTextField.getText()));
                     newItem.setProductId(orderItem.getProductId());
 
-                    if(orderItem.getPromotionDiscount()>1) newItem.setNetTotal(orderItem.getNetTotal()+(quantity*productPrice)-((orderItem.getPromotionDiscount()*quantity*productPrice)/100));
-                    else newItem.setNetTotal(orderItem.getNetTotal()+quantity*productPrice);
+                    if (orderItem.getPromotionDiscount()>1)
+                        newItem.setNetTotal(orderItem.getNetTotal()+(Integer.parseInt(quantityTextField.getText())*productPrice)-((orderItem.getPromotionDiscount()*Integer.parseInt(quantityTextField.getText())*productPrice)/100));
+                    else
+                        newItem.setNetTotal(orderItem.getNetTotal()+Integer.parseInt(quantityTextField.getText())*productPrice);
 
-                    newItem.setSubTotal(orderItem.getSubTotal()+quantity*productPrice);
+                    newItem.setSubTotal(orderItem.getSubTotal()+Integer.parseInt(quantityTextField.getText())*productPrice);
                     OrderItemDAO.addOrderItemDuplicate(newItem);
+
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("Thông báo");
+                    alert.setTitle("Notification");
                     alert.setHeaderText(null);
-                    alert.setContentText("Một Order Item đã được thêm vào thành công !");
+                    alert.setContentText("An Order Item has been added successfully !");
                     alert.showAndWait();
 
-                    Stage stage = (Stage) productNameComboBox.getScene().getWindow();
+                    Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();
                     stage.close();
                     return;
-                }
-            }
-            
+                 }
+             }
+
             double subTotal;
             double netTotal;
             OrderItem orderItem;
             if(promotionId>0){
                 double discount = PromotionDAO.getPromotionDiscountById(promotionId);
-                if(discount==-1) throw new SQLException("Lỗi kết nối : Không thể kết nối với Database. Hãy thử lại sau !");
-                subTotal = quantity * productPrice;
+                if(discount==-1) throw new SQLException("Connection Error: Can't connect to Database. Please try again later.");
+                subTotal = Integer.parseInt(quantityTextField.getText()) * productPrice;
                 netTotal = subTotal - (subTotal * (discount/100));
-                orderItem = new OrderItem(orderId,productId,quantity,netTotal,subTotal,promotionId);
-            }
-            else{
-                subTotal = quantity * productPrice;
+                orderItem = new OrderItem(orderId,productId,Integer.parseInt(quantityTextField.getText()),netTotal,subTotal,promotionId);
+             } else {
+                subTotal = Integer.parseInt(quantityTextField.getText()) * productPrice;
                 netTotal = subTotal;
-                orderItem = new OrderItem(orderId,productId,quantity,netTotal,subTotal,-1);
-            }
+                orderItem = new OrderItem(orderId,productId,Integer.parseInt(quantityTextField.getText()),netTotal,subTotal,-1);
+             }
 
             OrderItemDAO.addOrderItem(orderItem);
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Thông báo");
+            alert.setTitle("Notification");
             alert.setHeaderText(null);
-            alert.setContentText("Một Order Item đã được thêm vào thành công !");
+            alert.setContentText("An Order Item has been added successfully !");
             alert.showAndWait();
 
-            Stage stage = (Stage) productNameComboBox.getScene().getWindow();
+            Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();
             stage.close();
-        }
-        catch(IllegalArgumentException illegal){
+         } catch (IllegalArgumentException illegal){
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Lỗi !");
+            alert.setTitle("Error !");
             alert.setHeaderText(illegal.getMessage());
             alert.setContentText(illegal.getMessage());
             alert.showAndWait();
-        }
-        catch (Exception e) {
+         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Lỗi !");
+            alert.setTitle("Error !");
             alert.setHeaderText(e.getMessage());
             alert.setContentText(e.getMessage());
             alert.showAndWait();
-        }
+         }
     }
 
-    public int getOrderId() {
+    public int getOrderId(){
         return orderId;
-    }
+     }
 
-    public AddOrderItemController setOrderId(int orderId) {
+    public AddOrderItemController setOrderId(int orderId){
         this.orderId = orderId;
         return this;
     }
@@ -146,5 +150,3 @@ public class AddOrderItemController {
         return this;
     }
 }
-
-

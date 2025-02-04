@@ -9,12 +9,12 @@
 
 <AnchorPane prefHeight="213.0" prefWidth="347.0" style="-fx-padding: 5;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.items.UpdateOrderItemController">
    <children>
-      <Button layoutX="115.0" layoutY="174.0" onAction="#updateOrderItem" mnemonicParsing="false" text="Xác nhận cập nhật" />
-      <Label layoutX="32.0" layoutY="82.0" text="Số lượng" />
-      <Label layoutX="32.0" layoutY="128.0" text="Khuyến mãi" />
-      <Label layoutX="32.0" layoutY="39.0" text="Tên sản phẩm" />
+      <Button layoutX="115.0" layoutY="174.0" onAction="#updateOrderItem" mnemonicParsing="false" text="Confirm Update" />
+      <Label layoutX="32.0" layoutY="82.0" text="Quantity" />
+      <Label layoutX="32.0" layoutY="128.0" text="Promotion" />
+      <Label layoutX="32.0" layoutY="39.0" text="Product Name" />
       <TextField fx:id="quantityTextField" layoutX="134.0" layoutY="78.0" />
-      <ComboBox fx:id="promotionComboBox" layoutX="134.0" layoutY="123.0" prefWidth="150.0" style="-fx-pref-width: 160;" />
-      <ComboBox fx:id="productNameComboBox" layoutX="134.0" layoutY="35.0" prefWidth="150.0" style="-fx-pref-width: 160;" />
+      <TextField fx:id="promotionNameAutoCompleteText" layoutX="134.0" layoutY="123.0" prefWidth="150.0" style="-fx-pref-width: 160;" />
+      <TextField fx:id="productNameAutoCompleteText" layoutX="134.0" layoutY="35.0" prefWidth="150.0" style="-fx-pref-width: 160;" />
    </children>
 </AnchorPane>

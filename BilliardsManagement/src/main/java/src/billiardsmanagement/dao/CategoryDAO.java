@@ -96,4 +96,27 @@ public class CategoryDAO {
         }
         return false;
     }
+    
+    // Lấy đơn vị (unit) của sản phẩm từ bảng orders_items và products
+    public static String getUnitByProductId(int productId) {
+        String sql = "SELECT p.unit " +
+                     "FROM orders_items oi " +
+                     "JOIN products p ON oi.product_id = p.product_id " +
+                     "WHERE p.product_id = ?";
+        
+        try (Connection connection = TestDBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, productId);
+            
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("unit");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return null; 
+    }
 }

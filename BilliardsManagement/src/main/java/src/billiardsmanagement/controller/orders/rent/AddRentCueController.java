@@ -5,6 +5,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.dao.PromotionDAO;
 import src.billiardsmanagement.dao.RentCueDAO;
@@ -17,16 +18,14 @@ import java.util.List;
 
 public class AddRentCueController {
     private int orderID;
-    
-    @FXML
-    private ComboBox<String> productNameComboBox;
 
     @FXML
-    private ComboBox<String> promotionComboBox;
+    protected TextField productNameAutoCompleteText;
+    @FXML
+    protected TextField promotionAutoCompleteText;
 
     @FXML
     private TextField quantityTextField;
-
     private RentCueDAO rentCueDAO = new RentCueDAO();
 
     @FXML
@@ -41,7 +40,7 @@ public class AddRentCueController {
                     filteredProducts.add(product);
                 }
             }
-            productNameComboBox.getItems().setAll(filteredProducts);
+            TextFields.bindAutoCompletion(productNameAutoCompleteText,filteredProducts);
         }
 
         // Get promotion names
@@ -52,7 +51,7 @@ public class AddRentCueController {
             for (Pair<String, Integer> promotion : allPromotions) {
                 promotionNames.add(promotion.getFirstValue());
             }
-            promotionComboBox.getItems().setAll(promotionNames);
+            TextFields.bindAutoCompletion(promotionAutoCompleteText,promotionNames);
         }
     }
 
@@ -60,11 +59,11 @@ public class AddRentCueController {
     private void addRentCue() {
         try {
             // Validate input
-            String productName = productNameComboBox.getValue();
-            String promotionName = promotionComboBox.getValue();
+            String productName = productNameAutoCompleteText.getText().trim();
+            String promotionName = promotionAutoCompleteText.getText().trim();
             String quantityStr = quantityTextField.getText();
 
-            if (productName == null || productName.isEmpty()) {
+            if (productName.isBlank()) {
                 showAlert("Lỗi Xác Thực", "Vui lòng chọn sản phẩm.");
                 return;
             }
@@ -95,7 +94,7 @@ public class AddRentCueController {
 
             // Get product and promotion IDs
             Integer productId = ProductDAO.getProductIdByName(productName);
-            Integer promotionId = promotionName != null && !promotionName.isEmpty() 
+            Integer promotionId = !promotionName.isEmpty()
                 ? PromotionDAO.getPromotionIdByName(promotionName) 
                 : null;
 
@@ -148,7 +147,7 @@ public class AddRentCueController {
     }
 
     private void closeWindow() {
-        Stage stage = (Stage) productNameComboBox.getScene().getWindow();
+        Stage stage = (Stage) productNameAutoCompleteText.getScene().getWindow();
         stage.close();
     }
 

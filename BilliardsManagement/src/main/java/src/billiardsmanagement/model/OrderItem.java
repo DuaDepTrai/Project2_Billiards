@@ -10,6 +10,7 @@ public class OrderItem {
     private double netTotal;
     private double subTotal;
     private int promotionId;
+    private String promotionName;
     private double promotionDiscount;
 
     public OrderItem(int orderId, int productId, int quantity, double netTotal, double subTotal, int promotionId) {
@@ -46,7 +47,7 @@ public class OrderItem {
 
     @Override
     public String toString() {
-        return orderItemId + " " +orderId + " "+ productId + " "+ productName;
+        return orderItemId + " " + orderId + " " + productId + " " + productName;
     }
 
     public int getOrderItemId() {
@@ -118,6 +119,15 @@ public class OrderItem {
 
     public OrderItem setPromotionId(int promotionId) {
         this.promotionId = promotionId;
+        return this;
+    }
+
+    public String getPromotionName() {
+        return promotionName;
+    }
+
+    public OrderItem setPromotionName(String promotionName) {
+        this.promotionName = promotionName;
         return this;
     }
 
