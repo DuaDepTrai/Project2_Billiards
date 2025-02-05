@@ -18,7 +18,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import src.billiardsmanagement.controller.billing.PayBillController;
 import src.billiardsmanagement.controller.orders.bookings.AddBookingController;
 import src.billiardsmanagement.controller.orders.items.AddOrderItemController;
 import src.billiardsmanagement.controller.orders.items.UpdateOrderItemController;
@@ -901,7 +900,7 @@ public class ForEachOrderController implements Initializable {
                         double timeplayInHours = Math.round((timeplayInMinutes / 60.0) * 10.0) / 10.0;
 
                         // Get the price of the pool table
-                        String priceQuery = "SELECT price FROM pooltables WHERE table_id = ?";
+                        String priceQuery = "SELECT cp.price FROM cate_pooltables cp JOIN pooltables pt ON cp.id = pt.cate_id";
                         try (PreparedStatement priceStmt = conn.prepareStatement(priceQuery)) {
                             priceStmt.setInt(1, poolTableId);
                             try (ResultSet priceRs = priceStmt.executeQuery()) {
@@ -950,28 +949,28 @@ public class ForEachOrderController implements Initializable {
         }
     }
 
-    @FXML
-    public void payOrderBill(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/billing/payOrderBill.fxml"));
-            Parent root = loader.load();
-
-            PayBillController payBillController = loader.getController();
-            payBillController.setOrderId(orderID);
-            payBillController.setBookingList(allBookings);
-            payBillController.setOrderItemList(allOrderItems);
-            payBillController.setRentCueList(allRentCues);
-            payBillController.initializeAllData();
-
-            Stage stage = new Stage();
-            stage.setTitle("Pay The Fucking Bill");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load Pay Bill form.");
-        }
-    }
+//    @FXML
+//    public void payOrderBill(ActionEvent event) {
+//        try {
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/billing/payOrderBill.fxml"));
+//            Parent root = loader.load();
+//
+//            PayBillController payBillController = loader.getController();
+//            payBillController.setOrderId(orderID);
+//            payBillController.setBookingList(allBookings);
+//            payBillController.setOrderItemList(allOrderItems);
+//            payBillController.setRentCueList(allRentCues);
+//            payBillController.initializeAllData();
+//
+//            Stage stage = new Stage();
+//            stage.setTitle("Pay The Fucking Bill");
+//            stage.setScene(new Scene(root));
+//            stage.showAndWait();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load Pay Bill form.");
+//        }
+//    }
 
 
     public void setCustomerID(int customerId) {

@@ -82,7 +82,7 @@ public class OrderDAO {
     }
 
 
-    public Order getOrderById(int orderId) {
+    public static Order getOrderById(int orderId) {
         // Truy vấn từ database và kiểm tra dữ liệu trả về
         String query = "SELECT * FROM orders WHERE order_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();

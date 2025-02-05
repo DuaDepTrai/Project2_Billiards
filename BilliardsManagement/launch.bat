@@ -1,0 +1,1 @@
+java --add-opens javafx.base/com.sun.javafx.event=org.controlsfx.controls --add-opens javafx.base/com.sun.javafx.event=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED -jar target/BilliardsManagement.jar

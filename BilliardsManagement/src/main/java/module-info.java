@@ -2,6 +2,8 @@ module src.billiardsmanagement {
     requires javafx.fxml;
     requires java.sql;
     requires org.controlsfx.controls;
+    requires itextpdf;
+    requires mysql.connector.j;
 
     exports src.billiardsmanagement.model;
     exports src.billiardsmanagement.controller;
@@ -12,13 +14,11 @@ module src.billiardsmanagement {
     exports src.billiardsmanagement.controller.orders.items;
     exports src.billiardsmanagement.controller.orders.rent;
     exports src.billiardsmanagement.controller.orders.bookings;
-    exports src.billiardsmanagement.controller.billing;
 
     opens src.billiardsmanagement.view to javafx.fxml;
     opens src.billiardsmanagement.controller.orders.rent to javafx.fxml;
     opens src.billiardsmanagement.controller.orders.items to javafx.fxml;
     opens src.billiardsmanagement.controller.orders.bookings to javafx.fxml;
-    opens src.billiardsmanagement.controller.billing to javafx.fxml;
 
     opens src.billiardsmanagement.model to javafx.base;
     opens src.billiardsmanagement.controller to javafx.fxml;

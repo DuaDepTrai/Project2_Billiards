@@ -24,6 +24,7 @@ import java.util.*;
 
 import javafx.collections.FXCollections;
 import javafx.scene.control.cell.PropertyValueFactory;
+import src.billiardsmanagement.controller.orders.bookings.BookingController;
 import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.model.Bill;
 import src.billiardsmanagement.model.DatabaseConnection;
@@ -272,10 +273,7 @@ public class OrderController implements Initializable {
         if (mouseEvent.getClickCount() == 2) {
             Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
 
-            if(selectedOrder.getOrderStatus().equals("Paid")){
-                showAlert(Alert.AlertType.INFORMATION, "Error", "Can't select order paided");
-                return;
-            }
+
             if (selectedOrder != null ) {
                 // Lấy orderId từ selectedOrder
                 int orderId = selectedOrder.getOrderId();
@@ -323,7 +321,13 @@ public class OrderController implements Initializable {
             PaymentController paymentController = loader.getController();
             Bill bill = createBill(); // Phương thức tạo hóa đơn từ dữ liệu hiện có
             paymentController.setBill(bill);
+            paymentController.setOrderID(orderId);
 
+//            FXMLLoader loaderBooking = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bill_booking.fxml"));
+//            Parent rootBooking = loaderBooking.load();
+//            BookingController bookingController = loaderBooking.getController();
+//            bookingController.setOrderId(orderId);
+//
             Stage stage = new Stage();
             stage.setTitle("Payment Details");
             stage.setScene(new Scene(root));

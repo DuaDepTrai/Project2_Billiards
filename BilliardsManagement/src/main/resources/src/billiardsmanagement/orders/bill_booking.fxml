@@ -3,28 +3,29 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="10" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.PaymentController">
-    <Label text="Hóa Đơn Thanh Toán" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+<VBox spacing="10" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.BookingController">
+    <Label text="Payment Receipt" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
 
+    <!-- Customer Information -->
     <GridPane hgap="10" vgap="10">
-        <Label text="Khách hàng:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-        <Label fx:id="customerNameLabel" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+        <Label text="Customer:" GridPane.rowIndex="0" GridPane.columnIndex="0"  />
+        <Label fx:id="customerNameLabel" GridPane.rowIndex="0" GridPane.columnIndex="1"  />
 
-        <Label text="Số điện thoại:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-        <Label fx:id="customerPhoneLabel" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+        <Label text="Phone Number:" GridPane.rowIndex="1" GridPane.columnIndex="0"  />
+        <Label fx:id="customerPhoneLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"  />
 
-        <Label text="Tổng tiền:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-        <Label fx:id="totalCostLabel" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+        <Label text="Total:" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-font-weight: bold;"  />
+        <Label fx:id="totalCostLabel" GridPane.rowIndex="3" GridPane.columnIndex="1" style="-fx-text-fill: red; -fx-font-weight: bold;"  />
     </GridPane>
 
-    <TableView fx:id="billTable">
+    <TableView fx:id="billTableView">
         <columns>
-            <TableColumn text="Table Name" fx:id="productNameColumn" />
-            <TableColumn text="Time play " fx:id="quantityColumn" />
-            <TableColumn text="Unit Price" fx:id="priceColumn" />
-            <TableColumn text="Total" fx:id="totalColumn" />
+            <TableColumn fx:id="colItemName" text="Item Category"/>
+            <TableColumn fx:id="colQuantity" text="Quantity/Hour of Play"/>
+            <TableColumn fx:id="colUnitPrice" text="Unit Price"/>
+            <TableColumn fx:id="colTotalPrice" text="Total Amount"/>
         </columns>
     </TableView>
 
-    <Button text="In hóa đơn" fx:id="printButton" />
+    <Button text="Print Receipt" fx:id="printButton"  />
 </VBox>

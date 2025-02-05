@@ -6,7 +6,6 @@
 <VBox spacing="10" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.PaymentController">
     <Label text="Hóa Đơn Thanh Toán" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
 
-    <!-- Thông tin khách hàng -->
     <GridPane hgap="10" vgap="10">
         <Label text="Khách hàng:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
         <Label fx:id="customerNameLabel" GridPane.rowIndex="0" GridPane.columnIndex="1" />
@@ -14,48 +13,18 @@
         <Label text="Số điện thoại:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
         <Label fx:id="customerPhoneLabel" GridPane.rowIndex="1" GridPane.columnIndex="1" />
 
-        <Label text="Tổng tiền:" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-font-weight: bold;" />
-        <Label fx:id="totalCostLabel" GridPane.rowIndex="3" GridPane.columnIndex="1" style="-fx-text-fill: red; -fx-font-weight: bold;" />
+        <Label text="Tổng tiền:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+        <Label fx:id="totalCostLabel" GridPane.rowIndex="2" GridPane.columnIndex="1" />
     </GridPane>
 
-    <!-- Tabs hiển thị danh sách sản phẩm, đặt bàn và thuê gậy -->
-    <TabPane>
-        <Tab text="Sản phẩm">
-            <TableView fx:id="orderItemTable">
-                <columns>
-                    <TableColumn text="Tên sản phẩm" fx:id="productNameColumn" />
-                    <TableColumn text="Số lượng" fx:id="quantityColumn" />
-                    <TableColumn text="Đơn giá" fx:id="priceColumn" />
-                    <TableColumn text="Thành tiền" fx:id="totalColumn" />
-                </columns>
-            </TableView>
-        </Tab>
-        <Tab text="Đặt bàn">
-            <TableView fx:id="bookingsTable">
-                <columns>
-                    <TableColumn text="Tên bàn" fx:id="tableNameColumn" />
-                    <TableColumn text="Số giờ chơi" fx:id="hoursColumn" />
-                    <TableColumn text="Đơn giá" fx:id="tablePriceColumn" />
-                    <TableColumn text="Thành tiền" fx:id="bookingTotalColumn" />
-                </columns>
-            </TableView>
-        </Tab>
-        <Tab text="Thuê gậy">
-            <TableView fx:id="rentCuesTable">
-                <columns>
-                    <TableColumn text="Tên gậy" fx:id="cueNameColumn" />
-                    <TableColumn text="Số lượng" fx:id="cueQuantityColumn" />
-                    <TableColumn text="Số giờ thuê" fx:id="cueHoursColumn" />
-                    <TableColumn text="Đơn giá" fx:id="cuePriceColumn" />
-                    <TableColumn text="Thành tiền" fx:id="cueTotalColumn" />
-                </columns>
-            </TableView>
-        </Tab>
-    </TabPane>
+    <TableView fx:id="billTable">
+        <columns>
+            <TableColumn text="Tên sản phẩm" fx:id="productNameColumn" />
+            <TableColumn text="Số lượng" fx:id="quantityColumn" />
+            <TableColumn text="Đơn giá" fx:id="priceColumn" />
+            <TableColumn text="Thành tiền" fx:id="totalColumn" />
+        </columns>
+    </TableView>
 
-    <!-- Hàng nút chức năng -->
-    <HBox spacing="10" alignment="CENTER">
-        <Button text="Quay lại" fx:id="backButton" />
-        <Button text="In hóa đơn" fx:id="printButton" />
-    </HBox>
+    <Button text="In hóa đơn" onAction="#printBill" fx:id="printButton" />
 </VBox>
