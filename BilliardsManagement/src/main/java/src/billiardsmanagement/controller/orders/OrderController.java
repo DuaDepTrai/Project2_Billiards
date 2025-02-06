@@ -272,10 +272,7 @@ public class OrderController implements Initializable {
         if (mouseEvent.getClickCount() == 2) {
             Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
 
-            if(selectedOrder.getOrderStatus().equals("Paid")){
-                showAlert(Alert.AlertType.INFORMATION, "Error", "Can't select order paided");
-                return;
-            }
+
             if (selectedOrder != null ) {
                 // Lấy orderId từ selectedOrder
                 int orderId = selectedOrder.getOrderId();
@@ -318,15 +315,15 @@ public class OrderController implements Initializable {
 
         if(selectedOrder != null){
             int orderId = selectedOrder.getOrderId();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bill.fxml"));
-            Parent root = loader.load();
-            PaymentController paymentController = loader.getController();
-            Bill bill = createBill(); // Phương thức tạo hóa đơn từ dữ liệu hiện có
-            paymentController.setBill(bill);
-
+            FXMLLoader loaderBooking = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bill.fxml"));
+            Parent rootBooking = loaderBooking.load();
+            BookingController bookingController = loaderBooking.getController();
+            bookingController.setOrderId(orderId);
+            Bill bill = createBill();
+            bookingController.setBill(bill);
             Stage stage = new Stage();
             stage.setTitle("Payment Details");
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(rootBooking));
             stage.show();
 
         }else{
@@ -340,16 +337,11 @@ public class OrderController implements Initializable {
         if (currentOrder == null) return null;
 
         return new Bill(
-                currentOrder.getOrderId(),
-                currentOrder.getCustomerId(),  // Lấy customerId từ Order
                 currentOrder.getCustomerName(), // Tránh gọi getCustomer()
                 currentOrder.getCustomerPhone(), // Tránh lỗi null
-                currentOrder.getTotalCost(),
-                currentOrder.getOrderStatus(),
-                new ArrayList<>(), // Giả sử chưa có danh sách OrderItems, Booking, RentCues
-                new ArrayList<>(),
-                new ArrayList<>(),
-                LocalDateTime.now()
+                currentOrder.getTotalCost()
         );
     }
+
+
 }

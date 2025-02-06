@@ -424,6 +424,10 @@ public class ForEachOrderController implements Initializable {
     }
 
     public void addBooking(ActionEvent event) {
+        if(orderStatusText.getText().equals("Paid")){
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            return;
+        }
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bookings/addBooking.fxml"));
             Parent root = loader.load();
@@ -443,6 +447,10 @@ public class ForEachOrderController implements Initializable {
     }
 
     public void updateBooking(ActionEvent event) {
+        if(orderStatusText.getText().equals("Paid")){
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            return;
+        }
         // Lấy booking được chọn
         Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
         System.out.println("Status Booking: " + selectedBooking.getBookingStatus());
@@ -489,6 +497,10 @@ public class ForEachOrderController implements Initializable {
     }
 
     public void deleteBooking(ActionEvent event) {
+        if(orderStatusText.getText().equals("Paid")){
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            return;
+        }
         Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
 
         if (selectedBooking == null) {
@@ -534,6 +546,10 @@ public class ForEachOrderController implements Initializable {
     }
 
     public void addOrderItem(ActionEvent event) {
+        if(orderStatusText.getText().equals("Paid")){
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            return;
+        }
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/items/addOrderItem.fxml"));
             Parent root = loader.load();
@@ -554,6 +570,10 @@ public class ForEachOrderController implements Initializable {
     }
 
     public void updateOrderItem(ActionEvent event) {
+        if(orderStatusText.getText().equals("Paid")){
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            return;
+        }
         OrderItem selectedItem = orderItemsTable.getSelectionModel().getSelectedItem();
         if (selectedItem == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -585,6 +605,10 @@ public class ForEachOrderController implements Initializable {
     }
 
     public void deleteOrderItem() {
+        if(orderStatusText.getText().equals("Paid")){
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            return;
+        }
         try {
             // Get the selected order item from the table
             OrderItem selectedItem = orderItemsTable.getSelectionModel().getSelectedItem();
@@ -629,6 +653,10 @@ public class ForEachOrderController implements Initializable {
 
     // Rent Cue Functions
     public void addRentCue(ActionEvent event) {
+        if(orderStatusText.getText().equals("Paid")){
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            return;
+        }
 //        try {
 //            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/rent/addRentCue.fxml"));
 //            Parent root = loader.load();
@@ -649,6 +677,10 @@ public class ForEachOrderController implements Initializable {
 
     @FXML
     public void updateRentCue(ActionEvent event) {
+        if(orderStatusText.getText().equals("Paid")){
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            return;
+        }
         try {
             // Get the selected rent cue from the table
             Object selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
@@ -668,6 +700,10 @@ public class ForEachOrderController implements Initializable {
 
     @FXML
     public void deleteRentCue(ActionEvent event) {
+        if(orderStatusText.getText().equals("Paid")){
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            return;
+        }
         try {
             // Get the selected rent cue from the table
             RentCue selectedItem = (RentCue) rentCueTable.getSelectionModel().getSelectedItem();
@@ -705,6 +741,10 @@ public class ForEachOrderController implements Initializable {
     // Sửa thêm, sao cho không thể end một hàng rentcue 2 lần
     @FXML
     public void endCueRental(ActionEvent event) {
+        if(orderStatusText.getText().equals("Paid")){
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            return;
+        }
         try {
             // Get the selected rent cue from the table
             RentCue selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
@@ -768,6 +808,10 @@ public class ForEachOrderController implements Initializable {
     }
 
     public void stopBooking(ActionEvent event) {
+        if(orderStatusText.getText().equals("Paid")){
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            return;
+        }
         Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
 
         if (selectedBooking == null) {

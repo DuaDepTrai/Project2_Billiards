@@ -65,10 +65,11 @@ public class BookingDAO {
 
     public static List<Booking> getBookingByOrderId(int orderId) {
         List<Booking> bookings = new ArrayList<>();
-        String query = "SELECT b.booking_id, b.table_id, b.order_id, pt.name AS table_name, pt.price AS table_price, " +
+        String query = "SELECT b.booking_id, b.table_id, b.order_id, pt.name AS table_name, cp.price AS table_price, " +
                 "b.start_time, b.end_time, b.timeplay, b.subtotal, b.promotion_id, b.net_total, b.booking_status " +
                 "FROM bookings b " +
                 "JOIN pooltables pt ON b.table_id = pt.table_id " +
+                "JOIN cate_pooltables cp ON pt.cate_id = cp.id " + // Thêm JOIN với cate_pooltables
                 "WHERE b.order_id = ? " +
                 "ORDER BY b.booking_id";
 
@@ -84,7 +85,7 @@ public class BookingDAO {
                         resultSet.getInt("order_id"),
                         resultSet.getInt("table_id"),
                         resultSet.getString("table_name"),
-                        resultSet.getDouble("table_price"), // New field for table price
+                        resultSet.getDouble("table_price"), // Trường giá được lấy từ cate_pooltables
                         resultSet.getTimestamp("start_time") != null
                                 ? resultSet.getTimestamp("start_time").toLocalDateTime()
                                 : null,

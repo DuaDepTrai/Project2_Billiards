@@ -16,40 +16,22 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class Main extends Application {
-    double x,y;
+
+    @Override
+    public void start(Stage primaryStage) throws Exception{
+        // Tải layout chính (Main layout)
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/main.fxml"));
+        BorderPane root = loader.load();
+
+        Scene scene = new Scene(root, 800, 600);
+        scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/style.css").toExternalForm());
+
+        primaryStage.setTitle("JavaFX Application");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
 
     public static void main(String[] args) {
         launch(args);
-    }
-
-    @Override
-    public void start(Stage primaryStage) throws IOException {
-//        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/src/billiardsmanagement/navbar.fxml")));
-//        primaryStage.initStyle(StageStyle.UNDECORATED);
-//
-//        root.setOnMousePressed((event->{
-//            x = event.getSceneX();
-//            y = event.getSceneY();
-//        }));
-//
-//        root.setOnMouseDragged(event->{
-//            primaryStage.setX(event.getScreenX()-x);
-//            primaryStage.setY(event.getScreenY()-y);
-//        });
-//
-//         Scene scene = new Scene(root, 600, 400); // scene cũ
-//
-//        // Manh
-////        Scene scene = new Scene(root,1000,750);
-//        primaryStage.setScene(scene);
-//
-//        primaryStage.show();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/main.fxml"));
-            BorderPane root = loader.load();
-            // Scene scene = new Scene(root, 800, 600);
-            Scene scene = new Scene(root,1000,750);
-            primaryStage.setScene(scene);
-            primaryStage.setTitle("Billiards Management");
-            primaryStage.show();
     }
 }

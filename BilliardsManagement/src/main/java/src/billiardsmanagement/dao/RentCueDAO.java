@@ -49,8 +49,7 @@ public class RentCueDAO {
                     rentCue.setPromotionId(rs.getInt("promotion_id"));
                     rentCue.setPromotionName(rs.getString("promotion_name"));
                     rentCue.setPromotionDiscount(rs.getDouble("promotion_discount"));
-                    rentCue.setQuantity(rs.getInt("quantity"));
-                    
+
                     // Set status based on endTime
                     rentCue.setStatus(rentCue.getEndTime() == null ? 
                         RentCueStatus.Rented : RentCueStatus.Returned);
