@@ -11,11 +11,7 @@
 <?import javafx.scene.control.TableView?>
 <GridPane alignment="CENTER" hgap="10" prefHeight="196.0" prefWidth="303.0" vgap="10" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.UpdateOrderController">
 
-
-
     <TextField fx:id="orderIdField" GridPane.columnIndex="1" GridPane.rowIndex="1" visible="false" />
-
-
     <Label text="Status:" GridPane.rowIndex="3" />
     <ComboBox fx:id="orderStatusComboBox" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 

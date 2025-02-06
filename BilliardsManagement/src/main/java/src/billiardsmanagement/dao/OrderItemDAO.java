@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrderItemDAO {
+    // Cannot set a new PromotionId when add duplicate order item
     public static boolean addOrderItemDuplicate(OrderItem orderItem) {
         try (Connection con = DatabaseConnection.getConnection()) {
             String updateQuery = """
@@ -66,7 +67,7 @@ public class OrderItemDAO {
                 return new ArrayList<>();
             }
             ArrayList<OrderItem> orderItemList = new ArrayList<>();
-            String query = "SELECT ori.*, p.name AS product_name, p.price AS product_price, promo.discount FROM orders_items ori JOIN products p ON ori.product_id = p.product_id LEFT JOIN promotions promo ON ori.promotion_id = promo.promotion_id WHERE ori.order_id = ?;";
+            String query = "SELECT ori.*, p.name AS product_name, p.price AS product_price, promo.name AS promotion_name, promo.discount AS promotion_discount FROM orders_items ori JOIN products p ON ori.product_id = p.product_id LEFT JOIN promotions promo ON ori.promotion_id = promo.promotion_id WHERE ori.order_id = ?;";
             PreparedStatement prep = con.prepareStatement(query);
             prep.setInt(1, orderId);
             ResultSet rs = prep.executeQuery();
@@ -82,14 +83,8 @@ public class OrderItemDAO {
                 orderItem.setNetTotal(rs.getDouble("net_total"));
                 orderItem.setSubTotal(rs.getDouble("subtotal"));
                 orderItem.setPromotionId(rs.getInt("promotion_id"));
-
-                // Check if promotion_id is null
-                if (rs.wasNull()) {
-                    orderItem.setPromotionDiscount(1.0);
-                } else {
-                    // If not null, set the actual discount from the database
-                    orderItem.setPromotionDiscount(rs.getDouble("discount"));
-                }
+                orderItem.setPromotionName(rs.getString("promotion_name"));
+                orderItem.setPromotionDiscount(rs.getDouble("promotion_discount"));
 
                 orderItemList.add(orderItem);
             }

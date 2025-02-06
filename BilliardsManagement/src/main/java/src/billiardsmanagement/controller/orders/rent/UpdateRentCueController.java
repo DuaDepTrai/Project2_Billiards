@@ -7,13 +7,17 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.model.Pair;
 import src.billiardsmanagement.model.RentCue;
 import src.billiardsmanagement.dao.PromotionDAO;
 import src.billiardsmanagement.dao.RentCueDAO;
 
 public class UpdateRentCueController {
+
     private int orderID;
     private int promotionId;
     private String promotionName;
@@ -21,29 +25,31 @@ public class UpdateRentCueController {
     private int rentCueId;
 
     @FXML
-    private ComboBox<String> promotionComboBox;
+    protected TextField promotionNameAutoCompleteText;
 
     @FXML
     private CheckBox promotionCheckBox;
 
     private RentCue rentCue;
+    private AutoCompletionBinding<String> autoBinding;
 
     @FXML
     public void initialize() {
         ArrayList<String> promotionList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
 
         // Populate promotion combo box
-        promotionComboBox.getItems().clear();
-        promotionComboBox.getItems().addAll(promotionList);
+        autoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText,promotionList);
+        HandleTextFieldClick(promotionList,promotionNameAutoCompleteText,promotionName);
     }
+
 
     @FXML
     public void updateRentCue() {
         System.out.println("PromotionID = "+promotionId);
         System.out.println("RentCueID = "+rentCueId);
         try {
-            String promotionName = promotionComboBox.getValue();
-            if(promotionName==null){
+            String promotionName = promotionNameAutoCompleteText.getText();
+            if(promotionName.isBlank()){
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("No Product Selected");
                 alert.setHeaderText("Product Selection Required");
@@ -66,7 +72,7 @@ public class UpdateRentCueController {
                 successAlert.showAndWait();
                 
                 // Close the current window after successful update
-                Stage stage = (Stage) promotionComboBox.getScene().getWindow();
+                Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();
                 stage.close();
             } else {
                 throw new Exception("Failed to update rent cue promotion");
@@ -83,13 +89,41 @@ public class UpdateRentCueController {
         }
     }
 
+    public void HandleTextFieldClick(ArrayList<String> list, TextField text, String name) {
+        TextFields.bindAutoCompletion(text, list);
+        text.setOnMouseClicked(event -> {
+            text.setText("");
+            autoBinding.setUserInput("");
+        });
+        text.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) { // Nếu mất focus
+                String inputText = text.getText().trim();
+                boolean check = false;
+                if (inputText.isEmpty()) {
+                    text.setText(name);
+                    return;
+                }
+
+                for(String s : list){
+                    if(inputText.equals(s)){
+                        check =true;
+                        break;
+                    }
+                }
+
+                if(check) text.setText(inputText);
+                else text.setText(name);
+            }
+        });
+    }
+
     @FXML
     public void cancelUpdate() {
         closeWindow();
     }
 
     private void closeWindow() {
-        Stage stage = (Stage) promotionComboBox.getScene().getWindow();
+        Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();
         stage.close();
     }
 

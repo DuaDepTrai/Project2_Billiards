@@ -8,6 +8,8 @@ import javafx.scene.Node;
 import javafx.stage.Stage;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.dao.OrderItemDAO;
 import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.dao.PromotionDAO;
@@ -23,52 +25,89 @@ import java.util.Objects;
 public class UpdateOrderItemController {
     @FXML
     public TextField quantityTextField;
-    @FXML
-    public ComboBox<String> productNameComboBox;
 
     @FXML
-    public ComboBox<String> promotionComboBox;
+    protected TextField promotionNameAutoCompleteText;
+    @FXML
+    protected TextField productNameAutoCompleteText;
+
     private int orderId;
     private int orderItemId;
 
     private List<Pair<String, Integer>> promotions;
 
-    private HashMap<String,Integer> productsMap = new HashMap<>();
+    private HashMap<String, Integer> productsMap = new HashMap<>();
+    
+    private String initialProductName;
+    private String initialPromotionName;
+    private AutoCompletionBinding<String> productNameAutoBinding;
+    private AutoCompletionBinding<String> promotionNameAutoBinding;
 
     @FXML
-    public void initialize(){
+    public void initialize() {
         ArrayList<String> list = new ArrayList<>();
         for (String s : ProductDAO.getAllProductsName()) {
             if (!s.endsWith("Rent")) {
                 list.add(s); // cũ là "Sale"
             }
         }
-        productNameComboBox.getItems().setAll(list);
-        
+        productNameAutoBinding = TextFields.bindAutoCompletion(productNameAutoCompleteText,list);
+        HandleTextFieldClick(list, productNameAutoCompleteText, initialProductName);
+
         // Initialize promotion combo box
         promotions = PromotionDAO.getAllPromotionsName();
-        if (promotions != null) {
-            // Add "Không có khuyến mãi" as the first option
-            promotionComboBox.getItems().add("Không có khuyến mãi");
-            
-            // Add promotion names to the combo box
-            for (Pair<String, Integer> promotion : promotions) {
-                promotionComboBox.getItems().add(promotion.getFirstValue());
-            }
+        ArrayList<String> promotionList = new ArrayList<>();
+        if(promotions!=null){
+             for(Pair<String,Integer> p : promotions){
+                 promotionList.add(p.getFirstValue());
+             }
         }
+        promotionNameAutoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText,promotionList);
+        HandleTextFieldClick(promotionList, promotionNameAutoCompleteText, initialPromotionName);
+    }
+
+    public void HandleTextFieldClick(ArrayList<String> list, TextField text, String name) {
+        TextFields.bindAutoCompletion(text, list);
+        text.setOnMouseClicked(event -> {
+            text.setText("");
+            if(text.equals(productNameAutoCompleteText)) productNameAutoBinding.setUserInput("");
+            else promotionNameAutoBinding.setUserInput("");
+        });
+        text.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) { // Nếu mất focus
+                String inputText = text.getText().trim();
+                boolean check = false;
+                if (inputText.isEmpty()) {
+                    text.setText(name);
+                    return;
+                }
+
+                for(String s : list){
+                    if(inputText.equals(s)){
+                        check =true;
+                        break;
+                    }
+                }
+                System.out.println("initial name = "+name);
+                if(check) text.setText(inputText);
+                else text.setText(name);
+            }
+        });
     }
 
     public void setOrderItemDetails(OrderItem item) {
         if (item != null) {
-            orderItemId = item.getOrderItemId(); // Store the orderItemId
-            productNameComboBox.setValue(item.getProductName());
-            quantityTextField.setText(String.valueOf(item.getQuantity()));
+            initialProductName = item.getProductName();
             
+            orderItemId = item.getOrderItemId(); // Store the orderItemId
+            productNameAutoCompleteText.setText(initialProductName);
+            quantityTextField.setText(String.valueOf(item.getQuantity()));
+
             // Always set a promotion value, even if no promotion
             if (item.getPromotionId() != -1) {
                 // Find promotion name by ID using getFirstBySecondValue method
-                String promotionName = Pair.getFirstBySecondValue(promotions, item.getPromotionId());
-                promotionComboBox.setValue(promotionName != null ? promotionName : "Không có khuyến mãi");
+                initialPromotionName = Pair.getFirstBySecondValue(promotions, item.getPromotionId());
+                promotionNameAutoCompleteText.setText(initialPromotionName != null ? initialPromotionName : "No promotion");
             }
         }
     }
@@ -81,7 +120,7 @@ public class UpdateOrderItemController {
     public void updateOrderItem(ActionEvent event) {
         try {
             // Get and validate input values
-            String productName = productNameComboBox.getValue();
+            String productName = productNameAutoCompleteText.getText();
             if (productName == null || productName.trim().isEmpty()) {
                 throw new IllegalArgumentException("Vui lòng chọn sản phẩm!");
             }
@@ -97,7 +136,7 @@ public class UpdateOrderItemController {
             }
 
             // Get and validate promotion
-            String selectedPromotion = promotionComboBox.getValue();
+            String selectedPromotion = promotionNameAutoCompleteText.getText();
             if (selectedPromotion == null || selectedPromotion.trim().isEmpty()) {
                 throw new IllegalArgumentException("Vui lòng chọn khuyến mãi!");
             }
@@ -118,7 +157,7 @@ public class UpdateOrderItemController {
             // Calculate subTotal and netTotal
             double subTotal = productPrice * quantity;
             double netTotal = subTotal;
-            
+
             // Apply promotion discount if a promotion is selected
             if (promotionId > 0) {
                 double discount = PromotionDAO.getPromotionDiscountById(promotionId);
@@ -129,14 +168,14 @@ public class UpdateOrderItemController {
 
             // Create OrderItem object with orderItemId
             OrderItem orderItem = new OrderItem(
-                orderItemId,  // Add orderItemId here
-                orderId,
-                productId,
-                productName,  // Add product name
-                quantity,
-                netTotal,
-                subTotal,
-                promotionId
+                    orderItemId,  // Add orderItemId here
+                    orderId,
+                    productId,
+                    productName,  // Add product name
+                    quantity,
+                    netTotal,
+                    subTotal,
+                    promotionId
             );
 
             // Update in database

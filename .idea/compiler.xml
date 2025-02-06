@@ -9,5 +9,13 @@
         <module name="BilliardsManagement" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="Project Billiards" target="" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="BilliardsManagement" options="" />
+    </option>
   </component>
 </project>

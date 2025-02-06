@@ -181,5 +181,10 @@ public class Booking {
         return bookingStatus;
     }
 
+    public String getUnit() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getUnit'");
+    }
+
 
 }

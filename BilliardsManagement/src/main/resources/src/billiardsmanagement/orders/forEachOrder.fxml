@@ -9,16 +9,16 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="totalBooking" prefHeight="584.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
+<AnchorPane fx:id="totalBooking" prefHeight="584.0" prefWidth="990.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
 
     <!-- Top Information Section -->
-  
+
 
     <!-- Booking Pane -->
     <AnchorPane fx:id="bookingPane" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0">
         <TableView fx:id="bookingPoolTable" prefHeight="100.0" prefWidth="830.0">
             <columns>
-            <TableColumn fx:id="sttColumn" prefWidth="75.0" text="STT" />
+                <TableColumn fx:id="sttColumn" prefWidth="75.0" text="STT" />
                 <TableColumn fx:id="tableNameColumn" prefWidth="133.5" text="Table Name" />
                 <TableColumn fx:id="startTimeColumn" prefWidth="113.5" text="Start Time" />
                 <TableColumn fx:id="endTimeColumn" prefWidth="122.0" text="End Time" />
@@ -32,14 +32,17 @@
     </AnchorPane>
 
     <!-- Order Items Pane -->
-    <AnchorPane fx:id="orderPane" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="200.0">
-        <TableView fx:id="orderItemsTable" layoutY="-8.0" prefHeight="166.0" prefWidth="830.0">
+    <AnchorPane fx:id="orderPane" layoutX="21.0" layoutY="200.0" prefHeight="158.0" prefWidth="868.0" AnchorPane.leftAnchor="21.0" AnchorPane.rightAnchor="11.0" AnchorPane.topAnchor="200.0">
+        <TableView fx:id="orderItemsTable" layoutY="-8.0" prefHeight="166.0" prefWidth="958.0">
             <columns>
-                <TableColumn fx:id="productNameColumn" prefWidth="227.0" text="Product Name" />
-                <TableColumn fx:id="quantityColumn" prefWidth="115.0" text="Quantity" />
-                <TableColumn fx:id="priceOrderItemColumn" prefWidth="129.5" text="Price" />
-                <TableColumn fx:id="subTotalOrderItemColumn" prefWidth="190.5" text="Sub Total" />
-                <TableColumn fx:id="netTotalOrderItemColumn" prefWidth="167.0" text="Net Total" />
+                <TableColumn fx:id="sttOrderItemColumn" prefWidth="33.5" text="STT" />
+                <TableColumn fx:id="productNameColumn" prefWidth="212.5" text="Product Name" />
+                <TableColumn fx:id="quantityColumn" prefWidth="102.5" text="Quantity" />
+                <TableColumn fx:id="priceOrderItemColumn" prefWidth="117.0" text="Price" />
+                <TableColumn fx:id="subTotalOrderItemColumn" prefWidth="147.0" text="Sub Total" />
+                <TableColumn fx:id="netTotalOrderItemColumn" prefWidth="133.5" text="Net Total" />
+                <TableColumn fx:id="promotionOrderItem" prefWidth="137.0" text="Promotion" />
+                <TableColumn fx:id="promotionDiscountOrderItem" prefWidth="74.0" text="Discount" />
             </columns>
         </TableView>
         <Button fx:id="addOrderItem" onAction="#addOrderItem" prefWidth="130" text="Add Order Item" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="0.0" />
@@ -49,25 +52,26 @@
 
     <!-- Rent Cue Pane -->
     <AnchorPane fx:id="rentCuePane" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="450.0">
-        <TableView fx:id="rentCueTable" layoutY="-52.0" prefHeight="100.0" prefWidth="830.0">
+        <TableView fx:id="rentCueTable" layoutY="-52.0" prefHeight="100.0" prefWidth="970.0">
             <columns>
-                <TableColumn fx:id="productNameCue" prefWidth="157.5" text="Product Name" />
-                <TableColumn fx:id="startTimeCue" prefWidth="87.0" text="Start Time" />
-                <TableColumn fx:id="endTimeCue" minWidth="4.0" prefWidth="95.5" text="End Time" />
-                <TableColumn fx:id="timeplayCue" prefWidth="94.5" text="Timeplay" />
-                <TableColumn fx:id="priceCue" prefWidth="82.0" text="Price" />
-                <TableColumn fx:id="subTotalCue" prefWidth="75.0" text="Sub Total" />
-                <TableColumn fx:id="netTotalCue" prefWidth="75.0" text="Net Total" />
-                <TableColumn fx:id="quantityCue" prefWidth="57.0" text="Quantity" />
-                <TableColumn fx:id="promotionCue" prefWidth="114.5" text="Promotion" />
-                <TableColumn fx:id="statusCue" prefWidth="70.0" text="Status" />
+                <TableColumn fx:id="sttRentCueColumn" prefWidth="30.5" text="STT" />
+                <TableColumn fx:id="productNameCue" prefWidth="140.0" text="Product Name" />
+                <TableColumn fx:id="quantityCue" prefWidth="65.5" text="Quantity" />
+                <TableColumn fx:id="startTimeCue" prefWidth="82.0" text="Start Time" />
+                <TableColumn fx:id="endTimeCue" minWidth="4.0" prefWidth="82.0" text="End Time" />
+                <TableColumn fx:id="timeplayCue" prefWidth="62.0" text="Timeplay" />
+                <TableColumn fx:id="priceCue" prefWidth="78.5" text="Price" />
+                <TableColumn fx:id="subTotalCue" prefWidth="105.5" text="Sub Total" />
+                <TableColumn fx:id="netTotalCue" minWidth="0.0" prefWidth="105.5" text="Net Total" />
+                <TableColumn fx:id="promotionCue" prefWidth="122.5" text="Promotion" />
+                <TableColumn fx:id="promotionDiscountCue" prefWidth="38.0" text="Discount" />
+                <TableColumn fx:id="statusCue" prefWidth="57.0" text="Status" />
             </columns>
         </TableView>
         <Button fx:id="addRentCue" onAction="#addRentCue" prefWidth="130" text="Add Rent Cue" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="0.0" />
         <Button fx:id="editRentCue" onAction="#updateRentCue" prefWidth="110" text="Edit Rent Cue" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="140.0" />
         <Button fx:id="deleteRentCue" onAction="#deleteRentCue" prefWidth="130" text="Delete Rent Cue" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="260.0" />
         <Button fx:id="endCueRental" onAction="#endCueRental" prefWidth="130" text="End This Cue Rental" AnchorPane.bottomAnchor="-28.0" AnchorPane.leftAnchor="400.0" />
-
     </AnchorPane>
 
     <!-- Action Buttons -->
