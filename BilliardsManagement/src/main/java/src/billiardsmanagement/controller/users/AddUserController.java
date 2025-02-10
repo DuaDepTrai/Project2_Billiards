@@ -53,13 +53,23 @@ public class AddUserController {
         String rePassword = txtRePassword.getText();
         String role = comboRole.getValue();
 
-        if (username.isEmpty() || role == null || password.isEmpty() || rePassword.isEmpty()) {
-            showAlert("Error","Please fill in all fields.");
+        if (!isValidUsername(username)) {
+            showAlert("Invalid Username", "Username must be at least 6 characters long and contain only letters, numbers, '.', or '_'.");
+            return;
+        }
+
+        if (!isValidPassword(password)) {
+            showAlert("Invalid Password", "Password must be at least 6 characters long and contain letters, numbers, or special characters.");
             return;
         }
 
         if (!password.equals(rePassword)) {
-            showAlert("Error", "Passwords do not match.");
+            showAlert("Error Password", "Re-entered password does not match the original password.");
+            return;
+        }
+
+        if (role == null) {
+            showAlert("Empty Role", "Please select a role.");
             return;
         }
 
@@ -115,4 +125,13 @@ public class AddUserController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    private boolean isValidUsername(String username) {
+        return username.matches("^[a-zA-Z0-9_.]{6,}$");
+    }
+
+    private boolean isValidPassword(String password) {
+        return password.matches("^.{6,}$");
+    }
+
 }
