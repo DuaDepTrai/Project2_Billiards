@@ -21,5 +21,4 @@ public class Category extends Application {
         primaryStage.setScene(new Scene(root, 1000, 750));
         primaryStage.show();
     }
-
 }

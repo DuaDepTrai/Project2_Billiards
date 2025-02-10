@@ -12,9 +12,6 @@ import java.util.List;
 
 
 public class ProductDAO {
-
-    
-
     // Phương thức để lấy tất cả sản phẩm
     public List<Product> getAllProducts() throws SQLException {
         List<Product> products = new ArrayList<>();

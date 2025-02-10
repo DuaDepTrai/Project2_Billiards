@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 09, 2025 at 07:40 PM
+-- Generation Time: Jan 27, 2025 at 06:09 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -39,21 +39,6 @@ CREATE TABLE `bookings` (
   `booking_status` enum('Order','Playing','Finish') NOT NULL DEFAULT 'Order',
   `promotion_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `bookings`
---
-
-INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end_time`, `timeplay`, `subtotal`, `net_total`, `booking_status`, `promotion_id`) VALUES
-(1, 1, 1, '2024-12-31 20:00:00', '2024-12-31 22:00:00', 2, 70000, 70000, 'Finish', NULL),
-(2, 2, 2, '2025-01-02 00:00:00', '2025-01-02 02:30:00', 2.5, 187500, 187500, 'Finish', NULL),
-(3, 3, 3, '2025-01-03 04:00:00', '2025-01-03 05:30:00', 1.5, 150000, 150000, 'Finish', NULL),
-(4, 4, 1, '2025-01-03 19:00:00', '2025-01-03 20:00:00', 1, 35000, 35000, 'Finish', NULL),
-(5, 5, 2, '2025-01-04 21:00:00', '2025-01-04 22:45:00', 1.75, 131250, 131250, 'Finish', NULL),
-(6, 6, 3, '2025-01-05 23:00:00', '2025-01-06 01:00:00', 2, 200000, 200000, 'Finish', NULL),
-(7, 7, 1, '2025-01-07 02:00:00', '2025-01-07 03:00:00', 1, 35000, 35000, 'Finish', NULL),
-(8, 8, 2, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 1, 75000, 75000, 'Finish', NULL),
-(9, 9, 3, '2025-01-09 04:00:00', NULL, NULL, NULL, NULL, 'Finish', NULL);
 
 -- --------------------------------------------------------
 
@@ -126,6 +111,32 @@ INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUE
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `employees`
+--
+
+CREATE TABLE `employees` (
+  `employee_id` int(11) NOT NULL,
+  `username` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `phone` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `role_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `employees`
+--
+
+INSERT INTO `employees` (`employee_id`, `username`, `password`, `name`, `phone`, `role_id`) VALUES
+(6, 'nguyenvana', 'matkhau123', 'Nguyễn Văn A', '0987654321', 1),
+(7, 'tranthib', 'baomat456', 'Trần Thị B', '0976543210', 2),
+(8, 'phamvanc', 'phanmem789', 'Phạm Văn C', '0965432109', 3),
+(9, 'ledangd', 'dangky321', 'Lê Đăng D', '0954321098', 1),
+(10, 'dothie', 'matkhau987', 'Đỗ Thị E', '0943210987', 2);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `orders`
 --
 
@@ -141,14 +152,14 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`order_id`, `customer_id`, `total_cost`, `order_status`) VALUES
-(1, 1, 1245000, 'Pending'),
-(2, 2, 1647500, 'Paid'),
-(3, 3, 3280000, 'Pending'),
-(4, 4, 695000, 'Pending'),
-(5, 5, 1513750, 'Pending'),
-(6, 1, 425000, 'Pending'),
-(7, 2, 35000, 'Pending'),
-(8, 3, 125000, 'Paid'),
+(1, 1, 1255000, 'Pending'),
+(2, 2, 1272500, 'Paid'),
+(3, 3, 3205000, 'Pending'),
+(4, 4, 595000, 'Pending'),
+(5, 5, 1251250, 'Pending'),
+(6, 1, 230000, 'Pending'),
+(7, 2, 52500, 'Pending'),
+(8, 3, 3500, 'Paid'),
 (9, 4, 0, 'Canceled');
 
 -- --------------------------------------------------------
@@ -167,27 +178,6 @@ CREATE TABLE `orders_items` (
   `promotion_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `orders_items`
---
-
-INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity`, `subtotal`, `net_total`, `promotion_id`) VALUES
-(1, 1, 1, 2, 1000000, 1000000, NULL),
-(2, 1, 12, 3, 60000, 60000, NULL),
-(3, 1, 7, 1, 15000, 15000, NULL),
-(4, 2, 2, 1, 1000000, 1000000, NULL),
-(5, 2, 13, 2, 60000, 60000, NULL),
-(6, 2, 8, 1, 25000, 25000, NULL),
-(7, 3, 3, 2, 3000000, 3000000, NULL),
-(8, 3, 14, 1, 25000, 25000, NULL),
-(9, 3, 10, 1, 30000, 30000, NULL),
-(10, 4, 1, 1, 500000, 500000, NULL),
-(11, 4, 15, 1, 40000, 40000, NULL),
-(12, 4, 11, 1, 20000, 20000, NULL),
-(13, 5, 2, 1, 1000000, 1000000, NULL),
-(14, 5, 16, 2, 100000, 100000, NULL),
-(15, 5, 9, 2, 20000, 20000, NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -196,7 +186,8 @@ INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity
 
 CREATE TABLE `permissions` (
   `permission_id` int(11) NOT NULL,
-  `permission_name` varchar(100) NOT NULL
+  `permission_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -305,6 +296,7 @@ CREATE TABLE `rent_cues` (
   `rent_cue_id` int(11) NOT NULL,
   `order_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT 1,
   `start_time` timestamp NOT NULL DEFAULT current_timestamp(),
   `end_time` timestamp NULL DEFAULT NULL,
   `timeplay` double DEFAULT NULL,
@@ -312,22 +304,6 @@ CREATE TABLE `rent_cues` (
   `net_total` double DEFAULT NULL,
   `promotion_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `rent_cues`
---
-
-INSERT INTO `rent_cues` (`rent_cue_id`, `order_id`, `product_id`, `start_time`, `end_time`, `timeplay`, `subtotal`, `net_total`, `promotion_id`) VALUES
-(1, 1, 4, '2024-12-31 20:00:00', '2024-12-31 20:30:00', 0.5, 25000, 25000, NULL),
-(2, 1, 5, '2024-12-31 20:00:00', '2024-12-31 20:45:00', 0.75, 75000, 75000, NULL),
-(3, 2, 6, '2025-01-02 00:00:00', '2025-01-02 02:30:00', 2.5, 375000, 375000, NULL),
-(4, 3, 4, '2025-01-03 04:00:00', '2025-01-03 05:30:00', 1.5, 75000, 75000, NULL),
-(5, 4, 5, '2025-01-03 19:00:00', '2025-01-03 20:00:00', 1, 100000, 100000, NULL),
-(6, 5, 6, '2025-01-04 21:00:00', '2025-01-04 22:45:00', 1.75, 262500, 262500, NULL),
-(7, 6, 4, '2025-01-05 23:00:00', '2025-01-05 23:30:00', 0.5, 25000, 25000, NULL),
-(8, 6, 5, '2025-01-05 23:30:00', '2025-01-06 00:00:00', 0.5, 50000, 50000, NULL),
-(9, 6, 6, '2025-01-06 00:00:00', '2025-01-06 01:00:00', 1, 150000, 150000, NULL),
-(10, 8, 4, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 1, 50000, 50000, NULL);
 
 -- --------------------------------------------------------
 
@@ -351,40 +327,29 @@ CREATE TABLE `revenue` (
 
 CREATE TABLE `roles` (
   `role_id` int(11) NOT NULL,
-  `role_name` varchar(50) NOT NULL
+  `role_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `roles`
 --
 
-INSERT INTO `roles` (`role_id`, `role_name`) VALUES
-(1, 'Admin'),
-(2, 'Receptionist'),
-(3, 'Warehouse');
+INSERT INTO `roles` (`role_id`, `role_name`, `description`) VALUES
+(1, 'Administrator', 'Manages the entire system'),
+(2, 'Sales Staff', 'Handles orders and customer support'),
+(3, 'Warehouse Staff', 'Manages goods in the warehouse');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `role_permission`
+-- Table structure for table `role_permissions`
 --
 
-CREATE TABLE `role_permission` (
+CREATE TABLE `role_permissions` (
+  `role_permission_id` int(11) NOT NULL,
   `role_id` int(11) NOT NULL,
   `permission_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
-
-CREATE TABLE `users` (
-  `user_id` int(11) NOT NULL,
-  `username` varchar(100) NOT NULL,
-  `password_hash` varchar(100) NOT NULL,
-  `role_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -417,6 +382,13 @@ ALTER TABLE `cate_pooltables`
 --
 ALTER TABLE `customers`
   ADD PRIMARY KEY (`customer_id`);
+
+--
+-- Indexes for table `employees`
+--
+ALTER TABLE `employees`
+  ADD PRIMARY KEY (`employee_id`),
+  ADD KEY `role_id` (`role_id`);
 
 --
 -- Indexes for table `orders`
@@ -482,18 +454,12 @@ ALTER TABLE `roles`
   ADD PRIMARY KEY (`role_id`);
 
 --
--- Indexes for table `role_permission`
+-- Indexes for table `role_permissions`
 --
-ALTER TABLE `role_permission`
-  ADD PRIMARY KEY (`role_id`,`permission_id`),
+ALTER TABLE `role_permissions`
+  ADD PRIMARY KEY (`role_permission_id`),
+  ADD KEY `role_id` (`role_id`),
   ADD KEY `permission_id` (`permission_id`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`user_id`),
-  ADD KEY `users_roles_FK` (`role_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -524,10 +490,16 @@ ALTER TABLE `customers`
   MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT for table `employees`
+--
+ALTER TABLE `employees`
+  MODIFY `employee_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `orders_items`
@@ -578,10 +550,10 @@ ALTER TABLE `roles`
   MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `users`
+-- AUTO_INCREMENT for table `role_permissions`
 --
-ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `role_permissions`
+  MODIFY `role_permission_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
@@ -594,6 +566,12 @@ ALTER TABLE `bookings`
   ADD CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `bookings_ibfk_2` FOREIGN KEY (`table_id`) REFERENCES `pooltables` (`table_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `bookings_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`promotion_id`);
+
+--
+-- Constraints for table `employees`
+--
+ALTER TABLE `employees`
+  ADD CONSTRAINT `employees_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`);
 
 --
 -- Constraints for table `orders`
@@ -630,17 +608,11 @@ ALTER TABLE `rent_cues`
   ADD CONSTRAINT `rent_cues_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`promotion_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `role_permission`
+-- Constraints for table `role_permissions`
 --
-ALTER TABLE `role_permission`
-  ADD CONSTRAINT `role_permission_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`),
-  ADD CONSTRAINT `role_permission_ibfk_2` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`permission_id`);
-
---
--- Constraints for table `users`
---
-ALTER TABLE `users`
-  ADD CONSTRAINT `users_roles_FK` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `role_permissions`
+  ADD CONSTRAINT `role_permissions_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`),
+  ADD CONSTRAINT `role_permissions_ibfk_2` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`permission_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
