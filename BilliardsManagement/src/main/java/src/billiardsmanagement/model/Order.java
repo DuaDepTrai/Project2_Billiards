@@ -10,6 +10,9 @@ public class Order {
     private double totalCost;
     private String orderStatus;
 
+    // Order Status : Pending, Paid, Cancelled, Finish
+    // Finish : all Bookings & Rent Cues stopped ; waiting for payment
+
     public Order(){}
     // Constructor
     public Order(int customerId,double totalCost,String orderStatus){

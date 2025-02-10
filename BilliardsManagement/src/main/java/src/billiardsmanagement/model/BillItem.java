@@ -4,15 +4,29 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.time.LocalTime;
+
 public class BillItem {
+    @Override
+    public String toString() {
+        return "BillItem{" +
+
+                ", itemName=" + itemName +
+                ", quantity=" + quantity +
+                ", unitPrice=" + unitPrice +
+                ", totalPrice=" + totalPrice +
+                '}';
+    }
+
+
     private SimpleStringProperty itemName;
-    private SimpleIntegerProperty quantity;
+    private SimpleDoubleProperty quantity;
     private SimpleDoubleProperty unitPrice;
     private SimpleDoubleProperty totalPrice;
 
-    public BillItem(String itemName, int quantity, double unitPrice, double totalPrice) {
+    public BillItem(String itemName, double quantity, double unitPrice, double totalPrice) {
         this.itemName = new SimpleStringProperty(itemName);
-        this.quantity = new SimpleIntegerProperty(quantity);
+        this.quantity = new SimpleDoubleProperty(quantity);
         this.unitPrice = new SimpleDoubleProperty(unitPrice);
         this.totalPrice = new SimpleDoubleProperty(totalPrice);
     }
@@ -21,7 +35,7 @@ public class BillItem {
         return itemName.get();
     }
 
-    public int getQuantity() {
+    public double getQuantity() {
         return quantity.get();
     }
 

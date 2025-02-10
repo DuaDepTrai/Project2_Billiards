@@ -23,4 +23,8 @@ module src.billiardsmanagement {
     opens src.billiardsmanagement.model to javafx.base;
     opens src.billiardsmanagement.controller to javafx.fxml;
     opens src.billiardsmanagement.controller.orders to javafx.fxml;
+
+    opens src.billiardsmanagement.controller.products to javafx.fxml;
+    opens src.billiardsmanagement.controller.category to javafx.fxml;
+
 }

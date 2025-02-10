@@ -2,22 +2,29 @@ package src.billiardsmanagement.controller.orders;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import src.billiardsmanagement.model.Bill;
-import src.billiardsmanagement.model.BillService;
-import src.billiardsmanagement.model.OrderItem;
+import javafx.stage.Stage;
+import src.billiardsmanagement.model.*;
 
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ResourceBundle;
 
 public class PaymentController {
     private int orderID;
+
+    @FXML
+    private Button payOrder;
 
     @FXML
     private Label customerNameLabel;
@@ -26,15 +33,15 @@ public class PaymentController {
     @FXML
     private Label totalCostLabel;
     @FXML
-    private TableView<OrderItem> billTable;
+    private TableView<BillItem> billTable;
     @FXML
-    private TableColumn<OrderItem, String> productNameColumn;
+    private TableColumn<BillItem, String> productNameColumn;
     @FXML
-    private TableColumn<OrderItem, Integer> quantityColumn;
+    private TableColumn<BillItem, Double> quantityColumn;
     @FXML
-    private TableColumn<OrderItem, Double> priceColumn;
+    private TableColumn<BillItem, Double> unitPriceColumn;
     @FXML
-    private TableColumn<OrderItem, Double> totalColumn;
+    private TableColumn<BillItem, Double> totalCostColumn;
     @FXML
     private Button printButton;
 
@@ -44,8 +51,13 @@ public class PaymentController {
     @FXML
     public void printBill() {
         try {
-            PrintBillController.printBill(BillService.getBillItems(orderID),bill);
+            PrintBillController.printBill(BillService.getBillItems(orderID), bill);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setHeaderText("");
+            alert.setContentText("The bill has been successfully printed.");
+            alert.showAndWait();
         } catch (Exception e) {
+            e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText("An unexpected error occurred while printing the bill.");
             alert.setContentText("Please try again later.");
@@ -69,17 +81,15 @@ public class PaymentController {
 
     public void initializeBillTable() {
         productNameColumn.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getProductName()));
+                new SimpleStringProperty(cellData.getValue().getItemName()));
         quantityColumn.setCellValueFactory(cellData ->
                 new SimpleObjectProperty<>(cellData.getValue().getQuantity()));
-        priceColumn.setCellValueFactory(cellData ->
-                new SimpleObjectProperty<>(cellData.getValue().getProductPrice()));
-        totalColumn.setCellValueFactory(cellData ->
-                new SimpleObjectProperty<>(cellData.getValue().getSubTotal()));
+        unitPriceColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().getUnitPrice()));
+        totalCostColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().getTotalPrice()));
 
-        ObservableList<OrderItem> orderItems = FXCollections.observableArrayList(bill.getOrderItemsFromDB());
-        System.out.println("Order Item List: " + orderItems);
-        billTable.setItems(orderItems);
+        billTable.setItems(BillService.getBillItems(this.orderID));
     }
 
     // Getter
@@ -90,5 +100,33 @@ public class PaymentController {
     // Setter
     public void setOrderID(int orderID) {
         this.orderID = orderID;
+    }
+
+    @FXML
+    public void payOrder(ActionEvent event) {
+        String query = "UPDATE orders SET order_status = 'Paid' WHERE order_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, orderID);
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                showAlert(Alert.AlertType.INFORMATION, "Payment Successful", "The order has been marked as Paid successfully!");
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.close();
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Payment Error", "Failed to update order status to Paid.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

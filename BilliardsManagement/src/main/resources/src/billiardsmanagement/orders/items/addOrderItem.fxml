@@ -15,5 +15,5 @@
     <TextField fx:id="quantityTextField" layoutX="134.0" layoutY="168.0" prefWidth="170.0" />
 
     <Button layoutX="113.0" layoutY="276.0" onAction="#saveOrderItem" text="Add Order Item" />
-   <Label layoutX="17.0" layoutY="98.0" text="Promotion Name" />
+    <Label layoutX="17.0" layoutY="98.0" text="Promotion Name" />
 </AnchorPane>

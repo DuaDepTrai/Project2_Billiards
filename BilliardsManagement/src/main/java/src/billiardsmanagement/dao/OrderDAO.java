@@ -81,10 +81,12 @@ public class OrderDAO {
         }
     }
 
-
     public static Order getOrderById(int orderId) {
         // Truy vấn từ database và kiểm tra dữ liệu trả về
-        String query = "SELECT * FROM orders WHERE order_id = ?";
+        String query = "SELECT o.order_id, o.total_cost, o.order_status, c.name AS customer_name, c.phone AS customer_phone " +
+                "FROM orders o " +
+                "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
+                "WHERE o.order_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, orderId);
@@ -96,6 +98,8 @@ public class OrderDAO {
                 order.setOrderId(rs.getInt("order_id")); // Kiểm tra xem dữ liệu có đúng không
                 order.setTotalCost(rs.getDouble("total_cost"));
                 order.setOrderStatus(rs.getString("order_status"));
+                order.setCustomerName(rs.getString("customer_name"));
+                order.setCustomerPhone(rs.getString("customer_phone"));
                 return order;
             }
         } catch (SQLException e) {
@@ -103,6 +107,8 @@ public class OrderDAO {
         }
         return null;
     }
+
+
 
     public boolean deleteOrder(int orderId) {
         String sql = "DELETE FROM orders WHERE order_id = ?";

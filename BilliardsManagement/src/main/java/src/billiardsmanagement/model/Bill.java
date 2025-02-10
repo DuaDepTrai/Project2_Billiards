@@ -1,6 +1,8 @@
 package src.billiardsmanagement.model;
 
+import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.OrderItemDAO;
+import src.billiardsmanagement.dao.RentCueDAO;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -21,6 +23,10 @@ public class Bill {
     private List<RentCue> rentCues;
 
     private LocalTime billTime;
+
+    // Default constructor
+    public Bill() {
+    }
 
     public Bill(int billId, int orderId, int customerId, String customerName, double totalCost, String orderStatus, String customerPhone, List<OrderItem> orderItems, LocalTime billTime, List<Booking> bookings, List<RentCue> rentCues) {
         this.billId = billId;
@@ -50,6 +56,7 @@ public class Bill {
         this.rentCues = rentCues != null ? rentCues : new ArrayList<>();
         this.billTime = LocalTime.from(createdTime);
     }
+
     public int getBillId() {
         return billId;
     }
@@ -137,7 +144,16 @@ public class Bill {
     public void setBillTime(LocalTime billTime) {
         this.billTime = billTime;
     }
+
     public List<OrderItem> getOrderItemsFromDB() {
         return OrderItemDAO.getForEachOrderItem(this.orderId);
+    }
+
+    public List<Booking> getBookingsFromDB(){
+        return BookingDAO.getBookingByOrderId(this.orderId);
+    }
+
+    public List<RentCue> getRentCuesFromDB(){
+        return RentCueDAO.getAllRentCuesByOrderId(this.orderId);
     }
 }

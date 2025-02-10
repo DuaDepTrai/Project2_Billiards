@@ -49,11 +49,10 @@ public class RentCueDAO {
                     rentCue.setPromotionId(rs.getInt("promotion_id"));
                     rentCue.setPromotionName(rs.getString("promotion_name"));
                     rentCue.setPromotionDiscount(rs.getDouble("promotion_discount"));
-                    rentCue.setQuantity(rs.getInt("quantity"));
-                    
+
                     // Set status based on endTime
                     rentCue.setStatus(rentCue.getEndTime() == null ? 
-                        RentCueStatus.Rented : RentCueStatus.Returned);
+                        RentCueStatus.Rented : RentCueStatus.Available);
                     
                     rentCues.add(rentCue);
                     System.out.println(rentCue);
@@ -61,8 +60,7 @@ public class RentCueDAO {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            System.err.println("Lỗi truy vấn: Không thể lấy danh sách thuê cơ cho đơn hàng " + orderId);
-            return null;
+            System.err.println("Query error: Unable to fetch rent cues for order " + orderId);
         }
         
         return rentCues;
@@ -71,44 +69,35 @@ public class RentCueDAO {
     public static boolean addRentCue(RentCue rentCue) {
         String insertRentCueQuery = "INSERT INTO rent_cues " +
                 "(rent_cue_id, order_id, product_id, start_time, " +
-                "promotion_id, quantity) " +
+                "promotion_id, status) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
-        
-        String updateProductQuantityQuery = "UPDATE products SET quantity = quantity - ? WHERE product_id = ?";
-        
+
         Connection connection = null;
         try {
             connection = DatabaseConnection.getConnection();
             connection.setAutoCommit(false);  // Start transaction
-            
+
             // Insert Rent Cue
             try (PreparedStatement rentCueStmt = connection.prepareStatement(insertRentCueQuery)) {
                 rentCueStmt.setInt(1, rentCue.getRentCueId());
                 rentCueStmt.setInt(2, rentCue.getOrderId());
                 rentCueStmt.setInt(3, rentCue.getProductId());
                 rentCueStmt.setObject(4, rentCue.getStartTime());
-                
+
                 if (rentCue.getPromotionId() > 0) {
                     rentCueStmt.setInt(5, rentCue.getPromotionId());
                 } else {
                     rentCueStmt.setNull(5, java.sql.Types.INTEGER);
                 }
-                
-                rentCueStmt.setInt(6, rentCue.getQuantity());
-                
+
+                rentCueStmt.setString(6, String.valueOf(RentCueStatus.Rented));
+
                 rentCueStmt.executeUpdate();
             }
-            
-            // Update Product Quantity
-            try (PreparedStatement productStmt = connection.prepareStatement(updateProductQuantityQuery)) {
-                productStmt.setInt(1, rentCue.getQuantity());
-                productStmt.setInt(2, rentCue.getProductId());
-                productStmt.executeUpdate();
-            }
-            
+
             connection.commit();  // Commit transaction
             return true;
-            
+
         } catch (SQLException e) {
             if (connection != null) {
                 try {
@@ -131,35 +120,37 @@ public class RentCueDAO {
         }
     }
 
+
     public static boolean endCueRental(RentCue rentCue) {
-        String updateRentCueQuery = "UPDATE rent_cues SET end_time = ?, net_total = ?, subtotal = ? WHERE rent_cue_id = ?";
+        String updateRentCueQuery = "UPDATE rent_cues SET end_time = ?, net_total = ?, timeplay = ?, subtotal = ?, status = ? WHERE rent_cue_id = ?";
         String updateProductQuantityQuery = "UPDATE products SET quantity = quantity + ? WHERE product_id = ?";
-        
-        Connection connection = null;
-        try {
-            connection = DatabaseConnection.getConnection();
+
+        Connection connection = DatabaseConnection.getConnection();
+        try{
             connection.setAutoCommit(false);  // Start transaction
-            
+
             // Update Rent Cue with end time and totals
             try (PreparedStatement rentCueStmt = connection.prepareStatement(updateRentCueQuery)) {
                 rentCueStmt.setObject(1, rentCue.getEndTime());
                 rentCueStmt.setDouble(2, rentCue.getNetTotal());
-                rentCueStmt.setDouble(3, rentCue.getSubTotal());
-                rentCueStmt.setInt(4, rentCue.getRentCueId());
-                
+                rentCueStmt.setDouble(3,rentCue.getTimeplay());
+                rentCueStmt.setDouble(4, rentCue.getSubTotal());
+                rentCueStmt.setString(5,String.valueOf(RentCueStatus.Available));
+                rentCueStmt.setInt(6, rentCue.getRentCueId());
+
                 rentCueStmt.executeUpdate();
             }
-            
+
             // Update Product Quantity (return the rented quantity)
             try (PreparedStatement productStmt = connection.prepareStatement(updateProductQuantityQuery)) {
                 productStmt.setInt(1, rentCue.getQuantity());
                 productStmt.setInt(2, rentCue.getProductId());
                 productStmt.executeUpdate();
             }
-            
+
             connection.commit();  // Commit transaction
             return true;
-            
+
         } catch (SQLException e) {
             if (connection != null) {
                 try {
@@ -240,7 +231,7 @@ public class RentCueDAO {
 
     public static boolean updateRentCue(RentCue rentCue){
         try(Connection con = DatabaseConnection.getConnection()){
-            if(con==null) throw new SQLException("Lỗi kết nối: Không thể kết nối đến cơ sở dữ liệu!");
+            if(con==null) throw new SQLException("Connection error : cannot connect to the Database !");
             String query = "UPDATE rent_cues SET promotion_id = ? WHERE rent_cue_id = ?";
             PreparedStatement pre = con.prepareStatement(query);
             pre.setInt(1,rentCue.getPromotionId());

@@ -16,13 +16,17 @@
       alignment="CENTER"
       prefWidth="300"
       prefHeight="400">
-    
+
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-    <TextField fx:id="promotionNameAutoCompleteText" prefWidth="260"/>
-        
+    <TextField fx:id="promotionNameAutoCompleteText" prefWidth="200" maxWidth="240" />
+    <HBox>
+        <padding>
+            <Insets top="10" right="20" bottom="10" left="20"/>
+        </padding>
+    </HBox>
     <HBox spacing="10" alignment="CENTER">
         <Button text="Confirm Update" onAction="#updateRentCue" prefWidth="120"/>
         <Button text="Cancel" onAction="#cancelUpdate" prefWidth="120"/>

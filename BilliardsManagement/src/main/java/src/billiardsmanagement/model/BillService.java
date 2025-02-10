@@ -19,7 +19,7 @@ public class BillService {
         for (Booking booking : bookings) {
             billItems.add(new BillItem(
                     booking.getTableName(), // Tên bàn
-                    (int) booking.getTimeplay(), // Số giờ chơi
+                    booking.getTimeplay(), // Số giờ chơi
                     booking.getPriceTable(), // Giá bàn/giờ
                     booking.getSubTotal() // Tổng tiền bàn
             ));
@@ -39,15 +39,10 @@ public class BillService {
         // Lấy danh sách gậy thuê từ RentCueDAO
         List<RentCue> rentCues = RentCueDAO.getAllRentCuesByOrderId(orderId);
 
-        if (rentCues == null || rentCues.isEmpty()) { // Kiểm tra null trước khi gọi isEmpty()
-            System.out.println("Lỗi: Không có gậy thuê cho đơn hàng " + orderId);
-            return billItems; // Trả về danh sách rỗng thay vì null
-        }
-
         for (RentCue rentCue : rentCues) {
             billItems.add(new BillItem(
                     rentCue.getProductName(),
-                    (int) rentCue.getTimeplay(),
+                     rentCue.getTimeplay(),
                     rentCue.getProductPrice(),
                     rentCue.getSubTotal()
             ));
