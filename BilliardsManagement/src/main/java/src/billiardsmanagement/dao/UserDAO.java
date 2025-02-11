@@ -80,4 +80,46 @@ public class UserDAO {
         }
     }
 
+    public User getUserByUsername(String username) throws SQLException {
+        String sql = "SELECT * FROM users WHERE username = ?";
+        try (Connection connection = TestDBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                return new User(
+                        resultSet.getInt("user_id"),
+                        resultSet.getString("username"),
+                        resultSet.getString("password"),
+                        resultSet.getString("role_id")
+                );
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public String getHashedPassword(int userId) {
+        String hashedPassword = null;
+        String sql = "SELECT password FROM users WHERE user_id = ?";
+
+        try (Connection connection = TestDBConnection.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                hashedPassword = rs.getString("password");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return hashedPassword;
+    }
+
 }

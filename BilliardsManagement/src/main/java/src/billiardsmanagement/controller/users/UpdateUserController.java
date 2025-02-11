@@ -43,21 +43,27 @@ public class UpdateUserController {
     }
 
     public void setUserData(User user) {
-        this.userId = user.getId();  // Lưu product_id vào biến
+        this.userId = user.getId();
         txtUsername.setText(user.getUsername());
-        txtPassword.setText(String.valueOf(user.getPassword()));
+        txtPassword.setText(user.getPlainPassword()); // Lưu ý: cần truyền password chưa hash từ DB
+        txtRePassword.setText(user.getPlainPassword());
         comboRole.setValue(user.getRole());
     }
 
     @FXML
     private void handleUpdate() {
         String username = txtUsername.getText();
-        String password = txtPassword.getText();
-        String rePassword = txtRePassword.getText();
+        String password = txtPassword.getText() != null ? txtPassword.getText().trim() : "";
+        String rePassword = txtRePassword.getText() != null ? txtRePassword.getText().trim() : "";
         String role = comboRole.getValue();
 
-        if (username.isEmpty() || role == null || password.isEmpty() || rePassword.isEmpty()) {
-            showAlert("Error","Please fill in all fields.");
+        if (!isValidUsername(username)) {
+            showAlert("Invalid Username", "Username must be at least 6 characters long and contain only letters, numbers, '.', or '_'.");
+            return;
+        }
+
+        if (password != null && !password.isEmpty() && !isValidPassword(password)) {
+            showAlert("Invalid Password", "Password must be at least 6 characters long and contain letters, numbers, or special characters.");
             return;
         }
 
@@ -66,33 +72,33 @@ public class UpdateUserController {
             return;
         }
 
-        String hashedPassword = hashPassword(password);
+        String hashedPassword;
 
-        if (hashedPassword == null || hashedPassword.isEmpty()) {
-            showAlert("Error", "Failed to hash password");
-            return;
+        // Nếu password trống, giữ nguyên mật khẩu hash cũ từ DB
+        if (password == null || password.isEmpty()) {
+            hashedPassword = userDAO.getHashedPassword(userId);
+        } else {
+            hashedPassword = hashPassword(password);
         }
 
         try (Connection connection = TestDBConnection.getConnection()) {
-            // Get role_id from role name
             String getRoleSql = "SELECT role_id FROM roles WHERE role_name = ?";
             PreparedStatement roleStmt = connection.prepareStatement(getRoleSql);
             roleStmt.setString(1, role);
             ResultSet resultSet = roleStmt.executeQuery();
             int role_id = resultSet.next() ? resultSet.getInt("role_id") : 0;
 
-            // Cập nhật thông tin user
             userDAO.updateUser(userId, username, hashedPassword, role_id);
 
             System.out.println("User updated successfully!");
-
-            // Đóng cửa sổ Update User
             Stage stage = (Stage) txtUsername.getScene().getWindow();
             stage.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+
 
     @FXML
     private void handleCancel() {
@@ -103,11 +109,14 @@ public class UpdateUserController {
     private String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(password.getBytes());
-            return Base64.getEncoder().encodeToString(hash);
-        }catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
+            byte[] hashedBytes = md.digest(password.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashedBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -117,5 +126,13 @@ public class UpdateUserController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private boolean isValidUsername(String username) {
+        return username.matches("^[a-zA-Z0-9_.]{6,}$");
+    }
+
+    private boolean isValidPassword(String password) {
+        return password != null && password.matches("^.{6,}$");
     }
 }

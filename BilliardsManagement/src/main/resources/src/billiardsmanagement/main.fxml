@@ -9,6 +9,8 @@
     <!-- Navbar -->
     <left>
         <VBox fx:id="navbar" styleClass="navbar">
+            <Label fx:id="usernameLabel" text="Welcome, User" />
+            <Button text="Logout" onAction="#handleLogout" />
             <Button text="Order" onAction="#showOrderPage" styleClass="navbar-button"/>
             <Button text="Product" onAction="#showProductPage" styleClass="navbar-button"/>
             <Button text="Category" onAction="#showCategoryPage" styleClass="navbar-button"/>

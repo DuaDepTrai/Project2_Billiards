@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" alignment="CENTER" xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="src.billiardsmanagement.controller.users.LoginController"
+      prefWidth="500" prefHeight="350" >
+
+    <Label text="Login" style="-fx-font-size: 30px;"/>
+
+    <GridPane hgap="10" vgap="10" alignment="CENTER_LEFT">
+            <Label text="Username:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+            <TextField fx:id="usernameField" promptText="Username" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="300"/>
+
+            <Label text="Password:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+            <PasswordField fx:id="passwordField" promptText="Password" GridPane.rowIndex="1" GridPane.columnIndex="1" prefWidth="300"/>
+    </GridPane>
+
+    <Button fx:id="loginButton" text="Login" onAction="#handleLogin"/>
+    <Label fx:id="errorLabel" textFill="red"/>
+</VBox>

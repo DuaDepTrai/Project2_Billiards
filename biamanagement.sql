@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 11, 2025 at 05:04 PM
+-- Generation Time: Feb 11, 2025 at 07:56 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -367,13 +367,13 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `username`, `password`, `role_id`) VALUES
-(1, 'admin', '123456', 1),
-(2, 'hieu', '123456', 1),
-(3, 'quan', '123456', 1),
-(4, 'manh', '123456', 1),
-(6, 'long', '123456', 1),
-(7, 'receptionist1', '73l8gRjwLftklgfdXT+MdiMEjJwGPVMsyVxe16iYpk8=', 2),
-(8, 'abcdef', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', 3);
+(1, 'admin', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', 1),
+(2, 'hieu', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', 1),
+(3, 'quan', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', 1),
+(4, 'manh', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', 1),
+(6, 'long', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', 1),
+(7, 'receptionist1', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', 2),
+(8, 'whstaff1', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', 3);
 
 --
 -- Indexes for dumped tables
