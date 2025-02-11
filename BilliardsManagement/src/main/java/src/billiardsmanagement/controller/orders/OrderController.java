@@ -321,11 +321,11 @@ public class OrderController implements Initializable {
             return;
         }
 
-        if (!"Finish".equals(selectedOrder.getOrderStatus())) {
+        if (!"Finished".equals(selectedOrder.getOrderStatus())) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Access Denied");
             alert.setHeaderText(null);
-            alert.setContentText("Bills can only be accessed when the order is in finish status.");
+            alert.setContentText("Bills can only be accessed when the order is in finished status.");
             alert.showAndWait();
             return;
         }

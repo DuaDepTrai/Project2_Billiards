@@ -88,8 +88,7 @@ public class UpdateOrderItemController {
                 auto.setUserInput(" ");
             }
             if (!newValue) { // Nếu mất focus
-                String inputText = text.getText().trim();
-                boolean check = false;
+                String inputText = text != null ? text.getText().trim() : "";                boolean check = false;
                 if (inputText.isEmpty()) {
                     text.setText(name);
                     return;
@@ -128,8 +127,8 @@ public class UpdateOrderItemController {
     public void updateOrderItem(ActionEvent event) {
         try {
             // Get and validate input values
-            String productName = productNameAutoCompleteText.getText().trim();
-            if (productName == null || productName.trim().isEmpty()) {
+            String productName = productNameAutoCompleteText != null ? productNameAutoCompleteText.getText().trim() : "";
+            if (productName.trim().isEmpty()) {
                 throw new IllegalArgumentException("Please select the product!");
             }
 
@@ -144,8 +143,8 @@ public class UpdateOrderItemController {
             }
 
             // Get and validate promotion
-            String selectedPromotion = promotionNameAutoCompleteText.getText().trim();
-            if (selectedPromotion.trim().isEmpty()) {
+            String selectedPromotion = promotionNameAutoCompleteText != null ? promotionNameAutoCompleteText.getText().trim() : "";
+            if (selectedPromotion.isEmpty()) {
                 throw new IllegalArgumentException("You haven't choose a promotion !");
             }
 

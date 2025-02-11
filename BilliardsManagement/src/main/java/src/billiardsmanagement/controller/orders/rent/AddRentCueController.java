@@ -35,43 +35,46 @@ public class AddRentCueController {
 
     @FXML
     private void initialize() {
-        ArrayList<String> list = ProductDAO.getAllProductsName();
+        List<Pair<String, Integer>> list = ProductDAO.getAllProductNameAndQuantity();
         ArrayList<String> productList = new ArrayList<>();
-        if (list == null) System.out.println("Unexpected error : Product List is null !");
-        else {
-            for (String s : list) {
-                if(!s.contains("Sale") && s.contains("Rent") && s.contains("Cue")){
-                    if (!s.contains(" ")) {
-                        s = s + " ";
-                        productList.add(s);
-                    }
-                    else productList.add(s);
-                }
+
+        for (Pair<String, Integer> s : list) {
+            String str = s.getFirstValue();
+            int quant = s.getSecondValue();
+            if(!str.contains("Sale") && str.contains("Rent") && str.contains("Cue") && quant>0){
+                str = str + " ";
+                productList.add(str);
             }
-
-            AutoCompletionBinding<String> productNameAutoBinding = TextFields.bindAutoCompletion(productNameAutoCompleteText, productList);
-            HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText);
-            productNameAutoBinding.setVisibleRowCount(7);
-
-            productNameAutoBinding.setHideOnEscape(true);
-
-            ArrayList<String> pList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
-            ArrayList<String> promotionList = new ArrayList<>();
-            if (pList != null) {
-                for (String s : pList) {
-                    if (!s.contains(" ")) {
-                        s = s + " ";
-                        promotionList.add(s);
-                    } else promotionList.add(s);
-                }
-                AutoCompletionBinding<String> promotionNameAutoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
-                HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText);
-                promotionNameAutoBinding.setHideOnEscape(true);
-                promotionNameAutoBinding.setVisibleRowCount(7);
-            }
-
-            quantityTextField.setText("1");
+//            if (!s.contains("Sale") && s.contains("Rent") && s.contains("Cue")) {
+//                if (!s.contains(" ")) {
+//                    s = s + " ";
+//                    productList.add(s);
+//                } else
+//                    productList.add(s);
+//            }
         }
+
+        AutoCompletionBinding<String> productNameAutoBinding = TextFields.bindAutoCompletion(productNameAutoCompleteText, productList);
+        HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText);
+        productNameAutoBinding.setVisibleRowCount(7);
+
+        productNameAutoBinding.setHideOnEscape(true);
+
+        ArrayList<String> pList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
+        ArrayList<String> promotionList = new ArrayList<>();
+        if (pList != null) {
+            for (String s : pList) {
+                s = s + " ";
+                promotionList.add(s);
+            }
+            AutoCompletionBinding<String> promotionNameAutoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
+            HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText);
+            promotionNameAutoBinding.setHideOnEscape(true);
+            promotionNameAutoBinding.setVisibleRowCount(7);
+        }
+
+        quantityTextField.setText("1");
+
     }
 
     @FXML
@@ -88,7 +91,8 @@ public class AddRentCueController {
             }
 
             int quantity;
-            if (quantityStr.isBlank()) quantity = 1;
+            if (quantityStr.isBlank())
+                quantity = 1;
             else {
                 try {
                     quantity = Integer.parseInt(quantityStr);
@@ -111,9 +115,7 @@ public class AddRentCueController {
 
             // Get product and promotion IDs
             Integer productId = ProductDAO.getProductIdByName(productName);
-            Integer promotionId = !promotionName.isEmpty()
-                    ? PromotionDAO.getPromotionIdByName(promotionName)
-                    : null;
+            Integer promotionId = !promotionName.isEmpty() ? PromotionDAO.getPromotionIdByName(promotionName) : null;
 
             if (productId == null) {
                 showAlert("Error", "Product ID not found.");
@@ -127,7 +129,6 @@ public class AddRentCueController {
                 rentCue.setOrderId(orderID);
                 rentCue.setProductId(productId);
                 rentCue.setStartTime(LocalDateTime.now());
-                rentCue.setQuantity(1);
 
                 if (promotionId != null) {
                     rentCue.setPromotionId(promotionId);
@@ -135,8 +136,11 @@ public class AddRentCueController {
                     rentCue.setPromotionId(-1);
                 }
 
+                // dispatchItem after let people renting
                 // Add rent cue to database
-                success = RentCueDAO.addRentCue(rentCue);
+                success = RentCueDAO.addRentCue(rentCue) && ProductDAO.dispatchItem(productName, 1);
+                if (!success)
+                    throw new Exception("Database connection error. Try again later !");
             }
 
             if (success) {
@@ -161,10 +165,6 @@ public class AddRentCueController {
             if (!newValue) { // Nếu mất focus
                 String inputText = text.getText().trim();
                 boolean check = false;
-                if (inputText.isEmpty()) {
-                    text.setText("");
-                    return;
-                }
 
                 for (String s : list) {
                     if (inputText.equals(s)) {
@@ -173,8 +173,8 @@ public class AddRentCueController {
                     }
                 }
 
-                if (check) text.setText(inputText);
-                else text.setText("");
+                if (check)
+                    text.setText(inputText);
             }
         });
     }

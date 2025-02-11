@@ -9,6 +9,29 @@ import java.util.List;
 
 public class OrderDAO {
 
+    public static boolean updateOrderTotal(int orderId, double totalCost) {
+        String query = "UPDATE orders SET total_cost = ?, order_status = 'Finished' WHERE order_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setDouble(1, totalCost);  // Cập nhật tổng tiền vào cột total_cost
+            stmt.setInt(2, orderId);       // Cập nhật đúng đơn hàng theo order_id
+
+            int rowsAffected = stmt.executeUpdate();
+            if(rowsAffected > 0){
+                return true;
+            }
+            else{
+                return false;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // Không cần khai báo URL, USER, PASSWORD nữa, vì đã có trong DatabaseConnection
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
