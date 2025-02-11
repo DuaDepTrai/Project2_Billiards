@@ -1,33 +1,38 @@
 package src.billiardsmanagement.controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import src.billiardsmanagement.controller.orders.OrderController;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
+
+import java.io.IOException;
 
 import java.io.IOException;
 
 public class MainController {
 
     @FXML
-    private Pane centerPane;
+    private StackPane contentArea;
+
     @FXML
-    private BorderPane mainLayout;
-    // Tham chiếu tới BorderPane chính (được
-    public Pane getCenterPane() {
-        return centerPane;
+    private void showOrderPage() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/order.fxml"));
+        AnchorPane orderPage = loader.load();  // Tải FXML thành AnchorPane
+        contentArea.getChildren().setAll(orderPage);
     }
 
     @FXML
-    public void initialize() throws IOException, IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/navbar.fxml"));
-        Parent navbar = loader.load();
+    private void showProductPage() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/products.fxml"));
+        AnchorPane productPage = loader.load();
+        contentArea.getChildren().setAll(productPage);
+    }
 
-        NavbarController navbarController = loader.getController();
-        navbarController.getClass(mainLayout);
-
-        mainLayout.setLeft(navbar);
+    @FXML
+    private void showCategoryPage() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/category.fxml"));
+        AnchorPane categoryPage = loader.load();
+        contentArea.getChildren().setAll(categoryPage);
     }
 }
