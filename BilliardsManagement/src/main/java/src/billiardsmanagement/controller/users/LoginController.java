@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.dao.UserDAO;
@@ -83,9 +84,19 @@ public class LoginController {
 
     private void openMainWindow(User user) {
         try {
-            Main mainApp = new Main();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/main.fxml"));
+            BorderPane root = loader.load();
+
+            Scene scene = new Scene(root, 800, 600);
+            scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/style.css").toExternalForm());
+
+            // Lấy MainController từ FXMLLoader
+            MainController mainController = loader.getController();
+            mainController.setLoggedInUser(user); // Cập nhật username
+
             Stage mainStage = new Stage();
-            mainApp.start(mainStage); // Khởi động lại Main
+            mainStage.setScene(scene);
+            mainStage.setTitle("BILLIARDS MANAGEMENT");
             mainStage.show();
 
             // Đóng cửa sổ login
