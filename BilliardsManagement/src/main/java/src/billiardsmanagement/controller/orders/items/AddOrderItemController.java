@@ -8,9 +8,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
-import org.controlsfx.control.textfield.AutoCompletionBinding;
+
 import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.dao.OrderItemDAO;
 import src.billiardsmanagement.dao.ProductDAO;
@@ -20,35 +21,141 @@ import src.billiardsmanagement.model.OrderItem;
 import src.billiardsmanagement.model.Pair;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AddOrderItemController  {
     @FXML
-    protected TextField productNameAutoCompleteText;
+   private TextField productNameAutoCompleteText;
     @FXML
-    protected TextField promotionNameAutoCompleteText;
+ private TextField promotionNameAutoCompleteText;
 
     private int orderId;
     private int promotionId;
 
     @FXML
     private TextField quantityTextField;
-
+    private Popup popup;
+    private ListView<String> listView;
     @FXML
-    public void initialize(){
+    public void initialize() {
+        // Tạo danh sách các tên sản phẩm mà không kết thúc bằng "Rent"
         ArrayList<String> list = new ArrayList<>();
         for (String s : Objects.requireNonNull(ProductDAO.getAllProductsName())) {
             if (!s.endsWith("Rent")) list.add(s);
         }
-        TextFields.bindAutoCompletion(productNameAutoCompleteText,list);
 
-        ArrayList<String> promotionList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
-        TextFields.bindAutoCompletion(promotionNameAutoCompleteText,promotionList);
+        // Tạo ListView để hiển thị các gợi ý
+        listView = new ListView<>();
+        listView.getItems().setAll(list);
+
+        // Tạo Popup để hiển thị ListView
+        popup = new Popup();
+        popup.getContent().add(listView);
+
+        // Bind AutoCompletion cho TextField với danh sách sản phẩm
+        productNameAutoCompleteText.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.isEmpty()) {
+                // Lọc danh sách sản phẩm theo giá trị người dùng nhập
+                List<String> filteredProducts = list.stream()
+                        .filter(product -> product.toLowerCase().contains(newValue.toLowerCase()))
+                        .collect(Collectors.toList());
+
+                listView.getItems().setAll(filteredProducts);
+
+                // Nếu có sản phẩm phù hợp, hiển thị popup
+                if (!filteredProducts.isEmpty() && !popup.isShowing()) {
+                    popup.show(productNameAutoCompleteText,
+                            productNameAutoCompleteText.localToScreen(productNameAutoCompleteText.getBoundsInLocal()).getMinX(),
+                            productNameAutoCompleteText.localToScreen(productNameAutoCompleteText.getBoundsInLocal()).getMaxY());
+                }
+            } else {
+                popup.hide();
+            }
+        });
+
+        // Khi người dùng chọn một item trong ListView
+        listView.setOnMouseClicked(event -> {
+            if (!listView.getSelectionModel().isEmpty()) {
+                productNameAutoCompleteText.setText(listView.getSelectionModel().getSelectedItem());
+                popup.hide();
+            }
+        });
+
+        // Xử lý khi người dùng nhấn phím Enter hoặc Escape
+        productNameAutoCompleteText.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case ENTER:
+                    if (!listView.getSelectionModel().isEmpty()) {
+                        productNameAutoCompleteText.setText(listView.getSelectionModel().getSelectedItem());
+                        popup.hide();
+                    }
+                    break;
+                case ESCAPE:
+                    popup.hide();
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        ArrayList<String> promotionList = new ArrayList<>();
+        for (String s : Objects.requireNonNull(PromotionDAO.getAllPromotionsNameByList())) {
+            promotionList.add(s);
+        }
+
+        // Tạo ListView và Popup cho danh sách khuyến mãi
+        ListView<String> promotionListView = new ListView<>();
+        promotionListView.getItems().setAll(promotionList);
+
+        Popup promotionPopup = new Popup();
+        promotionPopup.getContent().add(promotionListView);
+
+        // Bind AutoCompletion cho trường khuyến mãi với Popup và ListView
+        promotionNameAutoCompleteText.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.isEmpty()) {
+                List<String> filteredPromotions = promotionList.stream()
+                        .filter(promotion -> promotion.toLowerCase().contains(newValue.toLowerCase()))
+                        .collect(Collectors.toList());
+
+                promotionListView.getItems().setAll(filteredPromotions);
+
+                if (!filteredPromotions.isEmpty() && !promotionPopup.isShowing()) {
+                    promotionPopup.show(promotionNameAutoCompleteText,
+                            promotionNameAutoCompleteText.localToScreen(promotionNameAutoCompleteText.getBoundsInLocal()).getMinX(),
+                            promotionNameAutoCompleteText.localToScreen(promotionNameAutoCompleteText.getBoundsInLocal()).getMaxY());
+                }
+            } else {
+                promotionPopup.hide();
+            }
+        });
+
+        // Khi người dùng chọn một item trong ListView khuyến mãi
+        promotionListView.setOnMouseClicked(event -> {
+            if (!promotionListView.getSelectionModel().isEmpty()) {
+                promotionNameAutoCompleteText.setText(promotionListView.getSelectionModel().getSelectedItem());
+                promotionPopup.hide();
+            }
+        });
+
+        // Xử lý khi người dùng nhấn phím Enter hoặc Escape cho trường khuyến mãi
+        promotionNameAutoCompleteText.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case ENTER:
+                    if (!promotionListView.getSelectionModel().isEmpty()) {
+                        promotionNameAutoCompleteText.setText(promotionListView.getSelectionModel().getSelectedItem());
+                        promotionPopup.hide();
+                    }
+                    break;
+                case ESCAPE:
+                    promotionPopup.hide();
+                    break;
+                default:
+                    break;
+            }
+        });
     }
+
 
     @FXML
     public void saveOrderItem(ActionEvent event){

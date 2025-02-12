@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="src.billiardsmanagement.controller.orders.items.AddOrderItemController">
+    <children>
+        <Label text="Add Order Item" layoutX="20" layoutY="20">
+            <font>
+                <Font name="Arial" size="16"/>
+            </font>
+        </Label>
+
+        <Label text="Product Name:" layoutX="20" layoutY="60"/>
+        <TextField fx:id="productNameAutoCompleteText" layoutX="150" layoutY="55"/>
+
+        <Label text="Promotion Name:" layoutX="20" layoutY="100"/>
+        <TextField fx:id="promotionNameAutoCompleteText" layoutX="150" layoutY="95"/>
+
+        <Label text="Quantity:" layoutX="20" layoutY="140"/>
+        <TextField fx:id="quantityTextField" layoutX="150" layoutY="135"/>
+
+        <Button text="Save" layoutX="20" layoutY="180" onAction="#saveOrderItem"/>
+    </children>
+</AnchorPane>

@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 import src.billiardsmanagement.controller.orders.bookings.AddBookingController;
 import src.billiardsmanagement.controller.orders.items.AddOrderItemController;
 import src.billiardsmanagement.controller.orders.items.UpdateOrderItemController;
+import src.billiardsmanagement.controller.orders.rent.AddRentCueController;
 import src.billiardsmanagement.dao.*;
 import src.billiardsmanagement.model.*;
 
@@ -544,10 +545,9 @@ public class ForEachOrderController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
     public void addOrderItem(ActionEvent event) {
         if(orderStatusText.getText().equals("Paid")){
-            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+          showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
             return;
         }
         try {
@@ -555,18 +555,17 @@ public class ForEachOrderController implements Initializable {
             Parent root = loader.load();
 
             AddOrderItemController addOrderItemController = loader.getController();
-            addOrderItemController.setOrderId(orderID);
-
-            Stage stage = new Stage();
-            stage.setTitle("Add Booking");
-            stage.setScene(new Scene(root));
+           addOrderItemController.setOrderId(orderID);
+           Stage stage = new Stage();
+           stage.setTitle("Add Booking");
+           stage.setScene(new Scene(root));
             stage.showAndWait();
 
-            loadOrderDetail();
-        } catch (IOException e) {
-            e.printStackTrace();
+          loadOrderDetail();
+      } catch (IOException e) {
+           e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to load Add Booking form.");
-        }
+       }
     }
 
     public void updateOrderItem(ActionEvent event) {
@@ -579,7 +578,7 @@ public class ForEachOrderController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText(null);
-            alert.setContentText("Bạn chưa chọn sản phẩm nào để chỉnh sửa !");
+            alert.setContentText("You haven't selected any item to edit!");
             alert.showAndWait();
             return;
         }
@@ -591,7 +590,7 @@ public class ForEachOrderController implements Initializable {
             UpdateOrderItemController updateOrderItemController = loader.getController();
             updateOrderItemController.setOrderId(orderID);
             updateOrderItemController.setOrderItemDetails(selectedItem);
-            
+
             Stage stage = new Stage();
             stage.setTitle("Update Order Item");
             stage.setScene(new Scene(root));
@@ -612,41 +611,41 @@ public class ForEachOrderController implements Initializable {
         try {
             // Get the selected order item from the table
             OrderItem selectedItem = orderItemsTable.getSelectionModel().getSelectedItem();
-            
+
             // Check if an item is selected
             if (selectedItem == null) {
-                showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Bạn chưa chọn mục để xóa!");
+                showAlert(Alert.AlertType.WARNING, "Warning", "You haven't selected an item to delete!");
                 return;
             }
 
             // Confirm deletion
             Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmAlert.setTitle("Xác nhận xóa");
-            confirmAlert.setHeaderText("Bạn có chắc chắn muốn xóa mục này?");
-            confirmAlert.setContentText("Mục đã chọn sẽ bị xóa vĩnh viễn khỏi đơn hàng.");
-            
+            confirmAlert.setTitle("Confirm Deletion");
+            confirmAlert.setHeaderText("Are you sure you want to delete this item?");
+            confirmAlert.setContentText("The selected item will be permanently removed from the order.");
+
             Optional<ButtonType> result = confirmAlert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 // Perform deletion in the database
                 boolean success = OrderItemDAO.deleteOrderItem(selectedItem.getOrderItemId());
-                
+
                 if (success) {
                     // Remove from table
                     orderItemsTable.getItems().remove(selectedItem);
-                    
+
                     // Refresh the table
                     loadOrderDetail();
-                    
+
                     // Show success message
-                    showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã xóa mục khỏi đơn hàng!");
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Item has been removed from the order!");
                 } else {
                     // Show error if deletion fails
-                    showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa mục. Vui lòng thử lại!");
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete item. Please try again!");
                 }
             }
         } catch (Exception e) {
             // Handle any unexpected errors
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Đã xảy ra lỗi: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred: " + e.getMessage());
         }
     }
 
@@ -657,22 +656,22 @@ public class ForEachOrderController implements Initializable {
             showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
             return;
         }
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/rent/addRentCue.fxml"));
-//            Parent root = loader.load();
-//
-//            AddRentCueController addRentCueController = loader.getController();
-//            addRentCueController.setOrderId(orderID);
-//
-//            Stage stage = new Stage();
-//            stage.setTitle("Add new Rent Cue");
-//            stage.setScene(new Scene(root));
-//            stage.showAndWait();
-//
-//            loadRentCue();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/rent/addRentCue.fxml"));
+            Parent root = loader.load();
+
+            AddRentCueController addRentCueController = loader.getController();
+            addRentCueController.setOrderId(orderID);
+
+            Stage stage = new Stage();
+            stage.setTitle("Add new Rent Cue");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+            loadRentCue();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -684,17 +683,17 @@ public class ForEachOrderController implements Initializable {
         try {
             // Get the selected rent cue from the table
             Object selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
-            
+
             if (selectedItem == null) {
-                showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Bạn chưa chọn mục để sửa!");
+                showAlert(Alert.AlertType.WARNING, "Warning", "You haven't selected an item to edit!");
                 return;
             }
 
             // Open a dialog or window to edit the selected rent cue
             // TODO: Implement logic to open edit rent cue window
-            showAlert(Alert.AlertType.INFORMATION, "Sửa thuê cơ", "Chức năng sửa thuê cơ đang được phát triển.");
+            showAlert(Alert.AlertType.INFORMATION, "Edit Rent Cue", "The edit rent cue feature is under development.");
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể mở cửa sổ sửa thuê cơ: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to open edit rent cue window: " + e.getMessage());
         }
     }
 
@@ -707,38 +706,37 @@ public class ForEachOrderController implements Initializable {
         try {
             // Get the selected rent cue from the table
             RentCue selectedItem = (RentCue) rentCueTable.getSelectionModel().getSelectedItem();
-            
+
             if (selectedItem == null) {
-                showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Bạn chưa chọn mục để xóa!");
+                showAlert(Alert.AlertType.WARNING, "Warning", "You haven't selected an item to delete!");
                 return;
             }
 
             // Confirm deletion
             Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmAlert.setTitle("Xác nhận xóa");
-            confirmAlert.setHeaderText("Bạn có chắc chắn muốn xóa mục này?");
-            confirmAlert.setContentText("Mục đã chọn sẽ bị xóa vĩnh viễn.");
-            
+            confirmAlert.setTitle("Confirm Deletion");
+            confirmAlert.setHeaderText("Are you sure you want to delete this item?");
+            confirmAlert.setContentText("The selected item will be permanently deleted.");
+
             Optional<ButtonType> result = confirmAlert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 boolean deleteSuccess = RentCueDAO.deleteRentCue(selectedItem);
-                
+
                 if (deleteSuccess) {
                     // Remove from table
                     rentCueTable.getItems().remove(selectedItem);
-                    
+
                     // Show success message
-                    showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã xóa mục thuê cơ!");
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Rent cue has been deleted!");
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa mục thuê cơ. Vui lòng thử lại.");
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete rent cue. Please try again.");
                 }
             }
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xóa mục: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete item: " + e.getMessage());
         }
     }
 
-    // Sửa thêm, sao cho không thể end một hàng rentcue 2 lần
     @FXML
     public void endCueRental(ActionEvent event) {
         if(orderStatusText.getText().equals("Paid")){
@@ -748,36 +746,36 @@ public class ForEachOrderController implements Initializable {
         try {
             // Get the selected rent cue from the table
             RentCue selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
-            
+
             if (selectedItem == null) {
-                showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Bạn chưa chọn mục thuê cơ để kết thúc!");
+                showAlert(Alert.AlertType.WARNING, "Warning", "You haven't selected a rent cue to end!");
                 return;
             }
 
             // Confirm ending the rental
             Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmAlert.setTitle("Xác nhận kết thúc thuê cơ");
-            confirmAlert.setHeaderText("Bạn có chắc chắn muốn kết thúc thuê cơ này?");
-            confirmAlert.setContentText("Thao tác này sẽ đánh dấu mục thuê cơ là đã kết thúc.");
-            
+            confirmAlert.setTitle("Confirm End Rental");
+            confirmAlert.setHeaderText("Are you sure you want to end this rent cue?");
+            confirmAlert.setContentText("This action will mark the rent cue as ended.");
+
             Optional<ButtonType> result = confirmAlert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                // Calculate end time and timeplay
+                // Calculate end time and timeplayed
                 LocalDateTime endTime = LocalDateTime.now();
                 selectedItem.setEndTime(endTime);
-                
+
                 // Calculate total minutes
                 long totalMinutes = java.time.Duration.between(selectedItem.getStartTime(), endTime).toMinutes();
                 double timeplay = Math.round(totalMinutes / 60.0 * 10.0) / 10.0; // Convert to hours and round to 1 decimal place
                 selectedItem.setTimeplay(timeplay);
-                
+
                 // Calculate subtotal (price per hour * hours played)
                 double subTotal = Math.ceil(selectedItem.getProductPrice() * timeplay);
                 selectedItem.setSubTotal(subTotal);
-                
+
                 // Calculate net total based on promotion
                 double netTotal;
-                if (selectedItem.getPromotionId() <=0) {
+                if (selectedItem.getPromotionId() <= 0) {
                     // No promotion applied
                     netTotal = subTotal;
                 } else {
@@ -785,27 +783,28 @@ public class ForEachOrderController implements Initializable {
                     netTotal = Math.ceil(subTotal - (subTotal * (selectedItem.getPromotionDiscount() / 100.0)));
                 }
                 selectedItem.setNetTotal(netTotal);
-                
+
                 // Update the status to completed or ended
                 selectedItem.setStatus(RentCueStatus.Returned);
 
                 // Update in the database
                 boolean updateSuccess = RentCueDAO.endCueRental(selectedItem);
-                
+
                 if (updateSuccess) {
                     // Refresh the table
                     loadRentCue();
-                    
+
                     // Show success message
-                    showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã kết thúc thuê cơ thành công!");
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Rent cue rental has been successfully ended!");
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể kết thúc thuê cơ. Vui lòng thử lại.");
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to end rent cue rental. Please try again.");
                 }
             }
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể kết thúc thuê cơ: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to end rent cue rental: " + e.getMessage());
         }
     }
+
 
     public void stopBooking(ActionEvent event) {
         if(orderStatusText.getText().equals("Paid")){
@@ -858,7 +857,10 @@ public class ForEachOrderController implements Initializable {
                         double timeplayInHours = Math.round((timeplayInMinutes / 60.0) * 10.0) / 10.0;
 
                         // Get the price of the pool table
-                        String priceQuery = "SELECT price FROM pooltables WHERE table_id = ?";
+                        String priceQuery = "SELECT c.price FROM cate_pooltables c " +
+                                "JOIN pooltables p ON p.cate_id = c.id " +
+                                "WHERE p.table_id = ?";
+
                         try (PreparedStatement priceStmt = conn.prepareStatement(priceQuery)) {
                             priceStmt.setInt(1, poolTableId);
                             try (ResultSet priceRs = priceStmt.executeQuery()) {
@@ -980,6 +982,9 @@ public class ForEachOrderController implements Initializable {
                 if (rowsAffected > 0) {
                     System.out.println("Order total cost updated successfully!");
 
+                    // Thông báo thanh toán thành công
+                    showAlert(Alert.AlertType.INFORMATION, "Payment Successful", "The payment has been completed successfully!");
+
                     // Đóng cửa sổ hiện tại sau khi cập nhật thành công
                     Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                     stage.close();
@@ -997,6 +1002,7 @@ public class ForEachOrderController implements Initializable {
             showAlert(Alert.AlertType.ERROR, "Payment Error", "All bookings and rent cues must have 'finish' status before payment.");
         }
     }
+
 
 
     // Giả sử bạn có phương thức refreshOrderDetails để cập nhật giao diện

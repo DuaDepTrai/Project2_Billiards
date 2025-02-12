@@ -4,13 +4,14 @@ import src.billiardsmanagement.model.Order;
 import src.billiardsmanagement.model.DatabaseConnection;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrderDAO {
 
     // Không cần khai báo URL, USER, PASSWORD nữa, vì đã có trong DatabaseConnection
-    public List<Order> getAllOrders() {
+    public static List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
         String query = """
         SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
@@ -171,4 +172,41 @@ public class OrderDAO {
 
         return order;
     }
+    public static List<Order> getOrderPaid() {
+        List<Order> orders = new ArrayList<>();
+        String query = """
+     SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone,
+                                  o.total_cost, o.order_status
+                           FROM orders o 
+                           JOIN customers c ON o.customer_id = c.customer_id 
+                           WHERE o.order_status = 'Paid' 
+                           ORDER BY o.order_id;
+                           
+    """;  // Câu truy vấn SQL để lấy danh sách đơn hàng (bao gồm số điện thoại khách hàng)
+
+        // Sử dụng DatabaseConnection để lấy kết nối
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            // Duyệt qua kết quả trả về và thêm vào danh sách orders
+            while (rs.next()) {
+                Order order = new Order(
+                        rs.getInt("order_id"),
+                        rs.getInt("customer_id"),
+                        rs.getString("customer_name"),
+                        rs.getString("customer_phone"),
+                        rs.getDouble("total_cost"),
+                        rs.getString("order_status")
+                );
+                order.getCreatedAt(); // Gán giá trị tại thời điểm lấy dữ liệu
+                orders.add(order);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();  // In lỗi nếu có sự cố trong quá trình truy vấn
+        }
+
+        return orders;  // Trả về danh sách các đơn hàng
+    }
+
 }

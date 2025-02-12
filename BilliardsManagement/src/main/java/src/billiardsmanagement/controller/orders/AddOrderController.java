@@ -6,9 +6,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.CustomerDAO;
-import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.model.Customer;
-import src.billiardsmanagement.model.Order;
 
 public class AddOrderController {
     @FXML
@@ -18,49 +16,47 @@ public class AddOrderController {
 
     public void saveOrder(ActionEvent actionEvent) {
         try {
-            // Lấy thông tin từ các trường
+            // Get input from fields
             String customerName = nameField.getText();
             String customerPhone = phoneField.getText();
 
-            // Kiểm tra dữ liệu đầu vào
+            // Validate input data
             if (customerName == null || customerName.trim().isEmpty()) {
-                throw new IllegalArgumentException("Vui lòng nhập tên khách hàng.");
+                throw new IllegalArgumentException("Please enter the customer's name.");
             }
             if (customerPhone == null || customerPhone.trim().isEmpty()) {
-                throw new IllegalArgumentException("Vui lòng nhập số điện thoại khách hàng.");
+                throw new IllegalArgumentException("Please enter the customer's phone number.");
             }
 
-            // Tạo đối tượng Customer
+            // Create a Customer object
             CustomerDAO customerDAO = new CustomerDAO();
             Customer customer = new Customer();
             customer.setName(customerName);
             customer.setPhone(customerPhone);
 
-            // Thêm khách hàng vào cơ sở dữ liệu
+            // Add customer to the database
             customerDAO.addCustomer(customer);
 
-            // Lấy ID khách hàng vừa thêm
+            // Get the customer ID
             Integer customerId = customer.getCustomerId();
             if (customerId == null) {
-                throw new IllegalStateException("Không thể lấy ID của khách hàng sau khi thêm.");
+                throw new IllegalStateException("Failed to retrieve the customer ID after adding.");
             }
 
+            // Show success message
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Customer has been added successfully.");
 
-
-            // Hiển thị thông báo thành công
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Khách hàng được thêm thành công");
-
-            // Đóng cửa sổ sau khi lưu
+            // Close the window after saving
             Stage stage = (Stage) nameField.getScene().getWindow();
             stage.close();
 
         } catch (IllegalArgumentException e) {
-            // Hiển thị lỗi đầu vào không hợp lệ
-            showAlert(Alert.AlertType.ERROR, "Lỗi", e.getMessage());
+            // Show validation error
+            showAlert(Alert.AlertType.ERROR, "Error", e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            // Hiển thị lỗi không xác định
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Đã xảy ra lỗi khi lưu đơn hàng. Vui lòng thử lại.");
+            // Show unexpected error message
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while saving the order. Please try again.");
         }
     }
 

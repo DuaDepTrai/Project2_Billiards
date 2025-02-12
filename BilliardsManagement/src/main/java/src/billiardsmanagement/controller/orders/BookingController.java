@@ -3,10 +3,7 @@ package src.billiardsmanagement.controller.orders;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.model.*;
@@ -84,7 +81,20 @@ public class BookingController {
     }
 
     public void printBill(ActionEvent event) {
+        try {
+            PrintBillController.printBill(BillService.getBillItems(orderId), bill);
 
-
+            // Hiển thị thông báo in hóa đơn thành công
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setHeaderText("Bill printed successfully!");
+            alert.setContentText("The bill has been printed successfully.");
+            alert.showAndWait();
+        } catch (Exception e) {
+            // Hiển thị thông báo lỗi nếu có lỗi xảy ra
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("An unexpected error occurred while printing the bill.");
+            alert.setContentText("Please try again later.");
+            alert.showAndWait();
+        }
     }
 }

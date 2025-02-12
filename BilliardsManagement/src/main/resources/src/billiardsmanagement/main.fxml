@@ -11,6 +11,8 @@
         <VBox fx:id="navbar" styleClass="navbar">
             <Button text="Order" onAction="#showOrderPage" styleClass="navbar-button"/>
             <Button text="Product" onAction="#showProductPage" styleClass="navbar-button"/>
+            <Button text="Revenue" onAction="#showRevenuePage" styleClass="navbar-button"/>
+
         </VBox>
     </left>
 

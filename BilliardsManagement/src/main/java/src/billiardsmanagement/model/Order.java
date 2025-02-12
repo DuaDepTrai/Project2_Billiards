@@ -1,15 +1,18 @@
 package src.billiardsmanagement.model;
 
+import java.time.LocalDateTime;
+
 public class Order {
     private int orderId;
     private int customerId;
     private String customerName; // Để hiển thị tên khách hàng từ bảng `customers`
     private String customerPhone;
-
     private String currentTableName;
     private double totalCost;
-    private String orderStatus;
 
+
+    private String orderStatus;
+    private static final LocalDateTime createdAt = LocalDateTime.now();
     public Order(){}
     // Constructor
     public Order(int customerId,double totalCost,String orderStatus){
@@ -23,11 +26,13 @@ public class Order {
         this.totalCost = totalCost;
         this.orderStatus = orderStatus;
         this.orderId = orderId;
+
     }
 
     public Order(double totalCost, String orderStatus) {
         this.totalCost = totalCost;
         this.orderStatus = orderStatus;
+
     }
 
     public Order(int orderId, int customerId, String customerName, String customerPhone, double totalCost, String orderStatus) {
@@ -37,6 +42,7 @@ public class Order {
         this.customerPhone = customerPhone;
         this.totalCost = totalCost;
         this.orderStatus = orderStatus;
+
     }
 
     public Order(Integer customerId) {
@@ -48,6 +54,9 @@ public class Order {
         return orderId;
     }
 
+    public LocalDateTime getCreatedAt(){
+        return createdAt;
+    }
     public void setOrderId(int orderId) {
         this.orderId = orderId;
     }
@@ -87,18 +96,21 @@ public class Order {
     public String getCustomerPhone() {
         return customerPhone;
     }
-    
+
     public void setCustomerPhone(String customerPhone) {
         this.customerPhone = customerPhone;
     }
-    
+
     public String getCurrentTableName() {
         return currentTableName;
     }
-    
+
     public void setCurrentTableName(String currentTableName) {
         this.currentTableName = currentTableName;
     }
+
+
+
 
     @Override
     public String toString() {
@@ -106,8 +118,11 @@ public class Order {
                 "orderId=" + orderId +
                 ", customerId=" + customerId +
                 ", customerName='" + customerName + '\'' +
+                ", customerPhone='" + customerPhone + '\'' +
+                ", currentTableName='" + currentTableName + '\'' +
                 ", totalCost=" + totalCost +
                 ", orderStatus='" + orderStatus + '\'' +
+                ", createdAt=" + createdAt +
                 '}';
     }
 }

@@ -28,4 +28,10 @@ public class MainController {
         AnchorPane productPage = loader.load();
         contentArea.getChildren().setAll(productPage);
     }
+
+    public void showRevenuePage() throws IOException  {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/revenues/revenue.fxml"));
+        AnchorPane productPage = loader.load();
+        contentArea.getChildren().setAll(productPage);
+    }
 }
