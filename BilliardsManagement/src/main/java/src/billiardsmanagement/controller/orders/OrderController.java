@@ -26,6 +26,7 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.cell.PropertyValueFactory;
 import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.model.Bill;
+import src.billiardsmanagement.model.BillItem;
 import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.model.Order;
 
@@ -102,6 +103,10 @@ public class OrderController implements Initializable {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to load customer data.");
         }
+    }
+
+    public void reverseLoadingOrder(){
+        loadOrderList();
     }
 
     private void loadOrderList() {
@@ -271,8 +276,6 @@ public class OrderController implements Initializable {
     private void showItem(MouseEvent mouseEvent) throws IOException {
         if (mouseEvent.getClickCount() == 2) {
             Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
-
-
             if (selectedOrder != null ) {
                 // Lấy orderId từ selectedOrder
                 int orderId = selectedOrder.getOrderId();
@@ -286,6 +289,7 @@ public class OrderController implements Initializable {
                 controller.setOrderID(orderId); // Truyền orderId
                 controller.setCustomerID(customerId);
                 controller.setOrderTable(orderTable);
+                controller.initializeAllTables();
 
 
                 // Kiểm tra orderID (debug)
@@ -312,23 +316,31 @@ public class OrderController implements Initializable {
     public void paymentOrder(ActionEvent event) throws IOException {
         Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
 
-
-        if(selectedOrder != null){
-            int orderId = selectedOrder.getOrderId();
-            FXMLLoader loaderBooking = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bill.fxml"));
-            Parent rootBooking = loaderBooking.load();
-            BookingController bookingController = loaderBooking.getController();
-            bookingController.setOrderId(orderId);
-            Bill bill = createBill();
-            bookingController.setBill(bill);
-            Stage stage = new Stage();
-            stage.setTitle("Payment Details");
-            stage.setScene(new Scene(rootBooking));
-            stage.show();
-
-        }else{
+        if (selectedOrder == null) {
             showAlert(Alert.AlertType.INFORMATION, "Error", "Please select an order to payment.");
+            return;
         }
+
+        if (!"Finish".equals(selectedOrder.getOrderStatus())) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Access Denied");
+            alert.setHeaderText(null);
+            alert.setContentText("Bills can only be accessed when the order is in finish status.");
+            alert.showAndWait();
+            return;
+        }
+        int orderId = selectedOrder.getOrderId();
+        FXMLLoader paymentLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/finalBill.fxml"));
+        Parent paymentRoot = paymentLoader.load();
+        PaymentController paymentController = paymentLoader.getController();
+        paymentController.setOrderID(orderId);
+        paymentController.setBill(createBill());
+
+        Stage stage = new Stage();
+        stage.setTitle("Payment Details");
+        stage.setScene(new Scene(paymentRoot));
+        stage.setOnHidden(e -> loadOrderList());
+        stage.show();
     }
 
     private Bill createBill() {
@@ -336,12 +348,15 @@ public class OrderController implements Initializable {
         Order currentOrder = orderTable.getSelectionModel().getSelectedItem();
         if (currentOrder == null) return null;
 
-        return new Bill(
-                currentOrder.getCustomerName(), // Tránh gọi getCustomer()
-                currentOrder.getCustomerPhone(), // Tránh lỗi null
-                currentOrder.getTotalCost()
-        );
+//        return new Bill(
+//                currentOrder.getCustomerName(), // Tránh gọi getCustomer()
+//                currentOrder.getCustomerPhone(), // Tránh lỗi null
+//                currentOrder.getTotalCost()
+//        );
+        Bill bill = new Bill();
+        bill.setCustomerName(currentOrder.getCustomerName()==null?"Guest":currentOrder.getCustomerName());
+        bill.setCustomerPhone(currentOrder.getCustomerPhone()==null?"GuestPhone":currentOrder.getCustomerPhone());
+        bill.setTotalCost(currentOrder.getTotalCost());
+        return bill;
     }
-
-
 }

@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="src.billiardsmanagement.controller.orders.items.AddOrderItemController">
-    <children>
-        <Label text="Add Order Item" layoutX="20" layoutY="20">
-            <font>
-                <Font name="Arial" size="16"/>
-            </font>
-        </Label>
+<AnchorPane prefHeight="100.0" prefWidth="331.0" style="-fx-padding: 10;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.items.AddOrderItemController">
+    <Label layoutX="17.0" layoutY="27.0" text="Product Name: " />
+    <TextField fx:id="productNameAutoCompleteText" layoutX="134.0" layoutY="22.0" style="-fx-pref-width: 170.0;" />
 
-        <Label text="Product Name:" layoutX="20" layoutY="60"/>
-        <TextField fx:id="productNameAutoCompleteText" layoutX="150" layoutY="55"/>
+    <TextField fx:id="promotionNameAutoCompleteText" layoutX="134.0" layoutY="94.0" style="-fx-pref-width: 170.0;" />
 
-        <Label text="Promotion Name:" layoutX="20" layoutY="100"/>
-        <TextField fx:id="promotionNameAutoCompleteText" layoutX="150" layoutY="95"/>
+    <Label layoutX="17.0" layoutY="173.0" text="Quantity: " />
+    <TextField fx:id="quantityTextField" layoutX="134.0" layoutY="168.0" prefWidth="170.0" />
 
-        <Label text="Quantity:" layoutX="20" layoutY="140"/>
-        <TextField fx:id="quantityTextField" layoutX="150" layoutY="135"/>
-
-        <Button text="Save" layoutX="20" layoutY="180" onAction="#saveOrderItem"/>
-    </children>
+    <Button layoutX="113.0" layoutY="276.0" onAction="#saveOrderItem" text="Add Order Item" />
+    <Label layoutX="17.0" layoutY="98.0" text="Promotion Name" />
 </AnchorPane>

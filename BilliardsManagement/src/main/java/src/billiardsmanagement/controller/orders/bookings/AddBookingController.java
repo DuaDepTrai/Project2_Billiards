@@ -29,7 +29,6 @@ public class AddBookingController implements Initializable {
     private ComboBox<String> bookingStatusComboBox;
 
 
-
     @FXML
     private DatePicker datePicker;
 
@@ -53,7 +52,8 @@ public class AddBookingController implements Initializable {
     private int orderID;
 
     Connection conn = DatabaseConnection.getConnection();
-    private final Map<String,Integer> getTableNameToIdMap = new HashMap<>();
+    private final Map<String, Integer> getTableNameToIdMap = new HashMap<>();
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loadTableNameToIdMap();
@@ -147,7 +147,7 @@ public class AddBookingController implements Initializable {
         try {
             int order_id = Integer.parseInt(orderIDField.getText());
             if (order_id == 0) {
-                throw new IllegalArgumentException("Vui lòng chọn order_id");
+                throw new IllegalArgumentException("Please choose an Order Id !");
             }
 
             String selectedTableName = tableNameColumn.getText();
@@ -155,19 +155,19 @@ public class AddBookingController implements Initializable {
             if (selectedTableName != null) {
                 tableId = getTableNameToIdMap.get(selectedTableName);
             } else {
-                throw new IllegalArgumentException("Vui lòng chọn table_id");
+                throw new IllegalArgumentException("You haven't choose any Pool Table yet. Please select one !");
             }
 
             int selectedHour = Integer.parseInt(hourTextField.getText());
             int selectedMinute = Integer.parseInt(minuteTextField.getText());
 
             if (selectedHour < 0 || selectedHour > 23 || selectedMinute < 0 || selectedMinute > 59) {
-                throw new IllegalArgumentException("Vui lòng nhập giờ từ 0-23 và phút từ 0-59");
+                throw new IllegalArgumentException("Please enter the hour from 0-23 and minute from 0-59");
             }
 
             LocalDate selectedDate = datePicker.getValue();
             if (selectedDate == null) {
-                throw new IllegalArgumentException("Vui lòng chọn ngày");
+                throw new IllegalArgumentException("Please choose a day !");
             }
 
             String startTime = String.format("%02d:%02d", selectedHour, selectedMinute);
@@ -177,16 +177,16 @@ public class AddBookingController implements Initializable {
 
             String bookingStatus = bookingStatusComboBox.getValue();
             if (bookingStatus == null || bookingStatus.isEmpty()) {
-                throw new IllegalArgumentException("Vui lòng nhập trạng thái bàn");
+                throw new IllegalArgumentException("Please enter the Booking Status");
             }
 
             Booking newBooking = new Booking(order_id, tableId, timeStamp, bookingStatus);
             BookingDAO bookingDAO = new BookingDAO();
             bookingDAO.addBooking(newBooking);
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Thành công");
+            alert.setTitle("Success");
             alert.setHeaderText(null);
-            alert.setContentText("Đặt chỗ thành công!");
+            alert.setContentText("Booking is successfully placed!");
             alert.showAndWait();
 
             // Navigate back to the previous scene
@@ -195,20 +195,21 @@ public class AddBookingController implements Initializable {
 
         } catch (IllegalArgumentException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Lỗi");
+            alert.setTitle("Error");
             alert.setHeaderText(null);
             alert.setContentText(e.getMessage());
             alert.showAndWait();
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Lỗi");
-            alert.setHeaderText("Đã xảy ra lỗi khi lưu dữ liệu.");
-            alert.setContentText("Vui lòng thử lại sau.");
+            alert.setTitle("Error");
+            alert.setHeaderText("An error occurred while saving the data.");
+            alert.setContentText("Please try again later.");
             alert.showAndWait();
         }
     }
-    private void initializeOrderId(){
+
+    private void initializeOrderId() {
         orderIDField.setText(String.valueOf(orderID));
         System.out.println("OrderIdField: " + orderIDField.getText());
     }
@@ -246,7 +247,9 @@ public class AddBookingController implements Initializable {
             minuteTextField.setVisible(false);
             startTimeLabel.setVisible(false);
         }
-    }private List<String> fetchTableByName(String name) {
+    }
+
+    private List<String> fetchTableByName(String name) {
         List<String> tableNames = new ArrayList<>();
         String query = "SELECT name FROM pooltables WHERE name LIKE ? AND status = 'available'";
 

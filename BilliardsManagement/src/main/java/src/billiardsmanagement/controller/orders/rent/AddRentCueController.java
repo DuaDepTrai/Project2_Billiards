@@ -5,6 +5,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.converter.IntegerStringConverter;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.dao.PromotionDAO;
@@ -21,8 +23,11 @@ public class AddRentCueController {
 
     @FXML
     protected TextField productNameAutoCompleteText;
+    private AutoCompletionBinding<String> productNameAutoBinding;
+
     @FXML
-    protected TextField promotionAutoCompleteText;
+    protected TextField promotionNameAutoCompleteText;
+    private AutoCompletionBinding<String> promotionNameAutoBinding;
 
     @FXML
     private TextField quantityTextField;
@@ -30,28 +35,42 @@ public class AddRentCueController {
 
     @FXML
     private void initialize() {
-        // Filter products that contain "Cue" and end with "Rent"
-        ArrayList<String> allProducts = ProductDAO.getAllProductsName();
-        ArrayList<String> filteredProducts = new ArrayList<>();
-        
-        if (allProducts != null) {
-            for (String product : allProducts) {
-                if (product.contains("Cue") && product.endsWith("Rent")) {
-                    filteredProducts.add(product);
+        ArrayList<String> list = ProductDAO.getAllProductsName();
+        ArrayList<String> productList = new ArrayList<>();
+        if (list == null) System.out.println("Unexpected error : Product List is null !");
+        else {
+            for (String s : list) {
+                if(!s.contains("Sale") && s.contains("Rent") && s.contains("Cue")){
+                    if (!s.contains(" ")) {
+                        s = s + " ";
+                        productList.add(s);
+                    }
+                    else productList.add(s);
                 }
             }
-            TextFields.bindAutoCompletion(productNameAutoCompleteText,filteredProducts);
-        }
 
-        // Get promotion names
-        List<Pair<String, Integer>> allPromotions = PromotionDAO.getAllPromotionsName();
-        ArrayList<String> promotionNames = new ArrayList<>();
-        
-        if (allPromotions != null) {
-            for (Pair<String, Integer> promotion : allPromotions) {
-                promotionNames.add(promotion.getFirstValue());
+            AutoCompletionBinding<String> productNameAutoBinding = TextFields.bindAutoCompletion(productNameAutoCompleteText, productList);
+            HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText);
+            productNameAutoBinding.setVisibleRowCount(7);
+
+            productNameAutoBinding.setHideOnEscape(true);
+
+            ArrayList<String> pList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
+            ArrayList<String> promotionList = new ArrayList<>();
+            if (pList != null) {
+                for (String s : pList) {
+                    if (!s.contains(" ")) {
+                        s = s + " ";
+                        promotionList.add(s);
+                    } else promotionList.add(s);
+                }
+                AutoCompletionBinding<String> promotionNameAutoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
+                HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText);
+                promotionNameAutoBinding.setHideOnEscape(true);
+                promotionNameAutoBinding.setVisibleRowCount(7);
             }
-            TextFields.bindAutoCompletion(promotionAutoCompleteText,promotionNames);
+
+            quantityTextField.setText("1");
         }
     }
 
@@ -60,78 +79,106 @@ public class AddRentCueController {
         try {
             // Validate input
             String productName = productNameAutoCompleteText.getText().trim();
-            String promotionName = promotionAutoCompleteText.getText().trim();
-            String quantityStr = quantityTextField.getText();
+            String promotionName = promotionNameAutoCompleteText.getText().trim();
+            String quantityStr = quantityTextField.getText().trim();
 
             if (productName.isBlank()) {
-                showAlert("Lỗi Xác Thực", "Vui lòng chọn sản phẩm.");
+                showAlert("Validation Error", "Please select a product.");
                 return;
             }
 
-            int requestQuantity;
-            try {
-                requestQuantity = Integer.parseInt(quantityStr);
-                if (requestQuantity <= 0) {
-                    showAlert("Lỗi Xác Thực", "Số lượng phải lớn hơn 0.");
-                    return;
+            int quantity;
+            if (quantityStr.isBlank()) quantity = 1;
+            else {
+                try {
+                    quantity = Integer.parseInt(quantityStr);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (NumberFormatException e) {
-                showAlert("Lỗi Xác Thực", "Vui lòng nhập số lượng hợp lệ.");
-                return;
             }
 
             // Get product quantity from database
             Integer availableQuantity = ProductDAO.getProductQuantityByName(productName);
             if (availableQuantity == null) {
-                showAlert("Lỗi", "Không thể lấy số lượng sản phẩm.");
+                showAlert("Error", "Unable to retrieve product quantity.");
                 return;
             }
 
-            if (requestQuantity > availableQuantity) {
-                showAlert("Lỗi", "Số lượng yêu cầu vượt quá số lượng trong kho.");
+            if (quantity > availableQuantity) {
+                showAlert("Error", "Requested quantity exceeds available stock.");
                 return;
             }
 
             // Get product and promotion IDs
             Integer productId = ProductDAO.getProductIdByName(productName);
             Integer promotionId = !promotionName.isEmpty()
-                ? PromotionDAO.getPromotionIdByName(promotionName) 
-                : null;
+                    ? PromotionDAO.getPromotionIdByName(promotionName)
+                    : null;
 
             if (productId == null) {
-                showAlert("Lỗi", "Không tìm thấy mã sản phẩm.");
+                showAlert("Error", "Product ID not found.");
                 return;
             }
 
-            // Create RentCue object
-            RentCue rentCue = new RentCue();
-            rentCue.setRentCueId(rentCueDAO.getNextRentCueId());
-            rentCue.setOrderId(orderID);
-            rentCue.setProductId(productId);
-            rentCue.setStartTime(LocalDateTime.now());
-            rentCue.setQuantity(requestQuantity);
+            boolean success = false;
+            for (int i = 1; i <= quantity; i++) {
+                RentCue rentCue = new RentCue();
+                rentCue.setRentCueId(rentCueDAO.getNextRentCueId());
+                rentCue.setOrderId(orderID);
+                rentCue.setProductId(productId);
+                rentCue.setStartTime(LocalDateTime.now());
+                rentCue.setQuantity(1);
 
-            if(promotionId != null) {
-                rentCue.setPromotionId(promotionId);
+                if (promotionId != null) {
+                    rentCue.setPromotionId(promotionId);
+                } else {
+                    rentCue.setPromotionId(-1);
+                }
+
+                // Add rent cue to database
+                success = RentCueDAO.addRentCue(rentCue);
             }
-            else{
-                rentCue.setPromotionId(-1);
-            }
-        
-            // Add rent cue to database
-            boolean success = RentCueDAO.addRentCue(rentCue);
+
             if (success) {
-                showAlert("Thành Công", "Thêm thuê cơ thành công.");
+                showAlert("Success", "Rent cue added successfully.");
                 closeWindow();
             } else {
-                showAlert("Lỗi", "Thêm thuê cơ thất bại.");
+                showAlert("Error", "Failed to add rent cue.");
             }
 
         } catch (Exception e) {
-            showAlert("Lỗi Không Mong Muốn", "Đã xảy ra lỗi: " + e.getMessage());
+            showAlert("Unexpected Error", "An error occurred: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
+
+    public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text) {
+        text.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                auto.setUserInput(" ");
+            }
+            if (!newValue) { // Nếu mất focus
+                String inputText = text.getText().trim();
+                boolean check = false;
+                if (inputText.isEmpty()) {
+                    text.setText("");
+                    return;
+                }
+
+                for (String s : list) {
+                    if (inputText.equals(s)) {
+                        check = true;
+                        break;
+                    }
+                }
+
+                if (check) text.setText(inputText);
+                else text.setText("");
+            }
+        });
+    }
+
 
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -155,5 +202,4 @@ public class AddRentCueController {
         this.orderID = orderID;
     }
 }
-
 

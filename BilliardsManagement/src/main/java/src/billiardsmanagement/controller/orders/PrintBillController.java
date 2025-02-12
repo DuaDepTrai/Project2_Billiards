@@ -9,15 +9,37 @@ import src.billiardsmanagement.model.BillItem;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class PrintBillController {
     private static Font billTimeFont = new Font(Font.FontFamily.TIMES_ROMAN, 8, Font.NORMAL);
 
+    public static String handleCustomerName(String customerName){
+        String[] cuts = customerName.split(" ");
+        return cuts[cuts.length-1];
+    }
+
     public static void printBill(ObservableList<BillItem> billItems, Bill bill) throws DocumentException, FileNotFoundException {
         // Create a new document with custom page size (width: 70mm)
-        String billName = bill.getCustomerName() + "_" + bill.getCustomerPhone() + "_" + System.currentTimeMillis();
         Document document = new Document();
-        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("bills/" + billName + ".pdf"));
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("BilliardsManagement\\src\\main\\bills\\");
+        sb.append(handleCustomerName(bill.getCustomerName()));
+        sb.append("_");
+        sb.append(bill.getCustomerPhone());
+        sb.append("_");
+        String formattedDateTime = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH'h'mm").format(LocalDateTime.now());
+        sb.append(formattedDateTime);
+        sb.append("_");
+        sb.append(String.valueOf(System.currentTimeMillis()).substring(8));
+        sb.append(".pdf");
+        String billName = sb.toString();
+        System.out.println("Bill Name = "+billName);
+
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(billName));
         float widthInPoints = 70 * 2.83465f;  // Convert 70mm to points
         document.setPageSize(new com.itextpdf.text.RectangleReadOnly(widthInPoints, document.getPageSize().getHeight()));
         document.open();
@@ -26,7 +48,7 @@ public class PrintBillController {
         billTitle.setAlignment(Element.ALIGN_CENTER);
         document.add(billTitle);
 
-        Chunk billTimesChunk = new Chunk("Date : " + LocalDate.now());
+        Chunk billTimesChunk = new Chunk("Date : "+formattedDateTime);
         billTimesChunk.setFont(billTimeFont);
         Paragraph billTimesPara = new Paragraph(billTimesChunk);
         billTimesPara.setAlignment(Element.ALIGN_CENTER);
@@ -127,5 +149,5 @@ public class PrintBillController {
         document.add(table);
         // Close the document
         document.close();
-        }
     }
+}

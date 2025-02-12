@@ -2,12 +2,14 @@ package src.billiardsmanagement.controller.orders;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.SetChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -15,10 +17,12 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import src.billiardsmanagement.controller.orders.bookings.AddBookingController;
 import src.billiardsmanagement.controller.orders.items.AddOrderItemController;
 import src.billiardsmanagement.controller.orders.items.UpdateOrderItemController;
 import src.billiardsmanagement.controller.orders.rent.AddRentCueController;
+import src.billiardsmanagement.controller.orders.rent.UpdateRentCueController;
 import src.billiardsmanagement.dao.*;
 import src.billiardsmanagement.model.*;
 
@@ -34,9 +38,35 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class ForEachOrderController implements Initializable {
+public class ForEachOrderController {
+    // Buttons
+    @FXML
+    protected Button finishOrderButton;
+    @FXML
+    protected Button updateBookingButton;
+    @FXML
+    protected Button deleteBookingButton;
+    @FXML
+    protected Button stopBookingButton;
+    @FXML
+    protected Button addRentCueButton;
+    @FXML
+    protected Button editRentCueButton;
+    @FXML
+    protected Button deleteRentCueButton;
+    @FXML
+    protected Button endCueRentalButton;
+    @FXML
+    protected Button addOrderItemButton;
+    @FXML
+    protected Button editOrderItemButton;
+    @FXML
+    protected Button deleteOrderItemButton;
+    @FXML
+    protected Button addBookingButton;
 
-    // Tables 
+
+    // Tables
     @FXML
     private TableView<Booking> bookingPoolTable;
 
@@ -64,7 +94,7 @@ public class ForEachOrderController implements Initializable {
     private Label totalBookingLabel;
 
     @FXML
-    private TableColumn<Booking,Integer> sttColumn;
+    private TableColumn<Booking, Integer> sttColumn;
     @FXML
     private TableColumn<Booking, String> tableNameColumn;
 
@@ -87,11 +117,14 @@ public class ForEachOrderController implements Initializable {
     private TableColumn<Booking, Double> costColumn;
 
     @FXML
-    private TableColumn<Booking,Double> priceColumn;
+    private TableColumn<Booking, Double> priceColumn;
 
     // Order Items
     @FXML
     private TableColumn<OrderItem, String> productNameColumn;
+
+    @FXML
+    private TableColumn<OrderItem, Integer> sttOrderItemColumn;
 
     @FXML
     private Label totalItemLabel;
@@ -108,9 +141,18 @@ public class ForEachOrderController implements Initializable {
     @FXML
     private TableColumn<OrderItem, Double> subTotalOrderItemColumn;
 
+    @FXML
+    private TableColumn<OrderItem, String> promotionOrderItem;
+
+    @FXML
+    private TableColumn<OrderItem, Double> promotionDiscountOrderItem;
+
     // Rent Cue
     @FXML
     private TableColumn<RentCue, String> productNameCue;
+
+    @FXML
+    private TableColumn<RentCue, Integer> sttRentCueColumn;
 
     @FXML
     private Label totalRentCueLabel;
@@ -125,22 +167,23 @@ public class ForEachOrderController implements Initializable {
     private TableColumn<RentCue, String> timeplayCue;
 
     @FXML
-    private TableColumn<RentCue, String> priceCue;
-
-    @FXML
-    private TableColumn<RentCue, String> quantityCue;
+    private TableColumn<RentCue, Double> priceCue;
 
     @FXML
     private TableColumn<RentCue, String> promotionCue;
 
     @FXML
+    private TableColumn<RentCue, Double> promotionDiscountCue;
+
+    @FXML
     private TableColumn<RentCue, String> statusCue;
 
     @FXML
-    private TableColumn<RentCue, String> subTotalCue;
+    private TableColumn<RentCue, Double> subTotalCue;
 
     @FXML
-    private TableColumn<RentCue, String> netTotalCue;
+    private TableColumn<RentCue, Double> netTotalCue;
+
 
     // Order + Customer Overview Details
     @FXML
@@ -161,10 +204,11 @@ public class ForEachOrderController implements Initializable {
     private final CustomerDAO customerDAO = new CustomerDAO();
     private final OrderItemDAO orderItemDAO = new OrderItemDAO();
     private final RentCueDAO rentCueDAO = new RentCueDAO();
-    private final Connection conn = DatabaseConnection.getConnection();
+    private Connection conn = DatabaseConnection.getConnection();
 
     private int orderID;
     private int customerID;
+
     public void setOrderID(int orderID) {
         this.orderID = orderID;
         if (orderID > 0) {
@@ -211,8 +255,8 @@ public class ForEachOrderController implements Initializable {
         // Kiểm tra dữ liệu
         System.out.println(rentCues);
 
-        for(RentCue rc : RentCueDAO.getAllRentCuesByOrderId(orderID)) {
-            if(!rc.getProductName().endsWith("Sale")) {
+        for (RentCue rc : RentCueDAO.getAllRentCuesByOrderId(orderID)) {
+            if (!rc.getProductName().endsWith("Sale")) {
                 rentCues.add(rc);
             }
         }
@@ -227,10 +271,10 @@ public class ForEachOrderController implements Initializable {
         }
         // Add retrieved rent cue items to the table
         rentCueTable.getItems().addAll(rentCues);
+        rentCueList.clear();
+        rentCueList.addAll(rentCues);
         caculateTotals();
-
     }
-
 
 
     private void initializeBookingColumn() {
@@ -302,7 +346,7 @@ public class ForEachOrderController implements Initializable {
             @Override
             protected void updateItem(Double item, boolean empty) {
                 super.updateItem(item, empty);
-                setText((empty || item == null) ? null : decimalFormat.format(item) ); // Append "VND" to indicate currency
+                setText((empty || item == null) ? null : decimalFormat.format(item)); // Append "VND" to indicate currency
             }
         });
 
@@ -310,47 +354,50 @@ public class ForEachOrderController implements Initializable {
 
 
     private void initializeOrderDetailColumn() {
+        sttOrderItemColumn.setCellValueFactory(this::orderItemCall);
         productNameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        productNameColumn.setSortType(TableColumn.SortType.ASCENDING);
 
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+        quantityColumn.setSortType(TableColumn.SortType.ASCENDING);
 
         priceOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("productPrice"));
-        priceOrderItemColumn.setCellFactory(column -> new TableCell<>() {
-            private final DecimalFormat decimalFormat = new DecimalFormat("#,###"); // Không có phần thập phân
-
+        priceOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+        priceOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
             @Override
             protected void updateItem(Double item, boolean empty) {
                 super.updateItem(item, empty);
-                setText((empty || item == null) ? null : decimalFormat.format(item));
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(String.format("%,d", Math.round(item)));
+                }
             }
         });
 
-// Định dạng cho netTotalOrderItemColumn
         netTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
-        netTotalOrderItemColumn.setCellFactory(column -> new TableCell<>() {
-            private final DecimalFormat decimalFormat = new DecimalFormat("#,###"); // Không có phần thập phân
-
+        netTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+        netTotalOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
             @Override
             protected void updateItem(Double item, boolean empty) {
                 super.updateItem(item, empty);
-                setText((empty || item == null) ? null : decimalFormat.format(item));
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(String.format("%,d", Math.round(item)));
+                }
             }
         });
 
-// Định dạng cho subTotalOrderItemColumn
         subTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
-        subTotalOrderItemColumn.setCellFactory(column -> new TableCell<>() {
-            private final DecimalFormat decimalFormat = new DecimalFormat("#,###"); // Không có phần thập phân
-
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                setText((empty || item == null) ? null : decimalFormat.format(item));
-            }
-        });
+        subTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+        // Initialize OrderItem Promotion Columns
+        promotionOrderItem.setCellValueFactory(new PropertyValueFactory<>("promotionName"));
+        promotionDiscountOrderItem.setCellValueFactory(new PropertyValueFactory<>("promotionDiscount"));
     }
 
     private void initializeRentCueColumn() {
+        sttRentCueColumn.setCellValueFactory(this::rentCueCall);
         productNameCue.setCellValueFactory(new PropertyValueFactory<>("productName"));
         productNameCue.setSortType(TableColumn.SortType.ASCENDING);
 
@@ -363,7 +410,7 @@ public class ForEachOrderController implements Initializable {
                 if (empty || item == null) {
                     setText("");
                 } else {
-                    setText(item.format(DateTimeFormatter.ofPattern("dd-MM '[' HH:mm ']'")));
+                    setText(item.format(DateTimeFormatter.ofPattern("dd-MM '['HH:mm']'")));
                 }
             }
         });
@@ -373,6 +420,17 @@ public class ForEachOrderController implements Initializable {
 
         priceCue.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
         priceCue.setSortType(TableColumn.SortType.ASCENDING);
+        priceCue.setCellFactory(column -> new TableCell<RentCue, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(String.format("%,d", Math.round(item)));
+                }
+            }
+        });
 
         endTimeCue.setCellValueFactory(new PropertyValueFactory<>("endTime"));
         endTimeCue.setSortType(TableColumn.SortType.ASCENDING);
@@ -383,49 +441,92 @@ public class ForEachOrderController implements Initializable {
                 if (empty || item == null) {
                     setText("");
                 } else {
-                    setText(item.format(DateTimeFormatter.ofPattern("dd-MM '[' HH:mm ']'")));
+                    setText(item.format(DateTimeFormatter.ofPattern("dd-MM '['HH:mm']'")));
                 }
             }
         });
 
-        quantityCue.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-        quantityCue.setSortType(TableColumn.SortType.ASCENDING);
-
         promotionCue.setCellValueFactory(new PropertyValueFactory<>("promotionName"));
         promotionCue.setSortType(TableColumn.SortType.ASCENDING);
 
-        statusCue.setCellValueFactory(new PropertyValueFactory<>("status"));
+        statusCue.setCellValueFactory(param -> {
+            final RentCue rentCue = param.getValue();
+            String rentCueStatus = String.valueOf(rentCue.getStatus());
+            String newStatus = rentCueStatus.equals("Available") ? "Returned" : "Rented";
+            return new SimpleStringProperty(newStatus);
+        });
         statusCue.setSortType(TableColumn.SortType.ASCENDING);
 
         subTotalCue.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
         subTotalCue.setSortType(TableColumn.SortType.ASCENDING);
+        subTotalCue.setCellFactory(column -> new TableCell<RentCue, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(String.format("%,d", Math.round(item)));
+                }
+            }
+        });
 
         netTotalCue.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
         netTotalCue.setSortType(TableColumn.SortType.ASCENDING);
+        netTotalCue.setCellFactory(column -> new TableCell<RentCue, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(String.format("%,d", Math.round(item)));
+                }
+            }
+        });
+
+        // Initialize RentCue Promotion Columns
+        promotionCue.setCellValueFactory(new PropertyValueFactory<>("promotionName"));
+        promotionDiscountCue.setCellValueFactory(new PropertyValueFactory<>("promotionDiscount"));
     }
 
     private void initializeOrderCustomerDetail() {
         Order order = OrderDAO.getOrderByIdStatic(orderID);
         if (order != null) {
-            customerNameData.setText(order.getCustomerName()!=null ? order.getCustomerName() : "");
-            phoneData.setText(order.getCustomerPhone()!=null ? order.getCustomerPhone() : "");
-            currentTableData.setText(order.getCurrentTableName()!=null ? order.getCurrentTableName() : "");
-            
+            customerNameData.setText(order.getCustomerName() != null ? order.getCustomerName() : "");
+            phoneData.setText(order.getCustomerPhone() != null ? order.getCustomerPhone() : "");
+            currentTableData.setText(order.getCurrentTableName() != null ? order.getCurrentTableName() : "");
+
 
         }
     }
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+
+    // Remove implement Initializable to take control over code flow
+    public void initializeAllTables() {
         initializeBookingColumn();
         initializeOrderDetailColumn();
         initializeRentCueColumn();
 
-
-
+        // if "Paid", disable all Buttons
+        if (orderStatusText.getText().equals("Paid")) {
+            finishOrderButton.setDisable(true);
+            updateBookingButton.setDisable(true);
+            deleteBookingButton.setDisable(true);
+            stopBookingButton.setDisable(true);
+            addRentCueButton.setDisable(true);
+            editRentCueButton.setDisable(true);
+            deleteRentCueButton.setDisable(true);
+            endCueRentalButton.setDisable(true);
+            addOrderItemButton.setDisable(true);
+            editOrderItemButton.setDisable(true);
+            deleteOrderItemButton.setDisable(true);
+            addBookingButton.setDisable(true);
+        }
     }
 
+
     public void addBooking(ActionEvent event) {
-        if(orderStatusText.getText().equals("Paid")){
+        if (orderStatusText.getText().equals("Paid")) {
             showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
             return;
         }
@@ -448,7 +549,7 @@ public class ForEachOrderController implements Initializable {
     }
 
     public void updateBooking(ActionEvent event) {
-        if(orderStatusText.getText().equals("Paid")){
+        if (orderStatusText.getText().equals("Paid")) {
             showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
             return;
         }
@@ -468,37 +569,42 @@ public class ForEachOrderController implements Initializable {
             return;
         }
 
-        if("Playing".equals(selectedBooking.getBookingStatus())){
+        if ("Playing".equals(selectedBooking.getBookingStatus())) {
             System.out.println("Status playing");
             showAlert(Alert.AlertType.WARNING, "Can't Update Status", "Cannot update the status of a booking that is already finished.");
             return;
         }
 
 
-
         // Xác định trạng thái mới
         String newTableStatus = "Playing";
         String newBookingStatus = "playing";
 
-        // Gọi phương thức updateBooking từ BookingDAO
-        boolean updateSuccess = BookingDAO.updateBooking(
-                selectedBooking.getBookingId(),
-                selectedBooking.getOrderId(),
-                selectedBooking.getTableId(),
-                newTableStatus
-        );
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Confirm Start Playing");
+        confirmationAlert.setHeaderText("Confirm start playing on this table ?");
 
-        // Kiểm tra kết quả cập nhật và hiển thị thông báo
-        if (updateSuccess) {
-            showAlert(Alert.AlertType.INFORMATION, "Update Successful", "The booking status has been updated successfully.");
-            loadBookings(); // Tải lại danh sách booking sau khi cập nhật
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Update Failed", "Failed to update the booking status. Please try again.");
+        Optional<ButtonType> result = confirmationAlert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            boolean updateSuccess = BookingDAO.updateBooking(
+                    selectedBooking.getBookingId(),
+                    selectedBooking.getOrderId(),
+                    selectedBooking.getTableId(),
+                    newTableStatus
+            );
+
+            // Kiểm tra kết quả cập nhật và hiển thị thông báo
+            if (updateSuccess) {
+                showAlert(Alert.AlertType.INFORMATION, "Start Playing Successful", "Start playing on this table successfully.");
+                loadBookings(); // Tải lại danh sách booking sau khi cập nhật
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Update Failed", "Failed to update the booking status. Please try again.");
+            }
         }
     }
 
     public void deleteBooking(ActionEvent event) {
-        if(orderStatusText.getText().equals("Paid")){
+        if (orderStatusText.getText().equals("Paid")) {
             showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
             return;
         }
@@ -513,7 +619,7 @@ public class ForEachOrderController implements Initializable {
             return;
         }
 
-        if(selectedBooking.getBookingStatus().equals("Playing")){
+        if (selectedBooking.getBookingStatus().equals("Playing")) {
             showAlert(Alert.AlertType.WARNING, "Can't Delete", "Bookings marked as 'playing' cannot be deleted.");
             return;
         }
@@ -537,7 +643,6 @@ public class ForEachOrderController implements Initializable {
     }
 
 
-
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -545,9 +650,10 @@ public class ForEachOrderController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
     public void addOrderItem(ActionEvent event) {
-        if(orderStatusText.getText().equals("Paid")){
-          showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+        if (orderStatusText.getText().equals("Paid")) {
+            showAlert(Alert.AlertType.ERROR, "Error", "You cannot make any changes in this order as it has already been paid.");
             return;
         }
         try {
@@ -555,22 +661,22 @@ public class ForEachOrderController implements Initializable {
             Parent root = loader.load();
 
             AddOrderItemController addOrderItemController = loader.getController();
-           addOrderItemController.setOrderId(orderID);
-           Stage stage = new Stage();
-           stage.setTitle("Add Booking");
-           stage.setScene(new Scene(root));
+            addOrderItemController.setOrderId(orderID);
+            Stage stage = new Stage();
+            stage.setTitle("Add a new Order Item");
+            stage.setScene(new Scene(root));
             stage.showAndWait();
 
-          loadOrderDetail();
-      } catch (IOException e) {
-           e.printStackTrace();
+            loadOrderDetail();
+        } catch (IOException e) {
+            e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to load Add Booking form.");
-       }
+        }
     }
 
     public void updateOrderItem(ActionEvent event) {
-        if(orderStatusText.getText().equals("Paid")){
-            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+        if (orderStatusText.getText().equals("Paid")) {
+            showAlert(Alert.AlertType.ERROR, "Error", "You cannot make any changes in this order as it has already been paid.");
             return;
         }
         OrderItem selectedItem = orderItemsTable.getSelectionModel().getSelectedItem();
@@ -583,13 +689,14 @@ public class ForEachOrderController implements Initializable {
             return;
         }
 
-        try{
+        try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/items/updateOrderItem.fxml"));
             Parent root = loader.load();
 
             UpdateOrderItemController updateOrderItemController = loader.getController();
             updateOrderItemController.setOrderId(orderID);
             updateOrderItemController.setOrderItemDetails(selectedItem);
+            updateOrderItemController.initializeOrderItem();
 
             Stage stage = new Stage();
             stage.setTitle("Update Order Item");
@@ -604,8 +711,8 @@ public class ForEachOrderController implements Initializable {
     }
 
     public void deleteOrderItem() {
-        if(orderStatusText.getText().equals("Paid")){
-            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+        if (orderStatusText.getText().equals("Paid")) {
+            showAlert(Alert.AlertType.ERROR, "Error", "You cannot make any changes in this order as it has already been paid.");
             return;
         }
         try {
@@ -652,8 +759,8 @@ public class ForEachOrderController implements Initializable {
 
     // Rent Cue Functions
     public void addRentCue(ActionEvent event) {
-        if(orderStatusText.getText().equals("Paid")){
-            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+        if (orderStatusText.getText().equals("Paid")) {
+            showAlert(Alert.AlertType.ERROR, "Error", "You cannot make any changes in this order as it has already been paid.");
             return;
         }
         try {
@@ -676,22 +783,44 @@ public class ForEachOrderController implements Initializable {
 
     @FXML
     public void updateRentCue(ActionEvent event) {
-        if(orderStatusText.getText().equals("Paid")){
-            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+        if (orderStatusText.getText().equals("Paid")) {
+            showAlert(Alert.AlertType.ERROR, "Error", "You cannot make any changes in this order as it has already been paid.");
             return;
         }
         try {
             // Get the selected rent cue from the table
-            Object selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
+            RentCue selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
 
             if (selectedItem == null) {
                 showAlert(Alert.AlertType.WARNING, "Warning", "You haven't selected an item to edit!");
                 return;
             }
 
-            // Open a dialog or window to edit the selected rent cue
-            // TODO: Implement logic to open edit rent cue window
-            showAlert(Alert.AlertType.INFORMATION, "Edit Rent Cue", "The edit rent cue feature is under development.");
+            if (selectedItem.getStatus().equals(RentCueStatus.Available)) {
+                showAlert(Alert.AlertType.WARNING, "Warning", "This Cue Rental has already been returned. You cannot edit this !");
+                return;
+            }
+
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/rent/updateRentCue.fxml"));
+                Parent root = loader.load();
+
+                UpdateRentCueController updateRentCueController = loader.getController();
+                updateRentCueController.setOrderID(this.orderID);
+                updateRentCueController.setRentCueId(selectedItem.getRentCueId());
+                updateRentCueController.setPromotionName(selectedItem.getPromotionName());
+                updateRentCueController.initializeRentCue();
+
+                Stage stage = new Stage();
+                stage.setTitle("Edit Rent Cue");
+                stage.setScene(new Scene(root));
+                stage.showAndWait();
+
+                loadRentCue();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to open edit rent cue window: " + e.getMessage());
         }
@@ -699,16 +828,22 @@ public class ForEachOrderController implements Initializable {
 
     @FXML
     public void deleteRentCue(ActionEvent event) {
-        if(orderStatusText.getText().equals("Paid")){
-            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+        if (orderStatusText.getText().equals("Paid")) {
+            showAlert(Alert.AlertType.ERROR, "Error", "You cannot make any changes in this order as it has already been paid.");
             return;
         }
+
         try {
             // Get the selected rent cue from the table
             RentCue selectedItem = (RentCue) rentCueTable.getSelectionModel().getSelectedItem();
 
             if (selectedItem == null) {
                 showAlert(Alert.AlertType.WARNING, "Warning", "You haven't selected an item to delete!");
+                return;
+            }
+
+            if (selectedItem.getStatus().equals(RentCueStatus.Available)) {
+                showAlert(Alert.AlertType.WARNING, "Warning", "You cannot delete this Cue Rental ; it has already been returned.");
                 return;
             }
 
@@ -739,16 +874,22 @@ public class ForEachOrderController implements Initializable {
 
     @FXML
     public void endCueRental(ActionEvent event) {
-        if(orderStatusText.getText().equals("Paid")){
+        if (orderStatusText.getText().equals("Paid")) {
             showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
             return;
         }
+
         try {
             // Get the selected rent cue from the table
             RentCue selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
 
             if (selectedItem == null) {
                 showAlert(Alert.AlertType.WARNING, "Warning", "You haven't selected a rent cue to end!");
+                return;
+            }
+
+            if (selectedItem.getStatus().equals(RentCueStatus.Available)) {
+                showAlert(Alert.AlertType.WARNING, "Warning", "This Cue Rental has already been returned. You cannot return it again !");
                 return;
             }
 
@@ -785,7 +926,7 @@ public class ForEachOrderController implements Initializable {
                 selectedItem.setNetTotal(netTotal);
 
                 // Update the status to completed or ended
-                selectedItem.setStatus(RentCueStatus.Returned);
+                selectedItem.setStatus(RentCueStatus.Available);
 
                 // Update in the database
                 boolean updateSuccess = RentCueDAO.endCueRental(selectedItem);
@@ -801,13 +942,14 @@ public class ForEachOrderController implements Initializable {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to end rent cue rental: " + e.getMessage());
         }
     }
 
 
     public void stopBooking(ActionEvent event) {
-        if(orderStatusText.getText().equals("Paid")){
+        if (orderStatusText.getText().equals("Paid")) {
             showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
             return;
         }
@@ -818,8 +960,11 @@ public class ForEachOrderController implements Initializable {
             return;
         }
 
-        if (selectedBooking.getBookingStatus().equals("finish") || selectedBooking.getBookingStatus().equals("order")) {
-            showAlert(Alert.AlertType.WARNING, "Can't Stop", "Please select a booking different to stop.");
+        // Avoid duplicate stop booking
+        String bookingStatus = selectedBooking.getBookingStatus();
+        String bookingStatusMessage = bookingStatus.equalsIgnoreCase("Order") ? "This booking is in Order Status. You cannot end this booking !" : bookingStatus.equalsIgnoreCase("Finish") ? "This booking has already finished. You cannot end this booking !" : null;
+        if (bookingStatusMessage != null) {
+            showAlert(Alert.AlertType.WARNING, "Can't Stop", bookingStatusMessage);
             return;
         }
 
@@ -828,101 +973,111 @@ public class ForEachOrderController implements Initializable {
         Timestamp startTime = selectedBooking.getStartTime();
         int poolTableId = selectedBooking.getTableId();
 
-        try  {
-            // Start a transaction
-            conn.setAutoCommit(false);
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Confirm Stop Booking");
+        confirmationAlert.setHeaderText("This booking will be stopped. Are you sure ?");
 
-            // Get the current time (end time)
-            String currentTimeQuery = "SELECT NOW()";
-            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(currentTimeQuery)) {
-                rs.next();
-                Timestamp currentTime = rs.getTimestamp(1);
+        Optional<ButtonType> result = confirmationAlert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                // Nullable connection problem
+                if (conn == null) conn = DatabaseConnection.getConnection();
+                else {
+                    // Start a transaction
+                    conn.setAutoCommit(false);
 
-                // Validate: Ensure endTime is not earlier than startTime
-                if (currentTime.before(startTime)) {
-                    showAlert(Alert.AlertType.WARNING, "Invalid End Time", "End time cannot be earlier than start time. Please try again.");
-                    return;
-                }
+                    // Get the current time (end time)
+                    String currentTimeQuery = "SELECT NOW()";
+                    try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(currentTimeQuery)) {
+                        rs.next();
+                        Timestamp currentTime = rs.getTimestamp(1);
 
-                // Calculate time played (timeplay) in minutes
-                String timeplayQuery = "SELECT TIMESTAMPDIFF(MINUTE, ?, ?) AS timeplay";
-                try (PreparedStatement timeplayStmt = conn.prepareStatement(timeplayQuery)) {
-                    timeplayStmt.setTimestamp(1, startTime);
-                    timeplayStmt.setTimestamp(2, currentTime);
-                    try (ResultSet timeplayRs = timeplayStmt.executeQuery()) {
-                        timeplayRs.next();
-                        int timeplayInMinutes = timeplayRs.getInt("timeplay");
+                        // Validate: Ensure endTime is not earlier than startTime
+                        if (currentTime.before(startTime)) {
+                            showAlert(Alert.AlertType.WARNING, "Invalid End Time", "End time cannot be earlier than start time. Please try again.");
+                            return;
+                        }
 
-                        // Convert time played from minutes to hours and round to 1 decimal place
-                        double timeplayInHours = Math.round((timeplayInMinutes / 60.0) * 10.0) / 10.0;
+                        // Calculate time played (timeplay) in minutes
+                        String timeplayQuery = "SELECT TIMESTAMPDIFF(MINUTE, ?, ?) AS timeplay";
+                        try (PreparedStatement timeplayStmt = conn.prepareStatement(timeplayQuery)) {
+                            timeplayStmt.setTimestamp(1, startTime);
+                            timeplayStmt.setTimestamp(2, currentTime);
+                            try (ResultSet timeplayRs = timeplayStmt.executeQuery()) {
+                                timeplayRs.next();
+                                int timeplayInMinutes = timeplayRs.getInt("timeplay");
 
-                        // Get the price of the pool table
-                        String priceQuery = "SELECT c.price FROM cate_pooltables c " +
-                                "JOIN pooltables p ON p.cate_id = c.id " +
-                                "WHERE p.table_id = ?";
+                                // Convert time played from minutes to hours and round to 1 decimal place
+                                double timeplayInHours = Math.round((timeplayInMinutes / 60.0) * 10.0) / 10.0;
 
-                        try (PreparedStatement priceStmt = conn.prepareStatement(priceQuery)) {
-                            priceStmt.setInt(1, poolTableId);
-                            try (ResultSet priceRs = priceStmt.executeQuery()) {
-                                priceRs.next();
-                                double price = priceRs.getDouble("price");
+                                // Get the price of the pool table
+                                String priceQuery = "SELECT c.price FROM cate_pooltables c " +
+                                        "JOIN pooltables p ON p.cate_id = c.id " +
+                                        "WHERE p.table_id = ?";
 
-                                // Calculate subtotal
-                                double subtotal = timeplayInHours * price;
+                                try (PreparedStatement priceStmt = conn.prepareStatement(priceQuery)) {
+                                    priceStmt.setInt(1, poolTableId);
+                                    try (ResultSet priceRs = priceStmt.executeQuery()) {
+                                        priceRs.next();
+                                        double price = priceRs.getDouble("price");
 
-                                // Assuming net_total is same as subtotal
-                                double netTotal = subtotal;
+                                        // Calculate subtotal
+                                        double subtotal = timeplayInHours * price;
 
-                                // Update the booking record
-                                String updateQuery = "UPDATE bookings SET end_time = ?, timeplay = ?, subtotal = ?, net_total = ?, booking_status = 'finish' WHERE booking_id = ?";
-                                try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
-                                    updateStmt.setTimestamp(1, currentTime);
-                                    updateStmt.setDouble(2, timeplayInHours);
-                                    updateStmt.setDouble(3, subtotal);
-                                    updateStmt.setDouble(4, netTotal);
-                                    updateStmt.setInt(5, bookingId);
-                                    updateStmt.executeUpdate();
+                                        // Assuming net_total is same as subtotal
+                                        double netTotal = subtotal;
 
-                                    // Commit the transaction
-                                    conn.commit();
+                                        // Update the booking record
+                                        String updateQuery = "UPDATE bookings SET end_time = ?, timeplay = ?, subtotal = ?, net_total = ?, booking_status = 'finish' WHERE booking_id = ?";
+                                        try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+                                            updateStmt.setTimestamp(1, currentTime);
+                                            updateStmt.setDouble(2, timeplayInHours);
+                                            updateStmt.setDouble(3, subtotal);
+                                            updateStmt.setDouble(4, netTotal);
+                                            updateStmt.setInt(5, bookingId);
+                                            updateStmt.executeUpdate();
 
-                                    // Success notification
-                                    showAlert(Alert.AlertType.INFORMATION, "Booking Stopped", "Booking has been stopped and updated.");
-                                    loadBookings();
+                                            // Commit the transaction
+                                            conn.commit();
+
+                                            // Success notification
+                                            showAlert(Alert.AlertType.INFORMATION, "Booking Stopped", "Booking has been stopped and updated.");
+                                            loadBookings();
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
 
-            // Rollback transaction on error
-            try (Connection conn = DatabaseConnection.getConnection()) {
-                conn.rollback();
-            } catch (SQLException rollbackEx) {
-                rollbackEx.printStackTrace();
-            }
+                // Rollback transaction on error
+                try (Connection conn = DatabaseConnection.getConnection()) {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    rollbackEx.printStackTrace();
+                }
 
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to stop booking: " + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to stop booking: " + e.getMessage());
+            }
         }
     }
 
 
-
     public void setCustomerID(int customerId) {
         this.customerID = customerId;
-        if(customerId > 0 ){
+        if (customerId > 0) {
             loadInfo();
         }
     }
 
     private void loadInfo() {
         List<Customer> customerList = customerDAO.getInfoCustomer(customerID);
-        Order  orderList = orderDAO.getOrderById(orderID);
+        Order orderList = OrderDAO.getOrderById(orderID);
 
-        if(customerList != null && !customerList.isEmpty() && orderList != null ){
+        if (customerList != null && !customerList.isEmpty() && orderList != null) {
             Customer customer = customerList.get(0);
 
             customerText.setText(customer.getName());
@@ -931,46 +1086,47 @@ public class ForEachOrderController implements Initializable {
         }
     }
 
-    private double caculateTotals(){
+    private double caculateTotals() {
         double totalBooking = 0.0;
         double totalProductAmount = 0.0;
         double totalRentalAmount = 0.0;
 
         ObservableList<Booking> bookingList = bookingPoolTable.getItems();
-        for (Booking booking : bookingList){
-            if(booking != null){
+        for (Booking booking : bookingList) {
+            if (booking != null) {
                 totalBooking += booking.getNetTotal();
             }
         }
         totalBookingLabel.setText("Total: " + formatTotal(totalBooking));
 
         ObservableList<OrderItem> orderItemList = orderItemsTable.getItems();
-        for(OrderItem item : orderItemList){
+        for (OrderItem item : orderItemList) {
             totalProductAmount += item.getNetTotal();
         }
         totalItemLabel.setText("Total: " + formatTotal(totalProductAmount));
 
         ObservableList<RentCue> rentCueList = rentCueTable.getItems();
-        for(RentCue rentCue : rentCueList){
+        for (RentCue rentCue : rentCueList) {
             System.out.println("Rent Cue List: " + rentCue);
             totalRentalAmount += rentCue.getNetTotal();
         }
         totalRentCueLabel.setText("Total: " + formatTotal(totalRentalAmount));
 
-        return totalBooking + totalProductAmount+ totalRentalAmount;
+        return totalBooking + totalProductAmount + totalRentalAmount;
     }
 
     private String formatTotal(double total) {
         DecimalFormat decimalFormat = new DecimalFormat("#,###");
         return decimalFormat.format(total);
     }
-    public void payment(ActionEvent event) {
+
+    public void finishOrder(ActionEvent event) {
         // Kiểm tra điều kiện trước khi thanh toán
         if (allBookingsFinished() && allRentCuesFinished()) {
             double totalCost = caculateTotals(); // Lấy tổng tiền từ phương thức tính toán
 
             // Câu lệnh SQL để cập nhật tổng tiền và trạng thái đơn hàng
-            String query = "UPDATE orders SET total_cost = ?, order_status = 'Paid' WHERE order_id = ?";
+            String query = "UPDATE orders SET total_cost = ?, order_status = 'Finish' WHERE order_id = ?";
 
             try (Connection conn = DatabaseConnection.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -1003,16 +1159,16 @@ public class ForEachOrderController implements Initializable {
         }
     }
 
-
-
     // Giả sử bạn có phương thức refreshOrderDetails để cập nhật giao diện
     public void setOrderTable(TableView<Order> orderTable) {
         this.orderTable = orderTable;
     }
+
     private void loadOrderList() {
         List<Order> orders = orderDAO.getAllOrders();
         orderTable.setItems(FXCollections.observableArrayList(orders));
     }
+
     private boolean allBookingsFinished() {
         // Kiểm tra trạng thái của tất cả các booking
         for (Booking booking : bookingList) {
@@ -1027,11 +1183,22 @@ public class ForEachOrderController implements Initializable {
     private boolean allRentCuesFinished() {
         // Kiểm tra trạng thái của tất cả các rent cue
         for (RentCue rentCue : rentCueList) {
-            if (!"finish".equalsIgnoreCase(String.valueOf(rentCue.getStatus()))) {
+            if (rentCue.getStatus().equals(RentCueStatus.Rented)) {
                 return false;
             }
         }
         return true;
     }
 
+    private ObservableValue<Integer> orderItemCall(TableColumn.CellDataFeatures<OrderItem, Integer> cellData) {
+        // Lấy vị trí (index) của dòng hiện tại trong danh sách
+        int index = orderItemsTable.getItems().indexOf(cellData.getValue()) + 1;
+        return new SimpleIntegerProperty(index).asObject();
+    }
+
+    private ObservableValue<Integer> rentCueCall(TableColumn.CellDataFeatures<RentCue, Integer> cellData) {
+        // Lấy vị trí (index) của dòng hiện tại trong danh sách
+        int index = rentCueTable.getItems().indexOf(cellData.getValue()) + 1;
+        return new SimpleIntegerProperty(index).asObject();
+    }
 }

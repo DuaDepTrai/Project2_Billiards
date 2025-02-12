@@ -33,20 +33,26 @@ public class UpdateRentCueController {
     private RentCue rentCue;
     private AutoCompletionBinding<String> autoBinding;
 
-    @FXML
-    public void initialize() {
-        ArrayList<String> promotionList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
-
-        // Populate promotion combo box
-        autoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText,promotionList);
-        HandleTextFieldClick(promotionList,promotionNameAutoCompleteText,promotionName);
-    }
+    public void initializeRentCue() {
+        ArrayList<String> pList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
+        ArrayList<String> promotionList = new ArrayList<>();
+        if(pList!=null){
+            for(String s : pList){
+                if(!s.contains(" ")){
+                    s = s + " ";
+                    promotionList.add(s);
+                }
+                else promotionList.add(s);
+            }
+            AutoCompletionBinding<String> promotionNameAutoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
+            HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText, promotionName);
+            promotionNameAutoBinding.setHideOnEscape(true);
+            promotionNameAutoBinding.setVisibleRowCount(7);
+        }    }
 
 
     @FXML
     public void updateRentCue() {
-        System.out.println("PromotionID = "+promotionId);
-        System.out.println("RentCueID = "+rentCueId);
         try {
             String promotionName = promotionNameAutoCompleteText.getText();
             if(promotionName.isBlank()){
@@ -57,11 +63,14 @@ public class UpdateRentCueController {
                 alert.showAndWait();
                 return;
             }
-            
+
             RentCue rentCue = new RentCue();
-            rentCue.setPromotionId(PromotionDAO.getPromotionIdByName(promotionName));
+            int receivedPromotionId = PromotionDAO.getPromotionIdByName(promotionName);
+            rentCue.setPromotionId(receivedPromotionId);
             rentCue.setRentCueId(rentCueId);
 
+            System.out.println("Received PromotionID = "+receivedPromotionId);
+            System.out.println("RentCueID = "+rentCueId);
 
             boolean success = RentCueDAO.updateRentCue(rentCue);
             if(success) {
@@ -70,7 +79,7 @@ public class UpdateRentCueController {
                 successAlert.setHeaderText("Promotion Updated");
                 successAlert.setContentText("The promotion for the rent cue has been successfully updated.");
                 successAlert.showAndWait();
-                
+
                 // Close the current window after successful update
                 Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();
                 stage.close();
@@ -78,7 +87,7 @@ public class UpdateRentCueController {
                 throw new Exception("Failed to update rent cue promotion");
             }
 
-        } 
+        }
         catch (Exception e) {
             // Handle unexpected errors
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -89,13 +98,11 @@ public class UpdateRentCueController {
         }
     }
 
-    public void HandleTextFieldClick(ArrayList<String> list, TextField text, String name) {
-        TextFields.bindAutoCompletion(text, list);
-        text.setOnMouseClicked(event -> {
-            text.setText("");
-            autoBinding.setUserInput("");
-        });
+    public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text, String name) {
         text.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue){
+                auto.setUserInput(" ");
+            }
             if (!newValue) { // Nếu mất focus
                 String inputText = text.getText().trim();
                 boolean check = false;
