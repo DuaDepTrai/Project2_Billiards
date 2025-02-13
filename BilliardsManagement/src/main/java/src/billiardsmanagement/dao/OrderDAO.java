@@ -4,14 +4,80 @@ import src.billiardsmanagement.model.Order;
 import src.billiardsmanagement.model.DatabaseConnection;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrderDAO {
 
+    public static boolean updateOrderTotal(int orderId, double totalCost) {
+        String query = "UPDATE orders SET total_cost = ?, order_status = 'Finished' WHERE order_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setDouble(1, totalCost);  // Cập nhật tổng tiền vào cột total_cost
+            stmt.setInt(2, orderId);       // Cập nhật đúng đơn hàng theo order_id
+
+            int rowsAffected = stmt.executeUpdate();
+            if(rowsAffected > 0){
+                return true;
+            }
+            else{
+                return false;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static void updateStatusOrder(int orderId){
+        String query = "UPDATE orders SET order_status = 'canceled' WHERE order_id = ?";
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, orderId);
+            int rowsUpdated = statement.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                System.out.println("Order ID " + orderId + " đã bị hủy thành công.");
+            } else {
+                System.out.println("Không tìm thấy Order ID: " + orderId);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public static List<Order> getOrderPaid() {
+        List<Order> paidOrders = new ArrayList<>();
+        String query = "SELECT * FROM orders WHERE orderStatus = 'Paid'";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Order order = new Order(
+                        rs.getInt("orderId"),
+                        rs.getInt("customerId"),
+                        rs.getString("customerName"),
+                        rs.getString("customerPhone"),
+                        rs.getDouble("totalCost"),
+                        rs.getString("orderStatus")
+                );
+                paidOrders.add(order);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return paidOrders;
+    }
+
+
     // Không cần khai báo URL, USER, PASSWORD nữa, vì đã có trong DatabaseConnection
-    public static List<Order> getAllOrders() {
+    public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
         String query = """
         SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
@@ -47,7 +113,7 @@ public class OrderDAO {
 
 
     public void addOrder(Order newOrder) {
-        String query = "INSERT INTO orders (customer_id,order_status) VALUES ( ?, 'Pending')";
+        String query = "INSERT INTO orders (customer_id,order_status) VALUES ( ?, 'Playing')";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -172,41 +238,4 @@ public class OrderDAO {
 
         return order;
     }
-    public static List<Order> getOrderPaid() {
-        List<Order> orders = new ArrayList<>();
-        String query = """
-     SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone,
-                                  o.total_cost, o.order_status
-                           FROM orders o 
-                           JOIN customers c ON o.customer_id = c.customer_id 
-                           WHERE o.order_status = 'Paid' 
-                           ORDER BY o.order_id;
-                           
-    """;  // Câu truy vấn SQL để lấy danh sách đơn hàng (bao gồm số điện thoại khách hàng)
-
-        // Sử dụng DatabaseConnection để lấy kết nối
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-
-            // Duyệt qua kết quả trả về và thêm vào danh sách orders
-            while (rs.next()) {
-                Order order = new Order(
-                        rs.getInt("order_id"),
-                        rs.getInt("customer_id"),
-                        rs.getString("customer_name"),
-                        rs.getString("customer_phone"),
-                        rs.getDouble("total_cost"),
-                        rs.getString("order_status")
-                );
-                order.getCreatedAt(); // Gán giá trị tại thời điểm lấy dữ liệu
-                orders.add(order);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();  // In lỗi nếu có sự cố trong quá trình truy vấn
-        }
-
-        return orders;  // Trả về danh sách các đơn hàng
-    }
-
 }

@@ -5,13 +5,12 @@ import src.billiardsmanagement.model.Revenue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class RevenueService {
-
-    // Tính doanh thu theo ngày
     public static Revenue calculateRevenueByDate(List<Order> orders, List<Booking> bookings, LocalDate date) {
         List<Order> filteredOrders = orders.stream()
                 .filter(order -> {
@@ -21,43 +20,48 @@ public class RevenueService {
 
                     // Kiểm tra nếu có Booking nào có startTime trong ngày được chọn
                     return orderBookings.stream()
-                            .map(Booking::getStartTimeBooking) // Lấy danh sách startTime của các Booking
-                            .filter(Objects::nonNull) // Loại bỏ giá trị null
-                            .map(LocalDateTime::toLocalDate) // Chuyển thành LocalDate
-                            .anyMatch(d -> d.equals(date)) // Kiểm tra có Booking nào trùng ngày không
+                            .anyMatch(b -> b.getStartTimeBooking() != null && b.getStartTimeBooking().toLocalDate().equals(date))
                             && "Paid".equals(order.getOrderStatus());
-
-
                 })
                 .collect(Collectors.toList());
 
         return generateRevenue(date, filteredOrders);
     }
-
-    // Tính doanh thu theo tháng
-    public static Revenue calculateRevenueByMonth(List<Order> orders, int year, int month) {
+    public static Revenue calculateRevenueByMonth(List<Order> orders, List<Booking> bookings, YearMonth month) {
         List<Order> filteredOrders = orders.stream()
-                .filter(order -> order.getCreatedAt() != null
-                        && order.getCreatedAt().getYear() == year
-                        && order.getCreatedAt().getMonthValue() == month
-                        && "Paid".equals(order.getOrderStatus()))
+                .filter(order -> {
+                    List<Booking> orderBookings = bookings.stream()
+                            .filter(b -> b.getOrderId() == order.getOrderId())
+                            .collect(Collectors.toList());
+
+                    // Kiểm tra nếu có Booking nào có startTime trong tháng được chọn
+                    return orderBookings.stream()
+                            .anyMatch(b -> b.getStartTimeBooking() != null &&
+                                    YearMonth.from(b.getStartTimeBooking().toLocalDate()).equals(month))
+                            && "Paid".equals(order.getOrderStatus());
+                })
                 .collect(Collectors.toList());
 
-        return generateRevenue(LocalDate.of(year, month, 1), filteredOrders);
+        return generateRevenue(month.atDay(1), filteredOrders);
     }
 
-    // Tính doanh thu theo năm
-    public static Revenue calculateRevenueByYear(List<Order> orders, int year) {
+    public static Revenue calculateRevenueByYear(List<Order> orders, List<Booking> bookings, int year) {
         List<Order> filteredOrders = orders.stream()
-                .filter(order -> order.getCreatedAt() != null
-                        && order.getCreatedAt().getYear() == year
-                        && "Paid".equals(order.getOrderStatus()))
+                .filter(order -> {
+                    List<Booking> orderBookings = bookings.stream()
+                            .filter(b -> b.getOrderId() == order.getOrderId())
+                            .collect(Collectors.toList());
+
+                    // Kiểm tra nếu có Booking nào có startTime trong năm được chọn
+                    return orderBookings.stream()
+                            .anyMatch(b -> b.getStartTimeBooking() != null &&
+                                    b.getStartTimeBooking().toLocalDate().getYear() == year)
+                            && "Paid".equals(order.getOrderStatus());
+                })
                 .collect(Collectors.toList());
 
         return generateRevenue(LocalDate.of(year, 1, 1), filteredOrders);
     }
-
-    // Hàm tạo đối tượng Revenue từ danh sách Order
     private static Revenue generateRevenue(LocalDate date, List<Order> orders) {
         double totalRevenue = orders.stream().mapToDouble(Order::getTotalCost).sum();
         int totalOrders = orders.size();
@@ -67,3 +71,5 @@ public class RevenueService {
     }
 
 }
+
+

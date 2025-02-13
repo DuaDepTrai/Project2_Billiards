@@ -46,10 +46,7 @@ public class OrderController implements Initializable {
     private TextField autoCompleteTextField;
     @FXML
     private TableView<Order> orderTable;
-    @FXML
-    private Label statusLabel;
-    @FXML
-    private ComboBox<String> statusComboBox;
+
 
     private Popup popup;
     private ListView<String> listView;
@@ -142,8 +139,7 @@ public class OrderController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loadCustomerNameToIdMap();
         loadOrderList();
-        statusLabel.setVisible(false);
-        statusComboBox.setVisible(false);
+
         totalCostColumn.setCellValueFactory(new PropertyValueFactory<>("totalCost"));
         sttColumn.setCellValueFactory(param -> {
             int index = sttColumn.getTableView().getItems().indexOf(param.getValue());
@@ -213,7 +209,7 @@ public class OrderController implements Initializable {
         });
     }
 
-    public void updateOrder(ActionEvent event) {
+    public void paymentOrder(ActionEvent event) {
         Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
 
         if(selectedOrder.getOrderStatus().equals("Paid")){
@@ -221,8 +217,7 @@ public class OrderController implements Initializable {
             return;
         }
         if (selectedOrder != null) {
-            String orderStatus = statusComboBox.getValue();
-            selectedOrder.setOrderStatus(orderStatus);
+
             boolean success = orderDAO.updateOrder(selectedOrder);
             if (success) {
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Order updated successfully!");
@@ -303,17 +298,15 @@ public class OrderController implements Initializable {
             }
         }
         if(mouseEvent.getClickCount() == 1){
-            statusLabel.setVisible(true);
-            statusComboBox.setVisible(true);
+
             Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
             if(selectedOrder != null){
                 autoCompleteTextField.setText(selectedOrder.getCustomerName());
-                statusComboBox.setValue(selectedOrder.getOrderStatus());
             }
         }
     }
 
-    public void paymentOrder(ActionEvent event) throws IOException {
+    public void billOrder(ActionEvent event) throws IOException {
         Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
 
         if (selectedOrder == null) {
@@ -321,11 +314,11 @@ public class OrderController implements Initializable {
             return;
         }
 
-        if (!"Finish".equals(selectedOrder.getOrderStatus())) {
+        if (!"Finished".equals(selectedOrder.getOrderStatus())) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Access Denied");
             alert.setHeaderText(null);
-            alert.setContentText("Bills can only be accessed when the order is in finish status.");
+            alert.setContentText("Bills can only be accessed when the order is in finished status.");
             alert.showAndWait();
             return;
         }

@@ -10,6 +10,9 @@ public class Revenue {
     private int total_orders;
     private String description; // Thêm mô tả
 
+    public Revenue(LocalDate date, int i, int totalRevenue, int totalOrders, String description) {
+    }
+
     // Thêm getter và setter cho description
     public String getDescription() {
         return description;
