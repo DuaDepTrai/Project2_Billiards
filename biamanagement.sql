@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 14, 2025 at 05:24 PM
+-- Generation Time: Feb 04, 2025 at 06:43 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -11,7 +11,9 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
+  DROP DATABASE IF EXISTS biamanagement;
+  CREATE DATABASE biamanagement;
+  USE biamanagement;
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -29,14 +31,14 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `bookings` (
   `booking_id` int(11) NOT NULL,
-  `order_id` int(11) DEFAULT NULL,
-  `table_id` int(11) DEFAULT NULL,
+  `order_id` int(11) NOT NULL,
+  `table_id` int(11) NOT NULL,
   `start_time` timestamp NOT NULL DEFAULT current_timestamp(),
   `end_time` timestamp NULL DEFAULT NULL,
   `timeplay` double DEFAULT NULL,
+  `subtotal` double DEFAULT NULL,
   `net_total` double DEFAULT NULL,
-  `subtotal` double NOT NULL,
-  `booking_status` enum('order','playing','finish') NOT NULL DEFAULT 'order',
+  `booking_status` enum('Order','Playing','Finish') NOT NULL DEFAULT 'Order',
   `promotion_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -44,14 +46,16 @@ CREATE TABLE `bookings` (
 -- Dumping data for table `bookings`
 --
 
-INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end_time`, `timeplay`, `net_total`, `subtotal`, `booking_status`, `promotion_id`) VALUES
-(16, 14, 1, '2025-01-01 03:00:00', '2025-01-01 05:00:00', 2, 500, 550, 'order', 1),
-(17, 15, 2, '2025-01-02 07:00:00', '2025-01-02 09:30:00', 2.5, 625, 700, 'order', 2),
-(18, 16, 3, '2025-01-03 11:00:00', '2025-01-03 12:30:00', 1.5, 375, 400, 'order', NULL),
-(19, 17, 1, '2025-01-04 02:00:00', '2025-01-04 03:00:00', 1, 200, 220, 'order', 3),
-(20, 18, 2, '2025-01-05 04:00:00', '2025-01-05 05:45:00', 1.75, 525, 550, 'order', NULL),
-(21, 19, 3, '2025-01-06 06:00:00', '2025-01-06 08:00:00', 2, 600, 650, 'order', 4),
-(22, 20, 1, '2025-01-07 09:00:00', '2025-01-07 10:30:00', 1.5, 450, 475, 'order', 5);
+INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end_time`, `timeplay`, `subtotal`, `net_total`, `booking_status`, `promotion_id`) VALUES
+(1, 1, 1, '2024-12-31 20:00:00', '2024-12-31 22:00:00', 2, 70000, 70000, 'Finish', NULL),
+(2, 2, 2, '2025-01-02 00:00:00', '2025-01-02 02:30:00', 2.5, 187500, 187500, 'Finish', NULL),
+(3, 3, 3, '2025-01-03 04:00:00', '2025-01-03 05:30:00', 1.5, 150000, 150000, 'Finish', NULL),
+(4, 4, 1, '2025-01-03 19:00:00', '2025-01-03 20:00:00', 1, 35000, 35000, 'Finish', NULL),
+(5, 5, 2, '2025-01-04 21:00:00', '2025-01-04 22:45:00', 1.75, 131250, 131250, 'Finish', NULL),
+(6, 6, 3, '2025-01-05 23:00:00', '2025-01-06 01:00:00', 2, 200000, 200000, 'Finish', NULL),
+(7, 7, 1, '2025-01-07 02:00:00', '2025-01-07 03:00:00', 1, 35000, 35000, 'Finish', NULL),
+(8, 8, 2, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 1, 75000, 75000, 'Finish', NULL),
+(9, 9, 3, '2025-01-09 04:00:00', NULL, NULL, NULL, NULL, 'Finish', NULL);
 
 -- --------------------------------------------------------
 
@@ -74,8 +78,28 @@ INSERT INTO `category` (`category_id`, `category_name`, `image_path`) VALUES
 (2, 'Cues-rent', 'cues-rent.png'),
 (3, 'Drinks', 'drinks.png'),
 (4, 'Food', 'food.png'),
-(6, 'Board Game', 'board_game.png'),
-(19, 'Game 1', 'attention.png');
+(5, 'Board Game', 'board_game.png');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cate_pooltables`
+--
+
+CREATE TABLE `cate_pooltables` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `price` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `cate_pooltables`
+--
+
+INSERT INTO `cate_pooltables` (`id`, `name`, `price`) VALUES
+(1, 'Standard Pool', 35000),
+(2, 'Deluxe Pool', 75000),
+(3, 'VIP Pool', 100000);
 
 -- --------------------------------------------------------
 
@@ -85,8 +109,8 @@ INSERT INTO `category` (`category_id`, `category_name`, `image_path`) VALUES
 
 CREATE TABLE `customers` (
   `customer_id` int(11) NOT NULL,
-  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `phone` varchar(255) DEFAULT NULL,
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `phone` varchar(255) NOT NULL,
   `total_playtime` double DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -95,11 +119,11 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUES
-(6, 'Nguyen Anh Tuan', '1234567890', 0),
-(7, 'Le Thi Mai', '2345678901', 0),
-(8, 'Tran Minh Tu', '3456789012', 0),
-(9, 'Phan Quoc Toan', '4567890123', 0),
-(10, 'Hoang Minh Thao', '5678901234', 0);
+(1, 'Nguyen Anh Tuan', '1234567890', 0),
+(2, 'Le Thi Mai', '2345678901', 0),
+(3, 'Tran Minh Tu', '3456789012', 0),
+(4, 'Phan Quoc Toan', '4567890123', 0),
+(5, 'Hoang Minh Thao', '5678901234', 0);
 
 -- --------------------------------------------------------
 
@@ -135,9 +159,9 @@ INSERT INTO `employees` (`employee_id`, `username`, `password`, `name`, `phone`,
 
 CREATE TABLE `orders` (
   `order_id` int(11) NOT NULL,
-  `customer_id` int(11) DEFAULT NULL,
+  `customer_id` int(11) NOT NULL,
   `total_cost` double DEFAULT NULL,
-  `order_status` enum('đã book','đang chơi','kết thúc') NOT NULL DEFAULT 'đã book'
+  `order_status` enum('Pending','Paid','Canceled') NOT NULL DEFAULT 'Pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -145,16 +169,15 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`order_id`, `customer_id`, `total_cost`, `order_status`) VALUES
-(14, 6, 195500, 'đang chơi'),
-(15, 7, 172125, 'kết thúc'),
-(16, 8, 440375, ''),
-(17, 9, 147700, ''),
-(18, 10, 172025, ''),
-(19, 6, 300600, ''),
-(20, 7, 50450, ''),
-(21, 8, 140000, ''),
-(22, 9, 250000, ''),
-(23, 10, 100000, '');
+(1, 1, 1245000, 'Pending'),
+(2, 2, 1647500, 'Paid'),
+(3, 3, 3280000, 'Pending'),
+(4, 4, 695000, 'Pending'),
+(5, 5, 1513750, 'Pending'),
+(6, 1, 425000, 'Pending'),
+(7, 2, 35000, 'Pending'),
+(8, 3, 125000, 'Paid'),
+(9, 4, 0, 'Canceled');
 
 -- --------------------------------------------------------
 
@@ -164,11 +187,11 @@ INSERT INTO `orders` (`order_id`, `customer_id`, `total_cost`, `order_status`) V
 
 CREATE TABLE `orders_items` (
   `order_item_id` int(11) NOT NULL,
-  `order_id` int(11) DEFAULT NULL,
-  `product_id` int(11) DEFAULT NULL,
-  `quantity` int(11) DEFAULT NULL,
+  `order_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `subtotal` double DEFAULT NULL,
   `net_total` double DEFAULT NULL,
-  `subtotal` double NOT NULL,
   `promotion_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -176,22 +199,22 @@ CREATE TABLE `orders_items` (
 -- Dumping data for table `orders_items`
 --
 
-INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity`, `net_total`, `subtotal`, `promotion_id`) VALUES
-(31, 14, 1, 2, 95000, 100000, 1),
-(32, 14, 12, 3, 45000, 50000, 2),
-(33, 14, 7, 1, 19000, 20000, 3),
-(34, 15, 2, 1, 66500, 70000, 4),
-(35, 15, 13, 2, 47500, 50000, 5),
-(36, 15, 8, 1, 28500, 30000, 6),
-(37, 16, 3, 2, 190000, 200000, 7),
-(38, 16, 14, 1, 9500, 10000, 8),
-(39, 16, 10, 1, 47500, 50000, 9),
-(40, 17, 1, 1, 47500, 50000, 10),
-(41, 17, 15, 1, 28500, 30000, 1),
-(42, 17, 11, 1, 47500, 50000, 2),
-(43, 18, 2, 1, 66500, 70000, 3),
-(44, 18, 16, 2, 38000, 40000, 4),
-(45, 18, 9, 2, 47500, 50000, 5);
+INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity`, `subtotal`, `net_total`, `promotion_id`) VALUES
+(1, 1, 1, 2, 1000000, 1000000, NULL),
+(2, 1, 12, 3, 60000, 60000, NULL),
+(3, 1, 7, 1, 15000, 15000, NULL),
+(4, 2, 2, 1, 1000000, 1000000, NULL),
+(5, 2, 13, 2, 60000, 60000, NULL),
+(6, 2, 8, 1, 25000, 25000, NULL),
+(7, 3, 3, 2, 3000000, 3000000, NULL),
+(8, 3, 14, 1, 25000, 25000, NULL),
+(9, 3, 10, 1, 30000, 30000, NULL),
+(10, 4, 1, 1, 500000, 500000, NULL),
+(11, 4, 15, 1, 40000, 40000, NULL),
+(12, 4, 11, 1, 20000, 20000, NULL),
+(13, 5, 2, 1, 1000000, 1000000, NULL),
+(14, 5, 16, 2, 100000, 100000, NULL),
+(15, 5, 9, 2, 20000, 20000, NULL);
 
 -- --------------------------------------------------------
 
@@ -212,20 +235,26 @@ CREATE TABLE `permissions` (
 --
 
 CREATE TABLE `pooltables` (
+  `cate_id` int(11) NOT NULL,
   `table_id` int(11) NOT NULL,
-  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `price` double DEFAULT NULL,
-  `status` enum('Available','Ordered','Playing') DEFAULT NULL
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `status` enum('Available','Ordered','Playing') NOT NULL DEFAULT 'Available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `pooltables`
 --
 
-INSERT INTO `pooltables` (`table_id`, `name`, `price`, `status`) VALUES
-(1, 'Standard Pool Table', 35000, 'Available'),
-(2, 'Deluxe Pool Table', 75000, 'Ordered'),
-(3, 'VIP Pool Table', 100000, 'Playing');
+INSERT INTO `pooltables` (`cate_id`, `table_id`, `name`, `status`) VALUES
+(1, 1, 'Standard Pool 1', 'Playing'),
+(2, 2, 'Deluxe Pool 1', 'Ordered'),
+(3, 3, 'VIP Pool 1', 'Playing'),
+(1, 4, 'Standard Pool 2', 'Available'),
+(2, 5, 'Deluxe Pool 2', 'Available'),
+(3, 6, 'VIP Pool 2', 'Available'),
+(1, 7, 'Standard Pool 3', 'Available'),
+(2, 8, 'Deluxe Pool 3', 'Available'),
+(3, 9, 'VIP Pool 3', 'Available');
 
 -- --------------------------------------------------------
 
@@ -235,10 +264,10 @@ INSERT INTO `pooltables` (`table_id`, `name`, `price`, `status`) VALUES
 
 CREATE TABLE `products` (
   `product_id` int(11) NOT NULL,
-  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `category_id` int(11) DEFAULT NULL,
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `category_id` int(11) NOT NULL,
   `price` double DEFAULT NULL,
-  `unit` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `unit` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `quantity` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -303,32 +332,31 @@ INSERT INTO `promotions` (`promotion_id`, `name`, `promotion_type`, `discount`, 
 
 CREATE TABLE `rent_cues` (
   `rent_cue_id` int(11) NOT NULL,
-  `order_id` int(11) DEFAULT NULL,
-  `product_id` int(11) DEFAULT NULL,
+  `order_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
   `start_time` timestamp NOT NULL DEFAULT current_timestamp(),
   `end_time` timestamp NULL DEFAULT NULL,
   `timeplay` double DEFAULT NULL,
+  `subtotal` double DEFAULT NULL,
   `net_total` double DEFAULT NULL,
-  `subtotal` double NOT NULL,
-  `promotion_id` int(10) UNSIGNED DEFAULT NULL,
-  `quantity` int(10) default 1
+  `promotion_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `rent_cues`
 --
 
-INSERT INTO `rent_cues` (`rent_cue_id`, `order_id`, `product_id`, `start_time`, `end_time`, `timeplay`, `net_total`, `subtotal`, `promotion_id`) VALUES
-(11, 14, 1, '2024-12-31 20:00:00', '2024-12-31 22:00:00', 2, 100000, 95000, 1),
-(12, 15, 2, '2025-01-02 01:00:00', '2025-01-02 02:30:00', 1.5, 105000, 100000, 2),
-(13, 16, 3, '2025-01-03 04:00:00', '2025-01-03 06:30:00', 2.5, 250000, 240000, 3),
-(14, 17, 1, '2025-01-03 19:00:00', '2025-01-03 21:00:00', 2, 100000, 95000, 4),
-(15, 18, 2, '2025-01-05 00:00:00', '2025-01-05 01:30:00', 1.5, 105000, 100000, 5),
-(16, 19, 3, '2025-01-06 05:00:00', '2025-01-06 08:00:00', 3, 300000, 270000, 6),
-(17, 20, 1, '2025-01-06 20:00:00', '2025-01-06 21:00:00', 1, 50000, 47500, 7),
-(18, 21, 2, '2025-01-07 23:00:00', '2025-01-08 01:00:00', 2, 140000, 133000, 8),
-(19, 22, 3, '2025-01-09 02:00:00', '2025-01-09 04:30:00', 2.5, 250000, 237500, 9),
-(20, 23, 1, '2025-01-09 19:00:00', '2025-01-09 21:00:00', 2, 100000, 95000, 10);
+INSERT INTO `rent_cues` (`rent_cue_id`, `order_id`, `product_id`, `start_time`, `end_time`, `timeplay`, `subtotal`, `net_total`, `promotion_id`) VALUES
+(1, 1, 4, '2024-12-31 20:00:00', '2024-12-31 20:30:00', 0.5, 25000, 25000, NULL),
+(2, 1, 5, '2024-12-31 20:00:00', '2024-12-31 20:45:00', 0.75, 75000, 75000, NULL),
+(3, 2, 6, '2025-01-02 00:00:00', '2025-01-02 02:30:00', 2.5, 375000, 375000, NULL),
+(4, 3, 4, '2025-01-03 04:00:00', '2025-01-03 05:30:00', 1.5, 75000, 75000, NULL),
+(5, 4, 5, '2025-01-03 19:00:00', '2025-01-03 20:00:00', 1, 100000, 100000, NULL),
+(6, 5, 6, '2025-01-04 21:00:00', '2025-01-04 22:45:00', 1.75, 262500, 262500, NULL),
+(7, 6, 4, '2025-01-05 23:00:00', '2025-01-05 23:30:00', 0.5, 25000, 25000, NULL),
+(8, 6, 5, '2025-01-05 23:30:00', '2025-01-06 00:00:00', 0.5, 50000, 50000, NULL),
+(9, 6, 6, '2025-01-06 00:00:00', '2025-01-06 01:00:00', 1, 150000, 150000, NULL),
+(10, 8, 4, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 1, 50000, 50000, NULL);
 
 -- --------------------------------------------------------
 
@@ -397,6 +425,12 @@ ALTER TABLE `category`
   ADD PRIMARY KEY (`category_id`);
 
 --
+-- Indexes for table `cate_pooltables`
+--
+ALTER TABLE `cate_pooltables`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `customers`
 --
 ALTER TABLE `customers`
@@ -435,7 +469,8 @@ ALTER TABLE `permissions`
 -- Indexes for table `pooltables`
 --
 ALTER TABLE `pooltables`
-  ADD PRIMARY KEY (`table_id`);
+  ADD PRIMARY KEY (`table_id`),
+  ADD KEY `pooltables_cate_pooltables_fk` (`cate_id`);
 
 --
 -- Indexes for table `products`
@@ -449,6 +484,15 @@ ALTER TABLE `products`
 --
 ALTER TABLE `promotions`
   ADD PRIMARY KEY (`promotion_id`);
+
+--
+-- Indexes for table `rent_cues`
+--
+ALTER TABLE `rent_cues`
+  ADD PRIMARY KEY (`rent_cue_id`),
+  ADD KEY `orders_id` (`order_id`),
+  ADD KEY `products_id` (`product_id`),
+  ADD KEY `promotion_id` (`promotion_id`);
 
 --
 -- Indexes for table `revenue`
@@ -478,13 +522,19 @@ ALTER TABLE `role_permissions`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
   MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+
+--
+-- AUTO_INCREMENT for table `cate_pooltables`
+--
+ALTER TABLE `cate_pooltables`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `customers`
@@ -502,13 +552,13 @@ ALTER TABLE `employees`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `orders_items`
 --
 ALTER TABLE `orders_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -533,6 +583,12 @@ ALTER TABLE `products`
 --
 ALTER TABLE `promotions`
   MODIFY `promotion_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `rent_cues`
+--
+ALTER TABLE `rent_cues`
+  MODIFY `rent_cue_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `revenue`
@@ -585,10 +641,24 @@ ALTER TABLE `orders_items`
   ADD CONSTRAINT `orders_items_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`promotion_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `pooltables`
+--
+ALTER TABLE `pooltables`
+  ADD CONSTRAINT `pooltables_cate_pooltables_fk` FOREIGN KEY (`cate_id`) REFERENCES `cate_pooltables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `products`
 --
 ALTER TABLE `products`
   ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `rent_cues`
+--
+ALTER TABLE `rent_cues`
+  ADD CONSTRAINT `rent_cues_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `rent_cues_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `rent_cues_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`promotion_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `role_permissions`
