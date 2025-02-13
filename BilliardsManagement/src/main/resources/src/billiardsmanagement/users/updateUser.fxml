@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" alignment="CENTER" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="src.billiardsmanagement.controller.users.UpdateUserController"
+      prefWidth="500" prefHeight="350">
+
+    <Label text="Update User" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="10" alignment="CENTER_LEFT">
+        <Label text="Username:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <TextField fx:id="txtUsername" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Password:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <PasswordField fx:id="txtPassword" GridPane.rowIndex="1" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Re-Password:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <PasswordField fx:id="txtRePassword" GridPane.rowIndex="2" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Role:" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <ComboBox fx:id="comboRole" GridPane.rowIndex="3" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Upload Image:" GridPane.rowIndex="4" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <Button text="Upload" onAction="#handleUploadImage" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+        <Label fx:id="lblImagePath" text="No file selected" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Update" onAction="#handleUpdate" prefWidth="100"/>
+        <Button text="Cancel" onAction="#handleCancel" prefWidth="100"/>
+    </HBox>
+</VBox>

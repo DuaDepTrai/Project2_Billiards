@@ -88,9 +88,6 @@ public class ForEachOrderController {
     @FXML
     private Text orderStatusText;
 
-    // Bookings
-    @FXML
-    private Label totalBookingLabel;
 
     @FXML
     private TableColumn<Booking, Integer> sttColumn;
@@ -125,8 +122,6 @@ public class ForEachOrderController {
     @FXML
     private TableColumn<OrderItem, Integer> sttOrderItemColumn;
 
-    @FXML
-    private Label totalItemLabel;
 
     @FXML
     private TableColumn<OrderItem, Integer> quantityColumn;
@@ -153,8 +148,6 @@ public class ForEachOrderController {
     @FXML
     private TableColumn<RentCue, Integer> sttRentCueColumn;
 
-    @FXML
-    private Label totalRentCueLabel;
 
     @FXML
     private TableColumn<RentCue, LocalDateTime> startTimeCue;
@@ -223,7 +216,6 @@ public class ForEachOrderController {
         bookingList.clear();
         bookingList.addAll(bookings);
         bookingPoolTable.setItems(bookingList);
-        caculateTotals();
     }
 
     private void loadOrderDetail() {
@@ -242,7 +234,6 @@ public class ForEachOrderController {
         orderItemsTable.setItems(orderItemList);
         System.out.println("Order Item" + orderItemsTable.getItems());
         // Implement this method to load and display order details
-        caculateTotals();
     }
 
     private void loadRentCue() {
@@ -271,7 +262,6 @@ public class ForEachOrderController {
         rentCueTable.getItems().addAll(rentCues);
         rentCueList.clear();
         rentCueList.addAll(rentCues);
-        caculateTotals();
     }
 
     private void initializeBookingColumn() {
@@ -1038,34 +1028,7 @@ public class ForEachOrderController {
         }
     }
 
-    private double caculateTotals() {
-        double totalBooking = 0.0;
-        double totalProductAmount = 0.0;
-        double totalRentalAmount = 0.0;
 
-        ObservableList<Booking> bookingList = bookingPoolTable.getItems();
-        for (Booking booking : bookingList) {
-            if (booking != null) {
-                totalBooking += booking.getNetTotal();
-            }
-        }
-        totalBookingLabel.setText("Total: " + formatTotal(totalBooking));
-
-        ObservableList<OrderItem> orderItemList = orderItemsTable.getItems();
-        for (OrderItem item : orderItemList) {
-            totalProductAmount += item.getNetTotal();
-        }
-        totalItemLabel.setText("Total: " + formatTotal(totalProductAmount));
-
-        ObservableList<RentCue> rentCueList = rentCueTable.getItems();
-        for (RentCue rentCue : rentCueList) {
-            System.out.println("Rent Cue List: " + rentCue);
-            totalRentalAmount += rentCue.getNetTotal();
-        }
-        totalRentCueLabel.setText("Total: " + formatTotal(totalRentalAmount));
-
-        return totalBooking + totalProductAmount + totalRentalAmount;
-    }
 
     private String formatTotal(double total) {
         DecimalFormat decimalFormat = new DecimalFormat("#,###");
@@ -1099,10 +1062,8 @@ public class ForEachOrderController {
                 showAlert(Alert.AlertType.ERROR, "Finish All Error", "Unexpected error happen when trying to finish this order. Please try again later !");
                 return;
             }
-            double totalCost = caculateTotals(); // Lấy tổng tiền từ phương thức tính toán
-
+            boolean success = OrderDAO.updateOrderStatus(orderID);
             // Câu lệnh SQL để cập nhật tổng tiền và trạng thái đơn hàng
-            boolean success = OrderDAO.updateOrderTotal(this.orderID, totalCost);
             if (success) {
                 System.out.println("Order total cost updated successfully!");
 

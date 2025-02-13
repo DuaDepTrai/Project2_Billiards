@@ -217,8 +217,8 @@ public class OrderController implements Initializable {
             return;
         }
         if (selectedOrder != null) {
-
-            boolean success = orderDAO.updateOrder(selectedOrder);
+            double totalCost = OrderDAO.calculateOrderTotal(selectedOrder.getOrderId());
+            boolean success = orderDAO.updateOrder(selectedOrder,totalCost);
             if (success) {
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Order updated successfully!");
                 loadOrderList();
@@ -314,14 +314,16 @@ public class OrderController implements Initializable {
             return;
         }
 
-        if (!"Finished".equals(selectedOrder.getOrderStatus())) {
+        // Kiểm tra nếu trạng thái không phải "Finished" hoặc "Paid" thì không cho xem hóa đơn
+        if (!"Finished".equals(selectedOrder.getOrderStatus()) && !"Paid".equals(selectedOrder.getOrderStatus())) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Access Denied");
             alert.setHeaderText(null);
-            alert.setContentText("Bills can only be accessed when the order is in finished status.");
+            alert.setContentText("Bills can only be accessed when the order is in Finished or Paid status.");
             alert.showAndWait();
             return;
         }
+
         int orderId = selectedOrder.getOrderId();
         FXMLLoader paymentLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/finalBill.fxml"));
         Parent paymentRoot = paymentLoader.load();
@@ -335,6 +337,7 @@ public class OrderController implements Initializable {
         stage.setOnHidden(e -> loadOrderList());
         stage.show();
     }
+
 
     private Bill createBill() {
         // Lấy thông tin đơn hàng hiện tại

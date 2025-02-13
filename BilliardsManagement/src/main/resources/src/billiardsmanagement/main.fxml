@@ -5,14 +5,20 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Button?>
 
+<?import javafx.scene.control.Separator?>
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.MainController">
     <!-- Navbar -->
     <left>
-        <VBox fx:id="navbar" styleClass="navbar">
-            <Button text="Order" onAction="#showOrderPage" styleClass="navbar-button"/>
-            <Button text="Product" onAction="#showProductPage" styleClass="navbar-button"/>
-            <Button text="Revenue" onAction="#showRevenuePage" styleClass="navbar-button"/>
+        <VBox fx:id="navbar" styleClass="navbar" spacing="10" alignment="TOP_LEFT">
+            <Label fx:id="usernameLabel" text="Welcome, User" style="-fx-font-size: 14px; -fx-text-fill: white;"/>
+            <Label fx:id="roleLabel" text="Role: Admin" style="-fx-font-size: 14px; -fx-text-fill: white;"/>
 
+            <Button fx:id="logoutButton" text="Logout" onAction="#handleLogout" styleClass="navbar-button"/>
+            <Separator />
+            <Button text="Orders" onAction="#showOrdersPage" styleClass="navbar-button"/>
+            <Button text="Products" onAction="#showProductsPage" styleClass="navbar-button"/>
+            <Button text="Category" onAction="#showCategoryPage" styleClass="navbar-button"/>
+            <Button text="Users" onAction="#showUsersPage" styleClass="navbar-button"/>
         </VBox>
     </left>
 

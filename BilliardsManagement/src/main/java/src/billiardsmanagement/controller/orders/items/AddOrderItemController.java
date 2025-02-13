@@ -25,6 +25,7 @@ import src.billiardsmanagement.model.Pair;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -47,50 +48,49 @@ public class AddOrderItemController {
 
     @FXML
     public void initialize() {
-        ArrayList<String> list = ProductDAO.getAllProductsName();
+        List<Pair<String, Integer>> list = ProductDAO.getAllProductNameAndQuantity();
         ArrayList<String> productList = new ArrayList<>();
-        if (list == null) System.out.println("Unexpected error : Product List is null !");
-        else {
-            for(String s : list){
-                if(!s.contains("Rent")) productList.add(s);
-                if(!s.contains(" ")){
-                    s = s + " ";
-                    productList.add(s);
-                }
+
+        for (Pair<String, Integer> s : list) {
+            String str = s.getFirstValue();
+            int quant = s.getSecondValue();
+            if (!str.contains("Rent") && quant > 0) {
+                str = str + " ";
+                productList.add(str);
             }
-
-            AutoCompletionBinding<String> productNameAutoBinding = TextFields.bindAutoCompletion(productNameAutoCompleteText,productList);
-            HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText);
-            productNameAutoBinding.setVisibleRowCount(7);
-
-            productNameAutoBinding.setHideOnEscape(true);
-
-            ArrayList<String> pList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
-            ArrayList<String> promotionList = new ArrayList<>();
-            if(pList!=null){
-                for(String s : pList){
-                    if(!s.contains(" ")){
-                        s = s + " ";
-                        promotionList.add(s);
-                    }
-                    else promotionList.add(s);
-                }
-                AutoCompletionBinding<String> promotionNameAutoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
-                HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText);
-                promotionNameAutoBinding.setHideOnEscape(true);
-                promotionNameAutoBinding.setVisibleRowCount(7);
-            }
-
-            quantityTextField.setText("1");
         }
+
+        AutoCompletionBinding<String> productNameAutoBinding = TextFields.bindAutoCompletion(productNameAutoCompleteText, productList);
+        HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText);
+        productNameAutoBinding.setVisibleRowCount(7);
+
+        productNameAutoBinding.setHideOnEscape(true);
+
+        ArrayList<String> pList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
+        ArrayList<String> promotionList = new ArrayList<>();
+        if (pList != null) {
+            for (String s : pList) {
+                s = s + " ";
+                promotionList.add(s);
+            }
+            AutoCompletionBinding<String> promotionNameAutoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
+            HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText);
+            promotionNameAutoBinding.setHideOnEscape(true);
+            promotionNameAutoBinding.setVisibleRowCount(7);
+        }
+
+        quantityTextField.setText("1");
     }
+
 
     @FXML
     public void saveOrderItem(ActionEvent event) {
         try {
-            if (!(orderId > 0)) throw new Exception("Error: Order not found ! Please try again.");
+            if (!(orderId > 0))
+                throw new Exception("Error: Order not found ! Please try again.");
 
             String selectedProductName = productNameAutoCompleteText.getText().trim();
+            System.out.println("Input Name = "+selectedProductName);
             Pair<Integer, Double> productPair = ProductDAO.getProductIdAndPriceByName(selectedProductName);
             if (productPair == null)
                 throw new SQLException("Connection Error: Can't connect to Database. Please try again later.");
@@ -112,6 +112,8 @@ public class AddOrderItemController {
                     newItem.setOrderItemId(orderItem.getOrderItemId());
                     newItem.setQuantity(orderItem.getQuantity() + quantity);
                     newItem.setProductId(orderItem.getProductId());
+
+                    ProductDAO.dispatchItem(orderItem.getProductName(), quantity);
 
                     if (orderItem.getPromotionDiscount() > 1)
                         newItem.setNetTotal(orderItem.getNetTotal() + (quantity * productPrice) - ((orderItem.getPromotionDiscount() * quantity * productPrice) / 100));
@@ -151,6 +153,7 @@ public class AddOrderItemController {
                 orderItem = new OrderItem(orderId, productId, quantity, netTotal, subTotal, -1);
             }
 
+            ProductDAO.dispatchItem(selectedProductName, quantity);
             OrderItemDAO.addOrderItem(orderItem);
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -184,10 +187,6 @@ public class AddOrderItemController {
             if (!newValue) { // Nếu mất focus
                 String inputText = text.getText().trim();
                 boolean check = false;
-                if (inputText.isEmpty()) {
-                    text.setText("");
-                    return;
-                }
 
                 for (String s : list) {
                     if (inputText.equals(s)) {
@@ -196,8 +195,8 @@ public class AddOrderItemController {
                     }
                 }
 
-                if (check) text.setText(inputText);
-                else text.setText("");
+                if (check)
+                    text.setText(inputText);
             }
         });
     }
@@ -220,7 +219,7 @@ public class AddOrderItemController {
         return this;
     }
 
-    public void setStage(Stage stage){
+    public void setStage(Stage stage) {
         this.stage = stage;
     }
 }
