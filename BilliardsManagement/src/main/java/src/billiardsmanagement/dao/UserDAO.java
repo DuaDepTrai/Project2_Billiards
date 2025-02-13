@@ -84,7 +84,7 @@ public class UserDAO {
     }
 
     public User getUserByUsername(String username) throws SQLException {
-        String sql = "SELECT * FROM users WHERE username = ?";
+        String sql = "SELECT * FROM users WHERE BINARY username = ?";
         try (Connection connection = TestDBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
