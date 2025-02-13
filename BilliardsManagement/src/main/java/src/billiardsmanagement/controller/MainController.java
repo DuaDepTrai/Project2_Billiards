@@ -5,10 +5,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import src.billiardsmanagement.model.TestDBConnection;
 import src.billiardsmanagement.model.User;
 
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,6 +33,8 @@ public class MainController {
     private Label usernameLabel;
     @FXML
     private Label roleLabel;
+    @FXML
+    private ImageView avatarImageView;
 
     private User loggedInUser;
 
@@ -48,6 +53,23 @@ public class MainController {
         Platform.runLater(() -> {
             usernameLabel.setText("Welcome, " + user.getUsername());
             roleLabel.setText(roleName);
+
+            // Đường dẫn chỉ cần từ thư mục resources trở đi
+            String avatarPath = "/src/billiardsmanagement/images/avatars/" + user.getImagePath();
+
+            URL imageUrl = getClass().getResource(avatarPath);
+
+            if (imageUrl != null) {
+                avatarImageView.setImage(new Image(imageUrl.toExternalForm()));
+            } else {
+                System.out.println("No avatar found, using default.");
+                URL defaultImageUrl = getClass().getResource("/src/billiardsmanagement/images/avatars/user.png");
+                if (defaultImageUrl != null) {
+                    avatarImageView.setImage(new Image(defaultImageUrl.toExternalForm()));
+                } else {
+                    System.err.println("Default avatar not found!");
+                }
+            }
         });
     }
 
