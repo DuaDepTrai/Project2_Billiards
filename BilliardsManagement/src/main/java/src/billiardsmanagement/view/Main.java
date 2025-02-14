@@ -28,10 +28,8 @@ public class Main extends Application {
 
         primaryStage.setTitle("BILLIARDS MANAGEMENT");
         primaryStage.setScene(scene);
-        primaryStage.setFullScreen(true);
-
-        // tắt thông báo esc to exit fullscreen 
-        primaryStage.setFullScreenExitHint("");
+        
+        primaryStage.setMaximized(true);
         primaryStage.show();
         primaryStage.show();
     }
