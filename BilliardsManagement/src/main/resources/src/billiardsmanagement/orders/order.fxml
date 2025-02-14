@@ -46,13 +46,14 @@
                     </items>
                 </ComboBox>
                 <TextField fx:id="autoCompleteTextField" GridPane.columnIndex="1" />
-            <Button mnemonicParsing="false" onAction="#addOrder" text="Add " GridPane.rowIndex="2" />
-            <Button mnemonicParsing="false" onAction="#updateOrder" text="Update" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Button mnemonicParsing="false" onAction="#deleteOrder" text="Delete" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-            <Button mnemonicParsing="false" onAction="#addCustomer" text="Add Customer" GridPane.rowIndex="1" />
-            <Button mnemonicParsing="false" onAction="#paymentOrder" text="Bill" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-            </children>
+            <Button mnemonicParsing="false" onAction="#addOrder" text="Add " styleClass="navbar-button" GridPane.rowIndex="2" />
+            <Button mnemonicParsing="false" onAction="#updateOrder" text="Update" styleClass="navbar-button" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Button mnemonicParsing="false" onAction="#deleteOrder" text="Delete" styleClass="navbar-button" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <Button mnemonicParsing="false" onAction="#addCustomer" text="Add Customer" styleClass="navbar-button" GridPane.rowIndex="1" />
+            <Button mnemonicParsing="false" onAction="#paymentOrder" text="Bill" styleClass="navbar-button" GridPane.columnIndex="3" GridPane.rowIndex="2" />
         </GridPane>
+            <!-- Buttons in Navbar -->
+
 
         <!-- TableView -->
         <TableView fx:id="orderTable" prefHeight="287.0" prefWidth="500.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="210.0">
@@ -67,7 +68,6 @@
                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
             </columnResizePolicy>
         </TableView>
-
-
     </children>
 </AnchorPane>
+

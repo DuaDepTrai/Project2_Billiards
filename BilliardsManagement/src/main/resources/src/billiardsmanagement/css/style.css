@@ -39,3 +39,51 @@
     -fx-font-size: 20px;
     -fx-font-weight: bold;
 }
+
+#AnchorPane {
+    -fx-background-color: #f0f0f0;
+}
+
+.navbar-button {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+}
+
+.navbar-button:hover {
+    -fx-background-color: #0056b3;
+}
+
+.navbar-button:pressed {
+    -fx-background-color: #003f7f;
+}
+
+.table-view {
+    -fx-base: #f0f0f0;
+    -fx-control-inner-background: #f0f0f0;
+    -fx-background-color: #f0f0f0;
+}
+
+.table-column {
+    -fx-background-color: #f0f0f0;
+}
+
+.table-row-cell {
+    -fx-border-color: transparent;
+}
+
+.table-row-cell:odd {
+    -fx-background: #f0f0f0;
+}
+
+.table-row-cell:even {
+    -fx-background: #ffffff;
+}
+
+.table-row-cell:selected {
+    -fx-background: #007bff;
+    -fx-text-fill: white;
+}
+```

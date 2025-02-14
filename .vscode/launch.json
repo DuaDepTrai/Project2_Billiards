@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Order",
+            "request": "launch",
+            "mainClass": "src.billiardsmanagement/src.billiardsmanagement.view.Order",
+            "projectName": "BilliardsManagement",
+            "vmArgs": [
+                "--add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls"
+            ],
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        }
+    ]
+}

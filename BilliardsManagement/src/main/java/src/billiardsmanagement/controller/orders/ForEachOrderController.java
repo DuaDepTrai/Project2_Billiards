@@ -903,6 +903,7 @@ public class ForEachOrderController {
         }
     }
 
+    // finishEachCueRental
     public boolean finishEachCueRental(RentCue selectedItem) {
         LocalDateTime endTime = LocalDateTime.now();
         selectedItem.setEndTime(endTime);
@@ -917,7 +918,7 @@ public class ForEachOrderController {
         double subTotal = Math.ceil(selectedItem.getProductPrice() * timeplay);
         selectedItem.setSubTotal(subTotal);
 
-        // Calculate net total based on promotion
+        // Calculate net t   otal based on promotion
         double netTotal;
         if (selectedItem.getPromotionId() <= 0) {
             // No promotion applied
