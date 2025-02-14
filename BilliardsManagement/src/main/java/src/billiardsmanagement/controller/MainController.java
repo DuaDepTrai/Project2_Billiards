@@ -61,7 +61,9 @@ public class MainController {
 
             if (imageUrl != null) {
                 avatarImageView.setImage(new Image(imageUrl.toExternalForm()));
-            } else {
+            }
+            else
+            {
                 System.out.println("No avatar found, using default.");
                 URL defaultImageUrl = getClass().getResource("/src/billiardsmanagement/images/avatars/user.png");
                 if (defaultImageUrl != null) {
