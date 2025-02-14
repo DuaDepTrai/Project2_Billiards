@@ -1,3 +1,27 @@
+
+/* Style for buttons */
+.order-button {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+/* Style for tables */
+.table-view {
+    -fx-font-size: 18px;
+    -fx-line-spacing: 1.5em;
+}
+
+.table-view .column-header {
+    -fx-background-color: #00bcd4;
+    -fx-border-color: black;
+    -fx-text-fill: black;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: lightgray;
+    -fx-text-fill: black;
+}
+
 /* Style cho Navbar */
 .navbar {
     -fx-background-color: #333;

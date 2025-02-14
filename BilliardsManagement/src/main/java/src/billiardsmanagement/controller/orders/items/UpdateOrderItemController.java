@@ -24,8 +24,9 @@ import java.util.Objects;
 
 public class UpdateOrderItemController {
     @FXML
-    public TextField quantityTextField;
-
+    private TextField quantityTextField;
+    private int currentQuantity;
+    
     @FXML
     protected TextField promotionNameAutoCompleteText;
     @FXML
@@ -77,8 +78,8 @@ public class UpdateOrderItemController {
                 promotionNameAutoBinding.setHideOnEscape(true);
                 promotionNameAutoBinding.setVisibleRowCount(7);
             }
-
-            quantityTextField.setText("1");
+            
+            quantityTextField.setText(String.valueOf(currentQuantity));
         }
     }
 
@@ -116,6 +117,7 @@ public class UpdateOrderItemController {
             quantityTextField.setText(String.valueOf(item.getQuantity()));
 
             initialPromotionName = item.getPromotionName();
+            currentQuantity = item.getQuantity();
         }
     }
 
@@ -234,5 +236,13 @@ public class UpdateOrderItemController {
 
     public void setOrderId(int orderId) {
         this.orderId = orderId;
+    }
+
+    public int getCurrentQuantity() {
+        return currentQuantity;
+    }
+    
+    public void setCurrentQuantity(int currentQuantity) {
+        this.currentQuantity = currentQuantity;
     }
 }

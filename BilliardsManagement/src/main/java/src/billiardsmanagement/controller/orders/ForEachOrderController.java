@@ -656,6 +656,7 @@ public class ForEachOrderController {
             showAlert(Alert.AlertType.ERROR, "Error", "You cannot make any changes in this order as it has already been paid.");
             return;
         }
+
         OrderItem selectedItem = orderItemsTable.getSelectionModel().getSelectedItem();
         if (selectedItem == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);

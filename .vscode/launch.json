@@ -6,13 +6,23 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "src.billiardsmanagement/src.billiardsmanagement.view.Main",
+            "projectName": "BilliardsManagement",
+            "vmArgs": [
+                "--add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls"
+            ]
+        },
+        {
+            "type": "java",
             "name": "Order",
             "request": "launch",
             "mainClass": "src.billiardsmanagement/src.billiardsmanagement.view.Order",
             "projectName": "BilliardsManagement",
             "vmArgs": [
                 "--add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls"
-            ],
+            ]
         },
         {
             "type": "java",
