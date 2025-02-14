@@ -61,14 +61,14 @@ public class OrderController implements Initializable {
     @FXML
     public void addOrder(ActionEvent actionEvent) {
         try {
-            String customerName = autoCompleteTextField.getText();
-            if (customerName == null || customerName.trim().isEmpty()) {
+            String customerInput = autoCompleteTextField.getText();
+            if (customerInput == null || customerInput.trim().isEmpty()) {
                 throw new IllegalArgumentException("Please select a valid Customer.");
             }
 
-            Integer customerId = customerNameToIdMap.get(customerName);
+            Integer customerId = customerNameToIdMap.get(customerInput); // Tìm theo format mới
             if (customerId == null) {
-                throw new IllegalArgumentException("Customer not found: " + customerName);
+                throw new IllegalArgumentException("Customer not found: " + customerInput);
             }
 
             Order newOrder = new Order(customerId);
@@ -85,7 +85,7 @@ public class OrderController implements Initializable {
     }
 
     private void loadCustomerNameToIdMap() {
-        String query = "SELECT customer_id, name FROM customers";
+        String query = "SELECT customer_id, name, phone FROM customers";
         try (PreparedStatement statement = conn.prepareStatement(query);
              ResultSet resultSet = statement.executeQuery()) {
 
@@ -93,7 +93,9 @@ public class OrderController implements Initializable {
             while (resultSet.next()) {
                 int id = resultSet.getInt("customer_id");
                 String name = resultSet.getString("name");
-                customerNameToIdMap.put(name, id);
+                String phone = resultSet.getString("phone");
+                String key = name + " - " + phone; // Tạo key với cả tên và số điện thoại
+                customerNameToIdMap.put(key, id);
             }
 
         } catch (SQLException e) {
@@ -113,13 +115,14 @@ public class OrderController implements Initializable {
 
     private List<String> fetchCustomersByPhone(String phonePrefix) {
         List<String> customers = new ArrayList<>();
-        String query = "SELECT phone, name FROM customers WHERE phone LIKE ?";
+        String query = "SELECT name, phone FROM customers WHERE phone LIKE ?";
         try (PreparedStatement statement = conn.prepareStatement(query)) {
             statement.setString(1, phonePrefix + "%");
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 String name = resultSet.getString("name");
-                customers.add(name);
+                String phone = resultSet.getString("phone");
+                customers.add(name + " - " + phone); // Định dạng giống như map
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -180,7 +183,8 @@ public class OrderController implements Initializable {
 
         listView.setOnMouseClicked(event -> {
             if (!listView.getSelectionModel().isEmpty()) {
-                autoCompleteTextField.setText(listView.getSelectionModel().getSelectedItem());
+                String selected = listView.getSelectionModel().getSelectedItem();
+                autoCompleteTextField.setText(selected);
                 popup.hide();
             }
         });
@@ -189,7 +193,8 @@ public class OrderController implements Initializable {
             switch (event.getCode()) {
                 case ENTER:
                     if (!listView.getSelectionModel().isEmpty()) {
-                        autoCompleteTextField.setText(listView.getSelectionModel().getSelectedItem());
+                        String selected = listView.getSelectionModel().getSelectedItem();
+                        autoCompleteTextField.setText(selected);
                         popup.hide();
                     }
                     break;
@@ -200,6 +205,7 @@ public class OrderController implements Initializable {
                     break;
             }
         });
+
         orderTable.setOnMouseClicked(event -> {
             try {
                 showItem(event);
