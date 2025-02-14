@@ -16,26 +16,72 @@ import java.util.List;
 public class RentCueDAO {
     // add calculate details
     public static boolean endAllCueRentals(int orderId, ObservableList<RentCue> list) {
+        String updateRentCueQuery = "UPDATE rent_cues SET end_time = ?, timeplay = ?, subtotal = ?, net_total = ?, status = ? WHERE rent_cue_id = ?";
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement pstmt = null;
+    
         try {
             if (conn == null) {
                 throw new SQLException("Database connection is null");
             }
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(false); // Start transaction
+    
+            pstmt = conn.prepareStatement(updateRentCueQuery);
+    
             for (RentCue rentCue : list) {
-                String sql = "UPDATE rent_cues SET status = ? WHERE rent_cue_id = ?";
-                pstmt = conn.prepareStatement(sql);
-                pstmt.setString(1, RentCueStatus.Available.toString());
-                pstmt.setInt(2, rentCue.getRentCueId());
-                pstmt.executeUpdate();
+                // Calculate endTime
+                LocalDateTime endTime = LocalDateTime.now();
+                rentCue.setEndTime(endTime);
+    
+                // Calculate total minutes
+                long totalMinutes = java.time.Duration.between(rentCue.getStartTime(), endTime).toMinutes();
+                double timeplay = Math.round(totalMinutes / 60.0 * 10.0) / 10.0; // Convert to hours and round to 1 decimal place
+                rentCue.setTimeplay(timeplay);
+    
+                // Calculate subtotal (price per hour * hours played)
+                double subTotal = Math.ceil(rentCue.getProductPrice() * timeplay);
+                rentCue.setSubTotal(subTotal);
+    
+                // Calculate net total based on promotion
+                double netTotal;
+                if (rentCue.getPromotionId() <= 0) {
+                    // No promotion applied
+                    netTotal = subTotal;
+                } else {
+                    // Apply promotion discount
+                    netTotal = Math.ceil(subTotal - (subTotal * (rentCue.getPromotionDiscount() / 100.0)));
+                }
+                rentCue.setNetTotal(netTotal);
+    
+                // Update the status to available
+                rentCue.setStatus(RentCueStatus.Available);
+    
+                // Add to batch
+                pstmt.setObject(1, rentCue.getEndTime());
+                pstmt.setDouble(2, rentCue.getTimeplay());
+                pstmt.setDouble(3, rentCue.getSubTotal());
+                pstmt.setDouble(4, rentCue.getNetTotal());
+                pstmt.setString(5, rentCue.getStatus().toString());
+                pstmt.setInt(6, rentCue.getRentCueId());
+                pstmt.addBatch();
             }
-            conn.commit();
+    
+            // Execute batch update
+            int[] updateCounts = pstmt.executeBatch();
+    
+            // Check if all updates were successful
+            for (int count : updateCounts) {
+                if (count != PreparedStatement.SUCCESS_NO_INFO && count != 1) {
+                    throw new SQLException("Failed to update one or more rent cues.");
+                }
+            }
+    
+            conn.commit(); // Commit transaction
             return true;
         } catch (SQLException e) {
             if (conn != null) {
                 try {
-                    conn.rollback();
+                    conn.rollback(); // Rollback transaction on error
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
@@ -52,14 +98,15 @@ public class RentCueDAO {
             }
             if (conn != null) {
                 try {
-                    conn.setAutoCommit(true);
+                    conn.setAutoCommit(true); // Reset to default
+                    conn.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }
         }
     }
-
+    
     public static List<RentCue> getAllRentCuesByOrderId(int orderId) {
         List<RentCue> rentCues = new ArrayList<>();
         String query = "SELECT rc.*, p.name as product_name, p.price as product_price, " + "promo.name as promotion_name, promo.discount as promotion_discount " + "FROM rent_cues rc " + "JOIN products p ON rc.product_id = p.product_id " + "LEFT JOIN promotions promo ON rc.promotion_id = promo.promotion_id " + "WHERE rc.order_id = ?";

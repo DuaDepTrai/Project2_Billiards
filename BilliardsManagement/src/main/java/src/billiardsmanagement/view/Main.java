@@ -26,8 +26,13 @@ public class Main extends Application {
         Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/style.css").toExternalForm());
 
-        primaryStage.setTitle("JavaFX Application");
+        primaryStage.setTitle("BILLIARDS MANAGEMENT");
         primaryStage.setScene(scene);
+        primaryStage.setFullScreen(true);
+
+        // tắt thông báo esc to exit fullscreen 
+        primaryStage.setFullScreenExitHint("");
+        primaryStage.show();
         primaryStage.show();
     }
 
