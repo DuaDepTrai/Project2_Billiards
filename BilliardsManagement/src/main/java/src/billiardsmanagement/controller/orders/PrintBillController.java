@@ -26,7 +26,8 @@ public class PrintBillController {
         Document document = new Document();
 
         StringBuilder sb = new StringBuilder();
-        sb.append("src\\main\\bills\\");
+        
+        sb.append("BilliardsManagement\\src\\main\\bills\\");
         sb.append(handleCustomerName(bill.getCustomerName()));
         sb.append("_");
         sb.append(bill.getCustomerPhone());
