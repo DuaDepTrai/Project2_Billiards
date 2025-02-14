@@ -3,7 +3,11 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 11, 2025 at 05:04 PM
+<<<<<<< HEAD:biamanagement.sql
+-- Generation Time: Feb 04, 2025 at 06:43 PM
+=======
+-- Generation Time: Feb 12, 2025 at 06:09 PM
+>>>>>>> 1c5f80f3512064c3763c09a6b815ef7e23d907af:biamanagement (02.13).sql
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -11,7 +15,9 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
+  DROP DATABASE IF EXISTS biamanagement;
+  CREATE DATABASE biamanagement;
+  USE biamanagement;
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -36,7 +42,11 @@ CREATE TABLE `bookings` (
   `timeplay` double DEFAULT NULL,
   `subtotal` double DEFAULT NULL,
   `net_total` double DEFAULT NULL,
+<<<<<<< HEAD:biamanagement.sql
+  `booking_status` enum('Order','Playing','Finish') NOT NULL DEFAULT 'Order',
+=======
   `booking_status` enum('Order','Playing','Finish','Canceled') NOT NULL DEFAULT 'Playing',
+>>>>>>> 1c5f80f3512064c3763c09a6b815ef7e23d907af:biamanagement (02.13).sql
   `promotion_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -45,7 +55,17 @@ CREATE TABLE `bookings` (
 --
 
 INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end_time`, `timeplay`, `subtotal`, `net_total`, `booking_status`, `promotion_id`) VALUES
+(1, 1, 1, '2024-12-31 20:00:00', '2024-12-31 22:00:00', 2, 70000, 70000, 'Finish', NULL),
 (2, 2, 2, '2025-01-02 00:00:00', '2025-01-02 02:30:00', 2.5, 187500, 187500, 'Finish', NULL),
+(3, 3, 3, '2025-01-03 04:00:00', '2025-01-03 05:30:00', 1.5, 150000, 150000, 'Finish', NULL),
+(4, 4, 1, '2025-01-03 19:00:00', '2025-01-03 20:00:00', 1, 35000, 35000, 'Finish', NULL),
+(5, 5, 2, '2025-01-04 21:00:00', '2025-01-04 22:45:00', 1.75, 131250, 131250, 'Finish', NULL),
+(6, 6, 3, '2025-01-05 23:00:00', '2025-01-06 01:00:00', 2, 200000, 200000, 'Finish', NULL),
+<<<<<<< HEAD:biamanagement.sql
+(7, 7, 1, '2025-01-07 02:00:00', '2025-01-07 03:00:00', 1, 35000, 35000, 'Finish', NULL),
+=======
+(7, 7, 1, '2025-01-07 02:00:00', '2025-01-07 03:30:00', 1.5, 52500, 52500, 'Finish', NULL),
+>>>>>>> 1c5f80f3512064c3763c09a6b815ef7e23d907af:biamanagement (02.13).sql
 (8, 8, 2, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 1, 75000, 75000, 'Finish', NULL),
 (9, 9, 3, '2025-01-09 04:00:00', NULL, NULL, NULL, NULL, 'Finish', NULL);
 
@@ -116,6 +136,35 @@ INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUE
 (3, 'Tran Minh Tu', '3456789012', 0),
 (4, 'Phan Quoc Toan', '4567890123', 0),
 (5, 'Hoang Minh Thao', '5678901234', 0);
+<<<<<<< HEAD:biamanagement.sql
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employees`
+--
+
+CREATE TABLE `employees` (
+  `employee_id` int(11) NOT NULL,
+  `username` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `phone` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `role_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `employees`
+--
+
+INSERT INTO `employees` (`employee_id`, `username`, `password`, `name`, `phone`, `role_id`) VALUES
+(6, 'nguyenvana', 'matkhau123', 'Nguyễn Văn A', '0987654321', 1),
+(7, 'tranthib', 'baomat456', 'Trần Thị B', '0976543210', 2),
+(8, 'phamvanc', 'phanmem789', 'Phạm Văn C', '0965432109', 3),
+(9, 'ledangd', 'dangky321', 'Lê Đăng D', '0954321098', 1),
+(10, 'dothie', 'matkhau987', 'Đỗ Thị E', '0943210987', 2);
+=======
+>>>>>>> 1c5f80f3512064c3763c09a6b815ef7e23d907af:biamanagement (02.13).sql
 
 -- --------------------------------------------------------
 
@@ -127,7 +176,11 @@ CREATE TABLE `orders` (
   `order_id` int(11) NOT NULL,
   `customer_id` int(11) NOT NULL,
   `total_cost` double DEFAULT NULL,
+<<<<<<< HEAD:biamanagement.sql
+  `order_status` enum('Pending','Paid','Canceled') NOT NULL DEFAULT 'Pending'
+=======
   `order_status` enum('Order','Playing','Finished','Paid','Canceled') NOT NULL DEFAULT 'Playing'
+>>>>>>> 1c5f80f3512064c3763c09a6b815ef7e23d907af:biamanagement (02.13).sql
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -135,14 +188,25 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`order_id`, `customer_id`, `total_cost`, `order_status`) VALUES
-(1, 1, 1255000, 'Finished'),
+<<<<<<< HEAD:biamanagement.sql
+(1, 1, 1245000, 'Pending'),
 (2, 2, 1647500, 'Paid'),
-(3, 3, 3205000, 'Finished'),
-(4, 4, 595000, 'Finished'),
-(5, 5, 1251250, 'Finished'),
-(6, 1, 230000, 'Finished'),
-(7, 2, 52500, 'Finished'),
+(3, 3, 3280000, 'Pending'),
+(4, 4, 695000, 'Pending'),
+(5, 5, 1513750, 'Pending'),
+(6, 1, 425000, 'Pending'),
+(7, 2, 35000, 'Pending'),
 (8, 3, 125000, 'Paid'),
+=======
+(1, 1, 1345000, 'Finished'),
+(2, 2, 1647500, 'Paid'),
+(3, 3, 3280000, 'Finished'),
+(4, 4, 695000, 'Finished'),
+(5, 5, 1513750, 'Finished'),
+(6, 1, 300000, 'Finished'),
+(7, 2, 202500, 'Finished'),
+(8, 3, 225000, 'Paid'),
+>>>>>>> 1c5f80f3512064c3763c09a6b815ef7e23d907af:biamanagement (02.13).sql
 (9, 4, 0, 'Canceled');
 
 -- --------------------------------------------------------
@@ -166,9 +230,21 @@ CREATE TABLE `orders_items` (
 --
 
 INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity`, `subtotal`, `net_total`, `promotion_id`) VALUES
+(1, 1, 1, 2, 1000000, 1000000, NULL),
+(2, 1, 12, 3, 60000, 60000, NULL),
+(3, 1, 7, 1, 15000, 15000, NULL),
 (4, 2, 2, 1, 1000000, 1000000, NULL),
 (5, 2, 13, 2, 60000, 60000, NULL),
-(6, 2, 8, 1, 25000, 25000, NULL);
+(6, 2, 8, 1, 25000, 25000, NULL),
+(7, 3, 3, 2, 3000000, 3000000, NULL),
+(8, 3, 14, 1, 25000, 25000, NULL),
+(9, 3, 10, 1, 30000, 30000, NULL),
+(10, 4, 1, 1, 500000, 500000, NULL),
+(11, 4, 15, 1, 40000, 40000, NULL),
+(12, 4, 11, 1, 20000, 20000, NULL),
+(13, 5, 2, 1, 1000000, 1000000, NULL),
+(14, 5, 16, 2, 100000, 100000, NULL),
+(15, 5, 9, 2, 20000, 20000, NULL);
 
 -- --------------------------------------------------------
 
@@ -300,9 +376,30 @@ CREATE TABLE `rent_cues` (
 -- Dumping data for table `rent_cues`
 --
 
+<<<<<<< HEAD:biamanagement.sql
+INSERT INTO `rent_cues` (`rent_cue_id`, `order_id`, `product_id`, `start_time`, `end_time`, `timeplay`, `subtotal`, `net_total`, `promotion_id`) VALUES
+(1, 1, 4, '2024-12-31 20:00:00', '2024-12-31 20:30:00', 0.5, 25000, 25000, NULL),
+(2, 1, 5, '2024-12-31 20:00:00', '2024-12-31 20:45:00', 0.75, 75000, 75000, NULL),
+(3, 2, 6, '2025-01-02 00:00:00', '2025-01-02 02:30:00', 2.5, 375000, 375000, NULL),
+(4, 3, 4, '2025-01-03 04:00:00', '2025-01-03 05:30:00', 1.5, 75000, 75000, NULL),
+(5, 4, 5, '2025-01-03 19:00:00', '2025-01-03 20:00:00', 1, 100000, 100000, NULL),
+(6, 5, 6, '2025-01-04 21:00:00', '2025-01-04 22:45:00', 1.75, 262500, 262500, NULL),
+(7, 6, 4, '2025-01-05 23:00:00', '2025-01-05 23:30:00', 0.5, 25000, 25000, NULL),
+(8, 6, 5, '2025-01-05 23:30:00', '2025-01-06 00:00:00', 0.5, 50000, 50000, NULL),
+(9, 6, 6, '2025-01-06 00:00:00', '2025-01-06 01:00:00', 1, 150000, 150000, NULL),
+(10, 8, 4, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 1, 50000, 50000, NULL);
+=======
 INSERT INTO `rent_cues` (`rent_cue_id`, `order_id`, `product_id`, `start_time`, `end_time`, `status`, `timeplay`, `subtotal`, `net_total`, `promotion_id`) VALUES
+(1, 1, 4, '2024-12-31 20:00:00', '2024-12-31 22:00:00', 'Available', 2, 100000, 100000, NULL),
+(2, 1, 5, '2024-12-31 20:00:00', '2024-12-31 21:00:00', 'Available', 1, 100000, 100000, NULL),
 (3, 2, 6, '2025-01-02 00:00:00', '2025-01-02 02:30:00', 'Available', 2.5, 375000, 375000, NULL),
-(10, 8, 4, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 'Available', 1, 50000, 50000, NULL);
+(4, 3, 4, '2025-01-03 04:00:00', '2025-01-03 05:30:00', 'Available', 1.5, 75000, 75000, NULL),
+(5, 4, 5, '2025-01-03 19:00:00', '2025-01-03 20:00:00', 'Available', 1, 100000, 100000, NULL),
+(6, 5, 6, '2025-01-04 21:00:00', '2025-01-04 22:45:00', 'Available', 1.75, 262500, 262500, NULL),
+(7, 6, 4, '2025-01-05 23:00:00', '2025-01-06 01:00:00', 'Available', 2, 100000, 100000, NULL),
+(8, 7, 5, '2025-01-07 02:00:00', '2025-01-07 03:30:00', 'Available', 1.5, 150000, 150000, NULL),
+(9, 8, 6, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 'Available', 1, 150000, 150000, NULL);
+>>>>>>> 1c5f80f3512064c3763c09a6b815ef7e23d907af:biamanagement (02.13).sql
 
 -- --------------------------------------------------------
 
@@ -367,13 +464,13 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `username`, `password`, `role_id`) VALUES
-(1, 'admin', '123456', 1),
-(2, 'hieu', '123456', 1),
-(3, 'quan', '123456', 1),
-(4, 'manh', '123456', 1),
-(6, 'long', '123456', 1),
-(7, 'receptionist1', '73l8gRjwLftklgfdXT+MdiMEjJwGPVMsyVxe16iYpk8=', 2),
-(8, 'abcdef', 'jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=', 3);
+(1, 'admin', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1),
+(2, 'hieu', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1),
+(3, 'quan', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1),
+(4, 'manh', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1),
+(6, 'long', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1),
+(7, 'receptionist1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 2),
+(8, 'whstaff1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 3);
 
 --
 -- Indexes for dumped tables
@@ -481,6 +578,7 @@ ALTER TABLE `role_permission`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `users_unique` (`username`),
   ADD KEY `users_roles_FK` (`role_id`);
 
 --
@@ -611,6 +709,17 @@ ALTER TABLE `products`
 
 --
 -- Constraints for table `rent_cues`
+<<<<<<< HEAD:biamanagement.sql
+--
+ALTER TABLE `rent_cues`
+  ADD CONSTRAINT `rent_cues_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `rent_cues_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `rent_cues_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`promotion_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `role_permissions`
+=======
+>>>>>>> 1c5f80f3512064c3763c09a6b815ef7e23d907af:biamanagement (02.13).sql
 --
 ALTER TABLE `rent_cues`
   ADD CONSTRAINT `rent_cues_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,

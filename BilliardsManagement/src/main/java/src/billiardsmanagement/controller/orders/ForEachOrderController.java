@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
 import java.text.DecimalFormat;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -87,9 +88,6 @@ public class ForEachOrderController {
     @FXML
     private Text orderStatusText;
 
-    // Bookings
-    @FXML
-    private Label totalBookingLabel;
 
     @FXML
     private TableColumn<Booking, Integer> sttColumn;
@@ -124,8 +122,6 @@ public class ForEachOrderController {
     @FXML
     private TableColumn<OrderItem, Integer> sttOrderItemColumn;
 
-    @FXML
-    private Label totalItemLabel;
 
     @FXML
     private TableColumn<OrderItem, Integer> quantityColumn;
@@ -152,8 +148,6 @@ public class ForEachOrderController {
     @FXML
     private TableColumn<RentCue, Integer> sttRentCueColumn;
 
-    @FXML
-    private Label totalRentCueLabel;
 
     @FXML
     private TableColumn<RentCue, LocalDateTime> startTimeCue;
@@ -222,7 +216,6 @@ public class ForEachOrderController {
         bookingList.clear();
         bookingList.addAll(bookings);
         bookingPoolTable.setItems(bookingList);
-        caculateTotals();
     }
 
     private void loadOrderDetail() {
@@ -241,7 +234,6 @@ public class ForEachOrderController {
         orderItemsTable.setItems(orderItemList);
         System.out.println("Order Item" + orderItemsTable.getItems());
         // Implement this method to load and display order details
-        caculateTotals();
     }
 
     private void loadRentCue() {
@@ -270,7 +262,6 @@ public class ForEachOrderController {
         rentCueTable.getItems().addAll(rentCues);
         rentCueList.clear();
         rentCueList.addAll(rentCues);
-        caculateTotals();
     }
 
     private void initializeBookingColumn() {
@@ -344,6 +335,7 @@ public class ForEachOrderController {
                 // currency
             }
         });
+        checkBookingStatus();
 
     }
 
@@ -960,18 +952,20 @@ public class ForEachOrderController {
             showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
             return;
         }
-        Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
 
+        Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
         if (selectedBooking == null) {
             showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a booking to update.");
             return;
         }
 
-        // Avoid duplicate stop booking
         String bookingStatus = selectedBooking.getBookingStatus();
-        String bookingStatusMessage = bookingStatus.equalsIgnoreCase("Order") ? "This booking is in Order Status. You cannot end this booking !" : bookingStatus.equalsIgnoreCase("Finish") ? "This booking has already finished. You cannot end this booking !" : null;
-        if (bookingStatusMessage != null) {
-            showAlert(Alert.AlertType.WARNING, "Can't Stop", bookingStatusMessage);
+        if (bookingStatus.equalsIgnoreCase("Order")) {
+            showAlert(Alert.AlertType.WARNING, "Can't Stop", "This booking is in Order Status. You cannot end this booking!");
+            return;
+        }
+        if (bookingStatus.equalsIgnoreCase("Finish")) {
+            showAlert(Alert.AlertType.WARNING, "Can't Stop", "This booking has already finished. You cannot end this booking!");
             return;
         }
 
@@ -981,95 +975,40 @@ public class ForEachOrderController {
 
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmationAlert.setTitle("Confirm Stop Booking");
-        confirmationAlert.setHeaderText("This booking will be stopped. Are you sure ?");
+        confirmationAlert.setHeaderText("This booking will be stopped. Are you sure?");
 
         Optional<ButtonType> result = confirmationAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                // Nullable connection problem
-                if (conn == null)
-                    conn = DatabaseConnection.getConnection();
-                else {
-                    // Start a transaction
-                    conn.setAutoCommit(false);
-
-                    // Get the current time (end time)
-                    String currentTimeQuery = "SELECT NOW()";
-                    try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(currentTimeQuery)) {
-                        rs.next();
-                        Timestamp currentTime = rs.getTimestamp(1);
-
-                        // Validate: Ensure endTime is not earlier than startTime
-                        if (currentTime.before(startTime)) {
-                            showAlert(Alert.AlertType.WARNING, "Invalid End Time", "End time cannot be earlier than start time. Please try again.");
-                            return;
-                        }
-
-                        // Calculate time played (timeplay) in minutes
-                        String timeplayQuery = "SELECT TIMESTAMPDIFF(MINUTE, ?, ?) AS timeplay";
-                        try (PreparedStatement timeplayStmt = conn.prepareStatement(timeplayQuery)) {
-                            timeplayStmt.setTimestamp(1, startTime);
-                            timeplayStmt.setTimestamp(2, currentTime);
-                            try (ResultSet timeplayRs = timeplayStmt.executeQuery()) {
-                                timeplayRs.next();
-                                int timeplayInMinutes = timeplayRs.getInt("timeplay");
-
-                                // Convert time played from minutes to hours and round to 1 decimal place
-                                double timeplayInHours = Math.round((timeplayInMinutes / 60.0) * 10.0) / 10.0;
-
-                                // Get the price of the pool table
-                                String priceQuery = "SELECT c.price FROM cate_pooltables c " + "JOIN pooltables p ON p.cate_id = c.id " + "WHERE p.table_id = ?";
-
-                                try (PreparedStatement priceStmt = conn.prepareStatement(priceQuery)) {
-                                    priceStmt.setInt(1, poolTableId);
-                                    try (ResultSet priceRs = priceStmt.executeQuery()) {
-                                        priceRs.next();
-                                        double price = priceRs.getDouble("price");
-
-                                        // Calculate subtotal
-                                        double subtotal = timeplayInHours * price;
-
-                                        // Assuming net_total is same as subtotal
-                                        double netTotal = subtotal;
-
-                                        // Update the booking record
-                                        String updateQuery = "UPDATE bookings SET end_time = ?, timeplay = ?, subtotal = ?, net_total = ?, booking_status = 'finish' WHERE booking_id = ?";
-                                        try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
-                                            updateStmt.setTimestamp(1, currentTime);
-                                            updateStmt.setDouble(2, timeplayInHours);
-                                            updateStmt.setDouble(3, subtotal);
-                                            updateStmt.setDouble(4, netTotal);
-                                            updateStmt.setInt(5, bookingId);
-                                            updateStmt.executeUpdate();
-
-                                            // Commit the transaction
-                                            conn.commit();
-
-                                            // Success notification
-                                            showAlert(Alert.AlertType.INFORMATION, "Booking Stopped", "Booking has been stopped and updated.");
-                                            loadBookings();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                boolean success = BookingDAO.stopBooking(bookingId, startTime, poolTableId);
+                if (success) {
+                    showAlert(Alert.AlertType.INFORMATION, "Booking Stopped", "Booking has been stopped and updated.");
+                    loadBookings();
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to stop booking due to invalid data.");
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
-
-                // Rollback transaction on error
-                try (Connection conn = DatabaseConnection.getConnection()) {
-                    conn.rollback();
-                } catch (SQLException rollbackEx) {
-                    rollbackEx.printStackTrace();
-                }
-
                 showAlert(Alert.AlertType.ERROR, "Error", "Failed to stop booking: " + e.getMessage());
             }
         }
     }
+    public void checkBookingStatus(){
+        List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID); // Lấy danh sách booking
 
+        LocalDateTime now = LocalDateTime.now(); // Thời gian hiện tại
+
+        for (Booking booking : bookings) {
+            LocalDateTime bookingTime = booking.getStartTimeBooking(); // Lấy thời gian bắt đầu booking
+
+            if (bookingTime != null) { // Kiểm tra nếu booking có thời gian bắt đầu
+                long minutesPassed = Duration.between(bookingTime, now).toMinutes();
+                if (minutesPassed > 30 && "order".equals(booking.getBookingStatus())) {
+                    OrderDAO.updateStatusOrder(orderID);
+                }
+            }
+        }
+
+    }
     public void setCustomerID(int customerId) {
         this.customerID = customerId;
         if (customerId > 0) {
@@ -1090,34 +1029,7 @@ public class ForEachOrderController {
         }
     }
 
-    private double caculateTotals() {
-        double totalBooking = 0.0;
-        double totalProductAmount = 0.0;
-        double totalRentalAmount = 0.0;
 
-        ObservableList<Booking> bookingList = bookingPoolTable.getItems();
-        for (Booking booking : bookingList) {
-            if (booking != null) {
-                totalBooking += booking.getNetTotal();
-            }
-        }
-        totalBookingLabel.setText("Total: " + formatTotal(totalBooking));
-
-        ObservableList<OrderItem> orderItemList = orderItemsTable.getItems();
-        for (OrderItem item : orderItemList) {
-            totalProductAmount += item.getNetTotal();
-        }
-        totalItemLabel.setText("Total: " + formatTotal(totalProductAmount));
-
-        ObservableList<RentCue> rentCueList = rentCueTable.getItems();
-        for (RentCue rentCue : rentCueList) {
-            System.out.println("Rent Cue List: " + rentCue);
-            totalRentalAmount += rentCue.getNetTotal();
-        }
-        totalRentCueLabel.setText("Total: " + formatTotal(totalRentalAmount));
-
-        return totalBooking + totalProductAmount + totalRentalAmount;
-    }
 
     private String formatTotal(double total) {
         DecimalFormat decimalFormat = new DecimalFormat("#,###");
@@ -1129,6 +1041,14 @@ public class ForEachOrderController {
             showAlert(Alert.AlertType.ERROR, "Error", "This order has already been finished. You cannot finish it again !");
             return;
         }
+        ObservableList<Booking> bookingList = bookingPoolTable.getItems();
+        for (Booking booking : bookingList) {
+            if (booking != null && "Order".equals(booking.getBookingStatus())) {
+                showAlert(Alert.AlertType.ERROR, "Error", "This booking is order, you can't finish.");
+                return;
+            }
+        }
+
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Finish Order");
@@ -1143,10 +1063,8 @@ public class ForEachOrderController {
                 showAlert(Alert.AlertType.ERROR, "Finish All Error", "Unexpected error happen when trying to finish this order. Please try again later !");
                 return;
             }
-            double totalCost = caculateTotals(); // Lấy tổng tiền từ phương thức tính toán
-
+            boolean success = OrderDAO.updateOrderStatus(orderID);
             // Câu lệnh SQL để cập nhật tổng tiền và trạng thái đơn hàng
-            boolean success = OrderDAO.updateOrderTotal(this.orderID, totalCost);
             if (success) {
                 System.out.println("Order total cost updated successfully!");
 
@@ -1179,26 +1097,6 @@ public class ForEachOrderController {
         orderTable.setItems(FXCollections.observableArrayList(orders));
     }
 
-    private boolean allBookingsFinished() {
-        // Kiểm tra trạng thái của tất cả các booking
-        for (Booking booking : bookingList) {
-            if (!"finish".equalsIgnoreCase(booking.getBookingStatus())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    // Phương thức kiểm tra trạng thái rent cue
-    private boolean allRentCuesFinished() {
-        // Kiểm tra trạng thái của tất cả các rent cue
-        for (RentCue rentCue : rentCueList) {
-            if (rentCue.getStatus().equals(RentCueStatus.Rented)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     private ObservableValue<Integer> orderItemCall(TableColumn.CellDataFeatures<OrderItem, Integer> cellData) {
         // Lấy vị trí (index) của dòng hiện tại trong danh sách

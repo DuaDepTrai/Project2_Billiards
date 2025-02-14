@@ -110,6 +110,9 @@ public class Booking {
         return startTime != null ? Timestamp.valueOf(startTime) : null;
     }
 
+    public LocalDateTime getStartTimeBooking(){
+        return startTime;
+    }
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }

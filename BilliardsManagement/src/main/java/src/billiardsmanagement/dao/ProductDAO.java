@@ -65,7 +65,7 @@ public class ProductDAO {
     //     return productPairs;
     // }
 
-    
+
     // Phương thức để lấy tất cả sản phẩm
     public List<Product> getAllProducts() throws SQLException {
         List<Product> products = new ArrayList<>();
@@ -133,12 +133,12 @@ public class ProductDAO {
         String sql = "UPDATE products SET quantity = quantity - ? WHERE name = ? AND quantity >= 0";
         try (Connection connection = TestDBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-    
+
             statement.setInt(1, quantity);
             statement.setString(2, productName);
-    
+
             int rowsUpdated = statement.executeUpdate();
-    
+
             if (rowsUpdated > 0) {
                 System.out.println("Product quantity successfully reduced for " + productName);
                 return true;
@@ -156,12 +156,12 @@ public class ProductDAO {
         String sql = "UPDATE products SET quantity = quantity + ? WHERE name = ?";
         try (Connection connection = TestDBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-    
+
             statement.setInt(1, quantity);
             statement.setString(2, productName);
-    
+
             int rowsUpdated = statement.executeUpdate();
-    
+
             if (rowsUpdated > 0) {
                 System.out.println("Successfully replenished " + quantity + " units of '" + productName + "'.");
                 return true;
@@ -174,7 +174,7 @@ public class ProductDAO {
             System.err.println("Unexpected error during replenishment: " + e.getMessage());
         }
         return false;
-    }    
+    }
 
 
     // Phương thức để stockUp
@@ -253,12 +253,12 @@ public class ProductDAO {
 
     public static Integer getProductQuantityByName(String productName) {
         String query = "SELECT quantity FROM products WHERE name = ?";
-        
+
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            
+
             preparedStatement.setString(1, productName);
-            
+
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("quantity");
@@ -267,10 +267,10 @@ public class ProductDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return null;
     }
-    
+
     public static Pair<Integer,Double> getProductIdAndPriceByName(String productName){
         try(Connection con = DatabaseConnection.getConnection()){
             if(con==null) throw new SQLException("Error connecting to the database!");
@@ -291,12 +291,12 @@ public class ProductDAO {
 
     public static Integer getProductIdByName(String productName) {
         String query = "SELECT product_id FROM products WHERE name = ?";
-        
+
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            
+
             preparedStatement.setString(1, productName);
-            
+
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("product_id");
@@ -305,7 +305,7 @@ public class ProductDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return null;
     }
 }

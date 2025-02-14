@@ -4,10 +4,17 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.UserDAO;
 import src.billiardsmanagement.model.TestDBConnection;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -24,8 +31,11 @@ public class AddUserController {
     private TextField txtRePassword;
     @FXML
     private ComboBox<String> comboRole;
+    @FXML
+    private Label lblImagePath;
 
     private ObservableList<String> roleList = FXCollections.observableArrayList();
+    private String uploadedImagePath = null; // Đường dẫn file đã upload
     private UserDAO userDAO = new UserDAO();
 
     public void initialize() {
@@ -73,14 +83,18 @@ public class AddUserController {
             return;
         }
 
-        String hashedPassword = hashPassword(password);
-
-        if (hashedPassword == null || hashedPassword.isEmpty()) {
-            showAlert("Error", "Failed to hash password.");
-            return;
-        }
-
         try (Connection connection = TestDBConnection.getConnection()) {
+            // Kiểm tra username đã tồn tại hay chưa
+            String checkUsernameSql = "SELECT COUNT(*) FROM users WHERE username = ?";
+            PreparedStatement checkStmt = connection.prepareStatement(checkUsernameSql);
+            checkStmt.setString(1, username);
+            ResultSet checkResult = checkStmt.executeQuery();
+
+            if (checkResult.next() && checkResult.getInt(1) > 0) {
+                showAlert("Duplicate Username", "Username already exists. Please choose a different username.");
+                return; // Dừng lại nếu username đã tồn tại
+            }
+
             // Get role_id from role name
             String getRoleSql = "SELECT role_id FROM roles WHERE role_name = ?";
             PreparedStatement roleStmt = connection.prepareStatement(getRoleSql);
@@ -88,8 +102,37 @@ public class AddUserController {
             ResultSet resultSet = roleStmt.executeQuery();
             int role_id = resultSet.next() ? resultSet.getInt("role_id") : 0;
 
+            String hashedPassword = hashPassword(password);
+
+            if (hashedPassword == null || hashedPassword.isEmpty()) {
+                showAlert("Error", "Failed to hash password.");
+                return;
+            }
+
+            String finalImageName = "user.png"; // Sử dụng ảnh mặc định nếu không có ảnh tải lên
+
+            if (uploadedImagePath != null && !uploadedImagePath.isEmpty()) {
+                try {
+                    File destinationDir = new File("BilliardsManagement/src/main/resources/src/billiardsmanagement/images/avatars");
+                    if (!destinationDir.exists()) {
+                        destinationDir.mkdirs();
+                    }
+
+                    Path sourcePath = Paths.get(uploadedImagePath); // File ảnh được chọn
+                    finalImageName = sourcePath.getFileName().toString(); // Lấy tên file ảnh
+                    Path destinationPath = Paths.get(destinationDir.getAbsolutePath(), finalImageName);
+
+                    // Sao chép ảnh
+                    Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.out.println("Error copying file: " + e.getMessage());
+                    return;
+                }
+            }
+
             // Thêm user mới
-            userDAO.addUser(username, hashedPassword, role_id);
+            userDAO.addUser(username, hashedPassword, role_id, finalImageName);
 
             System.out.println("User added successfully!");
 
@@ -98,6 +141,21 @@ public class AddUserController {
             stage.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+
+    @FXML
+    private void handleUploadImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose Image File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
+
+        File file = fileChooser.showOpenDialog(txtUsername.getScene().getWindow());
+        if (file != null) {
+            uploadedImagePath = file.getAbsolutePath(); // Lưu đường dẫn file nguồn
+            lblImagePath.setText(file.getName()); // Hiển thị tên file trong giao diện
+            System.out.println("Selected file: " + uploadedImagePath);
         }
     }
 

@@ -10,51 +10,51 @@ import java.util.List;
 
 public class BookingDAO {
 
-  public static boolean finishOrder(int orderId) {
-    Connection conn = DatabaseConnection.getConnection();
-    if (conn == null) return false;
+    public static boolean finishOrder(int orderId) {
+        Connection conn = DatabaseConnection.getConnection();
+        if (conn == null) return false;
 
-    try {
-        conn.setAutoCommit(false);
+        try {
+            conn.setAutoCommit(false);
 
-        // Update all bookings: set end_time = NOW(), change status to 'Finish', and calculate timeplay
-        String updateBookingsQuery = """
+            // Update all bookings: set end_time = NOW(), change status to 'Finish', and calculate timeplay
+            String updateBookingsQuery = """
             UPDATE bookings 
             SET end_time = NOW(), 
                 booking_status = 'Finish', 
                 timeplay = TIMESTAMPDIFF(MINUTE, start_time, NOW()) / 60.0
             WHERE order_id = ?""";
-        try (PreparedStatement stmt = conn.prepareStatement(updateBookingsQuery)) {
-            stmt.setInt(1, orderId);
-            stmt.executeUpdate();
-        }
+            try (PreparedStatement stmt = conn.prepareStatement(updateBookingsQuery)) {
+                stmt.setInt(1, orderId);
+                stmt.executeUpdate();
+            }
 
-        // Calculate subtotal and net_total for bookings
-        String updateBookingCostQuery = """
+            // Calculate subtotal and net_total for bookings
+            String updateBookingCostQuery = """
             UPDATE bookings b 
             JOIN pooltables p ON b.table_id = p.table_id 
             JOIN cate_pooltables c ON p.cate_id = c.id
             SET b.subtotal = (TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time) / 60.0) * c.price, 
                 b.net_total = b.subtotal
             WHERE b.order_id = ?""";
-        try (PreparedStatement stmt = conn.prepareStatement(updateBookingCostQuery)) {
-            stmt.setInt(1, orderId);
-            stmt.executeUpdate();
-        }
-        conn.commit();
-        return true;
-    } catch (SQLException e) {
-        if (conn != null) {
-            try {
-                conn.rollback();
-                e.printStackTrace();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
+            try (PreparedStatement stmt = conn.prepareStatement(updateBookingCostQuery)) {
+                stmt.setInt(1, orderId);
+                stmt.executeUpdate();
             }
+            conn.commit();
+            return true;
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                    e.printStackTrace();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            return false;
         }
-        return false;
     }
-}
 
     public static boolean updateBooking(int bookingId, int orderId, int tableId, String tableStatus) {
         // SQL fixed booking_status as 'playing'
@@ -151,6 +151,78 @@ public class BookingDAO {
             e.printStackTrace();
         }
         return bookings;
+    }
+
+
+
+
+    public static boolean stopBooking(int bookingId, Timestamp startTime, int poolTableId) throws SQLException {
+        Connection conn = DatabaseConnection.getConnection();
+        if (conn == null) return false;
+
+        try {
+            conn.setAutoCommit(false);
+
+            // Lấy thời gian hiện tại từ database
+            String currentTimeQuery = "SELECT NOW()";
+            Timestamp currentTime;
+            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(currentTimeQuery)) {
+                if (!rs.next()) return false;
+                currentTime = rs.getTimestamp(1);
+            }
+
+            // Kiểm tra thời gian hợp lệ
+            if (currentTime.before(startTime)) {
+                return false;
+            }
+
+            // Tính toán thời gian chơi (phút)
+            String timeplayQuery = "SELECT TIMESTAMPDIFF(MINUTE, ?, ?) AS timeplay";
+            int timeplayInMinutes;
+            try (PreparedStatement timeplayStmt = conn.prepareStatement(timeplayQuery)) {
+                timeplayStmt.setTimestamp(1, startTime);
+                timeplayStmt.setTimestamp(2, currentTime);
+                try (ResultSet timeplayRs = timeplayStmt.executeQuery()) {
+                    if (!timeplayRs.next()) return false;
+                    timeplayInMinutes = timeplayRs.getInt("timeplay");
+                }
+            }
+
+            // Chuyển đổi thời gian chơi sang giờ, làm tròn 1 chữ số thập phân
+            double timeplayInHours = Math.round((timeplayInMinutes / 60.0) * 10.0) / 10.0;
+
+            // Lấy giá bàn bida
+            String priceQuery = "SELECT c.price FROM cate_pooltables c JOIN pooltables p ON p.cate_id = c.id WHERE p.table_id = ?";
+            double price;
+            try (PreparedStatement priceStmt = conn.prepareStatement(priceQuery)) {
+                priceStmt.setInt(1, poolTableId);
+                try (ResultSet priceRs = priceStmt.executeQuery()) {
+                    if (!priceRs.next()) return false;
+                    price = priceRs.getDouble("price");
+                }
+            }
+
+            // Tính toán tổng tiền
+            double subtotal = timeplayInHours * price;
+            double netTotal = subtotal;
+
+            // Cập nhật trạng thái booking
+            String updateQuery = "UPDATE bookings SET end_time = ?, timeplay = ?, subtotal = ?, net_total = ?, booking_status = 'finish' WHERE booking_id = ?";
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+                updateStmt.setTimestamp(1, currentTime);
+                updateStmt.setDouble(2, timeplayInHours);
+                updateStmt.setDouble(3, subtotal);
+                updateStmt.setDouble(4, netTotal);
+                updateStmt.setInt(5, bookingId);
+                updateStmt.executeUpdate();
+            }
+
+            conn.commit();
+            return true;
+        } catch (SQLException e) {
+            if (conn != null) conn.rollback();
+            throw e;
+        }
     }
 
 

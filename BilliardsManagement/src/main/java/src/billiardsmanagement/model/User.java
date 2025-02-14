@@ -9,13 +9,14 @@ public class User {
     private String password;
     private String plainPassword; // Lưu mật khẩu chưa hash
     private String role;
+    private String imagePath;
 
-    public User(int id, String username, String password, String role) {
+    public User(int id, String username, String password, String role, String imagePath) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.plainPassword = plainPassword;
         this.role = role;
+        this.imagePath = imagePath;
     }
 
     // Getter và Setter
@@ -32,6 +33,14 @@ public class User {
     public String getRole() {return role;}
 
     public String getPlainPassword() {return plainPassword;}
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
 
     @Override
     public String toString() {

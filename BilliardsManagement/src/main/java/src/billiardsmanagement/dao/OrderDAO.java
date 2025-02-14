@@ -1,5 +1,6 @@
 package src.billiardsmanagement.dao;
 
+import src.billiardsmanagement.model.Booking;
 import src.billiardsmanagement.model.Order;
 import src.billiardsmanagement.model.DatabaseConnection;
 
@@ -9,28 +10,67 @@ import java.util.List;
 
 public class OrderDAO {
 
-    public static boolean updateOrderTotal(int orderId, double totalCost) {
-        String query = "UPDATE orders SET total_cost = ?, order_status = 'Finished' WHERE order_id = ?";
+    public static boolean updateOrderStatus(int orderId) {
+        String query = "UPDATE orders SET order_status = 'Finished' WHERE order_id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setDouble(1, totalCost);  // Cập nhật tổng tiền vào cột total_cost
-            stmt.setInt(2, orderId);       // Cập nhật đúng đơn hàng theo order_id
+            stmt.setInt(1, orderId);  // Cập nhật đúng đơn hàng theo order_id
 
             int rowsAffected = stmt.executeUpdate();
-            if(rowsAffected > 0){
-                return true;
-            }
-            else{
-                return false;
-            }
+            return rowsAffected > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
+
+    public static void updateStatusOrder(int orderId){
+        String query = "UPDATE orders SET order_status = 'canceled' WHERE order_id = ?";
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, orderId);
+            int rowsUpdated = statement.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                System.out.println("Order ID " + orderId + " đã bị hủy thành công.");
+            } else {
+                System.out.println("Không tìm thấy Order ID: " + orderId);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public static List<Order> getOrderPaid() {
+        List<Order> paidOrders = new ArrayList<>();
+        String query = "SELECT * FROM orders WHERE orderStatus = 'Paid'";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Order order = new Order(
+                        rs.getInt("orderId"),
+                        rs.getInt("customerId"),
+                        rs.getString("customerName"),
+                        rs.getString("customerPhone"),
+                        rs.getDouble("totalCost"),
+                        rs.getString("orderStatus")
+                );
+                paidOrders.add(order);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return paidOrders;
+    }
+
 
     // Không cần khai báo URL, USER, PASSWORD nữa, vì đã có trong DatabaseConnection
     public List<Order> getAllOrders() {
@@ -69,7 +109,7 @@ public class OrderDAO {
 
 
     public void addOrder(Order newOrder) {
-        String query = "INSERT INTO orders (customer_id,order_status) VALUES ( ?, 'Pending')";
+        String query = "INSERT INTO orders (customer_id,order_status) VALUES ( ?, 'Playing')";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -87,14 +127,14 @@ public class OrderDAO {
         }
     }
 
-    public boolean updateOrder(Order currentOrder) {
-        String query = "UPDATE orders SET order_status = ? WHERE order_id = ?";
+    public boolean updateOrder(Order currentOrder, double totalCost) {
+        String query = "UPDATE orders SET order_status = 'Paid', total_cost = ? WHERE order_id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, currentOrder.getOrderStatus()); // order_status
-            stmt.setInt(2, currentOrder.getOrderId());        // order_id
+            stmt.setDouble(1, totalCost);  // Cập nhật total_cost
+            stmt.setInt(2, currentOrder.getOrderId()); // Cập nhật đúng order_id
 
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
@@ -193,5 +233,37 @@ public class OrderDAO {
         }
 
         return order;
+    }
+    public static double calculateOrderTotal(int orderId) {
+        String query = """
+        SELECT 
+            COALESCE(SUM(b.net_total), 0) AS total_booking,
+            COALESCE(SUM(oi.net_total), 0) AS total_products,
+            COALESCE(SUM(rc.net_total), 0) AS total_rentals
+        FROM orders o
+        LEFT JOIN bookings b ON o.order_id = b.order_id
+        LEFT JOIN orders_items oi ON o.order_id = oi.order_id
+        LEFT JOIN rent_cues rc ON o.order_id = rc.order_id
+        WHERE o.order_id = ?;
+    """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, orderId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                double totalBooking = rs.getDouble("total_booking");
+                double totalProducts = rs.getDouble("total_products");
+                double totalRentals = rs.getDouble("total_rentals");
+
+                return totalBooking + totalProducts + totalRentals;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0.0;  // Trả về 0 nếu có lỗi hoặc không tìm thấy order
     }
 }

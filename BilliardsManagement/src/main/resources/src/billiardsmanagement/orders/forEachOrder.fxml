@@ -117,9 +117,7 @@
          </Text>
       </children>
    </HBox>
-   <Label fx:id="totalBookingLabel" layoutX="698.0" layoutY="164.0" text="Total: " />
-   <Label fx:id="totalItemLabel" layoutX="698.0" layoutY="368.0" text="Total" />
-   <Label fx:id="totalRentCueLabel" layoutX="698.0" layoutY="511.0" text="Total:" />
+
    <Button fx:id="finishOrderButton" layoutX="347.0" layoutY="545.0" mnemonicParsing="false" onAction="#finishOrder" text="Finish this Order" />
 
 </AnchorPane>

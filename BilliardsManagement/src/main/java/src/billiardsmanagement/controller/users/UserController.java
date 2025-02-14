@@ -90,10 +90,10 @@ public class UserController {
             alert.showAndWait();
             return;
         }
-        confirmAndRemoveProduct(selectedUser);
+        confirmAndRemoveUser(selectedUser);
     }
 
-    private void confirmAndRemoveProduct(User user) {
+    private void confirmAndRemoveUser(User user) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirm Remove");
         alert.setHeaderText("Are you sure you want to remove this user?");
