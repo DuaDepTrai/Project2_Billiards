@@ -10,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.controller.users.UpdateUserController;
 import src.billiardsmanagement.dao.UserDAO;
 import src.billiardsmanagement.model.User;
@@ -35,6 +36,8 @@ public class UserController {
     private Button btnUpdateUser;
     @FXML
     private Button btnRemoveUser;
+    @FXML
+    private Button btnRolesPermissions;
 
     private ObservableList<User> userList = FXCollections.observableArrayList();
     private UserDAO userDAO = new UserDAO();
@@ -49,6 +52,7 @@ public class UserController {
         btnAddNewUser.setOnAction(event -> handleAddNewUser());
         btnUpdateUser.setOnAction(event -> handleUpdateSelectedUser());
         btnRemoveUser.setOnAction(event -> handleRemoveSelectedUser());
+        btnRolesPermissions.setOnAction(event -> openRolesPermissions());
     }
 
     private void loadUsers() {
@@ -148,5 +152,23 @@ public class UserController {
             e.printStackTrace();
         }
     }
+
+    private MainController mainController;
+
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+    }
+
+    @FXML
+    private void openRolesPermissions() {
+        if (mainController != null) {
+            try {
+                mainController.showRolesPermissionsPage();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
 }

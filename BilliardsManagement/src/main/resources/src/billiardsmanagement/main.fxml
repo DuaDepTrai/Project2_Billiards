@@ -19,8 +19,8 @@
             <Separator />
             <Button text="Orders" onAction="#showOrdersPage" styleClass="navbar-button"/>
             <Button text="Products" onAction="#showProductsPage" styleClass="navbar-button"/>
-            <Button text="Category" onAction="#showCategoryPage" styleClass="navbar-button"/>
-            <Button text="Users" onAction="#showUsersPage" styleClass="navbar-button"/>
+            <Button text="Categories" onAction="#showCategoryPage" styleClass="navbar-button"/>
+            <Button text="Staffs" onAction="#showUsersPage" styleClass="navbar-button"/>
         </VBox>
     </left>
 

@@ -63,3 +63,17 @@
     -fx-font-size: 20px;
     -fx-font-weight: bold;
 }
+
+.permissions-label {
+    -fx-background-color: #00bcd4;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-padding: 5px;
+    -fx-alignment: center;
+    -fx-border-color: black;
+    -fx-border-width: 1px;
+    -fx-min-width: 200px; /* Đảm bảo đủ rộng */
+    -fx-max-width: Infinity;
+    -fx-pref-height: 30px;
+}

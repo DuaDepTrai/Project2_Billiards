@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="src.billiardsmanagement.controller.users.RolesPermissionsController">
+    <VBox spacing="10" alignment="TOP_CENTER" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+        <Label text="Roles - Permissions" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+        <HBox spacing="5" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" HBox.hgrow="ALWAYS">
+            <!-- TableView hiển thị danh sách Role -->
+            <TableView fx:id="roleTable" HBox.hgrow="ALWAYS">
+                <columns>
+                    <TableColumn text="Role" fx:id="roleColumn" />
+                </columns>
+            </TableView>
+
+            <!-- TableView hiển thị danh sách Permission -->
+            <TableView fx:id="permissionTable" HBox.hgrow="ALWAYS">
+                <columns>
+                    <TableColumn text="Permissions" fx:id="permissionColumn" />
+                </columns>
+            </TableView>
+        </HBox>
+    </VBox>
+</AnchorPane>
+
