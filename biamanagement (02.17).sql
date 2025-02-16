@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 15, 2025 at 08:05 PM
+-- Generation Time: Feb 16, 2025 at 07:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -118,11 +118,26 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUES
-(1, 'Nguyen Anh Tuan', '1234567890', 0),
-(2, 'Le Thi Mai', '2345678901', 0),
-(3, 'Tran Minh Tu', '3456789012', 0),
-(4, 'Phan Quoc Toan', '4567890123', 0),
-(5, 'Hoang Minh Thao', '5678901234', 0);
+(1, 'Nguyen Anh Tuan', '0987654321', 0),
+(2, 'Le Thi Mai', '0912345678', 0),
+(3, 'Tran Minh Tu', '0903456789', 0),
+(4, 'Phan Quoc Toan', '0856789012', 0),
+(5, 'Hoang Minh Thao', '0321234567', 0),
+(6, 'Nguyen Van A\nnh', '0708765432', 0),
+(7, 'Tran Thi Binh', '0562345678', 0),
+(8, 'Le Hoang Nam', '0593987654', 0),
+(9, 'Pham Thanh Tam', '0345678910', 0),
+(10, 'Dang Minh Duc', '0777123456', 0),
+(11, 'Bui Van Khoa', '0965123456', 0),
+(12, 'Hoang Thi Lan', '0946789012', 0),
+(13, 'Vo Quoc Bao', '0932345678', 0),
+(14, 'Doan Ngoc Hai', '0887654321', 0),
+(15, 'Truong Kim Ngan', '0813456789', 0),
+(16, 'Ngo Van Son', '0398765432', 0),
+(17, 'Luong Bao Chau', '0789123456', 0),
+(18, 'Phan Thanh Phong', '0582345678', 0),
+(19, 'Dinh Hai Dang', '0356789012', 0),
+(20, 'Cao Anh Tuan', '0765432189', 0);
 
 -- --------------------------------------------------------
 
@@ -204,14 +219,14 @@ INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity
 CREATE TABLE `permissions` (
   `permission_id` int(11) NOT NULL,
   `permission_name` varchar(100) NOT NULL,
-  `desciption` varchar(100) NOT NULL
+  `description` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `permissions`
 --
 
-INSERT INTO `permissions` (`permission_id`, `permission_name`, `desciption`) VALUES
+INSERT INTO `permissions` (`permission_id`, `permission_name`, `description`) VALUES
 (1, 'view_product', 'View products'),
 (2, 'add_product', 'Add product'),
 (3, 'edit_product', 'Edit product'),
@@ -240,15 +255,15 @@ CREATE TABLE `pooltables` (
 --
 
 INSERT INTO `pooltables` (`cate_id`, `table_id`, `name`, `status`) VALUES
-(1, 1, 'Standard Pool 1', 'Playing'),
-(2, 2, 'Deluxe Pool 1', 'Ordered'),
-(3, 3, 'VIP Pool 1', 'Playing'),
-(1, 4, 'Standard Pool 2', 'Available'),
-(2, 5, 'Deluxe Pool 2', 'Available'),
-(3, 6, 'VIP Pool 2', 'Available'),
-(1, 7, 'Standard Pool 3', 'Available'),
-(2, 8, 'Deluxe Pool 3', 'Available'),
-(3, 9, 'VIP Pool 3', 'Available');
+(1, 1, 'Standard 1', 'Playing'),
+(2, 2, 'Deluxe 1', 'Ordered'),
+(3, 3, 'VIP 1', 'Playing'),
+(1, 4, 'Standard 2', 'Available'),
+(2, 5, 'Deluxe 2', 'Available'),
+(3, 6, 'VIP 2', 'Available'),
+(1, 7, 'Standard 3', 'Available'),
+(2, 8, 'Deluxe 3', 'Available'),
+(3, 9, 'VIP 3', 'Available');
 
 -- --------------------------------------------------------
 
@@ -596,7 +611,7 @@ ALTER TABLE `cate_pooltables`
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `orders`
