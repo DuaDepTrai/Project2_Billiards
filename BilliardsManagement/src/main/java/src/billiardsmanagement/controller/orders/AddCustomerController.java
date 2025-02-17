@@ -14,7 +14,7 @@ public class AddOrderController {
     @FXML
     private TextField phoneField;
 
-    public void saveOrder(ActionEvent actionEvent) {
+    public void saveCustomer(ActionEvent actionEvent) {
         try {
             // Get input from fields
             String customerName = nameField.getText();
