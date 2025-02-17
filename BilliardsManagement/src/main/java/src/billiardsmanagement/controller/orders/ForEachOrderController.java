@@ -15,6 +15,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -88,7 +89,6 @@ public class ForEachOrderController {
     @FXML
     private Text orderStatusText;
 
-
     @FXML
     private TableColumn<Booking, Integer> sttColumn;
     @FXML
@@ -122,7 +122,6 @@ public class ForEachOrderController {
     @FXML
     private TableColumn<OrderItem, Integer> sttOrderItemColumn;
 
-
     @FXML
     private TableColumn<OrderItem, Integer> quantityColumn;
 
@@ -147,7 +146,6 @@ public class ForEachOrderController {
 
     @FXML
     private TableColumn<RentCue, Integer> sttRentCueColumn;
-
 
     @FXML
     private TableColumn<RentCue, LocalDateTime> startTimeCue;
@@ -212,7 +210,7 @@ public class ForEachOrderController {
     }
 
     private void loadBookings() {
-        List<Booking> bookings = bookingDAO.getBookingByOrderId(orderID);
+        List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
         bookingList.clear();
         bookingList.addAll(bookings);
         bookingPoolTable.setItems(bookingList);
@@ -265,6 +263,66 @@ public class ForEachOrderController {
     }
 
     private void initializeBookingColumn() {
+        bookingPoolTable.setRowFactory(tv -> {
+            TableRow<Booking> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 1) { // Handle single click
+                    int index = row.getTableView().getSelectionModel().getSelectedIndex();
+                    if (index >= 0) {
+                        Booking currentBooking = row.getTableView().getItems().get(index);
+                        if ("Playing".equals(currentBooking.getBookingStatus())) {
+                            updateBookingButton.setDisable(true);
+                            deleteBookingButton.setDisable(false);
+                            stopBookingButton.setDisable(false);
+                            return;
+                        } else {
+                            updateBookingButton.setDisable(false);
+                            deleteBookingButton.setDisable(false);
+                            stopBookingButton.setDisable(false);
+                        }
+
+                        if("Finish".equals(currentBooking.getBookingStatus())){
+                            updateBookingButton.setDisable(true);
+                            deleteBookingButton.setDisable(true);
+                            stopBookingButton.setDisable(true);
+                        }
+                        else {
+                            updateBookingButton.setDisable(false);
+                            deleteBookingButton.setDisable(false);
+                            stopBookingButton.setDisable(false);
+                        }
+                    }
+                }
+            });
+            row.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null && row.getTableView().getSelectionModel().getSelectedItem() != null) {
+                    Booking currentBooking = row.getTableView().getSelectionModel().getSelectedItem();
+                    if ("Playing".equals(currentBooking.getBookingStatus())) {
+                        updateBookingButton.setDisable(true);
+                        deleteBookingButton.setDisable(false);
+                        stopBookingButton.setDisable(false);
+                        return;
+                    } else {
+                        updateBookingButton.setDisable(false);
+                        deleteBookingButton.setDisable(false);
+                        stopBookingButton.setDisable(false);
+                    }
+
+                    if("Finish".equals(currentBooking.getBookingStatus())){
+                        updateBookingButton.setDisable(true);
+                        deleteBookingButton.setDisable(true);
+                        stopBookingButton.setDisable(true);
+                    }
+                    else {
+                        updateBookingButton.setDisable(false);
+                        deleteBookingButton.setDisable(false);
+                        stopBookingButton.setDisable(false);
+                    }
+                }
+            });
+            return row;
+        });
+
         sttColumn.setCellValueFactory(param -> {
             int index = sttColumn.getTableView().getItems().indexOf(param.getValue());
             return new SimpleIntegerProperty(index + 1).asObject();
@@ -273,12 +331,14 @@ public class ForEachOrderController {
 
         startTimeColumn.setCellValueFactory(cellData -> {
             LocalDateTime startTime = cellData.getValue().getStartTime().toLocalDateTime();
-            return new SimpleStringProperty(startTime != null ? startTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+            return new SimpleStringProperty(
+                    startTime != null ? startTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
         });
 
         endTimeColumn.setCellValueFactory(cellData -> {
             LocalDateTime endTime = cellData.getValue().getEndTime();
-            return new SimpleStringProperty(endTime != null ? endTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+            return new SimpleStringProperty(
+                    endTime != null ? endTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
         });
 
         timeplayColumn.setCellValueFactory(new PropertyValueFactory<>("timeplay"));
@@ -349,6 +409,7 @@ public class ForEachOrderController {
 
         priceOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("productPrice"));
         priceOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+
         priceOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
             @Override
             protected void updateItem(Double item, boolean empty) {
@@ -378,11 +439,63 @@ public class ForEachOrderController {
         subTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
         subTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
         // Initialize OrderItem Promotion Columns
+        subTotalOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(String.format("%,d", Math.round(item)));
+                }
+            }
+        });
+
         promotionOrderItem.setCellValueFactory(new PropertyValueFactory<>("promotionName"));
         promotionDiscountOrderItem.setCellValueFactory(new PropertyValueFactory<>("promotionDiscount"));
     }
 
     private void initializeRentCueColumn() {
+        rentCueTable.setRowFactory(tv -> {
+            TableRow<RentCue> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 1) {
+                    int index = row.getTableView().getSelectionModel().getSelectedIndex();
+                    if (index >= 0) {
+                        RentCue currentRentCue = row.getTableView().getItems().get(index);
+                        if (RentCueStatus.Available.equals(currentRentCue.getStatus())) { // Fixing the error naming
+                            // here
+                            editRentCueButton.setDisable(true);
+                            deleteRentCueButton.setDisable(true);
+                            endCueRentalButton.setDisable(true);
+                            return;
+                        } else {
+                            editRentCueButton.setDisable(false);
+                            deleteRentCueButton.setDisable(false);
+                            endCueRentalButton.setDisable(false);
+                        }
+                    }
+                }
+            });
+            row.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null && row.getTableView().getSelectionModel().getSelectedItem() != null) {
+                    RentCue currentRentCue = row.getTableView().getSelectionModel().getSelectedItem();
+                    // Assuming there's a method to check the status of order items
+                    if (RentCueStatus.Available.equals(currentRentCue.getStatus())) { // Fixing the error naming here
+                        editRentCueButton.setDisable(true);
+                        deleteRentCueButton.setDisable(true);
+                        endCueRentalButton.setDisable(true);
+                        return;
+                    } else {
+                        editRentCueButton.setDisable(false);
+                        deleteRentCueButton.setDisable(false);
+                        endCueRentalButton.setDisable(false);
+                    }
+                }
+            });
+            return row;
+        });
+
         sttRentCueColumn.setCellValueFactory(this::rentCueCall);
         productNameCue.setCellValueFactory(new PropertyValueFactory<>("productName"));
         productNameCue.setSortType(TableColumn.SortType.ASCENDING);
@@ -515,7 +628,8 @@ public class ForEachOrderController {
             return;
         }
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bookings/addBooking.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/src/billiardsmanagement/orders/bookings/addBooking.fxml"));
             Parent root = loader.load();
 
             AddBookingController addBookingController = loader.getController();
@@ -539,7 +653,7 @@ public class ForEachOrderController {
         }
         // Lấy booking được chọn
         Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
-        System.out.println("Status Booking: " + selectedBooking.getBookingStatus());
+        System.out.println("Status Booking: " + (selectedBooking.getBookingStatus()==null ? "Booking Status = null" : selectedBooking.getBookingStatus()));
         // Kiểm tra xem có booking nào được chọn không
         if (selectedBooking == null) {
             showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a booking to update.");
@@ -549,13 +663,15 @@ public class ForEachOrderController {
         // Kiểm tra trạng thái booking
         if ("Finish".equals(selectedBooking.getBookingStatus())) {
             System.out.println("Status finish");
-            showAlert(Alert.AlertType.WARNING, "Can't Update Status", "Cannot update the status of a booking that is already finished.");
+            showAlert(Alert.AlertType.WARNING, "Can't Update Status",
+                    "Cannot update the status of a booking that is already finished.");
             return;
         }
 
         if ("Playing".equals(selectedBooking.getBookingStatus())) {
             System.out.println("Status playing");
-            showAlert(Alert.AlertType.WARNING, "Can't Update Status", "Cannot update the status of a booking that is already finished.");
+            showAlert(Alert.AlertType.WARNING, "Can't Update Status",
+                    "Cannot update the status of a booking that is already finished.");
             return;
         }
 
@@ -569,14 +685,17 @@ public class ForEachOrderController {
 
         Optional<ButtonType> result = confirmationAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            boolean updateSuccess = BookingDAO.updateBooking(selectedBooking.getBookingId(), selectedBooking.getOrderId(), selectedBooking.getTableId(), newTableStatus);
+            boolean updateSuccess = BookingDAO.updateBooking(selectedBooking.getBookingId(),
+                    selectedBooking.getOrderId(), selectedBooking.getTableId(), newTableStatus);
 
             // Kiểm tra kết quả cập nhật và hiển thị thông báo
             if (updateSuccess) {
-                showAlert(Alert.AlertType.INFORMATION, "Start Playing Successful", "Start playing on this table successfully.");
+                showAlert(Alert.AlertType.INFORMATION, "Start Playing Successful",
+                        "Start playing on this table successfully.");
                 loadBookings(); // Tải lại danh sách booking sau khi cập nhật
             } else {
-                showAlert(Alert.AlertType.ERROR, "Update Failed", "Failed to update the booking status. Please try again.");
+                showAlert(Alert.AlertType.ERROR, "Update Failed",
+                        "Failed to update the booking status. Please try again.");
             }
         }
     }
@@ -630,11 +749,13 @@ public class ForEachOrderController {
 
     public void addOrderItem(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error", "You cannot make any changes in this order as it has already been paid.");
+            showAlert(Alert.AlertType.ERROR, "Error",
+                    "You cannot make any changes in this order as it has already been paid.");
             return;
         }
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/items/addOrderItem.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/src/billiardsmanagement/orders/items/addOrderItem.fxml"));
             Parent root = loader.load();
 
             AddOrderItemController addOrderItemController = loader.getController();
@@ -653,7 +774,8 @@ public class ForEachOrderController {
 
     public void updateOrderItem(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error", "You cannot make any changes in this order as it has already been paid.");
+            showAlert(Alert.AlertType.ERROR, "Error",
+                    "You cannot make any changes in this order as it has already been paid.");
             return;
         }
 
@@ -668,7 +790,8 @@ public class ForEachOrderController {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/items/updateOrderItem.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/src/billiardsmanagement/orders/items/updateOrderItem.fxml"));
             Parent root = loader.load();
 
             UpdateOrderItemController updateOrderItemController = loader.getController();
@@ -690,7 +813,8 @@ public class ForEachOrderController {
 
     public void deleteOrderItem() {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error", "You cannot make any changes in this order as it has already been paid.");
+            showAlert(Alert.AlertType.ERROR, "Error",
+                    "You cannot make any changes in this order as it has already been paid.");
             return;
         }
         try {
@@ -712,7 +836,8 @@ public class ForEachOrderController {
             Optional<ButtonType> result = confirmAlert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 // Perform deletion in the database
-                boolean success = OrderItemDAO.deleteOrderItem(selectedItem.getOrderItemId()) && ProductDAO.replenishItem(selectedItem.getProductName(), selectedItem.getQuantity());
+                boolean success = OrderItemDAO.deleteOrderItem(selectedItem.getOrderItemId())
+                        && ProductDAO.replenishItem(selectedItem.getProductName(), selectedItem.getQuantity());
 
                 if (success) {
                     // Remove from table
@@ -738,7 +863,8 @@ public class ForEachOrderController {
     public void addRentCue(ActionEvent event) {
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/rent/addRentCue.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/src/billiardsmanagement/orders/rent/addRentCue.fxml"));
             Parent root = loader.load();
 
             AddRentCueController addRentCueController = loader.getController();
@@ -758,7 +884,8 @@ public class ForEachOrderController {
     @FXML
     public void updateRentCue(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error", "You cannot make any changes in this order as it has already been paid.");
+            showAlert(Alert.AlertType.ERROR, "Error",
+                    "You cannot make any changes in this order as it has already been paid.");
             return;
         }
         try {
@@ -771,12 +898,14 @@ public class ForEachOrderController {
             }
 
             if (selectedItem.getStatus().equals(RentCueStatus.Available)) {
-                showAlert(Alert.AlertType.WARNING, "Warning", "This Cue Rental has already been returned. You cannot edit this !");
+                showAlert(Alert.AlertType.WARNING, "Warning",
+                        "This Cue Rental has already been returned. You cannot edit this !");
                 return;
             }
 
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/rent/updateRentCue.fxml"));
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/src/billiardsmanagement/orders/rent/updateRentCue.fxml"));
                 Parent root = loader.load();
 
                 UpdateRentCueController updateRentCueController = loader.getController();
@@ -803,7 +932,8 @@ public class ForEachOrderController {
     @FXML
     public void deleteRentCue(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error", "You cannot make any changes in this order as it has already been paid.");
+            showAlert(Alert.AlertType.ERROR, "Error",
+                    "You cannot make any changes in this order as it has already been paid.");
             return;
         }
 
@@ -817,7 +947,8 @@ public class ForEachOrderController {
             }
 
             if (selectedItem.getStatus().equals(RentCueStatus.Available)) {
-                showAlert(Alert.AlertType.WARNING, "Warning", "You cannot delete this Cue Rental ; it has already been returned.");
+                showAlert(Alert.AlertType.WARNING, "Warning",
+                        "You cannot delete this Cue Rental ; it has already been returned.");
                 return;
             }
 
@@ -829,7 +960,8 @@ public class ForEachOrderController {
 
             Optional<ButtonType> result = confirmAlert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                boolean deleteSuccess = RentCueDAO.deleteRentCue(selectedItem) && ProductDAO.replenishItem(selectedItem.getProductName(), 1);
+                boolean deleteSuccess = RentCueDAO.deleteRentCue(selectedItem)
+                        && ProductDAO.replenishItem(selectedItem.getProductName(), 1);
 
                 if (deleteSuccess) {
                     // Remove from table
@@ -863,7 +995,8 @@ public class ForEachOrderController {
             }
 
             if (selectedItem.getStatus().equals(RentCueStatus.Available)) {
-                showAlert(Alert.AlertType.WARNING, "Warning", "This Cue Rental has already been returned. You cannot return it again !");
+                showAlert(Alert.AlertType.WARNING, "Warning",
+                        "This Cue Rental has already been returned. You cannot return it again !");
                 return;
             }
 
@@ -911,7 +1044,7 @@ public class ForEachOrderController {
         double subTotal = Math.ceil(selectedItem.getProductPrice() * timeplay);
         selectedItem.setSubTotal(subTotal);
 
-        // Calculate net t   otal based on promotion
+        // Calculate net t otal based on promotion
         double netTotal;
         if (selectedItem.getPromotionId() <= 0) {
             // No promotion applied
@@ -933,7 +1066,8 @@ public class ForEachOrderController {
         // Assuming you have a method to get the database connection
         Connection conn = DatabaseConnection.getConnection();
 
-        try (PreparedStatement pstmt = conn.prepareStatement("UPDATE products SET quantity = quantity + 1 WHERE name = ?")) {
+        try (PreparedStatement pstmt = conn
+                .prepareStatement("UPDATE products SET quantity = quantity + 1 WHERE name = ?")) {
             pstmt.setString(1, productName);
             int affectedRows = pstmt.executeUpdate();
 
@@ -962,11 +1096,13 @@ public class ForEachOrderController {
 
         String bookingStatus = selectedBooking.getBookingStatus();
         if (bookingStatus.equalsIgnoreCase("Order")) {
-            showAlert(Alert.AlertType.WARNING, "Can't Stop", "This booking is in Order Status. You cannot end this booking!");
+            showAlert(Alert.AlertType.WARNING, "Can't Stop",
+                    "This booking is in Order Status. You cannot end this booking!");
             return;
         }
         if (bookingStatus.equalsIgnoreCase("Finish")) {
-            showAlert(Alert.AlertType.WARNING, "Can't Stop", "This booking has already finished. You cannot end this booking!");
+            showAlert(Alert.AlertType.WARNING, "Can't Stop",
+                    "This booking has already finished. You cannot end this booking!");
             return;
         }
 
@@ -993,7 +1129,8 @@ public class ForEachOrderController {
             }
         }
     }
-    public void checkBookingStatus(){
+
+    public void checkBookingStatus() {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID); // Lấy danh sách booking
 
         LocalDateTime now = LocalDateTime.now(); // Thời gian hiện tại
@@ -1010,6 +1147,7 @@ public class ForEachOrderController {
         }
 
     }
+
     public void setCustomerID(int customerId) {
         this.customerID = customerId;
         if (customerId > 0) {
@@ -1030,8 +1168,6 @@ public class ForEachOrderController {
         }
     }
 
-
-
     private String formatTotal(double total) {
         DecimalFormat decimalFormat = new DecimalFormat("#,###");
         return decimalFormat.format(total);
@@ -1039,7 +1175,8 @@ public class ForEachOrderController {
 
     public void finishOrder(ActionEvent event) {
         if (orderStatusText.getText().equals("Finished")) {
-            showAlert(Alert.AlertType.ERROR, "Error", "This order has already been finished. You cannot finish it again !");
+            showAlert(Alert.AlertType.ERROR, "Error",
+                    "This order has already been finished. You cannot finish it again !");
             return;
         }
         ObservableList<Booking> bookingList = bookingPoolTable.getItems();
@@ -1050,37 +1187,46 @@ public class ForEachOrderController {
             }
         }
 
-
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Finish Order");
         alert.setHeaderText("Do you want to finish this order ?");
-        alert.setContentText("This action will mark the order as finished. All bookings and rent cues will be finished.");
+        alert.setContentText(
+                "This action will mark the order as finished. All bookings and rent cues will be finished.");
         Optional<ButtonType> result = alert.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            boolean finishAllSuccess = RentCueDAO.endAllCueRentals(this.orderID, rentCueList) && BookingDAO.finishOrder(this.orderID);
+            boolean finishAllSuccess = RentCueDAO.endAllCueRentals(this.orderID, rentCueList)
+                    && BookingDAO.finishOrder(this.orderID) && ProductDAO.replenishMultipleItems(rentCueList);
             if (!finishAllSuccess) {
                 // Show fail alert
-                showAlert(Alert.AlertType.ERROR, "Finish All Error", "Unexpected error happen when trying to finish this order. Please try again later !");
+                showAlert(Alert.AlertType.ERROR, "Finish All Error",
+                        "Unexpected error happen when trying to finish this order. Please try again later !");
                 return;
             }
-            boolean success = OrderDAO.updateOrderStatus(orderID);
-            // Câu lệnh SQL để cập nhật tổng tiền và trạng thái đơn hàng
-            if (success) {
-                System.out.println("Order total cost updated successfully!");
+            // Update both : status = Finished + update total price
+            try {
+                double totalCost = OrderDAO.calculateOrderTotal(orderID);
+                boolean success = OrderDAO.updateOrderStatus(orderID, totalCost);
+                System.out.println("Total cost = "+totalCost);
+                System.out.println("Success = "+success);
+                if (success) {
+                    System.out.println("Order total cost updated successfully!");
 
-                // Thông báo thanh toán thành công
-                showAlert(Alert.AlertType.INFORMATION, "Payment Successful", "The payment has been completed successfully!");
+                    // Thông báo thanh toán thành công
+                    showAlert(Alert.AlertType.INFORMATION, "Payment Successful",
+                            "The payment has been completed successfully!");
 
-                // Đóng cửa sổ hiện tại sau khi cập nhật thành công
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.close();
+                    // Đóng cửa sổ hiện tại sau khi cập nhật thành công
+                    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                    stage.close();
 
-                // Cập nhật giao diện sau khi thanh toán (giả sử bạn có phương thức để làm điều
-                // này)
-                loadOrderList(); // Gọi lại phương thức cập nhật giao diện
-            } else {
-                System.out.println("Failed to update order total cost.");
+                    // Cập nhật giao diện sau khi thanh toán (giả sử bạn có phương thức để làm điều
+                    // này)
+                    loadOrderList(); // Gọi lại phương thức cập nhật giao diện
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Finish Order Failed", "An unexpected error happens when finishing this order. Please try again later.");
             }
         } else {
             return;
@@ -1097,7 +1243,6 @@ public class ForEachOrderController {
         List<Order> orders = orderDAO.getAllOrders();
         orderTable.setItems(FXCollections.observableArrayList(orders));
     }
-
 
     private ObservableValue<Integer> orderItemCall(TableColumn.CellDataFeatures<OrderItem, Integer> cellData) {
         // Lấy vị trí (index) của dòng hiện tại trong danh sách

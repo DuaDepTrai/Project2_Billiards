@@ -10,25 +10,25 @@ import java.util.List;
 
 public class OrderDAO {
 
-    public static boolean updateOrderStatus(int orderId) {
-        String query = "UPDATE orders SET order_status = 'Finished' WHERE order_id = ?";
-
+    // Update status + total price
+    public static boolean updateOrderStatus(int orderId, double totalCost) {
+        String query = "UPDATE orders SET order_status = 'Finished', total_cost = ? WHERE order_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setInt(1, orderId);  // Cập nhật đúng đơn hàng theo order_id
+            stmt.setDouble(1, totalCost);
+            stmt.setInt(2,orderId);
 
             int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;
-
-        } catch (SQLException e) {
+            if(rowsAffected > 0) return true;
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
+        return false;
     }
 
-
-    public static void updateStatusOrder(int orderId){
+    public static void updateStatusOrder(int orderId) {
         String query = "UPDATE orders SET order_status = 'canceled' WHERE order_id = ?";
 
         try (Connection connection = DatabaseConnection.getConnection();
@@ -46,6 +46,7 @@ public class OrderDAO {
             e.printStackTrace();
         }
     }
+
     public static List<Order> getOrderPaid() {
         List<Order> paidOrders = new ArrayList<>();
         String query = "SELECT * FROM orders WHERE orderStatus = 'Paid'";
@@ -61,8 +62,7 @@ public class OrderDAO {
                         rs.getString("customerName"),
                         rs.getString("customerPhone"),
                         rs.getDouble("totalCost"),
-                        rs.getString("orderStatus")
-                );
+                        rs.getString("orderStatus"));
                 paidOrders.add(order);
             }
         } catch (Exception e) {
@@ -71,17 +71,16 @@ public class OrderDAO {
         return paidOrders;
     }
 
-
     // Không cần khai báo URL, USER, PASSWORD nữa, vì đã có trong DatabaseConnection
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
         String query = """
-        SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
-               o.total_cost, o.order_status
-        FROM orders o
-        JOIN customers c ON o.customer_id = c.customer_id
-        ORDER BY o.order_id
-    """;  // Câu truy vấn SQL để lấy danh sách đơn hàng (bao gồm số điện thoại khách hàng)
+                    SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone,
+                           o.total_cost, o.order_status
+                    FROM orders o
+                    JOIN customers c ON o.customer_id = c.customer_id
+                    ORDER BY o.order_id
+                """; // Câu truy vấn SQL để lấy danh sách đơn hàng (bao gồm số điện thoại khách hàng)
 
         // Sử dụng DatabaseConnection để lấy kết nối
         try (Connection conn = DatabaseConnection.getConnection();
@@ -94,19 +93,17 @@ public class OrderDAO {
                         rs.getInt("order_id"),
                         rs.getInt("customer_id"),
                         rs.getString("customer_name"),
-                        rs.getString("customer_phone"),  // Thêm phone vào đối tượng Order
+                        rs.getString("customer_phone"), // Thêm phone vào đối tượng Order
                         rs.getDouble("total_cost"),
-                        rs.getString("order_status")
-                );
+                        rs.getString("order_status"));
                 orders.add(order);
             }
         } catch (SQLException e) {
-            e.printStackTrace();  // In lỗi nếu có sự cố trong quá trình truy vấn
+            e.printStackTrace(); // In lỗi nếu có sự cố trong quá trình truy vấn
         }
 
-        return orders;  // Trả về danh sách các đơn hàng
+        return orders; // Trả về danh sách các đơn hàng
     }
-
 
     public void addOrder(Order newOrder) {
         String query = "INSERT INTO orders (customer_id,order_status) VALUES ( ?, 'Playing')";
@@ -115,7 +112,7 @@ public class OrderDAO {
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             // Set các giá trị vào PreparedStatement
-            stmt.setInt(1, newOrder.getCustomerId());        // customer_id
+            stmt.setInt(1, newOrder.getCustomerId()); // customer_id
             // Thực thi câu lệnh INSERT
             int rowsAffected = stmt.executeUpdate();
 
@@ -127,14 +124,14 @@ public class OrderDAO {
         }
     }
 
-    public boolean updateOrder(Order currentOrder, double totalCost) {
+    public boolean updateOrder(int orderID, double totalCost) {
         String query = "UPDATE orders SET order_status = 'Paid', total_cost = ? WHERE order_id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setDouble(1, totalCost);  // Cập nhật total_cost
-            stmt.setInt(2, currentOrder.getOrderId()); // Cập nhật đúng order_id
+            stmt.setDouble(1, totalCost); // Cập nhật total_cost
+            stmt.setInt(2, orderID); // Cập nhật đúng order_id
 
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
@@ -146,7 +143,8 @@ public class OrderDAO {
 
     public static Order getOrderById(int orderId) {
         // Truy vấn từ database và kiểm tra dữ liệu trả về
-        String query = "SELECT o.order_id, o.total_cost, o.order_status, c.name AS customer_name, c.phone AS customer_phone " +
+        String query = "SELECT o.order_id, o.total_cost, o.order_status, c.name AS customer_name, c.phone AS customer_phone "
+                +
                 "FROM orders o " +
                 "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
                 "WHERE o.order_id = ?";
@@ -171,18 +169,16 @@ public class OrderDAO {
         return null;
     }
 
-
-
     public boolean deleteOrder(int orderId) {
         String sql = "DELETE FROM orders WHERE order_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, orderId);
             int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;  // Nếu xóa thành công, trả về true
+            return rowsAffected > 0; // Nếu xóa thành công, trả về true
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;  // Nếu có lỗi xảy ra, trả về false
+            return false; // Nếu có lỗi xảy ra, trả về false
         }
     }
 
@@ -191,18 +187,18 @@ public class OrderDAO {
         Order order = new Order();
         // First query: Get basic order and customer details
         String sqlOrderCustomer = "SELECT o.order_id, o.order_status, " +
-                                  "c.name AS customer_name, c.phone AS customer_phone " +
-                                  "FROM orders o " +
-                                  "JOIN customers c ON o.customer_id = c.customer_id " +
-                                  "WHERE o.order_id = ?";
+                "c.name AS customer_name, c.phone AS customer_phone " +
+                "FROM orders o " +
+                "JOIN customers c ON o.customer_id = c.customer_id " +
+                "WHERE o.order_id = ?";
 
         // Query to get the most recent booking for this order
         String sqlBookingTable = "SELECT pb.name AS current_table_name " +
-                                 "FROM bookings bk " +
-                                 "JOIN pooltables pb ON pb.table_id = bk.table_id " +
-                                 "WHERE bk.order_id = ? " +
-                                 "ORDER BY bk.booking_id DESC " +
-                                 "LIMIT 1";
+                "FROM bookings bk " +
+                "JOIN pooltables pb ON pb.table_id = bk.table_id " +
+                "WHERE bk.order_id = ? " +
+                "ORDER BY bk.booking_id DESC " +
+                "LIMIT 1";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmtOrderCustomer = conn.prepareStatement(sqlOrderCustomer);
@@ -234,18 +230,43 @@ public class OrderDAO {
 
         return order;
     }
+
     public static double calculateOrderTotal(int orderId) {
+        // String query = """
+        // SELECT
+        // COALESCE(SUM(b.net_total), 0) AS total_booking,
+        // COALESCE(SUM(oi.net_total), 0) AS total_products,
+        // COALESCE(SUM(rc.net_total), 0) AS total_rentals
+        // FROM orders o
+        // LEFT JOIN bookings b ON o.order_id = b.order_id
+        // LEFT JOIN orders_items oi ON o.order_id = oi.order_id
+        // LEFT JOIN rent_cues rc ON o.order_id = rc.order_id
+        // WHERE o.order_id = ?;
+        // """;
+
         String query = """
-        SELECT 
-            COALESCE(SUM(b.net_total), 0) AS total_booking,
-            COALESCE(SUM(oi.net_total), 0) AS total_products,
-            COALESCE(SUM(rc.net_total), 0) AS total_rentals
-        FROM orders o
-        LEFT JOIN bookings b ON o.order_id = b.order_id
-        LEFT JOIN orders_items oi ON o.order_id = oi.order_id
-        LEFT JOIN rent_cues rc ON o.order_id = rc.order_id
-        WHERE o.order_id = ?;
-    """;
+                            SELECT
+                    COALESCE(b.total_booking, 0) AS total_booking,
+                    COALESCE(oi.total_products, 0) AS total_products,
+                    COALESCE(rc.total_rentals, 0) AS total_rentals
+                FROM orders o
+                LEFT JOIN (
+                    SELECT order_id, SUM(net_total) AS total_booking
+                    FROM bookings
+                    GROUP BY order_id
+                ) b ON o.order_id = b.order_id
+                LEFT JOIN (
+                    SELECT order_id, SUM(net_total) AS total_products
+                    FROM orders_items
+                    GROUP BY order_id
+                ) oi ON o.order_id = oi.order_id
+                LEFT JOIN (
+                    SELECT order_id, SUM(net_total) AS total_rentals
+                    FROM rent_cues
+                    GROUP BY order_id
+                ) rc ON o.order_id = rc.order_id
+                WHERE o.order_id = ?;
+                            """;
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -264,6 +285,27 @@ public class OrderDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return 0.0;  // Trả về 0 nếu có lỗi hoặc không tìm thấy order
+        return 0.0; // Trả về 0 nếu có lỗi hoặc không tìm thấy order
+    }
+
+    public Order getLatestOrderByCustomerId(int customerId) {
+        String query = "SELECT * FROM orders WHERE customer_id = ? ORDER BY order_id DESC LIMIT 1";
+        Order order = null;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, customerId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) { // Lấy order mới nhất
+                order = new Order();
+                order.setOrderId(rs.getInt("order_id"));
+                order.setCustomerId(rs.getInt("customer_id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return order;
     }
 }

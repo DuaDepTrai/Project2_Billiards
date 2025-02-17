@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
+import src.billiardsmanagement.dao.CategoryDAO;
 import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.dao.PromotionDAO;
 import src.billiardsmanagement.dao.RentCueDAO;
@@ -17,6 +18,7 @@ import src.billiardsmanagement.model.RentCue;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class AddRentCueController {
     private int orderID;
@@ -24,10 +26,14 @@ public class AddRentCueController {
     @FXML
     protected TextField productNameAutoCompleteText;
     private AutoCompletionBinding<String> productNameAutoBinding;
+    protected ArrayList<String> productNameTrimmed;
+
 
     @FXML
     protected TextField promotionNameAutoCompleteText;
     private AutoCompletionBinding<String> promotionNameAutoBinding;
+    protected ArrayList<String> promotionNameTrimmed;
+    protected Map<String,String> productCategoryMap;
 
     @FXML
     private TextField quantityTextField;
@@ -35,43 +41,42 @@ public class AddRentCueController {
 
     @FXML
     private void initialize() {
+        String rentCueCategory = "Cues-rent";
+        productCategoryMap = CategoryDAO.getProductAndCategoryUnitMap();
+
+        productNameTrimmed = new ArrayList<>();
         List<Pair<String, Integer>> list = ProductDAO.getAllProductNameAndQuantity();
         ArrayList<String> productList = new ArrayList<>();
 
         for (Pair<String, Integer> s : list) {
             String str = s.getFirstValue();
             int quant = s.getSecondValue();
-            if(!str.contains("Sale") && str.contains("Rent") && str.contains("Cue") && quant>0){
-                str = str + " ";
+            if(productCategoryMap.get(str).equalsIgnoreCase(rentCueCategory) && quant>0){
+                productNameTrimmed.add(str);
+                str = str + "  / "+quant+" in stock";
                 productList.add(str);
             }
-//            if (!s.contains("Sale") && s.contains("Rent") && s.contains("Cue")) {
-//                if (!s.contains(" ")) {
-//                    s = s + " ";
-//                    productList.add(s);
-//                } else
-//                    productList.add(s);
-//            }
         }
 
         AutoCompletionBinding<String> productNameAutoBinding = TextFields.bindAutoCompletion(productNameAutoCompleteText, productList);
-        HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText);
+        HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText,productNameTrimmed);
         productNameAutoBinding.setVisibleRowCount(7);
-
         productNameAutoBinding.setHideOnEscape(true);
 
+        promotionNameTrimmed = new ArrayList<>();
         ArrayList<String> pList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
         ArrayList<String> promotionList = new ArrayList<>();
         if (pList != null) {
             for (String s : pList) {
-                s = s + " ";
                 promotionList.add(s);
+                promotionNameTrimmed.add(s);
             }
-            AutoCompletionBinding<String> promotionNameAutoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
-            HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText);
-            promotionNameAutoBinding.setHideOnEscape(true);
-            promotionNameAutoBinding.setVisibleRowCount(7);
         }
+
+        AutoCompletionBinding<String> promotionNameAutoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
+        HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText,promotionNameTrimmed);
+        promotionNameAutoBinding.setHideOnEscape(true);
+        promotionNameAutoBinding.setVisibleRowCount(7);
 
         quantityTextField.setText("1");
 
@@ -87,6 +92,10 @@ public class AddRentCueController {
 
             if (productName.isBlank()) {
                 showAlert("Validation Error", "Please select a product.");
+                return;
+            }
+            if(!productNameTrimmed.contains(productName)){
+                showAlert("Product Error", "The product name you provided is not found !");
                 return;
             }
 
@@ -150,31 +159,40 @@ public class AddRentCueController {
                 showAlert("Error", "Failed to add rent cue.");
             }
 
+        } catch (IllegalArgumentException illegal) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error !");
+            alert.setHeaderText(illegal.getMessage());
+            alert.setContentText(illegal.getMessage());
+            alert.showAndWait();
         } catch (Exception e) {
-            showAlert("Unexpected Error", "An error occurred: " + e.getMessage());
-            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error !");
+            alert.setHeaderText(e.getMessage());
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
     }
 
 
-    public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text) {
+    public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text, ArrayList<String> trimmedList) {
+        auto.setOnAutoCompleted(autoCompletionEvent -> {
+            String finalText = autoCompletionEvent.getCompletion();
+            text.setText(finalText.trim().split("/")[0].trim());
+        });
+
         text.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 auto.setUserInput(" ");
+                return;
             }
-            if (!newValue) { // Nếu mất focus
-                String inputText = text.getText().trim();
-                boolean check = false;
-
-                for (String s : list) {
-                    if (inputText.equals(s)) {
-                        check = true;
-                        break;
-                    }
+            if(!newValue){
+                String input = text.getText();
+                input = input==null ? "" : input.trim();
+                if(input.isBlank() || !trimmedList.contains(input)){
+                    text.setText("");
                 }
-
-                if (check)
-                    text.setText(inputText);
+                else text.setText(input);
             }
         });
     }

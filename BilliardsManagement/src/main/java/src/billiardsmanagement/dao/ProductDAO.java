@@ -1,14 +1,12 @@
 package src.billiardsmanagement.dao;
 
-import src.billiardsmanagement.model.DatabaseConnection;
-import src.billiardsmanagement.model.Pair;
-import src.billiardsmanagement.model.Product;
-import src.billiardsmanagement.model.TestDBConnection;
+import javafx.collections.ObservableList;
+import src.billiardsmanagement.model.*;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
 
 
 public class ProductDAO {
@@ -33,9 +31,12 @@ public class ProductDAO {
             e.printStackTrace();
         } finally {
             try {
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-                if (connection != null) connection.close();
+                if (resultSet != null)
+                    resultSet.close();
+                if (statement != null)
+                    statement.close();
+                if (connection != null)
+                    connection.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -69,13 +70,9 @@ public class ProductDAO {
     // Phương thức để lấy tất cả sản phẩm
     public List<Product> getAllProducts() throws SQLException {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT p.product_id, p.name, c.category_name, p.price, p.unit, p.quantity " +
-                "FROM products p " +
-                "JOIN category c ON p.category_id = c.category_id";
+        String sql = "SELECT p.product_id, p.name, c.category_name, p.price, p.unit, p.quantity " + "FROM products p " + "JOIN category c ON p.category_id = c.category_id";
 
-        try (Connection connection = TestDBConnection.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
+        try (Connection connection = TestDBConnection.getConnection(); Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("product_id");
@@ -96,8 +93,7 @@ public class ProductDAO {
     // Phương thức để thêm sản phẩm mới
     public void addProduct(String name, int categoryId, double price, String unit, int quantity) throws SQLException {
         String sql = "INSERT INTO products (name, category_id, price, unit, quantity) VALUES (?, ?, ?, ?, ?)";
-        try (Connection connection = TestDBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection connection = TestDBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, name);
             statement.setInt(2, categoryId);
@@ -113,8 +109,7 @@ public class ProductDAO {
     // Phương thức để cập nhật thông tin sản phẩm
     public void updateProduct(int productId, String name, int categoryId, double price, String unit, int quantity) throws SQLException {
         String sql = "UPDATE products SET name = ?, category_id = ?, price = ?, unit = ?, quantity = ? WHERE product_id = ?";
-        try (Connection connection = TestDBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection connection = TestDBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, name);
             statement.setInt(2, categoryId);
@@ -131,8 +126,7 @@ public class ProductDAO {
     // dispatchItem : decrease quantity
     public static boolean dispatchItem(String productName, int quantity) {
         String sql = "UPDATE products SET quantity = quantity - ? WHERE name = ? AND quantity >= 0";
-        try (Connection connection = TestDBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, quantity);
             statement.setString(2, productName);
@@ -154,8 +148,7 @@ public class ProductDAO {
     // replenishItem : increase quantity
     public static boolean replenishItem(String productName, int quantity) {
         String sql = "UPDATE products SET quantity = quantity + ? WHERE name = ?";
-        try (Connection connection = TestDBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, quantity);
             statement.setString(2, productName);
@@ -176,12 +169,124 @@ public class ProductDAO {
         return false;
     }
 
+    //    public static boolean replenishMultipleItems(ObservableList<RentCue> productNameList) {
+    //        String placeholders = String.join(",", Collections.nCopies(productNameList.size(), "?"));
+    //        String sql = "UPDATE products SET quantity = quantity + 1 WHERE name IN (" + placeholders + ")";
+    //
+    //        Connection connection = DatabaseConnection.getConnection();
+    //        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+    //            connection.setAutoCommit(false);
+    //            // Setting each product name as a parameter
+    //            for (int i = 0; i < productNameList.size(); i++) {
+    //                System.out.println("Statement = "+statement);
+    //                System.out.println("Name = "+productNameList.get(i).getProductName());
+    //                statement.setString(i + 1, productNameList.get(i).getProductName());
+    //            }
+    //
+    //            int rowsUpdated = statement.executeUpdate();
+    //            if (rowsUpdated == productNameList.size()) {
+    //                System.out.println("Successfully replenished all products.");
+    //                connection.commit();
+    //                return true;
+    //            } else {
+    //                throw new Exception("Replenishment failed. Not all products were found or updated.");
+    //            }
+    //        } catch (SQLException e) {
+    //            try{
+    //                connection.rollback();
+    //            } catch (SQLException ex) {
+    //                throw new RuntimeException(ex);
+    //            }
+    //            e.printStackTrace();
+    //            System.err.println("SQL error during replenishment: " + e.getMessage());
+    //        } catch (Exception e) {
+    //            System.err.println("Unexpected error during replenishment: " + e.getMessage());
+    //        }
+    //        finally{
+    //            if(connection!=null){
+    //                try{
+    //                    connection.setAutoCommit(true);
+    //                    connection.close();
+    //                } catch (Exception e) {
+    //                    throw new RuntimeException(e);
+    //                }
+    //            }
+    //        }
+    //        return false;
+    //    }
+
+    // replenishMultipleItem : increase quantity of multiple items,
+    // used with finishOrder() in ForEachOrderController
+    public static boolean replenishMultipleItems(ObservableList<RentCue> productNameList) {
+        String sql = "UPDATE products SET quantity = quantity + 1 WHERE name = ?";
+        Connection connection = DatabaseConnection.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            // Disable auto-commit to allow batch processing
+            connection.setAutoCommit(false);
+
+            for (RentCue product : productNameList) {
+                statement.setString(1, product.getProductName());
+                statement.addBatch(); // Add each update operation to the batch
+            }
+
+            int[] rowsAffected = statement.executeBatch(); // Execute the batch
+
+            // Check if all updates were successful
+            boolean allSuccessful = true;
+            for (int row : rowsAffected) {
+                if (row <= 0) {
+                    allSuccessful = false;
+                    break;
+                }
+            }
+
+            if (allSuccessful) {
+                System.out.println("Successfully replenished all products.");
+                connection.commit(); // Commit the transaction
+                return true;
+            } else {
+                throw new Exception("Replenishment failed. Not all products were found or updated.");
+            }
+        } catch (SQLException e) {
+            try {
+                if (connection != null) {
+                    connection.rollback(); // Rollback the transaction in case of error
+                }
+                e.printStackTrace();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            System.err.println("SQL error during replenishment: " + e.getMessage());
+        } catch (Exception e) {
+            try {
+                if (connection != null) {
+                    connection.rollback(); // Rollback the transaction in case of error
+                }
+                e.printStackTrace();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            System.err.println("Unexpected error during replenishment: " + e.getMessage());
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.setAutoCommit(true); // Re-enable auto-commit
+                    connection.close(); // Close the connection
+                }
+            } catch (Exception e) {
+                System.out.println("Error : " + e.getMessage());
+            }
+        }
+
+        return false;
+    }
+
 
     // Phương thức để stockUp
     public void stockUp(int productId, int quantity) throws SQLException {
         String sql = "UPDATE products SET quantity = quantity + ? WHERE product_id = ?";
-        try (Connection connection = TestDBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection connection = TestDBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, quantity);
             statement.setInt(2, productId);
@@ -194,8 +299,7 @@ public class ProductDAO {
     // Phương thức để xóa sản phẩm
     public void removeProduct(int productId) throws SQLException {
         String sql = "DELETE FROM products WHERE product_id = ?";
-        try (Connection connection = TestDBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection connection = TestDBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, productId);
             statement.executeUpdate();
@@ -207,13 +311,9 @@ public class ProductDAO {
     // Phương thức để lấy sản phẩm theo danh mục
     public List<Product> getProductsByCategory(int categoryId) throws SQLException {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT p.product_id, p.name, c.category_name, p.price, p.unit, p.quantity " +
-                "FROM products p " +
-                "JOIN category c ON p.category_id = c.category_id " +
-                "WHERE c.category_id = ?";
+        String sql = "SELECT p.product_id, p.name, c.category_name, p.price, p.unit, p.quantity " + "FROM products p " + "JOIN category c ON p.category_id = c.category_id " + "WHERE c.category_id = ?";
 
-        try (Connection connection = TestDBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection connection = TestDBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, categoryId);
             ResultSet resultSet = statement.executeQuery();
@@ -234,14 +334,15 @@ public class ProductDAO {
         return products;
     }
 
-    public static ArrayList<String> getAllProductsName(){
-        try(Connection con = DatabaseConnection.getConnection()){
-            if(con==null) throw new SQLException("Connection Error : cannot connect to the Database !");
+    public static ArrayList<String> getAllProductsName() {
+        try (Connection con = DatabaseConnection.getConnection()) {
+            if (con == null)
+                throw new SQLException("Connection Error : cannot connect to the Database !");
             ArrayList<String> list = new ArrayList<>();
             String query = "SELECT name FROM products";
             Statement stm = con.createStatement();
             ResultSet rs = stm.executeQuery(query);
-            while(rs.next()){
+            while (rs.next()) {
                 list.add(rs.getString("name"));
             }
             return list;
@@ -254,8 +355,7 @@ public class ProductDAO {
     public static Integer getProductQuantityByName(String productName) {
         String query = "SELECT quantity FROM products WHERE name = ?";
 
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setString(1, productName);
 
@@ -271,15 +371,17 @@ public class ProductDAO {
         return null;
     }
 
-    public static Pair<Integer,Double> getProductIdAndPriceByName(String productName){
-        try(Connection con = DatabaseConnection.getConnection()){
-            if(con==null) throw new SQLException("Error connecting to the database!");
+    public static Pair<Integer, Double> getProductIdAndPriceByName(String productName) {
+        try (Connection con = DatabaseConnection.getConnection()) {
+            if (con == null)
+                throw new SQLException("Error connecting to the database!");
             String query = "SELECT product_id,price FROM products WHERE name = ?";
-            PreparedStatement st  = con.prepareStatement(query);
+            PreparedStatement st = con.prepareStatement(query);
             st.setString(1, productName);
             ResultSet rs = st.executeQuery();
-            if(!rs.next()) throw new SQLException("Error querying the database: Unable to retrieve data from the database!");
-            Pair<Integer,Double> productPair = new Pair<>();
+            if (!rs.next())
+                throw new SQLException("Error: Unable to retrieve data from the database! \nThis might be because of some wrongness in your input. Please check again.");
+            Pair<Integer, Double> productPair = new Pair<>();
             productPair.setFirstValue(rs.getInt("product_id"));
             productPair.setSecondValue(rs.getDouble("price"));
             return productPair;
@@ -292,8 +394,7 @@ public class ProductDAO {
     public static Integer getProductIdByName(String productName) {
         String query = "SELECT product_id FROM products WHERE name = ?";
 
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (Connection connection = DatabaseConnection.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setString(1, productName);
 

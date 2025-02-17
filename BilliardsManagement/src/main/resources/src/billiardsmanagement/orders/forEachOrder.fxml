@@ -75,49 +75,49 @@
 
     <!-- Action Buttons -->
     <HBox spacing="30" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="120.0" />
-   <Button fx:id="addBookingButton" layoutX="10.0" layoutY="160.0" mnemonicParsing="false" onAction="#addBooking" text="Add Booking">
-      <opaqueInsets>
-         <Insets />
-      </opaqueInsets>
-   </Button>
-   <Button fx:id="updateBookingButton" layoutX="136.0" layoutY="160.0" mnemonicParsing="false" onAction="#updateBooking" text="Start Playing" />
-   <Button fx:id="deleteBookingButton" layoutX="275.0" layoutY="160.0" mnemonicParsing="false" onAction="#deleteBooking" text="Delete Booking" />
-   <Button fx:id="stopBookingButton" layoutX="409.0" layoutY="160.0" mnemonicParsing="false" onAction="#stopBooking" text="Stop Booking" />
-   <HBox layoutX="14.0" prefHeight="48.0" prefWidth="698.0">
-      <children>
-         <Label text=" Customer Name:">
-            <HBox.margin>
-               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </HBox.margin>
-         </Label>
-         <Text fx:id="customerText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text">
-            <HBox.margin>
-               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </HBox.margin>
-         </Text>
-         <Label text="Phone: ">
-            <HBox.margin>
-               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </HBox.margin>
-         </Label>
-         <Text fx:id="phoneText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text">
-            <HBox.margin>
-               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </HBox.margin>
-         </Text>
-         <Label text="Order Status">
-            <HBox.margin>
-               <Insets bottom="10.0" left="100.0" right="10.0" top="10.0" />
-            </HBox.margin>
-         </Label>
-         <Text fx:id="orderStatusText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text">
-            <HBox.margin>
-               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </HBox.margin>
-         </Text>
-      </children>
-   </HBox>
+    <Button fx:id="addBookingButton" layoutX="10.0" layoutY="160.0" mnemonicParsing="false" onAction="#addBooking" text="Add Booking">
+        <opaqueInsets>
+            <Insets />
+        </opaqueInsets>
+    </Button>
+    <Button fx:id="updateBookingButton" layoutX="136.0" layoutY="160.0" mnemonicParsing="false" onAction="#updateBooking" text="Start Playing" />
+    <Button fx:id="deleteBookingButton" layoutX="275.0" layoutY="160.0" mnemonicParsing="false" onAction="#deleteBooking" text="Delete Booking" />
+    <Button fx:id="stopBookingButton" layoutX="409.0" layoutY="160.0" mnemonicParsing="false" onAction="#stopBooking" text="Stop Booking" />
+    <HBox layoutX="14.0" prefHeight="48.0" prefWidth="698.0">
+        <children>
+            <Label text=" Customer Name:">
+                <HBox.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </HBox.margin>
+            </Label>
+            <Text fx:id="customerText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text">
+                <HBox.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </HBox.margin>
+            </Text>
+            <Label text="Phone: ">
+                <HBox.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </HBox.margin>
+            </Label>
+            <Text fx:id="phoneText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text">
+                <HBox.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </HBox.margin>
+            </Text>
+            <Label text="Order Status">
+                <HBox.margin>
+                    <Insets bottom="10.0" left="100.0" right="10.0" top="10.0" />
+                </HBox.margin>
+            </Label>
+            <Text fx:id="orderStatusText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text">
+                <HBox.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </HBox.margin>
+            </Text>
+        </children>
+    </HBox>
 
-   <Button fx:id="finishOrderButton" layoutX="347.0" layoutY="545.0" mnemonicParsing="false" onAction="#finishOrder" text="Finish this Order" />
+    <Button fx:id="finishOrderButton" layoutX="347.0" layoutY="545.0" mnemonicParsing="false" onAction="#finishOrder" text="Finish this Order" />
 
 </AnchorPane>

@@ -21,7 +21,7 @@ public class BillService {
                     booking.getTableName(), // Tên bàn
                     booking.getTimeplay(), // Số giờ chơi
                     booking.getPriceTable(), // Giá bàn/giờ
-                    booking.getSubTotal() // Tổng tiền bàn
+                    booking.getNetTotal() // Tổng tiền bàn
             ));
         }
 
@@ -32,7 +32,7 @@ public class BillService {
                     item.getProductName(), // Tên sản phẩm
                     item.getQuantity(), // Số lượng
                     item.getProductPrice(), // Đơn giá sản phẩm
-                    item.getSubTotal() // Thành tiền
+                    item.getNetTotal() // Thành tiền
             ));
         }
 
@@ -42,9 +42,9 @@ public class BillService {
         for (RentCue rentCue : rentCues) {
             billItems.add(new BillItem(
                     rentCue.getProductName(),
-                     rentCue.getTimeplay(),
+                    rentCue.getTimeplay(),
                     rentCue.getProductPrice(),
-                    rentCue.getSubTotal()
+                    rentCue.getNetTotal()
             ));
         }
 

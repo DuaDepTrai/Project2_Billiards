@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 import src.billiardsmanagement.dao.CustomerDAO;
 import src.billiardsmanagement.model.Customer;
 
-public class AddOrderController {
+public class AddCustomerController {
     @FXML
     private TextField nameField;
     @FXML

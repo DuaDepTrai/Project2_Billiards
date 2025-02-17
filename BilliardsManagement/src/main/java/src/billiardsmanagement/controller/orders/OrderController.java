@@ -73,9 +73,24 @@ public class OrderController implements Initializable {
 
             Order newOrder = new Order(customerId);
             orderDAO.addOrder(newOrder);
-            loadOrderList();
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Order added successfully!");
+            Order orderLastest = orderDAO.getLatestOrderByCustomerId(customerId);
 
+            int orderId = orderLastest.getOrderId();
+            System.out.println(orderId);
+            loadOrderList();
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Order added successfully!");// Show the Order Details screen
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Order Detail");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+            ForEachOrderController controller = loader.getController();
+            controller.setOrderID(orderId); // Truyền orderId
+            controller.setCustomerID(customerId);
+            controller.setOrderTable(orderTable);
+            controller.initializeAllTables();
         } catch (IllegalArgumentException e) {
             showAlert(Alert.AlertType.ERROR, "Validation Error", e.getMessage());
         } catch (Exception e) {
@@ -209,26 +224,6 @@ public class OrderController implements Initializable {
         });
     }
 
-    public void paymentOrder(ActionEvent event) {
-        Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
-
-        if(selectedOrder.getOrderStatus().equals("Paid")){
-            showAlert(Alert.AlertType.ERROR, "Error", "Cannot update an order that has already been paid.");
-            return;
-        }
-        if (selectedOrder != null) {
-            double totalCost = OrderDAO.calculateOrderTotal(selectedOrder.getOrderId());
-            boolean success = orderDAO.updateOrder(selectedOrder,totalCost);
-            if (success) {
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Order updated successfully!");
-                loadOrderList();
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Error", "Failed to update the order.");
-            }
-        } else {
-            showAlert(Alert.AlertType.INFORMATION, "Error", "Please select an order to update.");
-        }
-    }
 
     public void deleteOrder(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
