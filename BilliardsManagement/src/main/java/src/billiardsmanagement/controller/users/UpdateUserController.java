@@ -95,10 +95,10 @@ public class UpdateUserController {
         String rePassword = txtRePassword.getText() != null ? txtRePassword.getText().trim() : "";
         String role = comboRole.getValue();
 
-//        if (!isValidUsername(username)) {
-//            showAlert("Invalid Username", "Username must be at least 6 characters long and contain only letters, numbers, '.', or '_'.");
-//            return;
-//        }
+        if (!isValidUsername(username)) {
+            showAlert("Invalid Username", "Username must be at least 6 characters long and contain only letters, numbers, '.', or '_'.");
+            return;
+        }
 
         if (password != null && !password.isEmpty() && !isValidPassword(password)) {
             showAlert("Invalid Password", "Password must be at least 6 characters long and contain letters, numbers, or special characters.");

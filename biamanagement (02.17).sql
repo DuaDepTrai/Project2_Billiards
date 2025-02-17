@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 12, 2025 at 09:50 PM
+-- Generation Time: Feb 16, 2025 at 07:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -53,7 +53,8 @@ INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end
 (6, 6, 3, '2025-01-05 23:00:00', '2025-01-06 01:00:00', 2, 200000, 200000, 'Finish', NULL),
 (7, 7, 1, '2025-01-07 02:00:00', '2025-01-07 03:30:00', 1.5, 52500, 52500, 'Finish', NULL),
 (8, 8, 2, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 1, 75000, 75000, 'Finish', NULL),
-(9, 9, 3, '2025-01-09 04:00:00', NULL, NULL, NULL, NULL, 'Finish', NULL);
+(9, 9, 3, '2025-01-09 04:00:00', NULL, NULL, NULL, NULL, 'Finish', NULL),
+(25, 26, 6, '2025-02-14 16:49:00', '2025-02-14 17:00:15', 0.183333333, 18333.3333, 18333.3333, 'Finish', NULL);
 
 -- --------------------------------------------------------
 
@@ -117,11 +118,26 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUES
-(1, 'Nguyen Anh Tuan', '1234567890', 0),
-(2, 'Le Thi Mai', '2345678901', 0),
-(3, 'Tran Minh Tu', '3456789012', 0),
-(4, 'Phan Quoc Toan', '4567890123', 0),
-(5, 'Hoang Minh Thao', '5678901234', 0);
+(1, 'Nguyen Anh Tuan', '0987654321', 0),
+(2, 'Le Thi Mai', '0912345678', 0),
+(3, 'Tran Minh Tu', '0903456789', 0),
+(4, 'Phan Quoc Toan', '0856789012', 0),
+(5, 'Hoang Minh Thao', '0321234567', 0),
+(6, 'Nguyen Van A\nnh', '0708765432', 0),
+(7, 'Tran Thi Binh', '0562345678', 0),
+(8, 'Le Hoang Nam', '0593987654', 0),
+(9, 'Pham Thanh Tam', '0345678910', 0),
+(10, 'Dang Minh Duc', '0777123456', 0),
+(11, 'Bui Van Khoa', '0965123456', 0),
+(12, 'Hoang Thi Lan', '0946789012', 0),
+(13, 'Vo Quoc Bao', '0932345678', 0),
+(14, 'Doan Ngoc Hai', '0887654321', 0),
+(15, 'Truong Kim Ngan', '0813456789', 0),
+(16, 'Ngo Van Son', '0398765432', 0),
+(17, 'Luong Bao Chau', '0789123456', 0),
+(18, 'Phan Thanh Phong', '0582345678', 0),
+(19, 'Dinh Hai Dang', '0356789012', 0),
+(20, 'Cao Anh Tuan', '0765432189', 0);
 
 -- --------------------------------------------------------
 
@@ -149,7 +165,10 @@ INSERT INTO `orders` (`order_id`, `customer_id`, `total_cost`, `order_status`) V
 (6, 1, 300000, 'Finished'),
 (7, 2, 202500, 'Finished'),
 (8, 3, 225000, 'Paid'),
-(9, 4, 0, 'Canceled');
+(9, 4, 0, 'Canceled'),
+(26, 4, NULL, 'Finished'),
+(27, 2, NULL, 'Playing'),
+(28, 1, NULL, 'Playing');
 
 -- --------------------------------------------------------
 
@@ -186,7 +205,10 @@ INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity
 (12, 4, 11, 1, 20000, 20000, NULL),
 (13, 5, 2, 1, 1000000, 1000000, NULL),
 (14, 5, 16, 2, 100000, 100000, NULL),
-(15, 5, 9, 2, 20000, 20000, NULL);
+(15, 5, 9, 2, 20000, 20000, NULL),
+(50, 26, 17, 24, 480000, 480000, NULL),
+(51, 26, 16, 30, 1500000, 1500000, NULL),
+(52, 27, 15, 10, 400000, 320000, NULL);
 
 -- --------------------------------------------------------
 
@@ -196,8 +218,24 @@ INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity
 
 CREATE TABLE `permissions` (
   `permission_id` int(11) NOT NULL,
-  `permission_name` varchar(100) NOT NULL
+  `permission_name` varchar(100) NOT NULL,
+  `description` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `permissions`
+--
+
+INSERT INTO `permissions` (`permission_id`, `permission_name`, `description`) VALUES
+(1, 'view_product', 'View products'),
+(2, 'add_product', 'Add product'),
+(3, 'edit_product', 'Edit product'),
+(4, 'delete_product', 'Remove product'),
+(5, 'stock_up_product', 'Stock up product'),
+(6, 'view_user', 'View users'),
+(7, 'add_user', 'Add user'),
+(8, 'edit_user', 'Edit user'),
+(9, 'delete_user', 'Remove user');
 
 -- --------------------------------------------------------
 
@@ -217,15 +255,15 @@ CREATE TABLE `pooltables` (
 --
 
 INSERT INTO `pooltables` (`cate_id`, `table_id`, `name`, `status`) VALUES
-(1, 1, 'Standard Pool 1', 'Playing'),
-(2, 2, 'Deluxe Pool 1', 'Ordered'),
-(3, 3, 'VIP Pool 1', 'Playing'),
-(1, 4, 'Standard Pool 2', 'Available'),
-(2, 5, 'Deluxe Pool 2', 'Available'),
-(3, 6, 'VIP Pool 2', 'Available'),
-(1, 7, 'Standard Pool 3', 'Available'),
-(2, 8, 'Deluxe Pool 3', 'Available'),
-(3, 9, 'VIP Pool 3', 'Available');
+(1, 1, 'Standard 1', 'Playing'),
+(2, 2, 'Deluxe 1', 'Ordered'),
+(3, 3, 'VIP 1', 'Playing'),
+(1, 4, 'Standard 2', 'Available'),
+(2, 5, 'Deluxe 2', 'Available'),
+(3, 6, 'VIP 2', 'Available'),
+(1, 7, 'Standard 3', 'Available'),
+(2, 8, 'Deluxe 3', 'Available'),
+(3, 9, 'VIP 3', 'Available');
 
 -- --------------------------------------------------------
 
@@ -251,7 +289,7 @@ INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `q
 (2, 'Deluxe Cue - Sale', 1, 1000000, 'Piece', 15),
 (3, 'Professional Cue - Sale', 1, 1500000, 'Piece', 10),
 (4, 'Standard Cue - Rent', 2, 50000, 'hour', 10),
-(5, 'Deluxe Cue - Rent', 2, 100000, 'hour', 10),
+(5, 'Deluxe Cue - Rent', 2, 100000, 'hour', 1),
 (6, 'Professional Cue - Rent', 2, 150000, 'hour', 10),
 (7, 'Soda', 3, 15000, 'Can', 100),
 (8, 'Juice', 3, 25000, 'Bottle', 80),
@@ -261,9 +299,9 @@ INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `q
 (12, 'Chips', 4, 20000, 'Bag', 50),
 (13, 'Nuts', 4, 30000, 'Bag', 40),
 (14, 'Popcorn', 4, 25000, 'Bag', 60),
-(15, 'Chocolate', 4, 40000, 'Bar', 30),
+(15, 'Chocolate', 4, 40000, 'Bar', 20),
 (16, 'Cookies', 4, 50000, 'Box', 25),
-(17, 'Coca Cola', 3, 20000, 'Can', 20);
+(17, 'Coca Cola', 3, 20000, 'Can', 26);
 
 -- --------------------------------------------------------
 
@@ -327,7 +365,16 @@ INSERT INTO `rent_cues` (`rent_cue_id`, `order_id`, `product_id`, `start_time`, 
 (6, 5, 6, '2025-01-04 21:00:00', '2025-01-04 22:45:00', 'Available', 1.75, 262500, 262500, NULL),
 (7, 6, 4, '2025-01-05 23:00:00', '2025-01-06 01:00:00', 'Available', 2, 100000, 100000, NULL),
 (8, 7, 5, '2025-01-07 02:00:00', '2025-01-07 03:30:00', 'Available', 1.5, 150000, 150000, NULL),
-(9, 8, 6, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 'Available', 1, 150000, 150000, NULL);
+(9, 8, 6, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 'Available', 1, 150000, 150000, NULL),
+(10, 26, 5, '2025-02-14 16:57:20', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
+(11, 26, 5, '2025-02-14 16:57:20', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
+(12, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
+(13, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
+(14, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
+(15, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
+(16, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
+(17, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
+(18, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -360,8 +407,9 @@ CREATE TABLE `roles` (
 
 INSERT INTO `roles` (`role_id`, `role_name`) VALUES
 (1, 'Admin'),
-(2, 'Receptionist'),
-(3, 'Warehouse');
+(2, 'Manager'),
+(3, 'Receptionist'),
+(4, 'Warehouse');
 
 -- --------------------------------------------------------
 
@@ -373,6 +421,31 @@ CREATE TABLE `role_permission` (
   `role_id` int(11) NOT NULL,
   `permission_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `role_permission`
+--
+
+INSERT INTO `role_permission` (`role_id`, `permission_id`) VALUES
+(1, 1),
+(1, 2),
+(1, 3),
+(1, 4),
+(1, 5),
+(1, 6),
+(1, 7),
+(1, 8),
+(1, 9),
+(2, 1),
+(2, 2),
+(2, 3),
+(2, 4),
+(2, 5),
+(3, 1),
+(3, 2),
+(3, 3),
+(4, 1),
+(4, 5);
 
 -- --------------------------------------------------------
 
@@ -394,13 +467,14 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `username`, `password`, `role_id`, `image_path`) VALUES
 (1, 'admin', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'manager.png'),
-(2, 'hieu', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'manager.png'),
-(3, 'quan', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'manager.png'),
-(4, 'manh', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'manager.png'),
-(6, 'long', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'manager.png'),
-(7, 'receptionist1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 2, 'user.png'),
-(8, 'whstaff1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 3, 'user.png'),
-(9, 'test123', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 2, 'user.png');
+(2, 'hieu', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 2, 'manager.png'),
+(3, 'quan', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 2, 'manager.png'),
+(4, 'manh', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 2, 'manager.png'),
+(6, 'long', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 2, 'manager.png'),
+(7, 'receptionist1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 3, 'user.png'),
+(8, 'whstaff1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 4, 'user.png'),
+(9, 'test123', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 3, 'user.png'),
+(10, 'test23', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 4, 'attention.png');
 
 --
 -- Indexes for dumped tables
@@ -519,7 +593,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `category`
@@ -537,25 +611,25 @@ ALTER TABLE `cate_pooltables`
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `orders_items`
 --
 ALTER TABLE `orders_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `permission_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `permission_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `pooltables`
@@ -591,13 +665,13 @@ ALTER TABLE `revenue`
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables

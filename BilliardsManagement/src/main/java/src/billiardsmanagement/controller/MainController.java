@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import src.billiardsmanagement.controller.users.UserController;
 import src.billiardsmanagement.model.TestDBConnection;
 import src.billiardsmanagement.model.User;
 
@@ -61,7 +62,9 @@ public class MainController {
 
             if (imageUrl != null) {
                 avatarImageView.setImage(new Image(imageUrl.toExternalForm()));
-            } else {
+            }
+            else
+            {
                 System.out.println("No avatar found, using default.");
                 URL defaultImageUrl = getClass().getResource("/src/billiardsmanagement/images/avatars/user.png");
                 if (defaultImageUrl != null) {
@@ -147,7 +150,25 @@ public class MainController {
     @FXML
     private void showUsersPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/users/users.fxml"));
-        AnchorPane categoryPage = loader.load();
-        contentArea.getChildren().setAll(categoryPage);
+        AnchorPane usersPage = loader.load();
+
+        // Hiển thị giao diện Users trong contentArea
+        contentArea.getChildren().setAll(usersPage);
+
+        // Lấy controller của Users và truyền MainController vào
+        UserController userController = loader.getController();
+        userController.setMainController(this);
     }
+
+
+    @FXML
+    public void showRolesPermissionsPage() throws IOException {
+        // Load giao diện Roles - Permissions từ FXML
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/users/rolesPermissions.fxml"));
+        AnchorPane rolesPermissionsPage = loader.load();
+
+        // Hiển thị trang trong contentArea
+        contentArea.getChildren().setAll(rolesPermissionsPage);
+    }
+
 }
