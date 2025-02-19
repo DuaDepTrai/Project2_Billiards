@@ -32,7 +32,6 @@
                 <TextField fx:id="autoCompleteTextField" GridPane.columnIndex="1" />
 <Button mnemonicParsing="false" onAction="#addOrder" styleClass="order-button" text="Add " GridPane.rowIndex="2" />
 
-<Button mnemonicParsing="false" onAction="#deleteOrder" styleClass="order-button" text="Delete" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 <Button mnemonicParsing="false" onAction="#addCustomer" styleClass="order-button" text="Add Customer" GridPane.rowIndex="1" />
 <Button mnemonicParsing="false" onAction="#billOrder" styleClass="order-button" text="Bill" GridPane.columnIndex="2" GridPane.rowIndex="2" />
             </children>
@@ -41,9 +40,10 @@
         <!-- TableView -->
         <TableView fx:id="orderTable" prefHeight="287.0" prefWidth="500.0" styleClass="table-view-style" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="210.0">
             <columns>
-                <TableColumn fx:id="sttColumn" styleClass="table-column-style" text="STT" />
+                <TableColumn fx:id="sttColumn" styleClass="table-column-style" text="Bill No" />
                 <TableColumn fx:id="customerNameColumn" styleClass="table-column-style" text="customer_name" />
                 <TableColumn fx:id="phoneCustomerColumn" styleClass="table-column-style" text="phone_number" />
+                <TableColumn fx:id="nameTableColumn" styleClass="table-column-style" text="table_name" />
                 <TableColumn fx:id="totalCostColumn" styleClass="table-column-style" text="cost" />
                 <TableColumn fx:id="orderStatusColumn" styleClass="table-column-style" text="status" />
             </columns>
@@ -55,3 +55,4 @@
 
     </children>
 </AnchorPane>
+

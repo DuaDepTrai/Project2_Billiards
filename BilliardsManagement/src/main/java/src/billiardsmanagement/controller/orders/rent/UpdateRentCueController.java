@@ -90,11 +90,6 @@ public class UpdateRentCueController {
 
             boolean success = RentCueDAO.updateRentCue(rentCue);
             if (success) {
-                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                successAlert.setTitle("Update Successful");
-                successAlert.setHeaderText("Promotion Updated");
-                successAlert.setContentText("The promotion for the rent cue has been successfully updated.");
-                successAlert.showAndWait();
 
                 // Close the current window after successful update
                 Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();

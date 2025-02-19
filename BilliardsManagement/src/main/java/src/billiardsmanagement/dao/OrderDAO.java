@@ -75,35 +75,51 @@ public class OrderDAO {
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
         String query = """
-                    SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone,
-                           o.total_cost, o.order_status
-                    FROM orders o
-                    JOIN customers c ON o.customer_id = c.customer_id
-                    ORDER BY o.order_id
-                """; // Câu truy vấn SQL để lấy danh sách đơn hàng (bao gồm số điện thoại khách hàng)
+    SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone,
+           o.total_cost, o.order_status,
+           GROUP_CONCAT(
+               CONCAT(
+                   CASE 
+                       WHEN p.name LIKE 'Standard Pool%' THEN 'STD' 
+                       WHEN p.name LIKE 'Deluxe Pool%' THEN 'DLX' 
+                       WHEN p.name LIKE 'VIP Pool%' THEN 'VIP' 
+                       ELSE p.name 
+                   END, 
+                   SUBSTRING_INDEX(p.name, ' ', -1)
+               ) SEPARATOR ', '
+           ) AS currentTableName
+    FROM orders o
+    JOIN customers c ON o.customer_id = c.customer_id
+    LEFT JOIN bookings b ON o.order_id = b.order_id
+    LEFT JOIN pooltables p ON b.table_id = p.table_id
+    GROUP BY o.order_id
+    ORDER BY o.order_id DESC
+""";
 
-        // Sử dụng DatabaseConnection để lấy kết nối
+
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
 
-            // Duyệt qua kết quả trả về và thêm vào danh sách orders
             while (rs.next()) {
                 Order order = new Order(
                         rs.getInt("order_id"),
                         rs.getInt("customer_id"),
                         rs.getString("customer_name"),
-                        rs.getString("customer_phone"), // Thêm phone vào đối tượng Order
+                        rs.getString("customer_phone"),
                         rs.getDouble("total_cost"),
-                        rs.getString("order_status"));
+                        rs.getString("order_status"),
+                        rs.getString("currentTableName") // Lấy danh sách bàn
+                );
                 orders.add(order);
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // In lỗi nếu có sự cố trong quá trình truy vấn
+            e.printStackTrace();
         }
 
-        return orders; // Trả về danh sách các đơn hàng
+        return orders;
     }
+
 
     public void addOrder(Order newOrder) {
         String query = "INSERT INTO orders (customer_id,order_status) VALUES ( ?, 'Playing')";

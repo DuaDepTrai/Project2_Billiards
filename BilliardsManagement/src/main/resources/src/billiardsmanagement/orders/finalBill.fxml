@@ -39,6 +39,7 @@
         <columns>
             <TableColumn fx:id="productNameColumn" text="Product Name" />
             <TableColumn fx:id="quantityColumn" text="Quantity/Hours" />
+            <TableColumn fx:id="unitColumn" text="Unit" />  <!-- Cột đơn vị tính -->
             <TableColumn fx:id="unitPriceColumn" text="Unit Price" />
             <TableColumn fx:id="totalCostColumn" text="Total Price" />
         </columns>

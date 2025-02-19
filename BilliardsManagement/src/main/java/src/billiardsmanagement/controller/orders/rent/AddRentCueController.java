@@ -153,7 +153,6 @@ public class AddRentCueController {
             }
 
             if (success) {
-                showAlert("Success", "Rent cue added successfully.");
                 closeWindow();
             } else {
                 showAlert("Error", "Failed to add rent cue.");

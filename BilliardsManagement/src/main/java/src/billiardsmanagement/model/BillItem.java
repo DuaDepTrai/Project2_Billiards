@@ -1,31 +1,18 @@
 package src.billiardsmanagement.model;
 
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-import java.time.LocalTime;
-
 public class BillItem {
-    @Override
-    public String toString() {
-        return "BillItem{" +
-
-                ", itemName=" + itemName +
-                ", quantity=" + quantity +
-                ", unitPrice=" + unitPrice +
-                ", totalPrice=" + totalPrice +
-                '}';
-    }
-
-
     private SimpleStringProperty itemName;
+    private SimpleStringProperty unit; // Đơn vị tính
     private SimpleDoubleProperty quantity;
     private SimpleDoubleProperty unitPrice;
     private SimpleDoubleProperty totalPrice;
 
-    public BillItem(String itemName, double quantity, double unitPrice, double totalPrice) {
+    public BillItem(String itemName, String unit, double quantity, double unitPrice, double totalPrice) {
         this.itemName = new SimpleStringProperty(itemName);
+        this.unit = new SimpleStringProperty(unit);
         this.quantity = new SimpleDoubleProperty(quantity);
         this.unitPrice = new SimpleDoubleProperty(unitPrice);
         this.totalPrice = new SimpleDoubleProperty(totalPrice);
@@ -33,6 +20,10 @@ public class BillItem {
 
     public String getItemName() {
         return itemName.get();
+    }
+
+    public String getUnit() {
+        return unit.get();
     }
 
     public double getQuantity() {

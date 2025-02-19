@@ -606,7 +606,10 @@ public class ForEachOrderController {
         initializeRentCueColumn();
 
         // if Finished / Paid, disable all Buttons
-        if (orderStatusText.getText().equals("Finished") || orderStatusText.getText().equals("Paid")) {
+        if (orderStatusText.getText().equals("Finished") ||
+                orderStatusText.getText().equals("Paid") ||
+                orderStatusText.getText().equals("Canceled")) {
+
             finishOrderButton.setDisable(true);
             updateBookingButton.setDisable(true);
             deleteBookingButton.setDisable(true);
@@ -634,7 +637,7 @@ public class ForEachOrderController {
 
             AddBookingController addBookingController = loader.getController();
             addBookingController.setOrderId(orderID);
-
+            addBookingController.setOrderTable(orderTable);
             Stage stage = new Stage();
             stage.setTitle("Add Booking");
             stage.setScene(new Scene(root));

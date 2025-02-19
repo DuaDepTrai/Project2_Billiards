@@ -113,6 +113,7 @@ public class Booking {
     public LocalDateTime getStartTimeBooking(){
         return startTime;
     }
+
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }

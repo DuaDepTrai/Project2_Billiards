@@ -53,6 +53,7 @@ public class AddOrderItemController {
     @FXML
     public void initialize() {
         String saleCueCategory = "Cues-sale";
+        String rentCueCategory = "Cues-rent";
         productCategoryMap = CategoryDAO.getProductAndCategoryUnitMap();
 
         productNameTrimmed = new ArrayList<>();
@@ -62,7 +63,7 @@ public class AddOrderItemController {
         for (Pair<String, Integer> s : list) {
             String str = s.getFirstValue();
             int quant = s.getSecondValue();
-            if (productCategoryMap.get(str).equalsIgnoreCase(saleCueCategory) && quant > 0) {
+            if (!productCategoryMap.get(str).equalsIgnoreCase(rentCueCategory) && quant > 0) {
                 productNameTrimmed.add(str.trim());
                 str = str + "  / "+quant+" in stock";
                 productList.add(str);
@@ -148,11 +149,7 @@ public class AddOrderItemController {
                     boolean success = OrderItemDAO.addOrderItemDuplicate(newItem);
 
                     if(success){
-                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                        alert.setTitle("Notification");
-                        alert.setHeaderText(null);
-                        alert.setContentText("An Order Item has been added successfully !");
-                        alert.showAndWait();
+
                     }
 
                     Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();

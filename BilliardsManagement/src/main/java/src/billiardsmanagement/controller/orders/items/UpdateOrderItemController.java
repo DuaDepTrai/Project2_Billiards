@@ -245,11 +245,7 @@ public class UpdateOrderItemController {
             // Update in database
             boolean success = OrderItemDAO.updateOrderItem(orderItem);
             if (success) {
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Success");
-                alert.setHeaderText("Updated Successfully:");
-                alert.setContentText("An order item has been updated successfully.");
-                alert.showAndWait();
+
 
             } else {
                 throw new Exception("Order update failed! Please try again later!");

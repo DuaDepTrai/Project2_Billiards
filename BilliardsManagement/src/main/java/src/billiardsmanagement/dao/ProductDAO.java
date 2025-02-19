@@ -409,4 +409,20 @@ public class ProductDAO {
 
         return null;
     }
+
+    public static String  getProductUnitById(int productId){
+
+        String query = "SELECT unit FROM products WHERE product_id= ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, productId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("unit");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "unit"; // Mặc định nếu không có đơn vị tính
+    }
 }

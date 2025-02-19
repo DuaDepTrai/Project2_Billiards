@@ -24,6 +24,7 @@ import java.util.*;
 
 import javafx.collections.FXCollections;
 import javafx.scene.control.cell.PropertyValueFactory;
+import src.billiardsmanagement.dao.CustomerDAO;
 import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.model.Bill;
 import src.billiardsmanagement.model.BillItem;
@@ -43,6 +44,9 @@ public class OrderController implements Initializable {
     @FXML
     private TableColumn<Order, String> phoneCustomerColumn;
     @FXML
+    private TableColumn<Order,String> nameTableColumn;
+
+    @FXML
     private TextField autoCompleteTextField;
     @FXML
     private TableView<Order> orderTable;
@@ -53,6 +57,7 @@ public class OrderController implements Initializable {
 
     private final Connection conn = DatabaseConnection.getConnection();
     private final OrderDAO orderDAO = new OrderDAO();
+    private final CustomerDAO customerDAO = new CustomerDAO();
     private final Map<String, Integer> customerNameToIdMap = new HashMap<>();
 
     public TableView<Order> getOrderTable() {
@@ -61,6 +66,8 @@ public class OrderController implements Initializable {
     @FXML
     public void addOrder(ActionEvent actionEvent) {
         try {
+            loadCustomerNameToIdMap();
+
             String customerInput = autoCompleteTextField.getText();
             if (customerInput == null || customerInput.trim().isEmpty()) {
                 throw new IllegalArgumentException("Please select a valid Customer.");
@@ -78,14 +85,12 @@ public class OrderController implements Initializable {
             int orderId = orderLastest.getOrderId();
             System.out.println(orderId);
             loadOrderList();
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Order added successfully!");// Show the Order Details screen
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Order Detail");
             stage.setScene(new Scene(root));
             stage.show();
-
             ForEachOrderController controller = loader.getController();
             controller.setOrderID(orderId); // Truyền orderId
             controller.setCustomerID(customerId);
@@ -99,9 +104,17 @@ public class OrderController implements Initializable {
         }
     }
 
-    private void loadCustomerNameToIdMap() {
+
+
+    private void loadOrderList() {
+        List<Order> orders = orderDAO.getAllOrders();
+        orderTable.setItems(FXCollections.observableArrayList(orders));
+    }
+
+
+    public void loadCustomerNameToIdMap() {
         String query = "SELECT customer_id, name, phone FROM customers";
-        try (PreparedStatement statement = conn.prepareStatement(query);
+        try (PreparedStatement statement = DatabaseConnection.getConnection().prepareStatement(query);
              ResultSet resultSet = statement.executeQuery()) {
 
             customerNameToIdMap.clear();
@@ -115,34 +128,7 @@ public class OrderController implements Initializable {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load customer data.");
         }
-    }
-
-    public void reverseLoadingOrder(){
-        loadOrderList();
-    }
-
-    private void loadOrderList() {
-        List<Order> orders = orderDAO.getAllOrders();
-        orderTable.setItems(FXCollections.observableArrayList(orders));
-    }
-
-    private List<String> fetchCustomersByPhone(String phonePrefix) {
-        List<String> customers = new ArrayList<>();
-        String query = "SELECT name, phone FROM customers WHERE phone LIKE ?";
-        try (PreparedStatement statement = conn.prepareStatement(query)) {
-            statement.setString(1, phonePrefix + "%");
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                String name = resultSet.getString("name");
-                String phone = resultSet.getString("phone");
-                customers.add(name + " - " + phone); // Định dạng giống như map
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return customers;
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
@@ -166,7 +152,7 @@ public class OrderController implements Initializable {
         customerNameColumn.setCellValueFactory(new PropertyValueFactory<>("customerName"));
         orderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("orderStatus"));
         phoneCustomerColumn.setCellValueFactory(new PropertyValueFactory<>("customerPhone"));
-
+        nameTableColumn.setCellValueFactory(new PropertyValueFactory<>("currentTableName"));
         totalCostColumn.setCellFactory(param -> new TableCell<Order, Double>() {
             private final DecimalFormat df = new DecimalFormat("#,###");
 
@@ -183,7 +169,7 @@ public class OrderController implements Initializable {
 
         autoCompleteTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty()) {
-                List<String> filteredCustomers = fetchCustomersByPhone(newValue);
+                List<String> filteredCustomers = CustomerDAO.fetchCustomersByPhone(newValue);
                 listView.getItems().setAll(filteredCustomers);
 
                 if (!filteredCustomers.isEmpty() && !popup.isShowing()) {
@@ -228,37 +214,9 @@ public class OrderController implements Initializable {
                 e.printStackTrace();
             }
         });
+
     }
 
-
-    public void deleteOrder(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Delete Confirmation");
-        alert.setHeaderText("Are you sure you want to delete this order?");
-        alert.setContentText("This action cannot be undone.");
-
-        // Hiển thị cảnh báo và chờ người dùng trả lời
-        Optional<ButtonType> result = alert.showAndWait();
-
-        // Nếu người dùng chọn OK, thực hiện xóa bản ghi
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            // Lấy ID đơn hàng hoặc thông tin cần thiết từ dòng được chọn trong TableView
-            Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
-            if (selectedOrder != null) {
-                boolean success = orderDAO.deleteOrder(selectedOrder.getOrderId());
-
-                if (success) {
-                    // Xóa thành công, làm mới bảng
-                    loadOrderList();  // Tải lại danh sách đơn hàng
-                    showAlert(Alert.AlertType.INFORMATION, "Success", "Order deleted successfully!");
-                } else {
-                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete the order.");
-                }
-            } else {
-                showAlert(Alert.AlertType.WARNING, "Warning", "No order selected.");
-            }
-        }
-    }
 
     public void addCustomer(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/addCustomer.fxml"));

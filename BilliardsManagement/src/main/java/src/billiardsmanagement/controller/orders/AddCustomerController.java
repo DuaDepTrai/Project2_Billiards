@@ -16,6 +16,7 @@ public class AddCustomerController {
 
     public void saveCustomer(ActionEvent actionEvent) {
         try {
+            CustomerDAO customerDAO = new CustomerDAO();
             // Get input from fields
             String customerName = nameField.getText();
             String customerPhone = phoneField.getText();
@@ -28,8 +29,17 @@ public class AddCustomerController {
                 throw new IllegalArgumentException("Please enter the customer's phone number.");
             }
 
+            // Validate phone number format (10 digits)
+            if (!customerPhone.matches("\\d{10}")) {
+                throw new IllegalArgumentException("Phone number must be 10 digits.");
+            }
+
+            // Check if the phone number already exists in the database
+            if (customerDAO.isPhoneExists(customerPhone)) {
+                throw new IllegalArgumentException("This phone number already exists.");
+            }
+
             // Create a Customer object
-            CustomerDAO customerDAO = new CustomerDAO();
             Customer customer = new Customer();
             customer.setName(customerName);
             customer.setPhone(customerPhone);
@@ -43,8 +53,8 @@ public class AddCustomerController {
                 throw new IllegalStateException("Failed to retrieve the customer ID after adding.");
             }
 
-            // Show success message
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Customer has been added successfully.");
+            // Show success message (optional)
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Customer added successfully!");
 
             // Close the window after saving
             Stage stage = (Stage) nameField.getScene().getWindow();
@@ -59,6 +69,7 @@ public class AddCustomerController {
             showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while saving the order. Please try again.");
         }
     }
+
 
     private void showAlert(Alert.AlertType alertType, String title, String content) {
         Alert alert = new Alert(alertType);

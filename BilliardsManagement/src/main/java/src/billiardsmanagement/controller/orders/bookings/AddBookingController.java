@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.BookingDAO;
+import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.dao.PoolTableDAO;
 import src.billiardsmanagement.model.Booking;
 import src.billiardsmanagement.model.DatabaseConnection;
@@ -47,13 +48,16 @@ public class AddBookingController implements Initializable {
     @FXML
     private Label startTimeLabel;
 
+    @FXML
+    private TableView<Order> orderTable;
+
     private Popup popup;
     private ListView<String> listView;
     private int orderID;
 
     Connection conn = DatabaseConnection.getConnection();
     private final Map<String, Integer> getTableNameToIdMap = new HashMap<>();
-
+    private final OrderDAO orderDAO = new OrderDAO();
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loadTableNameToIdMap();
@@ -183,11 +187,8 @@ public class AddBookingController implements Initializable {
             Booking newBooking = new Booking(order_id, tableId, timeStamp, bookingStatus);
             BookingDAO bookingDAO = new BookingDAO();
             bookingDAO.addBooking(newBooking);
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Success");
-            alert.setHeaderText(null);
-            alert.setContentText("Booking is successfully placed!");
-            alert.showAndWait();
+
+            loadOrderList();
 
             // Navigate back to the previous scene
             Stage currentStage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -267,6 +268,18 @@ public class AddBookingController implements Initializable {
         System.out.println("Query executed: " + query + " with name: " + name + "%");
         return tableNames;
     }
+
+    public void setOrderTable(TableView<Order> orderTable) {
+        this.orderTable = orderTable;
+    }
+
+
+    private void loadOrderList() {
+        List<Order> orders = orderDAO.getAllOrders();
+        orderTable.setItems(FXCollections.observableArrayList(orders));
+    }
+
+
 
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);

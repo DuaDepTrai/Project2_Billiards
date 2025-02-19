@@ -46,6 +46,18 @@ public class Order {
         this.customerId = customerId;
     }
 
+    public Order(int orderId, int customerId, String customerName, String customerPhone,
+                 double totalCost, String orderStatus, String currentTableName) {
+        this.orderId = orderId;
+        this.customerId = customerId;
+        this.customerName = customerName;
+        this.customerPhone = customerPhone;
+        this.totalCost = totalCost;
+        this.orderStatus = orderStatus;
+        this.currentTableName = currentTableName; // Gán giá trị danh sách bàn
+    }
+
+
     // Getters and Setters
     public int getOrderId() {
         return orderId;

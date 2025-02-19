@@ -39,6 +39,8 @@ public class PaymentController {
     @FXML
     private TableColumn<BillItem, Double> quantityColumn;
     @FXML
+    private TableColumn<BillItem, String> unitColumn;
+    @FXML
     private TableColumn<BillItem, Double> unitPriceColumn;
     @FXML
     private TableColumn<BillItem, Double> totalCostColumn;
@@ -88,7 +90,7 @@ public class PaymentController {
                 new SimpleObjectProperty<>(cellData.getValue().getUnitPrice()));
         totalCostColumn.setCellValueFactory(cellData ->
                 new SimpleObjectProperty<>(cellData.getValue().getTotalPrice()));
-
+        unitColumn.setCellValueFactory(new PropertyValueFactory<>("unit"));
         billTable.setItems(BillService.getBillItems(this.orderID));
     }
 
