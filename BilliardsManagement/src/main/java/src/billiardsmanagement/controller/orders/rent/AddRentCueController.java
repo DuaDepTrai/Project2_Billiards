@@ -1,11 +1,8 @@
 package src.billiardsmanagement.controller.orders.rent;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.util.converter.IntegerStringConverter;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.dao.CategoryDAO;
@@ -14,6 +11,8 @@ import src.billiardsmanagement.dao.PromotionDAO;
 import src.billiardsmanagement.dao.RentCueDAO;
 import src.billiardsmanagement.model.Pair;
 import src.billiardsmanagement.model.RentCue;
+import src.billiardsmanagement.model.NotificationService;
+import src.billiardsmanagement.model.NotificationStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,7 +26,6 @@ public class AddRentCueController {
     protected TextField productNameAutoCompleteText;
     private AutoCompletionBinding<String> productNameAutoBinding;
     protected ArrayList<String> productNameTrimmed;
-
 
     @FXML
     protected TextField promotionNameAutoCompleteText;
@@ -51,15 +49,15 @@ public class AddRentCueController {
         for (Pair<String, Integer> s : list) {
             String str = s.getFirstValue();
             int quant = s.getSecondValue();
-            if(productCategoryMap.get(str).equalsIgnoreCase(rentCueCategory) && quant>0){
+            if (productCategoryMap.get(str).equalsIgnoreCase(rentCueCategory) && quant > 0) {
                 productNameTrimmed.add(str);
-                str = str + "  / "+quant+" in stock";
+                str = str + "  / " + quant + " in stock";
                 productList.add(str);
             }
         }
 
         AutoCompletionBinding<String> productNameAutoBinding = TextFields.bindAutoCompletion(productNameAutoCompleteText, productList);
-        HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText,productNameTrimmed);
+        HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText, productNameTrimmed);
         productNameAutoBinding.setVisibleRowCount(7);
         productNameAutoBinding.setHideOnEscape(true);
 
@@ -74,12 +72,11 @@ public class AddRentCueController {
         }
 
         AutoCompletionBinding<String> promotionNameAutoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
-        HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText,promotionNameTrimmed);
+        HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText, promotionNameTrimmed);
         promotionNameAutoBinding.setHideOnEscape(true);
         promotionNameAutoBinding.setVisibleRowCount(7);
 
         quantityTextField.setText("1");
-
     }
 
     @FXML
@@ -91,18 +88,18 @@ public class AddRentCueController {
             String quantityStr = quantityTextField.getText().trim();
 
             if (productName.isBlank()) {
-                showAlert("Validation Error", "Please select a product.");
+                NotificationService.showNotification("Validation Error", "Please select a product.", NotificationStatus.Error);
                 return;
             }
-            if(!productNameTrimmed.contains(productName)){
-                showAlert("Product Error", "The product name you provided is not found !");
+            if (!productNameTrimmed.contains(productName)) {
+                NotificationService.showNotification("Product Error", "The product name you provided is not found!", NotificationStatus.Error);
                 return;
             }
 
             int quantity;
-            if (quantityStr.isBlank())
+            if (quantityStr.isBlank()) {
                 quantity = 1;
-            else {
+            } else {
                 try {
                     quantity = Integer.parseInt(quantityStr);
                 } catch (Exception e) {
@@ -113,12 +110,12 @@ public class AddRentCueController {
             // Get product quantity from database
             Integer availableQuantity = ProductDAO.getProductQuantityByName(productName);
             if (availableQuantity == null) {
-                showAlert("Error", "Unable to retrieve product quantity.");
+                NotificationService.showNotification("Error", "Unable to retrieve product quantity.", NotificationStatus.Error);
                 return;
             }
 
             if (quantity > availableQuantity) {
-                showAlert("Error", "Requested quantity exceeds available stock.");
+                NotificationService.showNotification("Error", "Requested quantity exceeds available stock.", NotificationStatus.Error);
                 return;
             }
 
@@ -127,7 +124,7 @@ public class AddRentCueController {
             Integer promotionId = !promotionName.isEmpty() ? PromotionDAO.getPromotionIdByName(promotionName) : null;
 
             if (productId == null) {
-                showAlert("Error", "Product ID not found.");
+                NotificationService.showNotification("Error", "Product ID not found.", NotificationStatus.Error);
                 return;
             }
 
@@ -145,34 +142,25 @@ public class AddRentCueController {
                     rentCue.setPromotionId(-1);
                 }
 
-                // dispatchItem after let people renting
-                // Add rent cue to database
                 success = RentCueDAO.addRentCue(rentCue) && ProductDAO.dispatchItem(productName, 1);
-                if (!success)
-                    throw new Exception("Database connection error. Try again later !");
+                if (!success) {
+                    throw new Exception("Database connection error. Try again later!");
+                }
             }
 
             if (success) {
+                NotificationService.showNotification("Success", "Rent cue added successfully!", NotificationStatus.Success);
                 closeWindow();
             } else {
-                showAlert("Error", "Failed to add rent cue.");
+                NotificationService.showNotification("Error", "Failed to add rent cue.", NotificationStatus.Error);
             }
 
         } catch (IllegalArgumentException illegal) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error !");
-            alert.setHeaderText(illegal.getMessage());
-            alert.setContentText(illegal.getMessage());
-            alert.showAndWait();
+            NotificationService.showNotification("Error", illegal.getMessage(), NotificationStatus.Error);
         } catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error !");
-            alert.setHeaderText(e.getMessage());
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            NotificationService.showNotification("Error", e.getMessage(), NotificationStatus.Error);
         }
     }
-
 
     public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text, ArrayList<String> trimmedList) {
         auto.setOnAutoCompleted(autoCompletionEvent -> {
@@ -185,24 +173,16 @@ public class AddRentCueController {
                 auto.setUserInput(" ");
                 return;
             }
-            if(!newValue){
+            if (!newValue) {
                 String input = text.getText();
-                input = input==null ? "" : input.trim();
-                if(input.isBlank() || !trimmedList.contains(input)){
+                input = input == null ? "" : input.trim();
+                if (input.isBlank() || !trimmedList.contains(input)) {
                     text.setText("");
+                } else {
+                    text.setText(input);
                 }
-                else text.setText(input);
             }
         });
-    }
-
-
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
     }
 
     @FXML
@@ -219,4 +199,3 @@ public class AddRentCueController {
         this.orderID = orderID;
     }
 }
-

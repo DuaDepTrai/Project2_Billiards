@@ -6,7 +6,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -25,6 +24,8 @@ import src.billiardsmanagement.dao.PromotionDAO;
 import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.model.OrderItem;
 import src.billiardsmanagement.model.Pair;
+import src.billiardsmanagement.model.NotificationService;
+import src.billiardsmanagement.model.NotificationStatus;
 
 import java.sql.*;
 import java.util.*;
@@ -41,7 +42,6 @@ public class AddOrderItemController {
 
     private int orderId;
     private int promotionId;
-
 
     @FXML
     private TextField quantityTextField;
@@ -71,13 +71,9 @@ public class AddOrderItemController {
         }
 
         AutoCompletionBinding<String> productNameAutoBinding = TextFields.bindAutoCompletion(productNameAutoCompleteText, productList);
-        HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText,productNameTrimmed);
+        HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText, productNameTrimmed);
         productNameAutoBinding.setVisibleRowCount(7);
         productNameAutoBinding.setHideOnEscape(true);
-        // productNameAutoBinding.setOnAutoCompleted(event -> {
-        //     String input = event.getCompletion().split("/")[0].trim();
-        //     productNameAutoCompleteText.setText(input);
-        // });
 
         promotionNameTrimmed = new ArrayList<>();
         ArrayList<String> pList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
@@ -89,7 +85,7 @@ public class AddOrderItemController {
                 promotionList.add(s);
             }
             AutoCompletionBinding<String> promotionNameAutoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
-            HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText,promotionNameTrimmed);
+            HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText, promotionNameTrimmed);
             promotionNameAutoBinding.setHideOnEscape(true);
             promotionNameAutoBinding.setVisibleRowCount(7);
         }
@@ -97,19 +93,17 @@ public class AddOrderItemController {
         quantityTextField.setText("1");
     }
 
-
     @FXML
     public void saveOrderItem(ActionEvent event) {
         try {
-
             if (!(orderId > 0))
                 throw new Exception("Error: Order not found ! Please try again.");
 
             String selectedProductName = productNameAutoCompleteText.getText().isBlank() ? "" : productNameAutoCompleteText.getText().trim();
 
-            if(selectedProductName.isBlank()) throw new IllegalArgumentException("Please select a product !");
+            if (selectedProductName.isBlank()) throw new IllegalArgumentException("Please select a product !");
 
-            if(!productNameTrimmed.contains(selectedProductName)) throw new IllegalArgumentException("The product with name "+selectedProductName+" cannot be found !");
+            if (!productNameTrimmed.contains(selectedProductName)) throw new IllegalArgumentException("The product with name " + selectedProductName + " cannot be found !");
 
             Pair<Integer, Double> productPair = ProductDAO.getProductIdAndPriceByName(selectedProductName);
             if (productPair == null)
@@ -121,12 +115,13 @@ public class AddOrderItemController {
             int quantity;
             try {
                 quantity = Integer.parseInt(quantityTextField.getText().trim());
-                if(quantity>ProductDAO.getProductQuantityByName(selectedProductName)){
+                if (quantity > ProductDAO.getProductQuantityByName(selectedProductName)) {
                     throw new IllegalArgumentException("The quantity you selected exceeds the available stock; please choose a smaller amount.");
                 }
             } catch (NumberFormatException e) {
                 throw new RuntimeException(e);
             }
+
             // Check duplicate Order Item
             for (OrderItem orderItem : OrderItemDAO.getForEachOrderItem(orderId)) {
                 if (orderItem.getProductId() == productId) {
@@ -134,7 +129,6 @@ public class AddOrderItemController {
                     newItem.setOrderId(orderId);
                     newItem.setOrderItemId(orderItem.getOrderItemId());
                     newItem.setQuantity(orderItem.getQuantity() + quantity);
-                    System.out.println("new Quant = "+newItem.getQuantity());
                     newItem.setProductId(orderItem.getProductId());
 
                     ProductDAO.dispatchItem(orderItem.getProductName(), quantity);
@@ -148,8 +142,8 @@ public class AddOrderItemController {
 
                     boolean success = OrderItemDAO.addOrderItemDuplicate(newItem);
 
-                    if(success){
-
+                    if (success) {
+                        NotificationService.showNotification("Success", "An Order Item has been added successfully!", NotificationStatus.Information);
                     }
 
                     Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();
@@ -179,26 +173,14 @@ public class AddOrderItemController {
             ProductDAO.dispatchItem(selectedProductName, quantity);
             OrderItemDAO.addOrderItem(orderItem);
 
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Notification");
-            alert.setHeaderText(null);
-            alert.setContentText("An Order Item has been added successfully !");
-            alert.showAndWait();
+            NotificationService.showNotification("Success", "An Order Item has been added successfully!", NotificationStatus.Information);
 
             Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();
             stage.close();
         } catch (IllegalArgumentException illegal) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error !");
-            alert.setHeaderText(illegal.getMessage());
-            alert.setContentText(illegal.getMessage());
-            alert.showAndWait();
+            NotificationService.showNotification("Error", illegal.getMessage(), NotificationStatus.Error);
         } catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error !");
-            alert.setHeaderText(e.getMessage());
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            NotificationService.showNotification("Error", e.getMessage(), NotificationStatus.Error);
         }
     }
 
@@ -213,13 +195,12 @@ public class AddOrderItemController {
                 auto.setUserInput(" ");
                 return;
             }
-            if(!newValue){
+            if (!newValue) {
                 String input = text.getText();
-                input = input==null ? "" : input.trim();
-                if(input.isBlank() || !trimmedList.contains(input)){
+                input = input == null ? "" : input.trim();
+                if (input.isBlank() || !trimmedList.contains(input)) {
                     text.setText("");
-                }
-                else text.setText(input);
+                } else text.setText(input);
             }
         });
     }

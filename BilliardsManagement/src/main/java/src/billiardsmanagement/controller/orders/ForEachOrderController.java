@@ -205,7 +205,7 @@ public class ForEachOrderController {
             loadOrderDetail();
             loadRentCue();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Invalid Order ID", "The provided Order ID is invalid.");
+            NotificationService.showNotification("Invalid Order ID", "The provided Order ID is invalid.",NotificationStatus.Error);
         }
     }
 
@@ -627,7 +627,7 @@ public class ForEachOrderController {
 
     public void addBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            NotificationService.showNotification("Error!","Cannot add booking with status Paid",NotificationStatus.Error);
             return;
         }
         try {
@@ -645,36 +645,35 @@ public class ForEachOrderController {
 
             loadBookings();
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load Add Booking form.");
+            NotificationService.showNotification("Error!","Cannot add Load Booking form !",NotificationStatus.Error);
         }
     }
 
     public void updateBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            NotificationService.showNotification("Error!","Cannot add booking with status Paid",NotificationStatus.Error);
             return;
         }
         // Lấy booking được chọn
         Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
-        System.out.println("Status Booking: " + (selectedBooking.getBookingStatus()==null ? "Booking Status = null" : selectedBooking.getBookingStatus()));
         // Kiểm tra xem có booking nào được chọn không
         if (selectedBooking == null) {
-            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a booking to update.");
+            NotificationService.showNotification("You haven't choose a Booking.","Please select a Booking !",NotificationStatus.Warning);
             return;
         }
 
         // Kiểm tra trạng thái booking
         if ("Finish".equals(selectedBooking.getBookingStatus())) {
             System.out.println("Status finish");
-            showAlert(Alert.AlertType.WARNING, "Can't Update Status",
-                    "Cannot update the status of a booking that is already finished.");
+            NotificationService.showNotification("Can't Update Status",
+                    "Cannot update the status of a booking that is already finished.",NotificationStatus.Error);
             return;
         }
 
         if ("Playing".equals(selectedBooking.getBookingStatus())) {
             System.out.println("Status playing");
-            showAlert(Alert.AlertType.WARNING, "Can't Update Status",
-                    "Cannot update the status of a booking that is already finished.");
+            NotificationService.showNotification("Can't Update Status",
+                    "Cannot update the status of a booking that is already finished.",NotificationStatus.Error);
             return;
         }
 
@@ -693,34 +692,34 @@ public class ForEachOrderController {
 
             // Kiểm tra kết quả cập nhật và hiển thị thông báo
             if (updateSuccess) {
-                showAlert(Alert.AlertType.INFORMATION, "Start Playing Successful",
-                        "Start playing on this table successfully.");
+                NotificationService.showNotification("Start Playing Successful",
+                        "Start playing on this table successfully.",NotificationStatus.Success);
                 loadBookings(); // Tải lại danh sách booking sau khi cập nhật
             } else {
-                showAlert(Alert.AlertType.ERROR, "Update Failed",
-                        "Failed to update the booking status. Please try again.");
+                NotificationService.showNotification("Update Failed",
+                        "Failed to update the booking status. Please try again.",NotificationStatus.Error);
             }
         }
     }
 
     public void deleteBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            NotificationService.showNotification("Error", "Cannot add booking with status 'Paid'.",NotificationStatus.Error);
             return;
         }
         Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
 
         if (selectedBooking == null) {
-            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a booking to delete.");
+            NotificationService.showNotification("No Selection", "Please select a booking to delete.",NotificationStatus.Error);
             return;
         }
         if (selectedBooking.getBookingStatus().equals("Finish")) {
-            showAlert(Alert.AlertType.WARNING, "Can't Delete", "Bookings marked as 'finish' cannot be deleted.");
+            NotificationService.showNotification("Can't Delete", "Bookings marked as 'finish' cannot be deleted",NotificationStatus.Error);
             return;
         }
 
         if (selectedBooking.getBookingStatus().equals("Playing")) {
-            showAlert(Alert.AlertType.WARNING, "Can't Delete", "Bookings marked as 'playing' cannot be deleted.");
+            NotificationService.showNotification("Can't Delete", "Bookings marked as 'playing' cannot be deleted.",NotificationStatus.Error);
             return;
         }
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -734,26 +733,19 @@ public class ForEachOrderController {
             boolean success = bookingDAO.deleteBooking(selectedBooking.getBookingId());
 
             if (success) {
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Booking deleted successfully.");
+                NotificationService.showNotification("Success", "Booking deleted successfully.",NotificationStatus.Success);
                 loadBookings();
             } else {
-                showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete the booking.");
+                NotificationService.showNotification("Error", "Failed to delete the booking.",NotificationStatus.Error);
             }
         }
     }
 
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
     public void addOrderItem(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error",
-                    "You cannot make any changes in this order as it has already been paid.");
+            NotificationService.showNotification("Error",
+                    "You cannot make any changes in this order as it has already been paid.",
+                    NotificationStatus.Error);
             return;
         }
         try {
@@ -771,24 +763,23 @@ public class ForEachOrderController {
             loadOrderDetail();
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load Add Booking form.");
+            NotificationService.showNotification("Error", "Failed to load Add Booking form.", NotificationStatus.Error);
         }
     }
 
     public void updateOrderItem(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error",
-                    "You cannot make any changes in this order as it has already been paid.");
+            NotificationService.showNotification("Error",
+                    "You cannot make any changes in this order as it has already been paid.",
+                    NotificationStatus.Error);
             return;
         }
 
         OrderItem selectedItem = orderItemsTable.getSelectionModel().getSelectedItem();
         if (selectedItem == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("You haven't selected any item to edit!");
-            alert.showAndWait();
+            NotificationService.showNotification("Error",
+                    "You haven't selected any item to edit!",
+                    NotificationStatus.Error);
             return;
         }
 
@@ -811,13 +802,18 @@ public class ForEachOrderController {
             loadOrderDetail();
         } catch (Exception e) {
             e.printStackTrace();
+            NotificationService.showNotification("Error",
+                    "Failed to load Update Order Item form.",
+                    NotificationStatus.Error);
         }
     }
 
+
     public void deleteOrderItem() {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error",
-                    "You cannot make any changes in this order as it has already been paid.");
+            NotificationService.showNotification("Error",
+                    "You cannot make any changes in this order as it has already been paid.",
+                    NotificationStatus.Error);
             return;
         }
         try {
@@ -826,7 +822,9 @@ public class ForEachOrderController {
 
             // Check if an item is selected
             if (selectedItem == null) {
-                showAlert(Alert.AlertType.WARNING, "Warning", "You haven't selected an item to delete!");
+                NotificationService.showNotification("Warning",
+                        "You haven't selected an item to delete!",
+                        NotificationStatus.Warning);
                 return;
             }
 
@@ -850,21 +848,27 @@ public class ForEachOrderController {
                     loadOrderDetail();
 
                     // Show success message
-                    showAlert(Alert.AlertType.INFORMATION, "Success", "Item has been removed from the order!");
+                    NotificationService.showNotification("Success",
+                            "Item has been removed from the order!",
+                            NotificationStatus.Success);
                 } else {
                     // Show error if deletion fails
-                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete item. Please try again!");
+                    NotificationService.showNotification("Error",
+                            "Failed to delete item. Please try again!",
+                            NotificationStatus.Error);
                 }
             }
         } catch (Exception e) {
             // Handle any unexpected errors
-            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred: " + e.getMessage());
+            NotificationService.showNotification("Error",
+                    "An error occurred: " + e.getMessage(),
+                    NotificationStatus.Error);
         }
     }
 
+
     // Rent Cue Functions
     public void addRentCue(ActionEvent event) {
-
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/src/billiardsmanagement/orders/rent/addRentCue.fxml"));
@@ -887,8 +891,9 @@ public class ForEachOrderController {
     @FXML
     public void updateRentCue(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error",
-                    "You cannot make any changes in this order as it has already been paid.");
+            NotificationService.showNotification("Error",
+                    "You cannot make any changes in this order as it has already been paid.",
+                    NotificationStatus.Error);
             return;
         }
         try {
@@ -896,13 +901,16 @@ public class ForEachOrderController {
             RentCue selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
 
             if (selectedItem == null) {
-                showAlert(Alert.AlertType.WARNING, "Warning", "You haven't selected an item to edit!");
+                NotificationService.showNotification("Warning",
+                        "You haven't selected an item to edit!",
+                        NotificationStatus.Warning);
                 return;
             }
 
             if (selectedItem.getStatus().equals(RentCueStatus.Available)) {
-                showAlert(Alert.AlertType.WARNING, "Warning",
-                        "This Cue Rental has already been returned. You cannot edit this !");
+                NotificationService.showNotification("Warning",
+                        "This Cue Rental has already been returned. You cannot edit this!",
+                        NotificationStatus.Warning);
                 return;
             }
 
@@ -928,30 +936,36 @@ public class ForEachOrderController {
             }
 
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to open edit rent cue window: " + e.getMessage());
+            NotificationService.showNotification("Error",
+                    "Failed to open edit rent cue window: " + e.getMessage(),
+                    NotificationStatus.Error);
         }
     }
 
     @FXML
     public void deleteRentCue(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error",
-                    "You cannot make any changes in this order as it has already been paid.");
+            NotificationService.showNotification("Error",
+                    "You cannot make any changes in this order as it has already been paid.",
+                    NotificationStatus.Error);
             return;
         }
 
         try {
             // Get the selected rent cue from the table
-            RentCue selectedItem = (RentCue) rentCueTable.getSelectionModel().getSelectedItem();
+            RentCue selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
 
             if (selectedItem == null) {
-                showAlert(Alert.AlertType.WARNING, "Warning", "You haven't selected an item to delete!");
+                NotificationService.showNotification("Warning",
+                        "You haven't selected an item to delete!",
+                        NotificationStatus.Warning);
                 return;
             }
 
             if (selectedItem.getStatus().equals(RentCueStatus.Available)) {
-                showAlert(Alert.AlertType.WARNING, "Warning",
-                        "You cannot delete this Cue Rental ; it has already been returned.");
+                NotificationService.showNotification("Warning",
+                        "You cannot delete this Cue Rental; it has already been returned.",
+                        NotificationStatus.Warning);
                 return;
             }
 
@@ -971,20 +985,28 @@ public class ForEachOrderController {
                     rentCueTable.getItems().remove(selectedItem);
 
                     // Show success message
-                    showAlert(Alert.AlertType.INFORMATION, "Success", "Rent cue has been deleted!");
+                    NotificationService.showNotification("Success",
+                            "Rent cue has been deleted!",
+                            NotificationStatus.Success);
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete rent cue. Please try again.");
+                    NotificationService.showNotification("Error",
+                            "Failed to delete rent cue. Please try again.",
+                            NotificationStatus.Error);
                 }
             }
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete item: " + e.getMessage());
+            NotificationService.showNotification("Error",
+                    "Failed to delete item: " + e.getMessage(),
+                    NotificationStatus.Error);
         }
     }
 
     @FXML
     public void endCueRental(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            NotificationService.showNotification("Error",
+                    "Cannot add booking with status 'Paid'.",
+                    NotificationStatus.Error);
             return;
         }
 
@@ -993,13 +1015,16 @@ public class ForEachOrderController {
             RentCue selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
 
             if (selectedItem == null) {
-                showAlert(Alert.AlertType.WARNING, "Warning", "You haven't selected a rent cue to end!");
+                NotificationService.showNotification("Warning",
+                        "You haven't selected a rent cue to end!",
+                        NotificationStatus.Warning);
                 return;
             }
 
             if (selectedItem.getStatus().equals(RentCueStatus.Available)) {
-                showAlert(Alert.AlertType.WARNING, "Warning",
-                        "This Cue Rental has already been returned. You cannot return it again !");
+                NotificationService.showNotification("Warning",
+                        "This Cue Rental has already been returned. You cannot return it again!",
+                        NotificationStatus.Warning);
                 return;
             }
 
@@ -1011,7 +1036,7 @@ public class ForEachOrderController {
 
             Optional<ButtonType> result = confirmAlert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                // Calculate end time and timeplayed
+                // Calculate end time and time played
                 boolean updateSuccess = finishEachCueRental(selectedItem);
 
                 if (updateSuccess) {
@@ -1019,18 +1044,23 @@ public class ForEachOrderController {
                     loadRentCue();
 
                     // Show success message
-                    showAlert(Alert.AlertType.INFORMATION, "Success", "Cue rental has been successfully ended!");
-
-                    // đã xử lí update quantity ở dưới
+                    NotificationService.showNotification("Success",
+                            "Cue rental has been successfully ended!",
+                            NotificationStatus.Success);
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to end rent cue rental. Please try again.");
+                    NotificationService.showNotification("Error",
+                            "Failed to end rent cue rental. Please try again.",
+                            NotificationStatus.Error);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to end rent cue rental: " + e.getMessage());
+            NotificationService.showNotification("Error",
+                    "Failed to end rent cue rental: " + e.getMessage(),
+                    NotificationStatus.Error);
         }
     }
+
 
     // finishEachCueRental
     public boolean finishEachCueRental(RentCue selectedItem) {
@@ -1081,31 +1111,37 @@ public class ForEachOrderController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to update product quantity: " + e.getMessage());
+            NotificationService.showNotification("Error", "Failed to update product quantity: " + e.getMessage(),NotificationStatus.Error);
         }
     }
 
     public void stopBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Cannot add booking with status 'Paid'.");
+            NotificationService.showNotification("Error",
+                    "Cannot add booking with status 'Paid'.",
+                    NotificationStatus.Error);
             return;
         }
 
         Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
         if (selectedBooking == null) {
-            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a booking to update.");
+            NotificationService.showNotification("Warning",
+                    "Please select a booking to update.",
+                    NotificationStatus.Warning);
             return;
         }
 
         String bookingStatus = selectedBooking.getBookingStatus();
         if (bookingStatus.equalsIgnoreCase("Order")) {
-            showAlert(Alert.AlertType.WARNING, "Can't Stop",
-                    "This booking is in Order Status. You cannot end this booking!");
+            NotificationService.showNotification("Warning",
+                    "This booking is in 'Order' status. You cannot end this booking!",
+                    NotificationStatus.Warning);
             return;
         }
         if (bookingStatus.equalsIgnoreCase("Finish")) {
-            showAlert(Alert.AlertType.WARNING, "Can't Stop",
-                    "This booking has already finished. You cannot end this booking!");
+            NotificationService.showNotification("Warning",
+                    "This booking has already finished. You cannot end this booking!",
+                    NotificationStatus.Warning);
             return;
         }
 
@@ -1122,16 +1158,23 @@ public class ForEachOrderController {
             try {
                 boolean success = BookingDAO.stopBooking(bookingId, startTime, poolTableId);
                 if (success) {
-                    showAlert(Alert.AlertType.INFORMATION, "Booking Stopped", "Booking has been stopped and updated.");
+                    NotificationService.showNotification("Success",
+                            "Booking has been stopped and updated.",
+                            NotificationStatus.Success);
                     loadBookings();
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to stop booking due to invalid data.");
+                    NotificationService.showNotification("Error",
+                            "Failed to stop booking due to invalid data.",
+                            NotificationStatus.Error);
                 }
             } catch (SQLException e) {
-                showAlert(Alert.AlertType.ERROR, "Error", "Failed to stop booking: " + e.getMessage());
+                NotificationService.showNotification("Error",
+                        "Failed to stop booking: " + e.getMessage(),
+                        NotificationStatus.Error);
             }
         }
     }
+
 
     public void checkBookingStatus() {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID); // Lấy danh sách booking
@@ -1178,63 +1221,77 @@ public class ForEachOrderController {
 
     public void finishOrder(ActionEvent event) {
         if (orderStatusText.getText().equals("Finished")) {
-            showAlert(Alert.AlertType.ERROR, "Error",
-                    "This order has already been finished. You cannot finish it again !");
+            NotificationService.showNotification("Error",
+                    "This order has already been finished. You cannot finish it again!",
+                    NotificationStatus.Error);
             return;
         }
-        ObservableList<Booking> bookingList = bookingPoolTable.getItems();
-        for (Booking booking : bookingList) {
-            if (booking != null && "Order".equals(booking.getBookingStatus())) {
-                showAlert(Alert.AlertType.ERROR, "Error", "This booking is order, you can't finish.");
-                return;
-            }
+
+        // Kiểm tra nếu có booking nào đang ở trạng thái "Order"
+        boolean hasPendingBookings = bookingPoolTable.getItems().stream()
+                .anyMatch(booking -> "Order".equals(booking.getBookingStatus()));
+
+        if (hasPendingBookings) {
+            NotificationService.showNotification("Error",
+                    "There are pending bookings in 'Order' status. Please complete them before finishing the order.",
+                    NotificationStatus.Error);
+            return;
         }
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Finish Order");
-        alert.setHeaderText("Do you want to finish this order ?");
-        alert.setContentText(
-                "This action will mark the order as finished. All bookings and rent cues will be finished.");
-        Optional<ButtonType> result = alert.showAndWait();
+        // Hiển thị xác nhận trước khi hoàn tất đơn hàng
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Finish Order");
+        confirmationAlert.setHeaderText("Are you sure you want to finish this order?");
+        confirmationAlert.setContentText("This will mark the order as finished and finalize all bookings and rentals.");
 
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        Optional<ButtonType> result = confirmationAlert.showAndWait();
+        if (result.isEmpty() || result.get() != ButtonType.OK) {
+            return;
+        }
+
+        try {
             boolean finishAllSuccess = RentCueDAO.endAllCueRentals(this.orderID, rentCueList)
-                    && BookingDAO.finishOrder(this.orderID) && ProductDAO.replenishMultipleItems(rentCueList);
+                    && BookingDAO.finishOrder(this.orderID)
+                    && ProductDAO.replenishMultipleItems(rentCueList);
+
             if (!finishAllSuccess) {
-                // Show fail alert
-                showAlert(Alert.AlertType.ERROR, "Finish All Error",
-                        "Unexpected error happen when trying to finish this order. Please try again later !");
+                NotificationService.showNotification("Error",
+                        "An error occurred while finalizing the order. Please try again later.",
+                        NotificationStatus.Error);
                 return;
             }
-            // Update both : status = Finished + update total price
-            try {
-                double totalCost = OrderDAO.calculateOrderTotal(orderID);
-                boolean success = OrderDAO.updateOrderStatus(orderID, totalCost);
-                System.out.println("Total cost = "+totalCost);
-                System.out.println("Success = "+success);
-                if (success) {
-                    System.out.println("Order total cost updated successfully!");
 
-                    // Thông báo thanh toán thành công
-                    showAlert(Alert.AlertType.INFORMATION, "Payment Successful",
-                            "The payment has been completed successfully!");
+            // Cập nhật trạng thái đơn hàng và tổng tiền
+            double totalCost = OrderDAO.calculateOrderTotal(orderID);
+            boolean success = OrderDAO.updateOrderStatus(orderID, totalCost);
 
-                    // Đóng cửa sổ hiện tại sau khi cập nhật thành công
-                    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                    stage.close();
+            if (success) {
+                System.out.println("Order total cost updated successfully: $" + totalCost);
 
-                    // Cập nhật giao diện sau khi thanh toán (giả sử bạn có phương thức để làm điều
-                    // này)
-                    loadOrderList(); // Gọi lại phương thức cập nhật giao diện
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                showAlert(Alert.AlertType.ERROR, "Finish Order Failed", "An unexpected error happens when finishing this order. Please try again later.");
+                // Thông báo thanh toán thành công
+                NotificationService.showNotification("Success",
+                        "The order has been successfully finished! Total cost: $" + totalCost,
+                        NotificationStatus.Success);
+
+                // Đóng cửa sổ hiện tại
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.close();
+
+                // Cập nhật danh sách đơn hàng
+                loadOrderList();
+            } else {
+                NotificationService.showNotification("Error",
+                        "Failed to finalize the order. Please check the data and try again.",
+                        NotificationStatus.Error);
             }
-        } else {
-            return;
+        } catch (Exception e) {
+            e.printStackTrace();
+            NotificationService.showNotification("Error",
+                    "Unexpected error: " + e.getMessage(),
+                    NotificationStatus.Error);
         }
     }
+
 
     // Giả sử bạn có phương thức refreshOrderDetails để cập nhật giao diện
 

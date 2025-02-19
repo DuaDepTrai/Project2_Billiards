@@ -26,10 +26,7 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.cell.PropertyValueFactory;
 import src.billiardsmanagement.dao.CustomerDAO;
 import src.billiardsmanagement.dao.OrderDAO;
-import src.billiardsmanagement.model.Bill;
-import src.billiardsmanagement.model.BillItem;
-import src.billiardsmanagement.model.DatabaseConnection;
-import src.billiardsmanagement.model.Order;
+import src.billiardsmanagement.model.*;
 
 public class OrderController implements Initializable {
 
@@ -51,7 +48,6 @@ public class OrderController implements Initializable {
     @FXML
     private TableView<Order> orderTable;
 
-
     private Popup popup;
     private ListView<String> listView;
 
@@ -63,6 +59,7 @@ public class OrderController implements Initializable {
     public TableView<Order> getOrderTable() {
         return orderTable;
     }
+
     @FXML
     public void addOrder(ActionEvent actionEvent) {
         try {
@@ -73,7 +70,7 @@ public class OrderController implements Initializable {
                 throw new IllegalArgumentException("Please select a valid Customer.");
             }
 
-            Integer customerId = customerNameToIdMap.get(customerInput); // Tìm theo format mới
+            Integer customerId = customerNameToIdMap.get(customerInput);
             if (customerId == null) {
                 throw new IllegalArgumentException("Customer not found: " + customerInput);
             }
@@ -92,51 +89,39 @@ public class OrderController implements Initializable {
             stage.setScene(new Scene(root));
             stage.show();
             ForEachOrderController controller = loader.getController();
-            controller.setOrderID(orderId); // Truyền orderId
+            controller.setOrderID(orderId);
             controller.setCustomerID(customerId);
             controller.setOrderTable(orderTable);
             controller.initializeAllTables();
         } catch (IllegalArgumentException e) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error", e.getMessage());
+            NotificationService.showNotification("Validation Error", e.getMessage(), NotificationStatus.Error);
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while saving the order. Please try again.");
+            NotificationService.showNotification("Error", "An error occurred while saving the order. Please try again.", NotificationStatus.Error);
         }
     }
-
-
 
     private void loadOrderList() {
         List<Order> orders = orderDAO.getAllOrders();
         orderTable.setItems(FXCollections.observableArrayList(orders));
     }
 
-
     public void loadCustomerNameToIdMap() {
         String query = "SELECT customer_id, name, phone FROM customers";
         try (PreparedStatement statement = DatabaseConnection.getConnection().prepareStatement(query);
-             ResultSet resultSet = statement.executeQuery()) {
+                ResultSet resultSet = statement.executeQuery()) {
 
             customerNameToIdMap.clear();
             while (resultSet.next()) {
                 int id = resultSet.getInt("customer_id");
                 String name = resultSet.getString("name");
                 String phone = resultSet.getString("phone");
-                String key = name + " - " + phone; // Tạo key với cả tên và số điện thoại
+                String key = name + " - " + phone;
                 customerNameToIdMap.put(key, id);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 
     @Override
@@ -192,18 +177,18 @@ public class OrderController implements Initializable {
 
         autoCompleteTextField.setOnKeyPressed(event -> {
             switch (event.getCode()) {
-                case ENTER:
-                    if (!listView.getSelectionModel().isEmpty()) {
-                        String selected = listView.getSelectionModel().getSelectedItem();
-                        autoCompleteTextField.setText(selected);
-                        popup.hide();
-                    }
-                    break;
-                case ESCAPE:
+            case ENTER:
+                if (!listView.getSelectionModel().isEmpty()) {
+                    String selected = listView.getSelectionModel().getSelectedItem();
+                    autoCompleteTextField.setText(selected);
                     popup.hide();
-                    break;
-                default:
-                    break;
+                }
+                break;
+            case ESCAPE:
+                popup.hide();
+                break;
+            default:
+                break;
             }
         });
 
@@ -214,9 +199,7 @@ public class OrderController implements Initializable {
                 e.printStackTrace();
             }
         });
-
     }
-
 
     public void addCustomer(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/addCustomer.fxml"));
@@ -230,36 +213,26 @@ public class OrderController implements Initializable {
     private void showItem(MouseEvent mouseEvent) throws IOException {
         if (mouseEvent.getClickCount() == 2) {
             Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
-            if (selectedOrder != null ) {
-                // Lấy orderId từ selectedOrder
+            if (selectedOrder != null) {
                 int orderId = selectedOrder.getOrderId();
                 int customerId = selectedOrder.getCustomerId();
-                // Tạo loader và tải forEachOrder.fxml
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
                 Parent root = loader.load();
-
-                // Lấy controller của ForEachOrderController
                 ForEachOrderController controller = loader.getController();
-                controller.setOrderID(orderId); // Truyền orderId
+                controller.setOrderID(orderId);
                 controller.setCustomerID(customerId);
                 controller.setOrderTable(orderTable);
                 controller.initializeAllTables();
 
-
-                // Kiểm tra orderID (debug)
-                System.out.println("Order ID in BookingController: " + orderId);
-
-                // Hiển thị cửa sổ mới
                 Stage stage = new Stage();
                 stage.setTitle("Order Details");
                 stage.setScene(new Scene(root));
                 stage.show();
             }
         }
-        if(mouseEvent.getClickCount() == 1){
-
+        if(mouseEvent.getClickCount() == 1) {
             Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
-            if(selectedOrder != null){
+            if(selectedOrder != null) {
                 autoCompleteTextField.setText(selectedOrder.getCustomerName());
             }
         }
@@ -269,17 +242,12 @@ public class OrderController implements Initializable {
         Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
 
         if (selectedOrder == null) {
-            showAlert(Alert.AlertType.INFORMATION, "Error", "Please select an order to payment.");
+            NotificationService.showNotification("Error", "Please select an order to payment.", NotificationStatus.Error);
             return;
         }
 
-        // Kiểm tra nếu trạng thái không phải "Finished" hoặc "Paid" thì không cho xem hóa đơn
         if (!"Finished".equals(selectedOrder.getOrderStatus()) && !"Paid".equals(selectedOrder.getOrderStatus())) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Access Denied");
-            alert.setHeaderText(null);
-            alert.setContentText("Bills can only be accessed when the order is in Finished or Paid status.");
-            alert.showAndWait();
+            NotificationService.showNotification("Access Denied", "Bills can only be accessed when the order is in Finished or Paid status.", NotificationStatus.Error);
             return;
         }
 
@@ -297,20 +265,13 @@ public class OrderController implements Initializable {
         stage.show();
     }
 
-
     private Bill createBill() {
-        // Lấy thông tin đơn hàng hiện tại
         Order currentOrder = orderTable.getSelectionModel().getSelectedItem();
         if (currentOrder == null) return null;
 
-//        return new Bill(
-//                currentOrder.getCustomerName(), // Tránh gọi getCustomer()
-//                currentOrder.getCustomerPhone(), // Tránh lỗi null
-//                currentOrder.getTotalCost()
-//        );
         Bill bill = new Bill();
-        bill.setCustomerName(currentOrder.getCustomerName()==null?"Guest":currentOrder.getCustomerName());
-        bill.setCustomerPhone(currentOrder.getCustomerPhone()==null?"GuestPhone":currentOrder.getCustomerPhone());
+        bill.setCustomerName(currentOrder.getCustomerName() == null ? "Guest" : currentOrder.getCustomerName());
+        bill.setCustomerPhone(currentOrder.getCustomerPhone() == null ? "GuestPhone" : currentOrder.getCustomerPhone());
         bill.setTotalCost(currentOrder.getTotalCost());
         return bill;
     }

@@ -2,20 +2,19 @@ package src.billiardsmanagement.controller.orders.items;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.Node;
 import javafx.stage.Stage;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import org.controlsfx.control.textfield.AutoCompletionBinding;
-import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.dao.CategoryDAO;
 import src.billiardsmanagement.dao.OrderItemDAO;
 import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.dao.PromotionDAO;
 import src.billiardsmanagement.model.OrderItem;
 import src.billiardsmanagement.model.Pair;
+import src.billiardsmanagement.model.NotificationService;
+import src.billiardsmanagement.model.NotificationStatus;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.controlsfx.control.textfield.TextFields;
 
 import java.util.*;
 
@@ -43,15 +42,16 @@ public class UpdateOrderItemController {
 
     public void initializeOrderItem() {
         String saleCueCategory = "Cues-sale";
+        String rentCueCategory = "Cues-rent";
         productCategoryMap = CategoryDAO.getProductAndCategoryUnitMap();
 
         ArrayList<String> list = ProductDAO.getAllProductsName();
         productList = new ArrayList<>();
-        if (list == null)
-            System.out.println("Unexpected error : Product List is null !");
-        else {
+        if (list == null) {
+            System.out.println("Unexpected error: Product List is null!");
+        } else {
             for (String s : list) {
-                if (productCategoryMap.get(s).equalsIgnoreCase(saleCueCategory)) {
+                if (!productCategoryMap.get(s).equalsIgnoreCase(rentCueCategory)) {
                     productList.add(s);
                     if (!s.contains(" ")) {
                         s = s + " ";
@@ -64,7 +64,6 @@ public class UpdateOrderItemController {
                     .bindAutoCompletion(productNameAutoCompleteText, productList);
             HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText, initialProductName);
             productNameAutoBinding.setVisibleRowCount(7);
-
             productNameAutoBinding.setHideOnEscape(true);
 
             ArrayList<String> pList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
@@ -75,23 +74,17 @@ public class UpdateOrderItemController {
                     if (!s.contains(" ")) {
                         s = s + " ";
                         promotionList.add(s);
-                    } else
+                    } else {
                         promotionList.add(s);
+                    }
                 }
-
-                // Comparator<String> promotionComparator = (s1,s2) -> {
-                // if(s1.equals("No Promotion")) return -1;
-                // if(s2.equals("No Promotion")) return 1;
-                // else return s1.compareTo(s2);
-                // };
 
                 promotionList.add(0, "No Promotion");
 
                 AutoCompletionBinding<String> promotionNameAutoBinding = TextFields
                         .bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
 
-                HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText,
-                        initialPromotionName);
+                HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText, initialPromotionName);
                 promotionNameAutoCompleteText.setText(initialPromotionName);
                 promotionNameAutoBinding.setHideOnEscape(true);
                 promotionNameAutoBinding.setVisibleRowCount(7);
@@ -101,15 +94,13 @@ public class UpdateOrderItemController {
         }
     }
 
-    public void HandleTextFieldClick(AutoCompletionBinding<String> auto, List<String> list, TextField text,
-                                     String name) {
+    public void HandleTextFieldClick(AutoCompletionBinding<String> auto, List<String> list, TextField text, String name) {
         text.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 auto.setUserInput(" ");
                 return;
             }
 
-            // Only proceed if the field is not focused
             if (!newValue) {
                 String inputText = text.getText();
                 if (inputText == null || inputText.trim().isEmpty()) {
@@ -117,9 +108,7 @@ public class UpdateOrderItemController {
                     return;
                 }
 
-                boolean check = list.stream()
-                        .anyMatch(inputText::equals);
-
+                boolean check = list.stream().anyMatch(inputText::equals);
                 if (check) {
                     text.setText(inputText);
                 } else {
@@ -132,98 +121,71 @@ public class UpdateOrderItemController {
     public void setOrderItemDetails(OrderItem item) {
         if (item != null) {
             initialProductName = item.getProductName();
-
-            orderItemId = item.getOrderItemId(); // Store the orderItemId
+            orderItemId = item.getOrderItemId();
             productNameAutoCompleteText.setText(initialProductName);
             quantityTextField.setText(String.valueOf(item.getQuantity()));
-
             initialPromotionName = item.getPromotionName() == null ? "No Promotion" : item.getPromotionName();
             currentQuantity = item.getQuantity();
         }
     }
 
-    // Thêm : kiểm tra xem thông tin update mới có giống hệt thông tin cũ không.
-    // nếu giống hệt thì bỏ qua, không update, đóng update scene
-    // Thêm : Kiểm tra nếu edit quantity mới lớn hơn số hàng trong kho (số lượng
-    // hàng, trong bảng products)
     @FXML
     public void updateOrderItem(ActionEvent event) {
         try {
-            // Get and validate input values
             String productName = productNameAutoCompleteText.getText();
 
-            if (productName == null)
-                throw new IllegalArgumentException("Please select a product!");
-
-            if (productName.trim().isEmpty()) {
+            if (productName == null || productName.trim().isEmpty()) {
                 throw new IllegalArgumentException("Please select a product!");
             }
-
             if (!productList.contains(productName)) {
-                throw new IllegalArgumentException(
-                        "The product you provided is not found. Check your input and try again !");
+                throw new IllegalArgumentException("The product you provided is not found. Check your input and try again!");
             }
 
             maxQuantity = ProductDAO.getProductQuantityByName(productName);
-
             int requestQuantity;
+
             try {
                 requestQuantity = Integer.parseInt(quantityTextField.getText().trim());
-                // Check if the request quantity is less than current quantity
-                if(requestQuantity == 0){
-                    throw new IllegalArgumentException("Quantity must be greater than 0 !");
+                if (requestQuantity == 0) {
+                    throw new IllegalArgumentException("Quantity must be greater than 0!");
                 }
                 if (requestQuantity < currentQuantity) {
                     int replenishAmount = currentQuantity - requestQuantity;
                     ProductDAO.replenishItem(productName, replenishAmount);
-                }
-                // Check if the requested quantity exceeds the available stock
-                else if (requestQuantity > currentQuantity){
+                } else if (requestQuantity > currentQuantity) {
                     int quant = requestQuantity - currentQuantity;
-                    if(quant > maxQuantity){
+                    if (quant > maxQuantity) {
                         throw new IllegalArgumentException("The quantity you provided exceeds amount in stock. Please reduce the quantity.");
                     } else {
                         ProductDAO.dispatchItem(productName, quant);
                     }
                 }
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid quantity ! Please try again.");
+                throw new IllegalArgumentException("Invalid quantity! Please try again.");
             }
 
-            // Get and validate promotion
             String selectedPromotion = promotionNameAutoCompleteText.getText();
             if (selectedPromotion == null) {
                 selectedPromotion = "No promotion";
-            } else {
-                if (selectedPromotion.trim().isEmpty()) {
-                    throw new IllegalArgumentException("You haven't choose a promotion !");
-                }
+            } else if (selectedPromotion.trim().isEmpty()) {
+                throw new IllegalArgumentException("You haven't chosen a promotion!");
             }
 
-            int promotionId; // default value
-            if (selectedPromotion.equals("No Promotion")) {
-                promotionId = -1;
-            } else {
-                promotionId = PromotionDAO.getPromotionIdByName(selectedPromotion);
-                if (promotionId == -1) {
-                    throw new Exception(
-                            "The promotion name you provided is not found ! Check your input and try again.");
-                }
+            int promotionId = selectedPromotion.equals("No Promotion") ? -1 : PromotionDAO.getPromotionIdByName(selectedPromotion);
+            if (promotionId == -1 && !selectedPromotion.equals("No Promotion")) {
+                throw new Exception("The promotion name you provided is not found! Check your input and try again.");
             }
 
-            // Get product ID and price from product name using ProductDAO
             Pair<Integer, Double> productPair = ProductDAO.getProductIdAndPriceByName(productName);
             if (productPair == null) {
-                throw new IllegalArgumentException("Error : Product is invalid. Try again later !");
+                throw new IllegalArgumentException("Error: Product is invalid. Try again later!");
             }
             int productId = productPair.getFirstValue();
             double productPrice = productPair.getSecondValue();
 
-            // Calculate subTotal and netTotal
             double subTotal = productPrice * requestQuantity;
             double netTotal = subTotal;
 
-            // Apply promotion discount if a promotion is selected
             if (promotionId > 0) {
                 double discount = PromotionDAO.getPromotionDiscountById(promotionId);
                 if (discount > 0) {
@@ -231,48 +193,33 @@ public class UpdateOrderItemController {
                 }
             }
 
-            // Create OrderItem object with orderItemId
             OrderItem orderItem = new OrderItem(
-                    orderItemId, // Add orderItemId here
+                    orderItemId,
                     orderId,
                     productId,
-                    productName, // Add product name
+                    productName,
                     requestQuantity,
                     netTotal,
                     subTotal,
                     promotionId);
 
-            // Update in database
             boolean success = OrderItemDAO.updateOrderItem(orderItem);
-            if (success) {
-
-
-            } else {
+            if (!success) {
                 throw new Exception("Order update failed! Please try again later!");
             }
 
-            // Close the window after successful update
+            NotificationService.showNotification("Success", "Order item updated successfully!", NotificationStatus.Success);
+
             Node source = (Node) event.getSource();
             Stage stage = (Stage) source.getScene().getWindow();
             stage.close();
 
         } catch (IllegalArgumentException e) {
-            // Handle validation errors
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText("You have entered incorrect information. Please try again!");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            NotificationService.showNotification("Error", e.getMessage(), NotificationStatus.Error);
         } catch (Exception e) {
             e.printStackTrace();
-            // Handle unexpected errors
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText("An unexpected error occurred! Please try again later!");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            NotificationService.showNotification("Error", "An unexpected error occurred! Please try again later!", NotificationStatus.Error);
         }
-
     }
 
     @FXML
