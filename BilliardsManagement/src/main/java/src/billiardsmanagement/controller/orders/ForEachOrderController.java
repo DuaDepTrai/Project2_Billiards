@@ -395,7 +395,6 @@ public class ForEachOrderController {
                 // currency
             }
         });
-        checkBookingStatus();
 
     }
 
@@ -604,6 +603,7 @@ public class ForEachOrderController {
         initializeBookingColumn();
         initializeOrderDetailColumn();
         initializeRentCueColumn();
+        checkBookingStatus();
 
         // if Finished / Paid, disable all Buttons
         if (orderStatusText.getText().equals("Finished") ||
@@ -1140,11 +1140,12 @@ public class ForEachOrderController {
 
         for (Booking booking : bookings) {
             LocalDateTime bookingTime = booking.getStartTimeBooking(); // Lấy thời gian bắt đầu booking
-
             if (bookingTime != null) { // Kiểm tra nếu booking có thời gian bắt đầu
                 long minutesPassed = Duration.between(bookingTime, now).toMinutes();
-                if (minutesPassed > 30 && "order".equals(booking.getBookingStatus())) {
-                    OrderDAO.updateStatusOrder(orderID);
+                System.out.println("Thời gian chênh lệch: " + minutesPassed);
+                if (minutesPassed > 30 && "Order".equals(booking.getBookingStatus())) {
+                    BookingDAO.updateBookingStatus(booking.getBookingId());
+                    System.out.println("Đã hủy bàn "+ booking.getBookingId() + "thành công");
                 }
             }
         }

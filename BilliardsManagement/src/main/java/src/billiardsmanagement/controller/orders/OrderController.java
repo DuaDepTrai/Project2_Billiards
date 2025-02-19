@@ -24,12 +24,10 @@ import java.util.*;
 
 import javafx.collections.FXCollections;
 import javafx.scene.control.cell.PropertyValueFactory;
+import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.CustomerDAO;
 import src.billiardsmanagement.dao.OrderDAO;
-import src.billiardsmanagement.model.Bill;
-import src.billiardsmanagement.model.BillItem;
-import src.billiardsmanagement.model.DatabaseConnection;
-import src.billiardsmanagement.model.Order;
+import src.billiardsmanagement.model.*;
 
 public class OrderController implements Initializable {
 
@@ -58,6 +56,7 @@ public class OrderController implements Initializable {
     private final Connection conn = DatabaseConnection.getConnection();
     private final OrderDAO orderDAO = new OrderDAO();
     private final CustomerDAO customerDAO = new CustomerDAO();
+    private final BookingDAO bookingDAO = new BookingDAO();
     private final Map<String, Integer> customerNameToIdMap = new HashMap<>();
 
     public TableView<Order> getOrderTable() {
@@ -313,5 +312,9 @@ public class OrderController implements Initializable {
         bill.setCustomerPhone(currentOrder.getCustomerPhone()==null?"GuestPhone":currentOrder.getCustomerPhone());
         bill.setTotalCost(currentOrder.getTotalCost());
         return bill;
+    }
+
+    public void checkOrderStatus(){
+        List <Booking> bookings = bookingDAO.
     }
 }
