@@ -10,14 +10,16 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
-import src.billiardsmanagement.dao.CategoryDAO;
 import src.billiardsmanagement.dao.OrderItemDAO;
 import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.dao.PromotionDAO;
 import src.billiardsmanagement.model.OrderItem;
 import src.billiardsmanagement.model.Pair;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 public class UpdateOrderItemController {
     @FXML
@@ -34,7 +36,6 @@ public class UpdateOrderItemController {
     private int orderItemId;
 
     private List<String> productList;
-    protected Map<String,String> productCategoryMap;
 
     private String initialProductName;
     private String initialPromotionName;
@@ -42,21 +43,17 @@ public class UpdateOrderItemController {
     private AutoCompletionBinding<String> promotionNameAutoBinding;
 
     public void initializeOrderItem() {
-        String saleCueCategory = "Cues-sale";
-        productCategoryMap = CategoryDAO.getProductAndCategoryUnitMap();
-
         ArrayList<String> list = ProductDAO.getAllProductsName();
         productList = new ArrayList<>();
         if (list == null)
             System.out.println("Unexpected error : Product List is null !");
         else {
             for (String s : list) {
-                if (productCategoryMap.get(s).equalsIgnoreCase(saleCueCategory)) {
+                if (!s.contains("Rent"))
                     productList.add(s);
-                    if (!s.contains(" ")) {
-                        s = s + " ";
-                        productList.add(s);
-                    }
+                if (!s.contains(" ")) {
+                    s = s + " ";
+                    productList.add(s);
                 }
             }
 
@@ -245,7 +242,11 @@ public class UpdateOrderItemController {
             // Update in database
             boolean success = OrderItemDAO.updateOrderItem(orderItem);
             if (success) {
-
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Success");
+                alert.setHeaderText("Updated Successfully:");
+                alert.setContentText("An order item has been updated successfully.");
+                alert.showAndWait();
 
             } else {
                 throw new Exception("Order update failed! Please try again later!");
