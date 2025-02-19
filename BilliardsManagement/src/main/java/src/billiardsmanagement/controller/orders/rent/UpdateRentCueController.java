@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
@@ -17,6 +15,8 @@ import src.billiardsmanagement.model.Pair;
 import src.billiardsmanagement.model.RentCue;
 import src.billiardsmanagement.dao.PromotionDAO;
 import src.billiardsmanagement.dao.RentCueDAO;
+import src.billiardsmanagement.model.NotificationService;
+import src.billiardsmanagement.model.NotificationStatus;
 
 public class UpdateRentCueController {
 
@@ -45,11 +45,12 @@ public class UpdateRentCueController {
         ArrayList<String> promotionList = new ArrayList<>();
         if (pList != null) {
             for (String s : pList) {
-                if (productCategoryMap.get(s).equalsIgnoreCase(rentCueCategory)) {
+                if (productCategoryMap.get(s) != null && productCategoryMap.get(s).equalsIgnoreCase(rentCueCategory)) {
                     s = s + " ";
                     promotionList.add(s);
-                } else
+                } else {
                     promotionList.add(s);
+                }
             }
 
             AutoCompletionBinding<String> promotionNameAutoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
@@ -63,20 +64,8 @@ public class UpdateRentCueController {
     public void updateRentCue() {
         try {
             String promotionName = promotionNameAutoCompleteText.getText();
-            if (promotionName == null) {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("No Product Selected");
-                alert.setHeaderText("Product Selection Required");
-                alert.setContentText("Please select a promotion before updating the rent cue.");
-                alert.showAndWait();
-                return;
-            }
-            if (promotionName.isBlank()) {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("No Product Selected");
-                alert.setHeaderText("Product Selection Required");
-                alert.setContentText("Please select a promotion before updating the rent cue.");
-                alert.showAndWait();
+            if (promotionName == null || promotionName.isBlank()) {
+                NotificationService.showNotification("No Promotion Selected", "Please select a promotion before updating the rent cue.", NotificationStatus.Warning);
                 return;
             }
 
@@ -85,13 +74,8 @@ public class UpdateRentCueController {
             rentCue.setPromotionId(receivedPromotionId);
             rentCue.setRentCueId(rentCueId);
 
-            System.out.println("Received PromotionID = " + receivedPromotionId);
-            System.out.println("RentCueID = " + rentCueId);
-
             boolean success = RentCueDAO.updateRentCue(rentCue);
             if (success) {
-
-                // Close the current window after successful update
                 Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();
                 stage.close();
             } else {
@@ -99,12 +83,7 @@ public class UpdateRentCueController {
             }
 
         } catch (Exception e) {
-            // Handle unexpected errors
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error !");
-            alert.setHeaderText("Unexpected error happens. Please try again !");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            NotificationService.showNotification("Error", "An unexpected error occurred. Please try again!", NotificationStatus.Error);
         }
     }
 
@@ -115,7 +94,6 @@ public class UpdateRentCueController {
                 return;
             }
 
-            // Only proceed if the field is not focused
             if (!newValue) {
                 String inputText = text.getText();
                 if (inputText == null || inputText.trim().isEmpty()) {
@@ -124,7 +102,6 @@ public class UpdateRentCueController {
                 }
 
                 boolean check = list.stream().anyMatch(inputText::equals);
-
                 if (check) {
                     text.setText(inputText);
                 } else {
@@ -179,5 +156,4 @@ public class UpdateRentCueController {
     public void setRentCue(RentCue rentCue) {
         this.rentCue = rentCue;
     }
-
 }

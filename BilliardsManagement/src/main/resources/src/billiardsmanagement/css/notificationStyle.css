@@ -1,0 +1,19 @@
+
+.notification {
+    -fx-background-color: white;
+    -fx-background-radius: 5;
+    -fx-border-color: #191818;
+    -fx-border-radius: 5;
+    -fx-padding: 10;
+}
+
+.title-label {
+    -fx-font-family: 'Open Sans Bold';
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+}
+
+.message-label {
+    -fx-font-family: 'Open Sans SemiBold';
+    -fx-text-fill: black;
+}
