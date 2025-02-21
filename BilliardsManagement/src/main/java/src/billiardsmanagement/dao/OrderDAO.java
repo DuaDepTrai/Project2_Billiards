@@ -81,21 +81,22 @@ public class OrderDAO {
            o.total_cost, o.order_status,
            GROUP_CONCAT(
                CONCAT(
-                   CASE 
-                       WHEN p.name LIKE 'Standard Pool%' THEN 'STD' 
-                       WHEN p.name LIKE 'Deluxe Pool%' THEN 'DLX' 
-                       WHEN p.name LIKE 'VIP Pool%' THEN 'VIP' 
-                       ELSE p.name 
-                   END, 
-                   SUBSTRING_INDEX(p.name, ' ', -1)
-               ) SEPARATOR ', '
+                   CASE\s
+                       WHEN p.name LIKE 'Standard%' THEN 'STD'\s
+                       WHEN p.name LIKE 'Deluxe%' THEN 'DLX'\s
+                       WHEN p.name LIKE 'VIP%' THEN 'VIP'\s
+                       ELSE p.name\s
+                   END,\s
+                   '', -- Thêm khoảng trắng để tách biệt trước số bàn
+                   REGEXP_SUBSTR(p.name, '[0-9]+$') -- Lấy số ở cuối tên bàn
+               ) ORDER BY p.table_id SEPARATOR ', '
            ) AS currentTableName
     FROM orders o
     JOIN customers c ON o.customer_id = c.customer_id
     LEFT JOIN bookings b ON o.order_id = b.order_id
     LEFT JOIN pooltables p ON b.table_id = p.table_id
     GROUP BY o.order_id
-    ORDER BY o.order_id DESC
+    ORDER BY o.order_id DESC;
 """;
 
 
