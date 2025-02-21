@@ -28,17 +28,18 @@ public class OrderDAO {
         return false;
     }
 
-    public static void updateStatusOrder(int orderId) {
-        String query = "UPDATE orders SET order_status = 'canceled' WHERE order_id = ?";
+    public static void updateStatusOrder(int orderId, String orderStatus) {
+        String query = "UPDATE orders SET order_status = ? WHERE order_id = ?";
 
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
-            statement.setInt(1, orderId);
+            statement.setString(1, orderStatus);
+            statement.setInt(2, orderId);
             int rowsUpdated = statement.executeUpdate();
 
             if (rowsUpdated > 0) {
-                System.out.println("Order ID " + orderId + " đã bị hủy thành công.");
+                System.out.println("Order ID " + orderId + " đã được cập nhật trạng thái thành: " + orderStatus);
             } else {
                 System.out.println("Không tìm thấy Order ID: " + orderId);
             }
@@ -46,6 +47,7 @@ public class OrderDAO {
             e.printStackTrace();
         }
     }
+
 
     public static List<Order> getOrderPaid() {
         List<Order> paidOrders = new ArrayList<>();

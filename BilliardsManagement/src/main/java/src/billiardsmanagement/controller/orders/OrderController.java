@@ -278,7 +278,5 @@ public class OrderController implements Initializable {
         return bill;
     }
 
-    public void checkOrderStatus(){
-        List <Booking> bookings = bookingDAO.
-    }
+
 }
