@@ -395,7 +395,6 @@ public class ForEachOrderController {
                 // currency
             }
         });
-        checkBookingStatus();
 
     }
 
@@ -604,7 +603,9 @@ public class ForEachOrderController {
         initializeBookingColumn();
         initializeOrderDetailColumn();
         initializeRentCueColumn();
-
+        checkBookingStatus();
+        checkOrderStatus();
+        loadOrderList();
         // if Finished / Paid, disable all Buttons
         if (orderStatusText.getText().equals("Finished") ||
                 orderStatusText.getText().equals("Paid") ||
@@ -695,6 +696,8 @@ public class ForEachOrderController {
                 NotificationService.showNotification("Start Playing Successful",
                         "Start playing on this table successfully.",NotificationStatus.Success);
                 loadBookings(); // Tải lại danh sách booking sau khi cập nhật
+                checkOrderStatus();
+
             } else {
                 NotificationService.showNotification("Update Failed",
                         "Failed to update the booking status. Please try again.",NotificationStatus.Error);
@@ -1183,11 +1186,12 @@ public class ForEachOrderController {
 
         for (Booking booking : bookings) {
             LocalDateTime bookingTime = booking.getStartTimeBooking(); // Lấy thời gian bắt đầu booking
-
             if (bookingTime != null) { // Kiểm tra nếu booking có thời gian bắt đầu
                 long minutesPassed = Duration.between(bookingTime, now).toMinutes();
-                if (minutesPassed > 30 && "order".equals(booking.getBookingStatus())) {
-                    OrderDAO.updateStatusOrder(orderID);
+                System.out.println("Thời gian chênh lệch: " + minutesPassed);
+                if (minutesPassed > 30 && "Order".equals(booking.getBookingStatus())) {
+                    BookingDAO.updateBookingStatus(booking.getBookingId());
+                    System.out.println("Đã hủy bàn "+ booking.getBookingId() + "thành công");
                 }
             }
         }
@@ -1314,5 +1318,20 @@ public class ForEachOrderController {
         // Lấy vị trí (index) của dòng hiện tại trong danh sách
         int index = rentCueTable.getItems().indexOf(cellData.getValue()) + 1;
         return new SimpleIntegerProperty(index).asObject();
+    }
+    public void checkOrderStatus(){
+        List <Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
+        for (Booking booking : bookings){
+            if(booking.getBookingStatus().equals("Playing")){
+                OrderDAO.updateStatusOrder(orderID,"Playing");
+                System.out.println("Da chuyen order thanh playing");
+            }else if (!booking.getBookingStatus().equals("Finish") && (booking.getBookingStatus().equals("Order"))){
+                OrderDAO.updateStatusOrder(orderID, "Order");
+                System.out.println("Da chuyen order thanh order");
+            }else{
+                OrderDAO.updateStatusOrder(orderID, "Canceled");
+                System.out.println("Da chuyen order thanh camceled");
+            }
+        }
     }
 }

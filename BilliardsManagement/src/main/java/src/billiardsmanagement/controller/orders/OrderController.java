@@ -24,6 +24,7 @@ import java.util.*;
 
 import javafx.collections.FXCollections;
 import javafx.scene.control.cell.PropertyValueFactory;
+import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.CustomerDAO;
 import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.model.*;
@@ -54,6 +55,7 @@ public class OrderController implements Initializable {
     private final Connection conn = DatabaseConnection.getConnection();
     private final OrderDAO orderDAO = new OrderDAO();
     private final CustomerDAO customerDAO = new CustomerDAO();
+    private final BookingDAO bookingDAO = new BookingDAO();
     private final Map<String, Integer> customerNameToIdMap = new HashMap<>();
 
     public TableView<Order> getOrderTable() {
@@ -131,8 +133,10 @@ public class OrderController implements Initializable {
 
         totalCostColumn.setCellValueFactory(new PropertyValueFactory<>("totalCost"));
         sttColumn.setCellValueFactory(param -> {
-            int index = sttColumn.getTableView().getItems().indexOf(param.getValue());
-            return new SimpleIntegerProperty(index + 1).asObject();
+            TableView<?> tableView = sttColumn.getTableView();
+            int totalRows = tableView.getItems().size();
+            int index = tableView.getItems().indexOf(param.getValue());
+            return new SimpleIntegerProperty(totalRows - index).asObject();
         });
         customerNameColumn.setCellValueFactory(new PropertyValueFactory<>("customerName"));
         orderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("orderStatus"));
@@ -230,12 +234,7 @@ public class OrderController implements Initializable {
                 stage.show();
             }
         }
-        if(mouseEvent.getClickCount() == 1) {
-            Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
-            if(selectedOrder != null) {
-                autoCompleteTextField.setText(selectedOrder.getCustomerName());
-            }
-        }
+
     }
 
     public void billOrder(ActionEvent event) throws IOException {
@@ -275,4 +274,6 @@ public class OrderController implements Initializable {
         bill.setTotalCost(currentOrder.getTotalCost());
         return bill;
     }
+
+
 }
