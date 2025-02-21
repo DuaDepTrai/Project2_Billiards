@@ -3,6 +3,7 @@ package src.billiardsmanagement.controller.orders;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.CustomerDAO;
@@ -13,6 +14,8 @@ public class AddCustomerController {
     private TextField nameField;
     @FXML
     private TextField phoneField;
+    @FXML
+    private Button saveButton;
 
     public void saveCustomer(ActionEvent actionEvent) {
         try {

@@ -13,9 +13,9 @@
     <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
     <Label text="Phone " GridPane.rowIndex="2" />
+    <TextField fx:id="phoneField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-    <Button onAction="#saveCustomer" text="Save" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-   <TextField fx:id="phoneField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+    <Button fx:id="saveButton" onAction="#saveCustomer" text="Save" GridPane.columnIndex="1" GridPane.rowIndex="3" />
    <columnConstraints>
       <ColumnConstraints />
       <ColumnConstraints />
