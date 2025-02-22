@@ -70,22 +70,26 @@ INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end
 -- Triggers `bookings`
 --
 DELIMITER $$
-CREATE TRIGGER `after_bookings_insert` AFTER INSERT ON `bookings` FOR EACH ROW BEGIN
+
+CREATE TRIGGER after_bookings_insert
+AFTER INSERT ON bookings
+FOR EACH ROW 
+BEGIN
     IF NEW.booking_status = 'order' THEN
         UPDATE pooltables
         SET status = 'ordered'
         WHERE table_id = NEW.table_id;
+    ELSEIF NEW.booking_status = 'playing' THEN
+        UPDATE pooltables
+        SET status = 'playing'
+        WHERE table_id = NEW.table_id;
+    ELSEIF NEW.booking_status = 'finish' THEN
+        UPDATE pooltables
+        SET status = 'available'
+        WHERE table_id = NEW.table_id;
     END IF;
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `after_delete_booking` AFTER DELETE ON `bookings` FOR EACH ROW BEGIN
-    UPDATE pooltables
-    SET status = 'available'
-    WHERE table_id = OLD.table_id;
-END
-$$
+END $$
+
 DELIMITER ;
 
 -- --------------------------------------------------------
