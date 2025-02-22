@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 16, 2025 at 07:30 PM
+-- Generation Time: Feb 21, 2025 at 06:54 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -54,7 +54,39 @@ INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end
 (7, 7, 1, '2025-01-07 02:00:00', '2025-01-07 03:30:00', 1.5, 52500, 52500, 'Finish', NULL),
 (8, 8, 2, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 1, 75000, 75000, 'Finish', NULL),
 (9, 9, 3, '2025-01-09 04:00:00', NULL, NULL, NULL, NULL, 'Finish', NULL),
-(25, 26, 6, '2025-02-14 16:49:00', '2025-02-14 17:00:15', 0.183333333, 18333.3333, 18333.3333, 'Finish', NULL);
+(25, 26, 6, '2025-02-14 16:49:00', '2025-02-14 17:00:15', 0.183333333, 18333.3333, 18333.3333, 'Finish', NULL),
+(26, 29, 4, '2025-02-21 16:38:00', '2025-02-21 16:57:07', 0.316666666, 11083.33331, NULL, 'Finish', NULL),
+(27, 29, 4, '2025-02-21 16:39:00', '2025-02-21 16:57:07', 0.3, 10500, 7000, 'Finish', NULL),
+(29, 29, 9, '2025-02-21 16:42:00', '2025-02-21 16:57:07', 0.25, 25000, NULL, 'Finish', NULL),
+(30, 31, 4, '2025-02-21 17:03:00', '2025-02-21 17:25:08', 0.4, 14000, 14000, 'Finish', NULL),
+(31, 32, 6, '2025-02-21 17:26:00', '2025-02-21 17:26:40', 0, 0, 0, 'Finish', NULL),
+(32, 30, 7, '2025-02-21 17:27:00', '2025-02-21 17:27:25', 0, 0, 0, 'Finish', NULL),
+(33, 28, 4, '2025-02-21 17:31:00', '2025-02-21 17:34:38', 0.05, 1750, 1750, 'Finish', NULL),
+(34, 28, 9, '2025-02-21 17:31:00', '2025-02-21 17:34:38', 0.05, 5000, 5000, 'Finish', NULL),
+(35, 27, 7, '2025-02-21 17:39:00', '2025-02-21 17:39:29', 0, 0, 0, 'Finish', NULL),
+(36, 27, 9, '2025-02-21 17:39:00', '2025-02-21 17:39:29', 0, 0, 0, 'Finish', NULL);
+
+--
+-- Triggers `bookings`
+--
+DELIMITER $$
+CREATE TRIGGER `after_bookings_insert` AFTER INSERT ON `bookings` FOR EACH ROW BEGIN
+    IF NEW.booking_status = 'order' THEN
+        UPDATE pooltables
+        SET status = 'ordered'
+        WHERE table_id = NEW.table_id;
+    END IF;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `after_delete_booking` AFTER DELETE ON `bookings` FOR EACH ROW BEGIN
+    UPDATE pooltables
+    SET status = 'available'
+    WHERE table_id = OLD.table_id;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -137,7 +169,8 @@ INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUE
 (17, 'Luong Bao Chau', '0789123456', 0),
 (18, 'Phan Thanh Phong', '0582345678', 0),
 (19, 'Dinh Hai Dang', '0356789012', 0),
-(20, 'Cao Anh Tuan', '0765432189', 0);
+(20, 'Cao Anh Tuan', '0765432189', 0),
+(21, 'Tran Van B', '9876543211', NULL);
 
 -- --------------------------------------------------------
 
@@ -167,8 +200,12 @@ INSERT INTO `orders` (`order_id`, `customer_id`, `total_cost`, `order_status`) V
 (8, 3, 225000, 'Paid'),
 (9, 4, 0, 'Canceled'),
 (26, 4, NULL, 'Finished'),
-(27, 2, NULL, 'Playing'),
-(28, 1, NULL, 'Playing');
+(27, 2, 320000, 'Finished'),
+(28, 1, 611750, 'Canceled'),
+(29, 21, 467000, 'Canceled'),
+(30, 1, NULL, 'Canceled'),
+(31, 3, NULL, 'Canceled'),
+(32, 5, NULL, 'Canceled');
 
 -- --------------------------------------------------------
 
@@ -208,7 +245,12 @@ INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity
 (15, 5, 9, 2, 20000, 20000, NULL),
 (50, 26, 17, 24, 480000, 480000, NULL),
 (51, 26, 16, 30, 1500000, 1500000, NULL),
-(52, 27, 15, 10, 400000, 320000, NULL);
+(52, 27, 15, 10, 400000, 320000, NULL),
+(53, 29, 15, 10, 400000, 400000, NULL),
+(54, 28, 10, 1, 30000, 30000, NULL),
+(55, 28, 16, 1, 50000, 50000, NULL),
+(56, 28, 8, 1, 25000, 25000, NULL),
+(57, 28, 1, 1, 500000, 500000, NULL);
 
 -- --------------------------------------------------------
 
@@ -285,22 +327,22 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `quantity`) VALUES
-(1, 'Standard Cue - Sale', 1, 500000, 'Piece', 20),
+(1, 'Standard Cue - Sale', 1, 500000, 'Piece', 19),
 (2, 'Deluxe Cue - Sale', 1, 1000000, 'Piece', 15),
 (3, 'Professional Cue - Sale', 1, 1500000, 'Piece', 10),
-(4, 'Standard Cue - Rent', 2, 50000, 'hour', 10),
-(5, 'Deluxe Cue - Rent', 2, 100000, 'hour', 1),
-(6, 'Professional Cue - Rent', 2, 150000, 'hour', 10),
+(4, 'Standard Cue - Rent', 2, 50000, 'Piece', 10),
+(5, 'Deluxe Cue - Rent', 2, 100000, 'Piece', 1),
+(6, 'Professional Cue - Rent', 2, 150000, 'Piece', 10),
 (7, 'Soda', 3, 15000, 'Can', 100),
-(8, 'Juice', 3, 25000, 'Bottle', 80),
+(8, 'Juice', 3, 25000, 'Bottle', 79),
 (9, 'Water', 3, 10000, 'Bottle', 120),
-(10, 'Coffee', 3, 30000, 'Cup', 50),
+(10, 'Coffee', 3, 30000, 'Cup', 49),
 (11, 'Tea', 3, 20000, 'Cup', 60),
 (12, 'Chips', 4, 20000, 'Bag', 50),
 (13, 'Nuts', 4, 30000, 'Bag', 40),
 (14, 'Popcorn', 4, 25000, 'Bag', 60),
-(15, 'Chocolate', 4, 40000, 'Bar', 20),
-(16, 'Cookies', 4, 50000, 'Box', 25),
+(15, 'Chocolate', 4, 40000, 'Bar', 10),
+(16, 'Cookies', 4, 50000, 'Box', 24),
 (17, 'Coca Cola', 3, 20000, 'Can', 26);
 
 -- --------------------------------------------------------
@@ -374,7 +416,12 @@ INSERT INTO `rent_cues` (`rent_cue_id`, `order_id`, `product_id`, `start_time`, 
 (15, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
 (16, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
 (17, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
-(18, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL);
+(18, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
+(19, 29, 6, '2025-02-21 16:45:04', '2025-02-21 16:57:06', 'Available', 0.2, 30000, 30000, NULL),
+(20, 29, 6, '2025-02-21 16:45:04', '2025-02-21 16:57:06', 'Available', 0.2, 30000, 30000, NULL),
+(21, 28, 6, '2025-02-21 17:32:27', '2025-02-21 17:34:38', 'Available', 0, 0, 0, NULL),
+(22, 28, 5, '2025-02-21 17:32:31', '2025-02-21 17:34:38', 'Available', 0, 0, 0, NULL),
+(23, 27, 6, '2025-02-21 17:39:19', '2025-02-21 17:39:29', 'Available', 0, 0, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -593,7 +640,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `category`
@@ -611,19 +658,19 @@ ALTER TABLE `cate_pooltables`
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `orders_items`
 --
 ALTER TABLE `orders_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -653,7 +700,7 @@ ALTER TABLE `promotions`
 -- AUTO_INCREMENT for table `rent_cues`
 --
 ALTER TABLE `rent_cues`
-  MODIFY `rent_cue_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `rent_cue_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `revenue`

@@ -133,8 +133,10 @@ public class OrderController implements Initializable {
 
         totalCostColumn.setCellValueFactory(new PropertyValueFactory<>("totalCost"));
         sttColumn.setCellValueFactory(param -> {
-            int index = sttColumn.getTableView().getItems().indexOf(param.getValue());
-            return new SimpleIntegerProperty(index + 1).asObject();
+            TableView<?> tableView = sttColumn.getTableView();
+            int totalRows = tableView.getItems().size();
+            int index = tableView.getItems().indexOf(param.getValue());
+            return new SimpleIntegerProperty(totalRows - index).asObject();
         });
         customerNameColumn.setCellValueFactory(new PropertyValueFactory<>("customerName"));
         orderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("orderStatus"));
@@ -232,12 +234,7 @@ public class OrderController implements Initializable {
                 stage.show();
             }
         }
-        if(mouseEvent.getClickCount() == 1) {
-            Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
-            if(selectedOrder != null) {
-                autoCompleteTextField.setText(selectedOrder.getCustomerName());
-            }
-        }
+
     }
 
     public void billOrder(ActionEvent event) throws IOException {

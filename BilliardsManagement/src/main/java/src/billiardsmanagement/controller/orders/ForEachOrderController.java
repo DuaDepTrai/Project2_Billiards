@@ -1348,9 +1348,13 @@ public class ForEachOrderController {
             } else if (!booking.getBookingStatus().equals("Finish") && (booking.getBookingStatus().equals("Order"))) {
                 OrderDAO.updateStatusOrder(orderID, "Order");
                 System.out.println("Da chuyen order thanh order");
-            } else {
+
+            }else if(booking.getBookingStatus().equals("Finish")){
+
+                System.out.println("Da chuyen booking thanh Finish");
+            }else{
                 OrderDAO.updateStatusOrder(orderID, "Canceled");
-                System.out.println("Da chuyen order thanh camceled");
+                System.out.println("Da chuyen order thanh canceled");
             }
         }
     }
