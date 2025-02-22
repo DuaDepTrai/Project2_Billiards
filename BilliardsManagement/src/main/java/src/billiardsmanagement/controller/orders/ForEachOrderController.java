@@ -88,6 +88,8 @@ public class ForEachOrderController {
 
     @FXML
     private Text orderStatusText;
+    @FXML
+    private Text billNoText;
 
     @FXML
     private TableColumn<Booking, Integer> sttColumn;
@@ -197,7 +199,7 @@ public class ForEachOrderController {
 
     private int orderID;
     private int customerID;
-
+    private int billNo;
     public void setOrderID(int orderID) {
         this.orderID = orderID;
         if (orderID > 0) {
@@ -220,7 +222,6 @@ public class ForEachOrderController {
         List<OrderItem> orderItems = OrderItemDAO.getForEachOrderItem(orderID);
 
         // Kiểm tra dữ liệu
-        System.out.println(orderItems);
 
         // Xóa hết các dữ liệu cũ trong orderItemList
         orderItemList.clear();
@@ -230,7 +231,6 @@ public class ForEachOrderController {
 
         // Cập nhật lại dữ liệu cho bảng
         orderItemsTable.setItems(orderItemList);
-        System.out.println("Order Item" + orderItemsTable.getItems());
         // Implement this method to load and display order details
     }
 
@@ -240,7 +240,6 @@ public class ForEachOrderController {
         List<RentCue> rentCues = new ArrayList<>();
 
         // Kiểm tra dữ liệu
-        System.out.println(rentCues);
 
         for (RentCue rc : RentCueDAO.getAllRentCuesByOrderId(orderID)) {
             if (!rc.getProductName().endsWith("Sale")) {
@@ -253,7 +252,6 @@ public class ForEachOrderController {
 
         // Check if rentCues is null or empty
         if (rentCues == null || rentCues.isEmpty()) {
-            System.out.println("No rent cue items found for order ID: " + orderID);
             return;
         }
         // Add retrieved rent cue items to the table
@@ -665,14 +663,12 @@ public class ForEachOrderController {
 
         // Kiểm tra trạng thái booking
         if ("Finish".equals(selectedBooking.getBookingStatus())) {
-            System.out.println("Status finish");
             NotificationService.showNotification("Can't Update Status",
                     "Cannot update the status of a booking that is already finished.",NotificationStatus.Error);
             return;
         }
 
         if ("Playing".equals(selectedBooking.getBookingStatus())) {
-            System.out.println("Status playing");
             NotificationService.showNotification("Can't Update Status",
                     "Cannot update the status of a booking that is already finished.",NotificationStatus.Error);
             return;
@@ -1108,7 +1104,6 @@ public class ForEachOrderController {
             int affectedRows = pstmt.executeUpdate();
 
             if (affectedRows == 0) {
-                System.out.println("No product found with the name: " + productName);
             } else {
                 System.out.println("Product quantity updated successfully.");
             }
@@ -1188,10 +1183,8 @@ public class ForEachOrderController {
             LocalDateTime bookingTime = booking.getStartTimeBooking(); // Lấy thời gian bắt đầu booking
             if (bookingTime != null) { // Kiểm tra nếu booking có thời gian bắt đầu
                 long minutesPassed = Duration.between(bookingTime, now).toMinutes();
-                System.out.println("Thời gian chênh lệch: " + minutesPassed);
                 if (minutesPassed > 30 && "Order".equals(booking.getBookingStatus())) {
                     BookingDAO.updateBookingStatus(booking.getBookingId());
-                    System.out.println("Đã hủy bàn "+ booking.getBookingId() + "thành công");
                 }
             }
         }
@@ -1270,7 +1263,6 @@ public class ForEachOrderController {
             boolean success = OrderDAO.updateOrderStatus(orderID, totalCost);
 
             if (success) {
-                System.out.println("Order total cost updated successfully: $" + totalCost);
 
                 // Thông báo thanh toán thành công
                 NotificationService.showNotification("Success",
@@ -1301,6 +1293,7 @@ public class ForEachOrderController {
 
     public void setOrderTable(TableView<Order> orderTable) {
         this.orderTable = orderTable;
+        System.out.println("Table order" + orderTable);
     }
 
     private void loadOrderList() {
@@ -1337,5 +1330,11 @@ public class ForEachOrderController {
                 System.out.println("Da chuyen order thanh canceled");
             }
         }
+    }
+
+    public void setBillNo(int billNo) {
+        this.billNo = billNo;
+        System.out.println("Bill No: " + billNo);
+        billNoText.setText(String.valueOf(billNo));
     }
 }
