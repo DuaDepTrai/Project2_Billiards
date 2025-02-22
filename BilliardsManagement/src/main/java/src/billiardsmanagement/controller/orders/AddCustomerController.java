@@ -33,7 +33,7 @@ public class AddCustomerController {
             }
 
             // Validate phone number format (10 digits)
-            if (!customerPhone.matches("^0(3[2-9]|5[2689]|7[0-9]|8[1-9]|9[0-9])\\d{7}$")) {
+            if (!customerPhone.matches("\\d{10}")) {
                 throw new IllegalArgumentException("Phone number must be 10 digits.");
             }
 

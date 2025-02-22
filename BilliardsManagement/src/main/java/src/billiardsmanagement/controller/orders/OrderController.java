@@ -9,7 +9,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
@@ -143,25 +142,6 @@ public class OrderController implements Initializable {
         orderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("orderStatus"));
         phoneCustomerColumn.setCellValueFactory(new PropertyValueFactory<>("customerPhone"));
         nameTableColumn.setCellValueFactory(new PropertyValueFactory<>("currentTableName"));
-        nameTableColumn.setCellFactory(column -> new TableCell<Order, String>() {
-            private final Text text = new Text();
-
-            {
-                text.wrappingWidthProperty().bind(nameTableColumn.widthProperty());
-            }
-
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    text.setText(item);
-                    setGraphic(text);
-                }
-            }
-        });
         totalCostColumn.setCellFactory(param -> new TableCell<Order, Double>() {
             private final DecimalFormat df = new DecimalFormat("#,###");
 
@@ -237,10 +217,6 @@ public class OrderController implements Initializable {
     private void showItem(MouseEvent mouseEvent) throws IOException {
         if (mouseEvent.getClickCount() == 2) {
             Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
-            int totalRow = orderTable.getItems().size();
-            int selectedIndex = orderTable.getSelectionModel().getSelectedIndex();
-            int billNo = totalRow - selectedIndex;
-            System.out.println("selectedIndex: " + selectedIndex);
             if (selectedOrder != null) {
                 int orderId = selectedOrder.getOrderId();
                 int customerId = selectedOrder.getCustomerId();
@@ -250,7 +226,7 @@ public class OrderController implements Initializable {
                 controller.setOrderID(orderId);
                 controller.setCustomerID(customerId);
                 controller.setOrderTable(orderTable);
-                controller.setBillNo(billNo);
+                controller.initializeAllTables();
 
                 Stage stage = new Stage();
                 stage.setTitle("Order Details");

@@ -82,10 +82,9 @@ public class OrderDAO {
            GROUP_CONCAT(
                CONCAT(
                    CASE 
-                    
-                       WHEN p.name LIKE 'Standard %' THEN 'STD' 
-                       WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
-                       WHEN p.name LIKE 'VIP %' THEN 'VIP' 
+                       WHEN p.name LIKE 'Standard Pool%' THEN 'STD' 
+                       WHEN p.name LIKE 'Deluxe Pool%' THEN 'DLX' 
+                       WHEN p.name LIKE 'VIP Pool%' THEN 'VIP' 
                        ELSE p.name 
                    END, 
                    SUBSTRING_INDEX(p.name, ' ', -1)
