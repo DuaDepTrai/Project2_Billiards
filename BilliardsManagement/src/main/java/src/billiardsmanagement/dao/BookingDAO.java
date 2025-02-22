@@ -9,24 +9,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookingDAO {
-    public static void updateBookingStatus(int bookingId) {
-        String query = "UPDATE bookings SET booking_status = 'canceled' WHERE booking_id= ?";
+    public static boolean cancelBooking(int bookingId) {
+        String query = "UPDATE bookings SET booking_status = 'Canceled' WHERE booking_id= ?";
 
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
 
-            statement.setInt(1, bookingId);
-            int rowsUpdated = statement.executeUpdate();
+                statement.setInt(1, bookingId);
+                int rowsUpdated = statement.executeUpdate();
 
-            if (rowsUpdated > 0) {
-                System.out.println("Booking ID " + bookingId + " đã bị hủy thành công.");
-            } else {
-                System.out.println("Không tìm thấy Booking ID: " + bookingId);
+                if (rowsUpdated > 0) {
+                    System.out.println("Booking ID " + bookingId + " has been successfully canceled.");
+                    return true;
+                } else {
+                    System.out.println("No Booking ID found: " + bookingId);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
     }
+
     public static boolean finishOrder(int orderId) {
         Connection conn = DatabaseConnection.getConnection();
         if (conn == null) return false;

@@ -81,8 +81,9 @@
         </opaqueInsets>
     </Button>
     <Button fx:id="updateBookingButton" layoutX="136.0" layoutY="160.0" mnemonicParsing="false" onAction="#updateBooking" text="Start Playing" />
-    <Button fx:id="deleteBookingButton" layoutX="275.0" layoutY="160.0" mnemonicParsing="false" onAction="#deleteBooking" text="Delete Booking" />
-    <Button fx:id="stopBookingButton" layoutX="409.0" layoutY="160.0" mnemonicParsing="false" onAction="#stopBooking" text="Stop Booking" />
+    <Button fx:id="deleteBookingButton" layoutX="401.0" layoutY="160.0" mnemonicParsing="false" onAction="#deleteBooking" text="Delete Booking" />
+    <Button fx:id="stopBookingButton" layoutX="537.0" layoutY="160.0" mnemonicParsing="false" onAction="#stopBooking" text="Stop Booking" />
+    <Button fx:id="cancelBookingButton" layoutX="264.0" layoutY="160.0" mnemonicParsing="false" onAction="#cancelBooking" text="Cancel Booking" />
     <HBox layoutX="14.0" prefHeight="48.0" prefWidth="698.0">
         <children>
             <Label text=" Customer Name:">

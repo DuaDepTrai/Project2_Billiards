@@ -21,17 +21,17 @@ public class NotificationController {
         messageLabel.setText(message);
     }
 
-    public void setNotificationColour(String colour){
+    public void setNotificationColour(String colour) {
         this.notificationColour = colour;
         setTitleColour(colour);
         setMessageColour(colour);
     }
 
-    private void setTitleColour(String colour){
-        titleLabel.setStyle("-fx-text-fill: "+colour);
+    private void setTitleColour(String colour) {
+        titleLabel.setStyle("-fx-text-fill: " + colour);
     }
 
-    private void setMessageColour(String colour){
-        messageLabel.setStyle("-fx-text-fill: "+colour);
+    private void setMessageColour(String colour) {
+        messageLabel.setStyle("-fx-text-fill: " + colour);
     }
 }

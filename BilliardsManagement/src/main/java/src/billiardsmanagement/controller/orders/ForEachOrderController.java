@@ -66,6 +66,8 @@ public class ForEachOrderController {
     protected Button deleteOrderItemButton;
     @FXML
     protected Button addBookingButton;
+    @FXML
+    protected Button cancelBookingButton;
 
     // Tables
     @FXML
@@ -205,7 +207,7 @@ public class ForEachOrderController {
             loadOrderDetail();
             loadRentCue();
         } else {
-            NotificationService.showNotification("Invalid Order ID", "The provided Order ID is invalid.",NotificationStatus.Error);
+            NotificationService.showNotification("Invalid Order ID", "The provided Order ID is invalid.", NotificationStatus.Error);
         }
     }
 
@@ -263,6 +265,7 @@ public class ForEachOrderController {
     }
 
     private void initializeBookingColumn() {
+        // update buttons status : disabled / enabled, based on each Booking row
         bookingPoolTable.setRowFactory(tv -> {
             TableRow<Booking> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
@@ -271,22 +274,28 @@ public class ForEachOrderController {
                     if (index >= 0) {
                         Booking currentBooking = row.getTableView().getItems().get(index);
                         if ("Playing".equals(currentBooking.getBookingStatus())) {
+                            cancelBookingButton.setDisable(true);
                             updateBookingButton.setDisable(true);
-                            deleteBookingButton.setDisable(false);
+                            deleteBookingButton.setDisable(true);
                             stopBookingButton.setDisable(false);
-                            return;
-                        } else {
-                            updateBookingButton.setDisable(false);
-                            deleteBookingButton.setDisable(false);
-                            stopBookingButton.setDisable(false);
-                        }
-
-                        if("Finish".equals(currentBooking.getBookingStatus())){
+                        } else if ("Finish".equals(currentBooking.getBookingStatus())) {
+                            cancelBookingButton.setDisable(true);
                             updateBookingButton.setDisable(true);
                             deleteBookingButton.setDisable(true);
                             stopBookingButton.setDisable(true);
-                        }
-                        else {
+                        } else if ("Canceled".equals(currentBooking.getBookingStatus())) {
+                            cancelBookingButton.setDisable(true);
+                            updateBookingButton.setDisable(true);
+                            deleteBookingButton.setDisable(true);
+                            stopBookingButton.setDisable(true);
+                        } else if ("Order".equals(currentBooking.getBookingStatus())) {
+                            cancelBookingButton.setDisable(false);
+                            updateBookingButton.setDisable(false);
+                            deleteBookingButton.setDisable(true);
+                            stopBookingButton.setDisable(true);
+                        } else {
+                            // If none of the above conditions are met, enable all buttons
+                            cancelBookingButton.setDisable(false);
                             updateBookingButton.setDisable(false);
                             deleteBookingButton.setDisable(false);
                             stopBookingButton.setDisable(false);
@@ -298,22 +307,28 @@ public class ForEachOrderController {
                 if (newValue != null && row.getTableView().getSelectionModel().getSelectedItem() != null) {
                     Booking currentBooking = row.getTableView().getSelectionModel().getSelectedItem();
                     if ("Playing".equals(currentBooking.getBookingStatus())) {
+                        cancelBookingButton.setDisable(true);
                         updateBookingButton.setDisable(true);
-                        deleteBookingButton.setDisable(false);
+                        deleteBookingButton.setDisable(true);
                         stopBookingButton.setDisable(false);
-                        return;
-                    } else {
-                        updateBookingButton.setDisable(false);
-                        deleteBookingButton.setDisable(false);
-                        stopBookingButton.setDisable(false);
-                    }
-
-                    if("Finish".equals(currentBooking.getBookingStatus())){
+                    } else if ("Finish".equals(currentBooking.getBookingStatus())) {
+                        cancelBookingButton.setDisable(true);
                         updateBookingButton.setDisable(true);
                         deleteBookingButton.setDisable(true);
                         stopBookingButton.setDisable(true);
-                    }
-                    else {
+                    } else if ("Canceled".equals(currentBooking.getBookingStatus())) {
+                        cancelBookingButton.setDisable(true);
+                        updateBookingButton.setDisable(true);
+                        deleteBookingButton.setDisable(true);
+                        stopBookingButton.setDisable(true);
+                    } else if ("Order".equals(currentBooking.getBookingStatus())) {
+                        cancelBookingButton.setDisable(false);
+                        updateBookingButton.setDisable(false);
+                        deleteBookingButton.setDisable(true);
+                        stopBookingButton.setDisable(true);
+                    } else {
+                        // If none of the above conditions are met, enable all buttons
+                        cancelBookingButton.setDisable(false);
                         updateBookingButton.setDisable(false);
                         deleteBookingButton.setDisable(false);
                         stopBookingButton.setDisable(false);
@@ -606,10 +621,13 @@ public class ForEachOrderController {
         checkBookingStatus();
         checkOrderStatus();
         loadOrderList();
+
         // if Finished / Paid, disable all Buttons
-        if (orderStatusText.getText().equals("Finished") ||
-                orderStatusText.getText().equals("Paid") ||
-                orderStatusText.getText().equals("Canceled")) {
+        String orderStatus = orderStatusText.getText();
+
+        if (orderStatus.equals("Finished") ||
+                orderStatus.equals("Paid") ||
+                orderStatus.equals("Canceled")) {
 
             finishOrderButton.setDisable(true);
             updateBookingButton.setDisable(true);
@@ -624,11 +642,13 @@ public class ForEachOrderController {
             deleteOrderItemButton.setDisable(true);
             addBookingButton.setDisable(true);
         }
+
+        cancelBookingButton.setDisable(!orderStatus.equals("Order"));
     }
 
     public void addBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            NotificationService.showNotification("Error!","Cannot add booking with status Paid",NotificationStatus.Error);
+            NotificationService.showNotification("Error!", "Cannot add booking with status Paid", NotificationStatus.Error);
             return;
         }
         try {
@@ -646,20 +666,20 @@ public class ForEachOrderController {
 
             loadBookings();
         } catch (IOException e) {
-            NotificationService.showNotification("Error!","Cannot add Load Booking form !",NotificationStatus.Error);
+            NotificationService.showNotification("Error!", "Cannot add Load Booking form !", NotificationStatus.Error);
         }
     }
 
     public void updateBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            NotificationService.showNotification("Error!","Cannot add booking with status Paid",NotificationStatus.Error);
+            NotificationService.showNotification("Error!", "Cannot add booking with status Paid", NotificationStatus.Error);
             return;
         }
         // Lấy booking được chọn
         Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
         // Kiểm tra xem có booking nào được chọn không
         if (selectedBooking == null) {
-            NotificationService.showNotification("You haven't choose a Booking.","Please select a Booking !",NotificationStatus.Warning);
+            NotificationService.showNotification("You haven't choose a Booking.", "Please select a Booking !", NotificationStatus.Warning);
             return;
         }
 
@@ -667,14 +687,14 @@ public class ForEachOrderController {
         if ("Finish".equals(selectedBooking.getBookingStatus())) {
             System.out.println("Status finish");
             NotificationService.showNotification("Can't Update Status",
-                    "Cannot update the status of a booking that is already finished.",NotificationStatus.Error);
+                    "Cannot update the status of a booking that is already finished.", NotificationStatus.Error);
             return;
         }
 
         if ("Playing".equals(selectedBooking.getBookingStatus())) {
             System.out.println("Status playing");
             NotificationService.showNotification("Can't Update Status",
-                    "Cannot update the status of a booking that is already finished.",NotificationStatus.Error);
+                    "Cannot update the status of a booking that is already finished.", NotificationStatus.Error);
             return;
         }
 
@@ -694,35 +714,35 @@ public class ForEachOrderController {
             // Kiểm tra kết quả cập nhật và hiển thị thông báo
             if (updateSuccess) {
                 NotificationService.showNotification("Start Playing Successful",
-                        "Start playing on this table successfully.",NotificationStatus.Success);
+                        "Start playing on this table successfully.", NotificationStatus.Success);
                 loadBookings(); // Tải lại danh sách booking sau khi cập nhật
                 checkOrderStatus();
 
             } else {
                 NotificationService.showNotification("Update Failed",
-                        "Failed to update the booking status. Please try again.",NotificationStatus.Error);
+                        "Failed to update the booking status. Please try again.", NotificationStatus.Error);
             }
         }
     }
 
     public void deleteBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            NotificationService.showNotification("Error", "Cannot add booking with status 'Paid'.",NotificationStatus.Error);
+            NotificationService.showNotification("Error", "Cannot add booking with status 'Paid'.", NotificationStatus.Error);
             return;
         }
         Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
 
         if (selectedBooking == null) {
-            NotificationService.showNotification("No Selection", "Please select a booking to delete.",NotificationStatus.Error);
+            NotificationService.showNotification("No Selection", "Please select a booking to delete.", NotificationStatus.Error);
             return;
         }
         if (selectedBooking.getBookingStatus().equals("Finish")) {
-            NotificationService.showNotification("Can't Delete", "Bookings marked as 'finish' cannot be deleted",NotificationStatus.Error);
+            NotificationService.showNotification("Can't Delete", "Bookings marked as 'finish' cannot be deleted", NotificationStatus.Error);
             return;
         }
 
         if (selectedBooking.getBookingStatus().equals("Playing")) {
-            NotificationService.showNotification("Can't Delete", "Bookings marked as 'playing' cannot be deleted.",NotificationStatus.Error);
+            NotificationService.showNotification("Can't Delete", "Bookings marked as 'playing' cannot be deleted.", NotificationStatus.Error);
             return;
         }
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -736,10 +756,10 @@ public class ForEachOrderController {
             boolean success = bookingDAO.deleteBooking(selectedBooking.getBookingId());
 
             if (success) {
-                NotificationService.showNotification("Success", "Booking deleted successfully.",NotificationStatus.Success);
+                NotificationService.showNotification("Success", "Booking deleted successfully.", NotificationStatus.Success);
                 loadBookings();
             } else {
-                NotificationService.showNotification("Error", "Failed to delete the booking.",NotificationStatus.Error);
+                NotificationService.showNotification("Error", "Failed to delete the booking.", NotificationStatus.Error);
             }
         }
     }
@@ -1114,7 +1134,7 @@ public class ForEachOrderController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            NotificationService.showNotification("Error", "Failed to update product quantity: " + e.getMessage(),NotificationStatus.Error);
+            NotificationService.showNotification("Error", "Failed to update product quantity: " + e.getMessage(), NotificationStatus.Error);
         }
     }
 
@@ -1178,7 +1198,6 @@ public class ForEachOrderController {
         }
     }
 
-
     public void checkBookingStatus() {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID); // Lấy danh sách booking
 
@@ -1190,8 +1209,8 @@ public class ForEachOrderController {
                 long minutesPassed = Duration.between(bookingTime, now).toMinutes();
                 System.out.println("Thời gian chênh lệch: " + minutesPassed);
                 if (minutesPassed > 30 && "Order".equals(booking.getBookingStatus())) {
-                    BookingDAO.updateBookingStatus(booking.getBookingId());
-                    System.out.println("Đã hủy bàn "+ booking.getBookingId() + "thành công");
+                    BookingDAO.cancelBooking(booking.getBookingId());
+                    System.out.println("Đã hủy bàn " + booking.getBookingId() + "thành công");
                 }
             }
         }
@@ -1319,19 +1338,35 @@ public class ForEachOrderController {
         int index = rentCueTable.getItems().indexOf(cellData.getValue()) + 1;
         return new SimpleIntegerProperty(index).asObject();
     }
-    public void checkOrderStatus(){
-        List <Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
-        for (Booking booking : bookings){
-            if(booking.getBookingStatus().equals("Playing")){
-                OrderDAO.updateStatusOrder(orderID,"Playing");
+
+    public void checkOrderStatus() {
+        List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
+        for (Booking booking : bookings) {
+            if (booking.getBookingStatus().equals("Playing")) {
+                OrderDAO.updateStatusOrder(orderID, "Playing");
                 System.out.println("Da chuyen order thanh playing");
-            }else if (!booking.getBookingStatus().equals("Finish") && (booking.getBookingStatus().equals("Order"))){
+            } else if (!booking.getBookingStatus().equals("Finish") && (booking.getBookingStatus().equals("Order"))) {
                 OrderDAO.updateStatusOrder(orderID, "Order");
                 System.out.println("Da chuyen order thanh order");
-            }else{
+            } else {
                 OrderDAO.updateStatusOrder(orderID, "Canceled");
                 System.out.println("Da chuyen order thanh camceled");
             }
         }
+    }
+
+    @FXML
+    public void cancelBooking(ActionEvent actionEvent) {
+        Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
+        if (selectedBooking == null) {
+            NotificationService.showNotification("Error Cancel Booking", "You haven't choose a booking to cancel !", NotificationStatus.Error);
+            return;
+        }
+
+        boolean success = BookingDAO.cancelBooking(selectedBooking.getBookingId());
+        if (success)
+            NotificationService.showNotification("Cancel Booking Success", "Booking in Table : " + selectedBooking.getTableName() + " has been cancelled successfully!", NotificationStatus.Success);
+        else
+            NotificationService.showNotification("Error Cancel Booking", "An unexpected error happens when cancelling this booking. Please try again later !", NotificationStatus.Error);
     }
 }
