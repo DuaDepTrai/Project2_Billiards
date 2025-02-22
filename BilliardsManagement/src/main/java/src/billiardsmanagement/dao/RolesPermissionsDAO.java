@@ -50,4 +50,81 @@ public class RolesPermissionsDAO {
         }
         return permissions;
     }
+
+
+    // Phương thức để thêm role mới
+    public void addRole(String rolename) throws SQLException {
+        String sql = "INSERT INTO roles (role_name) VALUES (?)";
+        try (Connection connection = TestDBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, rolename);
+            statement.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    // Phương thức để xóa role
+    public void removeRole(int role_id) throws SQLException {
+        String deletePermissionsSQL = "DELETE FROM role_permission WHERE role_id = ?";
+        String deleteRoleSQL = "DELETE FROM roles WHERE role_id = ?";
+
+        try (Connection connection = TestDBConnection.getConnection();
+             PreparedStatement deletePermissionsStmt = connection.prepareStatement(deletePermissionsSQL);
+             PreparedStatement deleteRoleStmt = connection.prepareStatement(deleteRoleSQL)) {
+
+            connection.setAutoCommit(false); // Bắt đầu transaction
+
+            // Xóa tất cả quyền liên kết với role
+            deletePermissionsStmt.setInt(1, role_id);
+            deletePermissionsStmt.executeUpdate();
+
+            // Xóa role sau khi đã xóa quyền
+            deleteRoleStmt.setInt(1, role_id);
+            deleteRoleStmt.executeUpdate();
+
+            connection.commit(); // Lưu thay đổi
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public ObservableList<String> getAllPermissions() {
+        ObservableList<String> permissions = FXCollections.observableArrayList();
+        String query = "SELECT description FROM permissions";
+
+        try (ResultSet rs = connection.createStatement().executeQuery(query)) {
+            while (rs.next()) {
+                permissions.add(rs.getString("description"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return permissions;
+    }
+
+    public void updateRolePermissions(int roleId, ObservableList<String> newPermissions) throws SQLException {
+        String deleteQuery = "DELETE FROM role_permission WHERE role_id = ?";
+        String insertQuery = "INSERT INTO role_permission (role_id, permission_id) SELECT ?, permission_id FROM permissions WHERE description = ?";
+
+        try (PreparedStatement deleteStmt = connection.prepareStatement(deleteQuery);
+             PreparedStatement insertStmt = connection.prepareStatement(insertQuery)) {
+
+            // Xóa tất cả quyền cũ của role
+            deleteStmt.setInt(1, roleId);
+            deleteStmt.executeUpdate();
+
+            // Thêm quyền mới được chọn
+            for (String permission : newPermissions) {
+                insertStmt.setInt(1, roleId);
+                insertStmt.setString(2, permission);
+                insertStmt.executeUpdate();
+            }
+        }
+    }
+
+
 }

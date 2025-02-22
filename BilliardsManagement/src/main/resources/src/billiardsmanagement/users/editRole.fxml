@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" xmlns:fx="http://javafx.com/fxml" fx:controller="src.billiardsmanagement.controller.users.EditRoleController">
+    <Label text="Edit Role Permissions" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+    <ListView fx:id="permissionsListView" prefHeight="300"/>
+    <Button fx:id="btnSave" text="Save" onAction="#handleSave"/>
+</VBox>
