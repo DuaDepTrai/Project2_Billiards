@@ -2,6 +2,8 @@ package src.billiardsmanagement.dao;
 
 import src.billiardsmanagement.model.Booking;
 import src.billiardsmanagement.model.DatabaseConnection;
+import src.billiardsmanagement.model.NotificationService;
+import src.billiardsmanagement.model.NotificationStatus;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -241,6 +243,23 @@ public class BookingDAO {
             throw e;
         }
     }
+    public static boolean cancelBooking(int bookingId) {
+        String updateBookingQuery = "UPDATE bookings SET booking_status = 'Canceled' WHERE booking_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(updateBookingQuery)) {
+
+            // Cập nhật trạng thái booking thành 'Canceled'
+            stmt.setInt(1, bookingId);
+            int rowsUpdated = stmt.executeUpdate();
+
+            // Trả về true nếu có ít nhất 1 dòng được cập nhật
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 
     public void addBooking(Booking newBooking) {
@@ -287,4 +306,34 @@ public class BookingDAO {
             return false;
         }
     }
+    public static void updateTableStatusAfterBooking(int bookingId) {
+        String query = """
+        UPDATE pooltables 
+        SET status = 'available' 
+        WHERE table_id = (
+            SELECT table_id FROM bookings WHERE booking_id = ? 
+            AND booking_status IN ('Finish', 'Canceled')
+        )
+    """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, bookingId);
+            int rowsUpdated = stmt.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                NotificationService.showNotification("Table Updated",
+                        "The pool table is now available.", NotificationStatus.Success);
+            } else {
+                NotificationService.showNotification("No Update",
+                        "No changes were made. The booking might not be finished or canceled.", NotificationStatus.Warning);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            NotificationService.showNotification("Error",
+                    "An error occurred while updating the table status.", NotificationStatus.Error);
+        }
+    }
+
 }

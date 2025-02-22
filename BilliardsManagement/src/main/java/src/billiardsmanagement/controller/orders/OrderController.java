@@ -20,7 +20,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import javafx.collections.FXCollections;
@@ -114,7 +113,7 @@ public class OrderController implements Initializable {
     public void loadCustomerNameToIdMap() {
         String query = "SELECT customer_id, name, phone FROM customers";
         try (PreparedStatement statement = DatabaseConnection.getConnection().prepareStatement(query);
-                ResultSet resultSet = statement.executeQuery()) {
+             ResultSet resultSet = statement.executeQuery()) {
 
             customerNameToIdMap.clear();
             while (resultSet.next()) {
@@ -149,18 +148,19 @@ public class OrderController implements Initializable {
             private final Text text = new Text();
 
             {
-                text.wrappingWidthProperty().bind(nameTableColumn.widthProperty());
+                text.wrappingWidthProperty().bind(nameTableColumn.widthProperty().subtract(10)); // Tránh tràn nội dung
+                setGraphic(text);
             }
 
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
+                    text.setText(null);
                 } else {
                     text.setText(item);
-                    setGraphic(text);
+                    double textWidth = text.getBoundsInLocal().getWidth();
+                    nameTableColumn.setPrefWidth(Math.max(100, textWidth + 20)); // Đặt chiều rộng tối thiểu là 100
                 }
             }
         });
@@ -242,12 +242,17 @@ public class OrderController implements Initializable {
             if (selectedOrder != null) {
                 int orderId = selectedOrder.getOrderId();
                 int customerId = selectedOrder.getCustomerId();
+                int totalRow = orderTable.getItems().size();
+                int selectedIndex = orderTable.getSelectionModel().getSelectedIndex();
+                int billNo = totalRow - selectedIndex;
+
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
                 Parent root = loader.load();
                 ForEachOrderController controller = loader.getController();
                 controller.setOrderID(orderId);
                 controller.setCustomerID(customerId);
                 controller.setOrderTable(orderTable);
+                controller.setBillNo(billNo);
                 controller.initializeAllTables();
 
                 Stage stage = new Stage();
@@ -273,7 +278,7 @@ public class OrderController implements Initializable {
         }
 
         int orderId = selectedOrder.getOrderId();
-        FXMLLoader paymentLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/finalBill.fxml"));
+        FXMLLoader paymentLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
         Parent paymentRoot = paymentLoader.load();
         PaymentController paymentController = paymentLoader.getController();
         paymentController.setOrderID(orderId);
@@ -296,8 +301,6 @@ public class OrderController implements Initializable {
         bill.setTotalCost(currentOrder.getTotalCost());
         return bill;
     }
-
-
 
     @FXML
     public void searchOrder(ActionEvent actionEvent) {
