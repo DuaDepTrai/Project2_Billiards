@@ -36,7 +36,7 @@ public class BookingDAO {
         try {
             conn.setAutoCommit(false);
 
-            // Update all bookings: set end_time = NOW(), change status to 'Finish', and calculate timeplay
+            // 1. Cập nhật tất cả các bookings: đặt end_time = NOW(), đổi booking_status thành 'Finish', tính timeplay
             String updateBookingsQuery = """
             UPDATE bookings 
             SET end_time = NOW(), 
@@ -48,7 +48,7 @@ public class BookingDAO {
                 stmt.executeUpdate();
             }
 
-            // Calculate subtotal and net_total for bookings
+            // 2. Tính toán subtotal và net_total cho các booking
             String updateBookingCostQuery = """
             UPDATE bookings b 
             JOIN pooltables p ON b.table_id = p.table_id 
@@ -60,17 +60,30 @@ public class BookingDAO {
                 stmt.setInt(1, orderId);
                 stmt.executeUpdate();
             }
+
+            // 3. Cập nhật trạng thái pooltables thành 'available' cho các booking thuộc orderId này
+            String updatePooltablesQuery = """
+            UPDATE pooltables 
+            SET status = 'available'
+            WHERE table_id IN (
+                SELECT table_id FROM bookings WHERE order_id = ?
+            )""";
+            try (PreparedStatement stmt = conn.prepareStatement(updatePooltablesQuery)) {
+                stmt.setInt(1, orderId);
+                stmt.executeUpdate();
+            }
+
             conn.commit();
             return true;
         } catch (SQLException e) {
             if (conn != null) {
                 try {
                     conn.rollback();
-                    e.printStackTrace();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
             }
+            e.printStackTrace();
             return false;
         }
     }

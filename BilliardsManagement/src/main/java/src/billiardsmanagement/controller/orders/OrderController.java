@@ -148,22 +148,23 @@ public class OrderController implements Initializable {
             private final Text text = new Text();
 
             {
-                text.wrappingWidthProperty().bind(nameTableColumn.widthProperty().subtract(10)); // Tránh tràn nội dung
-                setGraphic(text);
+                text.wrappingWidthProperty().bind(nameTableColumn.widthProperty());
             }
 
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
-                    text.setText(null);
+                    setText(null);
+                    setGraphic(null);
                 } else {
                     text.setText(item);
-                    double textWidth = text.getBoundsInLocal().getWidth();
-                    nameTableColumn.setPrefWidth(Math.max(100, textWidth + 20)); // Đặt chiều rộng tối thiểu là 100
+                    setGraphic(text);
                 }
             }
         });
+
+
         totalCostColumn.setCellFactory(param -> new TableCell<Order, Double>() {
             private final DecimalFormat df = new DecimalFormat("#,###");
 
@@ -225,6 +226,7 @@ public class OrderController implements Initializable {
                 e.printStackTrace();
             }
         });
+
     }
 
     public void addCustomer(ActionEvent event) throws IOException {

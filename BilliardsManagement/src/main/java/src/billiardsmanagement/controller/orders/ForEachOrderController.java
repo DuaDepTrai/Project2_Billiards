@@ -1267,15 +1267,7 @@ public class ForEachOrderController {
         confirmationAlert.setTitle("Finish Order");
         confirmationAlert.setHeaderText("Are you sure you want to finish this order?");
         confirmationAlert.setContentText("This will mark the order as finished and finalize all bookings and rentals.");
-        List<Integer> finishedBookingIds = bookingPoolTable.getItems().stream()
-                .filter(booking -> "Finish".equals(booking.getBookingStatus()) || "Canceled".equals(booking.getBookingStatus()))
-                .map(Booking::getBookingId)
-                .collect(Collectors.toList());
-        System.out.println("Danh sách booking finish và canceled");
-        finishedBookingIds.forEach(bookingID -> {
-            BookingDAO.updateTableStatusAfterBooking(bookingID);
-            System.out.println("Đã trả bàn về available: " + bookingID);
-        });
+
         Optional<ButtonType> result = confirmationAlert.showAndWait();
         if (result.isEmpty() || result.get() != ButtonType.OK) {
             return;
