@@ -73,6 +73,40 @@ public class OrderDAO {
         return paidOrders;
     }
 
+    public static List<Order> getOrdersByPhone(String phoneNumber) {
+        List<Order> orders = new ArrayList<>();
+        String query = """
+        SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
+               o.total_cost, o.order_status
+        FROM orders o
+        JOIN customers c ON o.customer_id = c.customer_id
+        WHERE c.phone = ?
+        ORDER BY o.order_id DESC
+    """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, phoneNumber);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Order order = new Order(
+                        rs.getInt("order_id"),
+                        rs.getInt("customer_id"),
+                        rs.getString("customer_name"),
+                        rs.getString("customer_phone"),
+                        rs.getDouble("total_cost"),
+                        rs.getString("order_status")
+                );
+                orders.add(order);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return orders;
+    }
+
     // Không cần khai báo URL, USER, PASSWORD nữa, vì đã có trong DatabaseConnection
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
@@ -82,9 +116,9 @@ public class OrderDAO {
            GROUP_CONCAT(
                CONCAT(
                    CASE 
-                       WHEN p.name LIKE 'Standard Pool%' THEN 'STD' 
-                       WHEN p.name LIKE 'Deluxe Pool%' THEN 'DLX' 
-                       WHEN p.name LIKE 'VIP Pool%' THEN 'VIP' 
+                       WHEN p.name LIKE 'Standard %' THEN 'STD' 
+                       WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
+                       WHEN p.name LIKE 'VIP %' THEN 'VIP' 
                        ELSE p.name 
                    END, 
                    SUBSTRING_INDEX(p.name, ' ', -1)
