@@ -35,8 +35,8 @@
 
                 <Button mnemonicParsing="false" onAction="#addCustomer" styleClass="order-button" text="Add Customer" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 <Button mnemonicParsing="false" onAction="#billOrder" styleClass="order-button" text="Bill" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                <TextField GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                <Button mnemonicParsing="false" text="Search" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                <TextField fx:id="phoneTextField" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                <Button mnemonicParsing="false" onAction="#searchOrder" text="Search" GridPane.columnIndex="3" GridPane.rowIndex="2">
                     <GridPane.margin>
                         <Insets left="29.0" />
                     </GridPane.margin>

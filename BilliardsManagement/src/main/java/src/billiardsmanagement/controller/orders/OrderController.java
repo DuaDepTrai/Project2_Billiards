@@ -9,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
@@ -46,6 +47,8 @@ public class OrderController implements Initializable {
 
     @FXML
     private TextField autoCompleteTextField;
+    @FXML
+    private TextField phoneTextField;
     @FXML
     private TableView<Order> orderTable;
 
@@ -142,6 +145,25 @@ public class OrderController implements Initializable {
         orderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("orderStatus"));
         phoneCustomerColumn.setCellValueFactory(new PropertyValueFactory<>("customerPhone"));
         nameTableColumn.setCellValueFactory(new PropertyValueFactory<>("currentTableName"));
+        nameTableColumn.setCellFactory(column -> new TableCell<Order, String>() {
+            private final Text text = new Text();
+
+            {
+                text.wrappingWidthProperty().bind(nameTableColumn.widthProperty());
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    text.setText(item);
+                    setGraphic(text);
+                }
+            }
+        });
         totalCostColumn.setCellFactory(param -> new TableCell<Order, Double>() {
             private final DecimalFormat df = new DecimalFormat("#,###");
 
@@ -181,18 +203,18 @@ public class OrderController implements Initializable {
 
         autoCompleteTextField.setOnKeyPressed(event -> {
             switch (event.getCode()) {
-            case ENTER:
-                if (!listView.getSelectionModel().isEmpty()) {
-                    String selected = listView.getSelectionModel().getSelectedItem();
-                    autoCompleteTextField.setText(selected);
+                case ENTER:
+                    if (!listView.getSelectionModel().isEmpty()) {
+                        String selected = listView.getSelectionModel().getSelectedItem();
+                        autoCompleteTextField.setText(selected);
+                        popup.hide();
+                    }
+                    break;
+                case ESCAPE:
                     popup.hide();
-                }
-                break;
-            case ESCAPE:
-                popup.hide();
-                break;
-            default:
-                break;
+                    break;
+                default:
+                    break;
             }
         });
 
@@ -275,5 +297,26 @@ public class OrderController implements Initializable {
         return bill;
     }
 
+
+
+    @FXML
+    public void searchOrder(ActionEvent actionEvent) {
+        String phoneNumber = phoneTextField.getText().trim();
+
+        if (phoneNumber.isEmpty()) {
+            NotificationService.showNotification("Input Error", "Please enter a phone number!", NotificationStatus.Warning);
+            return;
+        }
+
+        // Fetch orders by phone number
+        List<Order> orders = OrderDAO.getOrdersByPhone(phoneNumber);
+
+        if (orders.isEmpty()) {
+            NotificationService.showNotification("No Orders Found", "There are no orders associated with this phone number.", NotificationStatus.Information);
+        } else {
+            orderTable.getItems().setAll(orders);
+            NotificationService.showNotification("Search Successful", "Found " + orders.size() + " orders.", NotificationStatus.Success);
+        }
+    }
 
 }

@@ -73,6 +73,40 @@ public class OrderDAO {
         return paidOrders;
     }
 
+    public static List<Order> getOrdersByPhone(String phoneNumber) {
+        List<Order> orders = new ArrayList<>();
+        String query = """
+        SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
+               o.total_cost, o.order_status
+        FROM orders o
+        JOIN customers c ON o.customer_id = c.customer_id
+        WHERE c.phone = ?
+        ORDER BY o.order_id DESC
+    """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, phoneNumber);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Order order = new Order(
+                        rs.getInt("order_id"),
+                        rs.getInt("customer_id"),
+                        rs.getString("customer_name"),
+                        rs.getString("customer_phone"),
+                        rs.getDouble("total_cost"),
+                        rs.getString("order_status")
+                );
+                orders.add(order);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return orders;
+    }
+
     // Không cần khai báo URL, USER, PASSWORD nữa, vì đã có trong DatabaseConnection
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
@@ -81,22 +115,21 @@ public class OrderDAO {
            o.total_cost, o.order_status,
            GROUP_CONCAT(
                CONCAT(
-                   CASE\s
-                       WHEN p.name LIKE 'Standard%' THEN 'STD'\s
-                       WHEN p.name LIKE 'Deluxe%' THEN 'DLX'\s
-                       WHEN p.name LIKE 'VIP%' THEN 'VIP'\s
-                       ELSE p.name\s
-                   END,\s
-                   '', -- Thêm khoảng trắng để tách biệt trước số bàn
-                   REGEXP_SUBSTR(p.name, '[0-9]+$') -- Lấy số ở cuối tên bàn
-               ) ORDER BY p.table_id SEPARATOR ', '
+                   CASE 
+                       WHEN p.name LIKE 'Standard %' THEN 'STD' 
+                       WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
+                       WHEN p.name LIKE 'VIP %' THEN 'VIP' 
+                       ELSE p.name 
+                   END, 
+                   SUBSTRING_INDEX(p.name, ' ', -1)
+               ) SEPARATOR ', '
            ) AS currentTableName
     FROM orders o
     JOIN customers c ON o.customer_id = c.customer_id
     LEFT JOIN bookings b ON o.order_id = b.order_id
     LEFT JOIN pooltables p ON b.table_id = p.table_id
     GROUP BY o.order_id
-    ORDER BY o.order_id DESC;
+    ORDER BY o.order_id DESC
 """;
 
 
