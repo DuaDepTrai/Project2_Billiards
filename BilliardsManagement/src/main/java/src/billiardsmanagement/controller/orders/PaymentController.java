@@ -1,10 +1,6 @@
 package src.billiardsmanagement.controller.orders;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -13,12 +9,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.stage.Stage;
 import src.billiardsmanagement.model.*;
 
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ResourceBundle;
 
 public class PaymentController {
     private int orderID;
@@ -58,6 +52,8 @@ public class PaymentController {
             alert.setHeaderText("");
             alert.setContentText("The bill has been successfully printed.");
             alert.showAndWait();
+            PrintBillController.cutPdfBill();
+            PrintBillController.showPdfBillToScreen();
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);

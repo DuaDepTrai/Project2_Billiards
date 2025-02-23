@@ -4,6 +4,9 @@ module src.billiardsmanagement {
     requires org.controlsfx.controls;
     requires itextpdf;
     requires mysql.connector.j;
+    requires java.desktop;
+    requires org.apache.pdfbox;
+    requires kernel;
 
     exports src.billiardsmanagement.model;
     exports src.billiardsmanagement.controller;
