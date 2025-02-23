@@ -1,5 +1,7 @@
 package src.billiardsmanagement.model;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -10,6 +12,7 @@ public class User {
     private String plainPassword; // Lưu mật khẩu chưa hash
     private String role;
     private String imagePath;
+    private List<String> permissions;
 
     public User(int id, String username, String password, String role, String imagePath) {
         this.id = id;
@@ -40,6 +43,18 @@ public class User {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public List<String> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(List<String> permissions) {
+        this.permissions = permissions;
+    }
+
+    public List<String> getPermissionsAsString() {
+        return permissions; // Không cần stream/map vì đã là List<String>
     }
 
     @Override

@@ -5,6 +5,8 @@ import src.billiardsmanagement.model.Pair;
 import src.billiardsmanagement.model.User;
 import src.billiardsmanagement.model.TestDBConnection;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,6 +126,80 @@ public class UserDAO {
         }
 
         return hashedPassword;
+    }
+
+    public User authenticateUser(String username, String password) {
+        String sql = "SELECT * FROM users WHERE BINARY username = ?";
+
+        try (Connection connection = TestDBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                String hashedPasswordFromDB = resultSet.getString("password");
+
+                // Băm mật khẩu nhập vào và so sánh với mật khẩu trong DB
+                if (hashPassword(password).equals(hashedPasswordFromDB)) {
+                    return new User(
+                            resultSet.getInt("user_id"),
+                            resultSet.getString("username"),
+                            hashedPasswordFromDB,
+                            resultSet.getString("role_id"),
+                            resultSet.getString("image_path")
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null; // Trả về null nếu xác thực thất bại
+    }
+
+    private String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = md.digest(password.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashedBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<String> getUserPermissions(int userId) {
+        List<String> permissions = new ArrayList<>();
+        String sql = "SELECT p.name FROM permissions p " +
+                "JOIN role_permissions rp ON p.id = rp.permission_id " +
+                "JOIN roles r ON rp.role_id = r.id " +
+                "JOIN users u ON r.id = u.role_id " +
+                "WHERE u.id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                permissions.add(rs.getString("name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return permissions;
+    }
+
+    private Connection connection;
+
+    public UserDAO() {
+        try {
+            this.connection = TestDBConnection.getConnection(); // Lấy connection từ class DatabaseConnection
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
