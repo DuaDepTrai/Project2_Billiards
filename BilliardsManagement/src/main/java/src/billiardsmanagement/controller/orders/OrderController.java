@@ -19,7 +19,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import javafx.collections.FXCollections;
@@ -251,7 +250,7 @@ public class OrderController implements Initializable {
         }
 
         int orderId = selectedOrder.getOrderId();
-        FXMLLoader paymentLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/finalBill.fxml"));
+        FXMLLoader paymentLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
         Parent paymentRoot = paymentLoader.load();
         PaymentController paymentController = paymentLoader.getController();
         paymentController.setOrderID(orderId);

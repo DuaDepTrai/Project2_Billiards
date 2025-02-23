@@ -2,11 +2,9 @@ package src.billiardsmanagement.controller.orders;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.SetChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,10 +13,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyCode;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import src.billiardsmanagement.controller.orders.bookings.AddBookingController;
 import src.billiardsmanagement.controller.orders.items.AddOrderItemController;
 import src.billiardsmanagement.controller.orders.items.UpdateOrderItemController;
@@ -28,17 +24,17 @@ import src.billiardsmanagement.dao.*;
 import src.billiardsmanagement.model.*;
 
 import java.io.IOException;
-import java.net.URL;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 public class ForEachOrderController {
     // Buttons
@@ -1368,8 +1364,10 @@ public class ForEachOrderController {
         }
 
         boolean success = BookingDAO.cancelBooking(selectedBooking.getBookingId());
-        if (success)
+        if (success){
             NotificationService.showNotification("Cancel Booking Success", "Booking in Table : " + selectedBooking.getTableName() + " has been cancelled successfully!", NotificationStatus.Success);
+            loadBookings();
+        }
         else
             NotificationService.showNotification("Error Cancel Booking", "An unexpected error happens when cancelling this booking. Please try again later !", NotificationStatus.Error);
     }
