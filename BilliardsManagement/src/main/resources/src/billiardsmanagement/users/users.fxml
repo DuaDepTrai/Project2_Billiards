@@ -8,7 +8,7 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="src.billiardsmanagement.controller.users.UserController" prefWidth="1000" prefHeight="750">
-    <TableView fx:id="tableUsers" AnchorPane.topAnchor="10.0" AnchorPane.leftAnchor="10.0"
+    <TableView fx:id="tableUsers" AnchorPane.topAnchor="50.0" AnchorPane.leftAnchor="10.0"
                AnchorPane.rightAnchor="10.0" AnchorPane.bottomAnchor="50.0">
         <columns>
             <TableColumn fx:id="columnId" text="ID" prefWidth="50"/>

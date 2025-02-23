@@ -30,13 +30,13 @@ public class NotificationService {
             String colour;
             switch (status) {
             case Error:
-                colour = "#A31D1D"; // Màu đỏ
+                colour = "#FF0000"; // Màu đỏ
                 break;
             case Success:
-                colour = "#5B913B"; // Màu xanh lục
+                colour = "#00FF00"; // Màu xanh lục
                 break;
             case Warning:
-                colour = "#FFB22C"; // Màu cam
+                colour = "#FF9D23"; // Màu cam
                 break;
             case Information:
                 colour = "#333333"; // Màu xám đậm

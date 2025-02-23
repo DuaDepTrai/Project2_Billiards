@@ -143,7 +143,7 @@ public class AddOrderItemController {
                     boolean success = OrderItemDAO.addOrderItemDuplicate(newItem);
 
                     if (success) {
-                        NotificationService.showNotification("Success", "An Order Item has been added successfully!", NotificationStatus.Success);
+                        NotificationService.showNotification("Success", "An Order Item has been added successfully!", NotificationStatus.Information);
                     }
 
                     Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();
@@ -173,7 +173,7 @@ public class AddOrderItemController {
             ProductDAO.dispatchItem(selectedProductName, quantity);
             OrderItemDAO.addOrderItem(orderItem);
 
-            NotificationService.showNotification("Success", "An Order Item has been added successfully!", NotificationStatus.Success);
+            NotificationService.showNotification("Success", "An Order Item has been added successfully!", NotificationStatus.Information);
 
             Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();
             stage.close();

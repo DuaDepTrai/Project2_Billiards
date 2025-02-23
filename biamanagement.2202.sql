@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Feb 21, 2025 at 06:54 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Máy chủ: 127.0.0.1
+-- Thời gian đã tạo: Th2 22, 2025 lúc 05:28 PM
+-- Phiên bản máy phục vụ: 10.4.32-MariaDB
+-- Phiên bản PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `biamanagement`
+-- Cơ sở dữ liệu: `biamanagement`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `bookings`
+-- Cấu trúc bảng cho bảng `bookings`
 --
 
 CREATE TABLE `bookings` (
@@ -41,7 +41,7 @@ CREATE TABLE `bookings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `bookings`
+-- Đang đổ dữ liệu cho bảng `bookings`
 --
 
 INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end_time`, `timeplay`, `subtotal`, `net_total`, `booking_status`, `promotion_id`) VALUES
@@ -64,17 +64,19 @@ INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end
 (33, 28, 4, '2025-02-21 17:31:00', '2025-02-21 17:34:38', 0.05, 1750, 1750, 'Finish', NULL),
 (34, 28, 9, '2025-02-21 17:31:00', '2025-02-21 17:34:38', 0.05, 5000, 5000, 'Finish', NULL),
 (35, 27, 7, '2025-02-21 17:39:00', '2025-02-21 17:39:29', 0, 0, 0, 'Finish', NULL),
-(36, 27, 9, '2025-02-21 17:39:00', '2025-02-21 17:39:29', 0, 0, 0, 'Finish', NULL);
+(36, 27, 9, '2025-02-21 17:39:00', '2025-02-21 17:39:29', 0, 0, 0, 'Finish', NULL),
+(37, 33, 4, '2025-02-22 16:18:00', '2025-02-22 16:25:39', 0.116666666, 4083.33331, NULL, 'Finish', NULL),
+(38, 33, 7, '2025-02-22 16:18:00', '2025-02-22 16:25:39', 0.116666666, 4083.33331, NULL, 'Finish', NULL),
+(39, 33, 4, '2025-02-22 16:22:00', '2025-02-22 16:25:39', 0.05, 1750, NULL, 'Finish', NULL),
+(40, 33, 7, '2025-02-22 16:22:00', '2025-02-22 16:25:39', 0.05, 1750, NULL, 'Finish', NULL),
+(41, 34, 6, '2025-02-22 16:25:00', '2025-02-22 16:26:15', 0.016666666, 1666.6666, 1666.6666, 'Finish', NULL),
+(42, 36, 9, '2025-02-22 16:27:00', '2025-02-22 16:27:45', 0, 0, 0, 'Finish', NULL);
 
 --
--- Triggers `bookings`
+-- Bẫy `bookings`
 --
 DELIMITER $$
-
-CREATE TRIGGER after_bookings_insert
-AFTER INSERT ON bookings
-FOR EACH ROW 
-BEGIN
+CREATE TRIGGER `after_bookings_insert` AFTER INSERT ON `bookings` FOR EACH ROW BEGIN
     IF NEW.booking_status = 'order' THEN
         UPDATE pooltables
         SET status = 'ordered'
@@ -88,14 +90,43 @@ BEGIN
         SET status = 'available'
         WHERE table_id = NEW.table_id;
     END IF;
-END $$
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `after_delete_booking` AFTER DELETE ON `bookings` FOR EACH ROW BEGIN
+    UPDATE pooltables
+    SET status = 'available'
+    WHERE table_id = OLD.table_id;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `update_total_playtime_and_table_status` AFTER UPDATE ON `bookings` FOR EACH ROW BEGIN
+    -- Kiểm tra nếu giá trị timeplay thay đổi
+    IF OLD.timeplay <> NEW.timeplay THEN
+        UPDATE customers c
+        JOIN orders o ON c.customer_id = o.customer_id
+        JOIN bookings b ON o.order_id = b.order_id
+        SET c.total_playtime = (
+            SELECT COALESCE(SUM(b.timeplay), 0)
+            FROM bookings b
+            JOIN orders o2 ON b.order_id = o2.order_id
+            WHERE o2.customer_id = c.customer_id
+        )
+        WHERE o.customer_id = c.customer_id;
+    END IF;
 
+ 
+   
+END
+$$
 DELIMITER ;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `category`
+-- Cấu trúc bảng cho bảng `category`
 --
 
 CREATE TABLE `category` (
@@ -105,7 +136,7 @@ CREATE TABLE `category` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `category`
+-- Đang đổ dữ liệu cho bảng `category`
 --
 
 INSERT INTO `category` (`category_id`, `category_name`, `image_path`) VALUES
@@ -118,7 +149,7 @@ INSERT INTO `category` (`category_id`, `category_name`, `image_path`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cate_pooltables`
+-- Cấu trúc bảng cho bảng `cate_pooltables`
 --
 
 CREATE TABLE `cate_pooltables` (
@@ -128,7 +159,7 @@ CREATE TABLE `cate_pooltables` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `cate_pooltables`
+-- Đang đổ dữ liệu cho bảng `cate_pooltables`
 --
 
 INSERT INTO `cate_pooltables` (`id`, `name`, `price`) VALUES
@@ -139,7 +170,7 @@ INSERT INTO `cate_pooltables` (`id`, `name`, `price`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `customers`
+-- Cấu trúc bảng cho bảng `customers`
 --
 
 CREATE TABLE `customers` (
@@ -150,7 +181,7 @@ CREATE TABLE `customers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `customers`
+-- Đang đổ dữ liệu cho bảng `customers`
 --
 
 INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUES
@@ -179,7 +210,7 @@ INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUE
 -- --------------------------------------------------------
 
 --
--- Table structure for table `orders`
+-- Cấu trúc bảng cho bảng `orders`
 --
 
 CREATE TABLE `orders` (
@@ -190,7 +221,7 @@ CREATE TABLE `orders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `orders`
+-- Đang đổ dữ liệu cho bảng `orders`
 --
 
 INSERT INTO `orders` (`order_id`, `customer_id`, `total_cost`, `order_status`) VALUES
@@ -209,12 +240,16 @@ INSERT INTO `orders` (`order_id`, `customer_id`, `total_cost`, `order_status`) V
 (29, 21, 467000, 'Canceled'),
 (30, 1, NULL, 'Canceled'),
 (31, 3, NULL, 'Canceled'),
-(32, 5, NULL, 'Canceled');
+(32, 5, NULL, 'Canceled'),
+(33, 2, 215000, 'Canceled'),
+(34, 5, 1666.6666, 'Canceled'),
+(35, 5, 0, 'Finished'),
+(36, 9, NULL, 'Playing');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `orders_items`
+-- Cấu trúc bảng cho bảng `orders_items`
 --
 
 CREATE TABLE `orders_items` (
@@ -228,7 +263,7 @@ CREATE TABLE `orders_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `orders_items`
+-- Đang đổ dữ liệu cho bảng `orders_items`
 --
 
 INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity`, `subtotal`, `net_total`, `promotion_id`) VALUES
@@ -254,12 +289,13 @@ INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity
 (54, 28, 10, 1, 30000, 30000, NULL),
 (55, 28, 16, 1, 50000, 50000, NULL),
 (56, 28, 8, 1, 25000, 25000, NULL),
-(57, 28, 1, 1, 500000, 500000, NULL);
+(57, 28, 1, 1, 500000, 500000, NULL),
+(58, 33, 17, 10, 200000, 200000, NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `permissions`
+-- Cấu trúc bảng cho bảng `permissions`
 --
 
 CREATE TABLE `permissions` (
@@ -269,7 +305,7 @@ CREATE TABLE `permissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `permissions`
+-- Đang đổ dữ liệu cho bảng `permissions`
 --
 
 INSERT INTO `permissions` (`permission_id`, `permission_name`, `description`) VALUES
@@ -286,7 +322,7 @@ INSERT INTO `permissions` (`permission_id`, `permission_name`, `description`) VA
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pooltables`
+-- Cấu trúc bảng cho bảng `pooltables`
 --
 
 CREATE TABLE `pooltables` (
@@ -297,24 +333,24 @@ CREATE TABLE `pooltables` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `pooltables`
+-- Đang đổ dữ liệu cho bảng `pooltables`
 --
 
 INSERT INTO `pooltables` (`cate_id`, `table_id`, `name`, `status`) VALUES
 (1, 1, 'Standard 1', 'Playing'),
 (2, 2, 'Deluxe 1', 'Ordered'),
 (3, 3, 'VIP 1', 'Playing'),
-(1, 4, 'Standard 2', 'Available'),
+(1, 4, 'Standard 2', 'Playing'),
 (2, 5, 'Deluxe 2', 'Available'),
-(3, 6, 'VIP 2', 'Available'),
-(1, 7, 'Standard 3', 'Available'),
+(3, 6, 'VIP 2', 'Playing'),
+(1, 7, 'Standard 3', 'Playing'),
 (2, 8, 'Deluxe 3', 'Available'),
-(3, 9, 'VIP 3', 'Available');
+(3, 9, 'VIP 3', 'Playing');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `products`
+-- Cấu trúc bảng cho bảng `products`
 --
 
 CREATE TABLE `products` (
@@ -327,7 +363,7 @@ CREATE TABLE `products` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `products`
+-- Đang đổ dữ liệu cho bảng `products`
 --
 
 INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `quantity`) VALUES
@@ -347,12 +383,12 @@ INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `q
 (14, 'Popcorn', 4, 25000, 'Bag', 60),
 (15, 'Chocolate', 4, 40000, 'Bar', 10),
 (16, 'Cookies', 4, 50000, 'Box', 24),
-(17, 'Coca Cola', 3, 20000, 'Can', 26);
+(17, 'Coca Cola', 3, 20000, 'Can', 16);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `promotions`
+-- Cấu trúc bảng cho bảng `promotions`
 --
 
 CREATE TABLE `promotions` (
@@ -364,7 +400,7 @@ CREATE TABLE `promotions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `promotions`
+-- Đang đổ dữ liệu cho bảng `promotions`
 --
 
 INSERT INTO `promotions` (`promotion_id`, `name`, `promotion_type`, `discount`, `description`) VALUES
@@ -382,7 +418,7 @@ INSERT INTO `promotions` (`promotion_id`, `name`, `promotion_type`, `discount`, 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `rent_cues`
+-- Cấu trúc bảng cho bảng `rent_cues`
 --
 
 CREATE TABLE `rent_cues` (
@@ -399,7 +435,7 @@ CREATE TABLE `rent_cues` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `rent_cues`
+-- Đang đổ dữ liệu cho bảng `rent_cues`
 --
 
 INSERT INTO `rent_cues` (`rent_cue_id`, `order_id`, `product_id`, `start_time`, `end_time`, `status`, `timeplay`, `subtotal`, `net_total`, `promotion_id`) VALUES
@@ -425,12 +461,13 @@ INSERT INTO `rent_cues` (`rent_cue_id`, `order_id`, `product_id`, `start_time`, 
 (20, 29, 6, '2025-02-21 16:45:04', '2025-02-21 16:57:06', 'Available', 0.2, 30000, 30000, NULL),
 (21, 28, 6, '2025-02-21 17:32:27', '2025-02-21 17:34:38', 'Available', 0, 0, 0, NULL),
 (22, 28, 5, '2025-02-21 17:32:31', '2025-02-21 17:34:38', 'Available', 0, 0, 0, NULL),
-(23, 27, 6, '2025-02-21 17:39:19', '2025-02-21 17:39:29', 'Available', 0, 0, 0, NULL);
+(23, 27, 6, '2025-02-21 17:39:19', '2025-02-21 17:39:29', 'Available', 0, 0, 0, NULL),
+(24, 33, 6, '2025-02-22 16:18:44', '2025-02-22 16:25:39', 'Available', 0.1, 15000, 15000, NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `revenue`
+-- Cấu trúc bảng cho bảng `revenue`
 --
 
 CREATE TABLE `revenue` (
@@ -444,7 +481,7 @@ CREATE TABLE `revenue` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `roles`
+-- Cấu trúc bảng cho bảng `roles`
 --
 
 CREATE TABLE `roles` (
@@ -453,7 +490,7 @@ CREATE TABLE `roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `roles`
+-- Đang đổ dữ liệu cho bảng `roles`
 --
 
 INSERT INTO `roles` (`role_id`, `role_name`) VALUES
@@ -465,7 +502,7 @@ INSERT INTO `roles` (`role_id`, `role_name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `role_permission`
+-- Cấu trúc bảng cho bảng `role_permission`
 --
 
 CREATE TABLE `role_permission` (
@@ -474,7 +511,7 @@ CREATE TABLE `role_permission` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `role_permission`
+-- Đang đổ dữ liệu cho bảng `role_permission`
 --
 
 INSERT INTO `role_permission` (`role_id`, `permission_id`) VALUES
@@ -501,7 +538,7 @@ INSERT INTO `role_permission` (`role_id`, `permission_id`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Cấu trúc bảng cho bảng `users`
 --
 
 CREATE TABLE `users` (
@@ -513,7 +550,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `users`
+-- Đang đổ dữ liệu cho bảng `users`
 --
 
 INSERT INTO `users` (`user_id`, `username`, `password`, `role_id`, `image_path`) VALUES
@@ -528,11 +565,11 @@ INSERT INTO `users` (`user_id`, `username`, `password`, `role_id`, `image_path`)
 (10, 'test23', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 4, 'attention.png');
 
 --
--- Indexes for dumped tables
+-- Chỉ mục cho các bảng đã đổ
 --
 
 --
--- Indexes for table `bookings`
+-- Chỉ mục cho bảng `bookings`
 --
 ALTER TABLE `bookings`
   ADD PRIMARY KEY (`booking_id`),
@@ -541,32 +578,32 @@ ALTER TABLE `bookings`
   ADD KEY `promotion_id` (`promotion_id`);
 
 --
--- Indexes for table `category`
+-- Chỉ mục cho bảng `category`
 --
 ALTER TABLE `category`
   ADD PRIMARY KEY (`category_id`);
 
 --
--- Indexes for table `cate_pooltables`
+-- Chỉ mục cho bảng `cate_pooltables`
 --
 ALTER TABLE `cate_pooltables`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `customers`
+-- Chỉ mục cho bảng `customers`
 --
 ALTER TABLE `customers`
   ADD PRIMARY KEY (`customer_id`);
 
 --
--- Indexes for table `orders`
+-- Chỉ mục cho bảng `orders`
 --
 ALTER TABLE `orders`
   ADD PRIMARY KEY (`order_id`),
   ADD KEY `customers_id` (`customer_id`);
 
 --
--- Indexes for table `orders_items`
+-- Chỉ mục cho bảng `orders_items`
 --
 ALTER TABLE `orders_items`
   ADD PRIMARY KEY (`order_item_id`),
@@ -575,33 +612,33 @@ ALTER TABLE `orders_items`
   ADD KEY `promotion_id` (`promotion_id`);
 
 --
--- Indexes for table `permissions`
+-- Chỉ mục cho bảng `permissions`
 --
 ALTER TABLE `permissions`
   ADD PRIMARY KEY (`permission_id`);
 
 --
--- Indexes for table `pooltables`
+-- Chỉ mục cho bảng `pooltables`
 --
 ALTER TABLE `pooltables`
   ADD PRIMARY KEY (`table_id`),
   ADD KEY `pooltables_cate_pooltables_fk` (`cate_id`);
 
 --
--- Indexes for table `products`
+-- Chỉ mục cho bảng `products`
 --
 ALTER TABLE `products`
   ADD PRIMARY KEY (`product_id`),
   ADD KEY `category_id` (`category_id`);
 
 --
--- Indexes for table `promotions`
+-- Chỉ mục cho bảng `promotions`
 --
 ALTER TABLE `promotions`
   ADD PRIMARY KEY (`promotion_id`);
 
 --
--- Indexes for table `rent_cues`
+-- Chỉ mục cho bảng `rent_cues`
 --
 ALTER TABLE `rent_cues`
   ADD PRIMARY KEY (`rent_cue_id`),
@@ -610,26 +647,26 @@ ALTER TABLE `rent_cues`
   ADD KEY `promotion_id` (`promotion_id`);
 
 --
--- Indexes for table `revenue`
+-- Chỉ mục cho bảng `revenue`
 --
 ALTER TABLE `revenue`
   ADD PRIMARY KEY (`revenue_id`);
 
 --
--- Indexes for table `roles`
+-- Chỉ mục cho bảng `roles`
 --
 ALTER TABLE `roles`
   ADD PRIMARY KEY (`role_id`);
 
 --
--- Indexes for table `role_permission`
+-- Chỉ mục cho bảng `role_permission`
 --
 ALTER TABLE `role_permission`
   ADD PRIMARY KEY (`role_id`,`permission_id`),
   ADD KEY `permission_id` (`permission_id`);
 
 --
--- Indexes for table `users`
+-- Chỉ mục cho bảng `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
@@ -637,99 +674,99 @@ ALTER TABLE `users`
   ADD KEY `users_roles_FK` (`role_id`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT cho các bảng đã đổ
 --
 
 --
--- AUTO_INCREMENT for table `bookings`
+-- AUTO_INCREMENT cho bảng `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
--- AUTO_INCREMENT for table `category`
+-- AUTO_INCREMENT cho bảng `category`
 --
 ALTER TABLE `category`
   MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
--- AUTO_INCREMENT for table `cate_pooltables`
+-- AUTO_INCREMENT cho bảng `cate_pooltables`
 --
 ALTER TABLE `cate_pooltables`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `customers`
+-- AUTO_INCREMENT cho bảng `customers`
 --
 ALTER TABLE `customers`
   MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
--- AUTO_INCREMENT for table `orders`
+-- AUTO_INCREMENT cho bảng `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
--- AUTO_INCREMENT for table `orders_items`
+-- AUTO_INCREMENT cho bảng `orders_items`
 --
 ALTER TABLE `orders_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
--- AUTO_INCREMENT for table `permissions`
+-- AUTO_INCREMENT cho bảng `permissions`
 --
 ALTER TABLE `permissions`
   MODIFY `permission_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
--- AUTO_INCREMENT for table `pooltables`
+-- AUTO_INCREMENT cho bảng `pooltables`
 --
 ALTER TABLE `pooltables`
   MODIFY `table_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `products`
+-- AUTO_INCREMENT cho bảng `products`
 --
 ALTER TABLE `products`
   MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
--- AUTO_INCREMENT for table `promotions`
+-- AUTO_INCREMENT cho bảng `promotions`
 --
 ALTER TABLE `promotions`
   MODIFY `promotion_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `rent_cues`
+-- AUTO_INCREMENT cho bảng `rent_cues`
 --
 ALTER TABLE `rent_cues`
-  MODIFY `rent_cue_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `rent_cue_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
--- AUTO_INCREMENT for table `revenue`
+-- AUTO_INCREMENT cho bảng `revenue`
 --
 ALTER TABLE `revenue`
   MODIFY `revenue_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `roles`
+-- AUTO_INCREMENT cho bảng `roles`
 --
 ALTER TABLE `roles`
   MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT for table `users`
+-- AUTO_INCREMENT cho bảng `users`
 --
 ALTER TABLE `users`
   MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- Constraints for dumped tables
+-- Các ràng buộc cho các bảng đã đổ
 --
 
 --
--- Constraints for table `bookings`
+-- Các ràng buộc cho bảng `bookings`
 --
 ALTER TABLE `bookings`
   ADD CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -737,13 +774,13 @@ ALTER TABLE `bookings`
   ADD CONSTRAINT `bookings_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`promotion_id`);
 
 --
--- Constraints for table `orders`
+-- Các ràng buộc cho bảng `orders`
 --
 ALTER TABLE `orders`
   ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `orders_items`
+-- Các ràng buộc cho bảng `orders_items`
 --
 ALTER TABLE `orders_items`
   ADD CONSTRAINT `orders_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -751,19 +788,19 @@ ALTER TABLE `orders_items`
   ADD CONSTRAINT `orders_items_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`promotion_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `pooltables`
+-- Các ràng buộc cho bảng `pooltables`
 --
 ALTER TABLE `pooltables`
   ADD CONSTRAINT `pooltables_cate_pooltables_fk` FOREIGN KEY (`cate_id`) REFERENCES `cate_pooltables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `products`
+-- Các ràng buộc cho bảng `products`
 --
 ALTER TABLE `products`
   ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `rent_cues`
+-- Các ràng buộc cho bảng `rent_cues`
 --
 ALTER TABLE `rent_cues`
   ADD CONSTRAINT `rent_cues_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -771,17 +808,31 @@ ALTER TABLE `rent_cues`
   ADD CONSTRAINT `rent_cues_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`promotion_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `role_permission`
+-- Các ràng buộc cho bảng `role_permission`
 --
 ALTER TABLE `role_permission`
   ADD CONSTRAINT `role_permission_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`),
   ADD CONSTRAINT `role_permission_ibfk_2` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`permission_id`);
 
 --
--- Constraints for table `users`
+-- Các ràng buộc cho bảng `users`
 --
 ALTER TABLE `users`
   ADD CONSTRAINT `users_roles_FK` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+DELIMITER $$
+--
+-- Sự kiện
+--
+CREATE DEFINER=`root`@`localhost` EVENT `update_table_status` ON SCHEDULE EVERY 1 MINUTE STARTS '2025-02-22 23:25:13' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+    UPDATE pooltables 
+    SET status = 'available'
+    WHERE table_id IN (
+        SELECT table_id FROM bookings WHERE booking_status IN ('Finish', 'Canceled')
+    );
+END$$
+
+DELIMITER ;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

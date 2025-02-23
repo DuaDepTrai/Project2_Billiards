@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import src.billiardsmanagement.controller.users.RolesPermissionsController;
 import src.billiardsmanagement.controller.users.UserController;
 import src.billiardsmanagement.model.TestDBConnection;
 import src.billiardsmanagement.model.User;
@@ -148,7 +149,7 @@ public class MainController {
     }
 
     @FXML
-    private void showUsersPage() throws IOException {
+    public void showUsersPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/users/users.fxml"));
         AnchorPane usersPage = loader.load();
 
@@ -163,12 +164,17 @@ public class MainController {
 
     @FXML
     public void showRolesPermissionsPage() throws IOException {
-        // Load giao diện Roles - Permissions từ FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/users/rolesPermissions.fxml"));
         AnchorPane rolesPermissionsPage = loader.load();
+
+        // Lấy controller của RolesPermissions và truyền MainController vào
+        RolesPermissionsController rolesPermissionsController = loader.getController();
+        rolesPermissionsController.setMainController(this);
 
         // Hiển thị trang trong contentArea
         contentArea.getChildren().setAll(rolesPermissionsPage);
     }
+
+
 
 }

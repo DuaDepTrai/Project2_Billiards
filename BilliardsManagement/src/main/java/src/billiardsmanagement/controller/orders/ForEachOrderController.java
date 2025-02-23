@@ -35,6 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ForEachOrderController {
     // Buttons
@@ -86,6 +87,9 @@ public class ForEachOrderController {
 
     @FXML
     private Text orderStatusText;
+
+    @FXML
+    private Text billNoText;
 
     @FXML
     private TableColumn<Booking, Integer> sttColumn;
@@ -195,7 +199,7 @@ public class ForEachOrderController {
 
     private int orderID;
     private int customerID;
-
+    private int billNo;
     public void setOrderID(int orderID) {
         this.orderID = orderID;
         if (orderID > 0) {
@@ -1181,6 +1185,7 @@ public class ForEachOrderController {
                             "Booking has been stopped and updated.",
                             NotificationStatus.Success);
                     loadBookings();
+                    BookingDAO.updateTableStatusAfterBooking(bookingId);
                 } else {
                     NotificationService.showNotification("Error",
                             "Failed to stop booking due to invalid data.",
@@ -1291,7 +1296,6 @@ public class ForEachOrderController {
                 NotificationService.showNotification("Success",
                         "The order has been successfully finished! Total cost: $" + totalCost,
                         NotificationStatus.Success);
-
                 // Đóng cửa sổ hiện tại
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.close();
@@ -1365,10 +1369,16 @@ public class ForEachOrderController {
 
         boolean success = BookingDAO.cancelBooking(selectedBooking.getBookingId());
         if (success){
+            BookingDAO.updateTableStatusAfterBooking(selectedBooking.getBookingId());
             NotificationService.showNotification("Cancel Booking Success", "Booking in Table : " + selectedBooking.getTableName() + " has been cancelled successfully!", NotificationStatus.Success);
             loadBookings();
         }
         else
             NotificationService.showNotification("Error Cancel Booking", "An unexpected error happens when cancelling this booking. Please try again later !", NotificationStatus.Error);
+    }
+    public void setBillNo(int billNo) {
+        this.billNo = billNo;
+        System.out.println("Bill No: " + billNo);
+        billNoText.setText(String.valueOf(billNo));
     }
 }
