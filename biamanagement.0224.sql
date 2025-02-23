@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 21, 2025 at 06:54 PM
+-- Generation Time: Feb 23, 2025 at 06:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -64,17 +64,19 @@ INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end
 (33, 28, 4, '2025-02-21 17:31:00', '2025-02-21 17:34:38', 0.05, 1750, 1750, 'Finish', NULL),
 (34, 28, 9, '2025-02-21 17:31:00', '2025-02-21 17:34:38', 0.05, 5000, 5000, 'Finish', NULL),
 (35, 27, 7, '2025-02-21 17:39:00', '2025-02-21 17:39:29', 0, 0, 0, 'Finish', NULL),
-(36, 27, 9, '2025-02-21 17:39:00', '2025-02-21 17:39:29', 0, 0, 0, 'Finish', NULL);
+(36, 27, 9, '2025-02-21 17:39:00', '2025-02-21 17:39:29', 0, 0, 0, 'Finish', NULL),
+(37, 33, 4, '2025-02-22 16:18:00', '2025-02-22 16:25:39', 0.116666666, 4083.33331, NULL, 'Finish', NULL),
+(38, 33, 7, '2025-02-22 16:18:00', '2025-02-22 16:25:39', 0.116666666, 4083.33331, NULL, 'Finish', NULL),
+(39, 33, 4, '2025-02-22 16:22:00', '2025-02-22 16:25:39', 0.05, 1750, NULL, 'Finish', NULL),
+(40, 33, 7, '2025-02-22 16:22:00', '2025-02-22 16:25:39', 0.05, 1750, NULL, 'Finish', NULL),
+(41, 34, 6, '2025-02-22 16:25:00', '2025-02-22 16:26:15', 0.016666666, 1666.6666, 1666.6666, 'Finish', NULL),
+(42, 36, 9, '2025-02-22 16:27:00', '2025-02-22 16:27:45', 0, 0, 0, 'Finish', NULL);
 
 --
 -- Triggers `bookings`
 --
 DELIMITER $$
-
-CREATE TRIGGER after_bookings_insert
-AFTER INSERT ON bookings
-FOR EACH ROW 
-BEGIN
+CREATE TRIGGER `after_bookings_insert` AFTER INSERT ON `bookings` FOR EACH ROW BEGIN
     IF NEW.booking_status = 'order' THEN
         UPDATE pooltables
         SET status = 'ordered'
@@ -88,8 +90,37 @@ BEGIN
         SET status = 'available'
         WHERE table_id = NEW.table_id;
     END IF;
-END $$
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `after_delete_booking` AFTER DELETE ON `bookings` FOR EACH ROW BEGIN
+    UPDATE pooltables
+    SET status = 'available'
+    WHERE table_id = OLD.table_id;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `update_total_playtime_and_table_status` AFTER UPDATE ON `bookings` FOR EACH ROW BEGIN
+    -- Kiểm tra nếu giá trị timeplay thay đổi
+    IF OLD.timeplay <> NEW.timeplay THEN
+        UPDATE customers c
+        JOIN orders o ON c.customer_id = o.customer_id
+        JOIN bookings b ON o.order_id = b.order_id
+        SET c.total_playtime = (
+            SELECT COALESCE(SUM(b.timeplay), 0)
+            FROM bookings b
+            JOIN orders o2 ON b.order_id = o2.order_id
+            WHERE o2.customer_id = c.customer_id
+        )
+        WHERE o.customer_id = c.customer_id;
+    END IF;
 
+ 
+   
+END
+$$
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -205,11 +236,15 @@ INSERT INTO `orders` (`order_id`, `customer_id`, `total_cost`, `order_status`) V
 (9, 4, 0, 'Canceled'),
 (26, 4, NULL, 'Finished'),
 (27, 2, 320000, 'Finished'),
-(28, 1, 611750, 'Canceled'),
-(29, 21, 467000, 'Canceled'),
+(28, 1, 611750, 'Finished'),
+(29, 21, 467000, 'Finished'),
 (30, 1, NULL, 'Canceled'),
 (31, 3, NULL, 'Canceled'),
-(32, 5, NULL, 'Canceled');
+(32, 5, NULL, 'Canceled'),
+(33, 2, 215000, 'Finished'),
+(34, 5, 1666.6666, 'Finished'),
+(35, 5, 0, 'Finished'),
+(36, 9, NULL, 'Canceled');
 
 -- --------------------------------------------------------
 
@@ -254,7 +289,8 @@ INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity
 (54, 28, 10, 1, 30000, 30000, NULL),
 (55, 28, 16, 1, 50000, 50000, NULL),
 (56, 28, 8, 1, 25000, 25000, NULL),
-(57, 28, 1, 1, 500000, 500000, NULL);
+(57, 28, 1, 1, 500000, 500000, NULL),
+(58, 33, 17, 10, 200000, 200000, NULL);
 
 -- --------------------------------------------------------
 
@@ -275,8 +311,8 @@ CREATE TABLE `permissions` (
 INSERT INTO `permissions` (`permission_id`, `permission_name`, `description`) VALUES
 (1, 'view_product', 'View products'),
 (2, 'add_product', 'Add product'),
-(3, 'edit_product', 'Edit product'),
-(4, 'delete_product', 'Remove product'),
+(3, 'update_product', 'Update product'),
+(4, 'remove_product', 'Remove product'),
 (5, 'stock_up_product', 'Stock up product'),
 (6, 'view_user', 'View users'),
 (7, 'add_user', 'Add user'),
@@ -304,12 +340,12 @@ INSERT INTO `pooltables` (`cate_id`, `table_id`, `name`, `status`) VALUES
 (1, 1, 'Standard 1', 'Playing'),
 (2, 2, 'Deluxe 1', 'Ordered'),
 (3, 3, 'VIP 1', 'Playing'),
-(1, 4, 'Standard 2', 'Available'),
+(1, 4, 'Standard 2', 'Playing'),
 (2, 5, 'Deluxe 2', 'Available'),
-(3, 6, 'VIP 2', 'Available'),
-(1, 7, 'Standard 3', 'Available'),
+(3, 6, 'VIP 2', 'Playing'),
+(1, 7, 'Standard 3', 'Playing'),
 (2, 8, 'Deluxe 3', 'Available'),
-(3, 9, 'VIP 3', 'Available');
+(3, 9, 'VIP 3', 'Playing');
 
 -- --------------------------------------------------------
 
@@ -347,7 +383,7 @@ INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `q
 (14, 'Popcorn', 4, 25000, 'Bag', 60),
 (15, 'Chocolate', 4, 40000, 'Bar', 10),
 (16, 'Cookies', 4, 50000, 'Box', 24),
-(17, 'Coca Cola', 3, 20000, 'Can', 26);
+(17, 'Coca Cola', 3, 20000, 'Can', 16);
 
 -- --------------------------------------------------------
 
@@ -425,7 +461,8 @@ INSERT INTO `rent_cues` (`rent_cue_id`, `order_id`, `product_id`, `start_time`, 
 (20, 29, 6, '2025-02-21 16:45:04', '2025-02-21 16:57:06', 'Available', 0.2, 30000, 30000, NULL),
 (21, 28, 6, '2025-02-21 17:32:27', '2025-02-21 17:34:38', 'Available', 0, 0, 0, NULL),
 (22, 28, 5, '2025-02-21 17:32:31', '2025-02-21 17:34:38', 'Available', 0, 0, 0, NULL),
-(23, 27, 6, '2025-02-21 17:39:19', '2025-02-21 17:39:29', 'Available', 0, 0, 0, NULL);
+(23, 27, 6, '2025-02-21 17:39:19', '2025-02-21 17:39:29', 'Available', 0, 0, 0, NULL),
+(24, 33, 6, '2025-02-22 16:18:44', '2025-02-22 16:25:39', 'Available', 0.1, 15000, 15000, NULL);
 
 -- --------------------------------------------------------
 
@@ -496,6 +533,7 @@ INSERT INTO `role_permission` (`role_id`, `permission_id`) VALUES
 (3, 2),
 (3, 3),
 (4, 1),
+(4, 3),
 (4, 5);
 
 -- --------------------------------------------------------
@@ -644,7 +682,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT for table `category`
@@ -668,13 +706,13 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `orders_items`
 --
 ALTER TABLE `orders_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -704,7 +742,7 @@ ALTER TABLE `promotions`
 -- AUTO_INCREMENT for table `rent_cues`
 --
 ALTER TABLE `rent_cues`
-  MODIFY `rent_cue_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `rent_cue_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `revenue`
@@ -716,7 +754,7 @@ ALTER TABLE `revenue`
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -782,6 +820,20 @@ ALTER TABLE `role_permission`
 --
 ALTER TABLE `users`
   ADD CONSTRAINT `users_roles_FK` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+DELIMITER $$
+--
+-- Events
+--
+CREATE DEFINER=`root`@`localhost` EVENT `update_table_status` ON SCHEDULE EVERY 1 MINUTE STARTS '2025-02-22 23:25:13' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+    UPDATE pooltables 
+    SET status = 'available'
+    WHERE table_id IN (
+        SELECT table_id FROM bookings WHERE booking_status IN ('Finish', 'Canceled')
+    );
+END$$
+
+DELIMITER ;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
