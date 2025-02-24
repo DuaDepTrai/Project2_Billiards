@@ -1,0 +1,127 @@
+/* Style cho toàn bộ TableView */
+.table-view {
+    -fx-background-color: white;
+    background-color: white;
+    -fx-border-width: 0;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 0);
+}
+
+/* Style cho header background */
+.table-view .column-header-background {
+    -fx-background-color: transparent;
+    background-color: transparent;
+    -fx-padding: 0 0 20px 0;  /* Tăng khoảng cách giữa header và nội dung */
+}
+
+/* Style cho header */
+.table-view .column-header {
+    -fx-background-color: #f0f2f5;
+    background-color: #f0f2f5;
+    -fx-border-width: 0;
+    -fx-padding: 15px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a1a1a;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-margin: 0 5px;
+}
+
+/* Style cho các ô trong bảng */
+.table-view .table-cell {
+    -fx-padding: 15px;
+    -fx-border-width: 0;
+    -fx-alignment: CENTER;
+    -fx-font-size: 13px;
+}
+
+/* Style cho hàng */
+.table-view .table-row-cell {
+    -fx-background-color: #f8f9fa;
+    background-color: #f8f9fa;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-cell-size: 50px;
+}
+
+/* Tạo khoảng trắng giữa các hàng */
+.table-view > .virtual-flow > .clipped-container > .sheet > .table-row-cell {
+    -fx-background-insets: 0, 0 0 10px 0;  /* Tăng khoảng cách giữa các hàng */
+    -fx-padding: 5px;
+}
+
+/* Style cho hàng khi được chọn */
+.table-view .table-row-cell:selected {
+    -fx-background-color: #e8f0fe;
+    background-color: #e8f0fe;
+}
+
+.table-view .table-row-cell:selected .table-cell {
+    -fx-text-fill: #1a1a1a;  /* Giữ màu chữ như bình thường */
+}
+
+/* Style cho trạng thái Playing khi được chọn */
+.table-view .table-row-cell:selected .status-playing {
+    -fx-text-fill: #2e7d32;  /* Giữ màu xanh lá */
+    -fx-font-weight: bold;
+}
+
+/* Style cho trạng thái Finished khi được chọn */
+.table-view .table-row-cell:selected .status-finished {
+    -fx-text-fill: #1976d2;  /* Giữ màu xanh dương */
+    -fx-font-weight: bold;
+}
+
+/* Style cho các nút trong cột Action khi được chọn */
+.table-view .table-row-cell:selected .button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1a1a1a;
+}
+
+.table-view .table-row-cell:selected .button:hover {
+    -fx-background-color: #f0f2f5;
+}
+
+/* Style cho scroll bars */
+.table-view .scroll-bar:horizontal,
+.table-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.table-view .scroll-bar:horizontal .thumb,
+.table-view .scroll-bar:vertical .thumb {
+    -fx-background-color: #dcdcdc;
+    -fx-background-radius: 5px;
+}
+
+/* Style cho cột Action */
+.table-view .action-column {
+    -fx-alignment: CENTER;
+}
+
+/* Style cho các nút trong cột Action */
+.table-view .button {
+    -fx-background-color: transparent;
+    -fx-padding: 5px 10px;
+    -fx-cursor: hand;
+}
+
+.table-view .button:hover {
+    -fx-background-color: #f0f2f5;
+    -fx-background-radius: 4px;
+}
+
+/* Style cho trạng thái Playing */
+.status-playing {
+    -fx-text-fill: #2e7d32;  /* Màu xanh lá */
+    -fx-font-weight: bold;
+}
+
+/* Style cho trạng thái Finished */
+.status-finished {
+    -fx-text-fill: #1976d2;  /* Màu xanh dương */
+    -fx-font-weight: bold;
+} 

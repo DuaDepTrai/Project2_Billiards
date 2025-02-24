@@ -7,6 +7,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.users.RolesPermissionsController;
 import src.billiardsmanagement.controller.users.UserController;
@@ -130,7 +131,7 @@ public class MainController {
     @FXML
     private void showOrdersPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/order.fxml"));
-        AnchorPane orderPage = loader.load();  // Tải FXML thành AnchorPane
+        BorderPane orderPage = loader.load();  // Tải FXML thành AnchorPane
         contentArea.getChildren().setAll(orderPage);
     }
 

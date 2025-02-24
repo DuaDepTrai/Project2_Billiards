@@ -1,14 +1,18 @@
 package src.billiardsmanagement.controller.orders;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
@@ -43,6 +47,8 @@ public class OrderController implements Initializable {
     private TableColumn<Order, String> phoneCustomerColumn;
     @FXML
     private TableColumn<Order,String> nameTableColumn;
+    @FXML
+    private TableColumn<Order, Void> actionColumn;  // Thêm khai báo này
 
     @FXML
     private TextField autoCompleteTextField;
@@ -219,78 +225,174 @@ public class OrderController implements Initializable {
             }
         });
 
-        orderTable.setOnMouseClicked(event -> {
-            try {
-                showItem(event);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+// Bill No column
+        sttColumn.setCellFactory(column -> {
+            return new TableCell<Order, Integer>() {
+                @Override
+                protected void updateItem(Integer item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText(null);
+                    } else {
+                        setText(String.valueOf(item));
+                        getStyleClass().add("bill-number");
+                    }
+                }
+            };
         });
 
-    }
+        // Table Name column
+        nameTableColumn.setCellFactory(column -> {
+            return new TableCell<Order, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText(null);
+                    } else {
+                        setText(item);
+                        getStyleClass().add("table-name-cell");
+                    }
+                }
+            };
+        });
 
-    public void addCustomer(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/addCustomer.fxml"));
-        Parent root = loader.load();
-        Stage stage = new Stage();
-        stage.setTitle("Add Customer");
-        stage.setScene(new Scene(root));
-        stage.show();
-    }
+        // Status column
+        orderStatusColumn.setCellFactory(column -> {
+            return new TableCell<Order, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText(null);
+                    } else {
+                        setText(item);
+                        if (item.equals("Playing")) {
+                            getStyleClass().add("status-playing");
+                        }
+                    }
+                }
+            };
+        });
 
-    private void showItem(MouseEvent mouseEvent) throws IOException {
-        if (mouseEvent.getClickCount() == 2) {
-            Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
-            if (selectedOrder != null) {
-                int orderId = selectedOrder.getOrderId();
-                int customerId = selectedOrder.getCustomerId();
-                int totalRow = orderTable.getItems().size();
-                int selectedIndex = orderTable.getSelectionModel().getSelectedIndex();
-                int billNo = totalRow - selectedIndex;
+        // Cost column formatting
+        totalCostColumn.setCellFactory(column -> {
+            return new TableCell<Order, Double>() {
+                @Override
+                protected void updateItem(Double item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText(null);
+                    } else {
+                        setText(String.format("%,.0f", item));
+                    }
+                }
+            };
+        });
+        actionColumn.setCellFactory(column -> {
+            return new TableCell<Order, Void>() {
+                private final HBox container = new HBox(10); // spacing = 10
+                private final Button viewBtn = new Button();
+                private final Button printBtn = new Button();
 
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
-                Parent root = loader.load();
-                ForEachOrderController controller = loader.getController();
-                controller.setOrderID(orderId);
-                controller.setCustomerID(customerId);
-                controller.setOrderTable(orderTable);
-                controller.setBillNo(billNo);
-                controller.initializeAllTables();
+                {
+                    // View button với icon EYE
+                    FontAwesomeIconView viewIcon = new FontAwesomeIconView(FontAwesomeIcon.EYE);
+                    viewIcon.setSize("16");
+                    viewBtn.setGraphic(viewIcon);
+                    viewBtn.getStyleClass().add("action-button");
 
-                Stage stage = new Stage();
-                stage.setTitle("Order Details");
-                stage.setScene(new Scene(root));
-                stage.show();
-            }
-        }
+                    // Print button với icon PRINT
+                    FontAwesomeIconView printIcon = new FontAwesomeIconView(FontAwesomeIcon.PRINT);
+                    printIcon.setSize("16");
+                    printBtn.setGraphic(printIcon);
+                    printBtn.getStyleClass().add("action-button");
 
-    }
+                    // Delete button với icon TRASH
 
-    public void billOrder(ActionEvent event) throws IOException {
-        Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
 
-        if (selectedOrder == null) {
-            NotificationService.showNotification("Error", "Please select an order to payment.", NotificationStatus.Error);
-            return;
-        }
+                    // Add buttons to container
+                    container.setAlignment(Pos.CENTER);
+                    container.getChildren().addAll(viewBtn, printBtn);
 
-        if (!"Finished".equals(selectedOrder.getOrderStatus()) && !"Paid".equals(selectedOrder.getOrderStatus())) {
-            NotificationService.showNotification("Access Denied", "Bills can only be accessed when the order is in Finished or Paid status.", NotificationStatus.Error);
-            return;
-        }
+                    // Add button actions
+                    viewBtn.setOnAction(event -> {
+                        Order selectedOrder = orderTable.getItems().get(getIndex());
 
-        int orderId = selectedOrder.getOrderId();
-        FXMLLoader paymentLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
-        Parent paymentRoot = paymentLoader.load();
-        PaymentController paymentController = paymentLoader.getController();
-        paymentController.setOrderID(orderId);
-        paymentController.setBill(createBill());
+                        int orderId = selectedOrder.getOrderId();
+                        int customerId = selectedOrder.getCustomerId();
+                        int totalRow = orderTable.getItems().size();
+                        int selectedIndex = getIndex(); // Lấy chỉ số hàng
+                        int billNo = totalRow - selectedIndex;
 
-        Stage stage = new Stage();
-        stage.setTitle("Payment Details");
-        stage.setScene(new Scene(paymentRoot));
-        stage.setOnHidden(e -> loadOrderList());
-        stage.show();
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+                            Parent root = null;
+                            try {
+                                root = loader.load();
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            ForEachOrderController controller = loader.getController();
+                            controller.setOrderID(orderId);
+                            controller.setCustomerID(customerId);
+                            controller.setOrderTable(orderTable);
+                            controller.setBillNo(billNo);
+                            controller.initializeAllTables();
+
+                            Stage stage = new Stage();
+                            stage.setTitle("Order Details");
+                            stage.setScene(new Scene(root));
+                            stage.show();
+
+                    });
+
+                    printBtn.setOnAction(event -> {
+                        Order selectedOrder = orderTable.getItems().get(getIndex());
+
+                        if (selectedOrder == null) {
+                            NotificationService.showNotification("Error", "Please select an order to payment.", NotificationStatus.Error);
+                            return;
+                        }
+
+                        if (!"Finished".equals(selectedOrder.getOrderStatus()) && !"Paid".equals(selectedOrder.getOrderStatus())) {
+                            NotificationService.showNotification("Access Denied", "Bills can only be accessed when the order is in Finished or Paid status.", NotificationStatus.Error);
+                            return;
+                        }
+
+                        int orderId = selectedOrder.getOrderId();
+                        FXMLLoader paymentLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
+                        Parent paymentRoot = null;
+                        try {
+                            paymentRoot = paymentLoader.load();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        PaymentController paymentController = paymentLoader.getController();
+                        paymentController.setOrderID(orderId);
+                        paymentController.setBill(createBill());
+
+                        Stage stage = new Stage();
+                        stage.setTitle("Payment Details");
+                        stage.setScene(new Scene(paymentRoot));
+                        stage.setOnHidden(e -> loadOrderList());
+                        stage.show();
+                    });
+
+
+                }
+
+                @Override
+                protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                    } else {
+                        setGraphic(container);
+                    }
+                }
+            };
+        });
     }
 
     private Bill createBill() {
@@ -303,11 +405,26 @@ public class OrderController implements Initializable {
         bill.setTotalCost(currentOrder.getTotalCost());
         return bill;
     }
+    public void addCustomer(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/addCustomer.fxml"));
+        Parent root = loader.load();
+        Stage stage = new Stage();
+        stage.setTitle("Add Customer");
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
+
+
+    public void billOrder(ActionEvent event) throws IOException {
+
+    }
+
+
 
     @FXML
     public void searchOrder(ActionEvent actionEvent) {
-        String phoneNumber = phoneTextField.getText().trim();
-
+        String phoneNumber = autoCompleteTextField.getText().trim();
+        System.out.println(phoneNumber);
         if (phoneNumber.isEmpty()) {
             NotificationService.showNotification("Input Error", "Please enter a phone number!", NotificationStatus.Warning);
             return;
