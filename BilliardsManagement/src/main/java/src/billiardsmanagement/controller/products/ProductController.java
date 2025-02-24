@@ -10,11 +10,14 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import src.billiardsmanagement.dao.PermissionDAO;
 import src.billiardsmanagement.model.Product;
 import src.billiardsmanagement.dao.ProductDAO;
+import src.billiardsmanagement.model.User;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 public class ProductController {
@@ -43,8 +46,11 @@ public class ProductController {
 
     private ObservableList<Product> productList = FXCollections.observableArrayList();
     private ProductDAO productDAO = new ProductDAO();
+    private User currentUser; // Lưu user đang đăng nhập
 
-    public void initialize() {
+    public void initialize() { // Truyền user vào để kiểm tra quyền
+        System.out.println("Debug: ProductController đã khởi động!");
+
         columnId.setCellValueFactory(new PropertyValueFactory<>("id"));
         columnName.setCellValueFactory(new PropertyValueFactory<>("name"));
         columnCategory.setCellValueFactory(new PropertyValueFactory<>("category"));
@@ -60,10 +66,37 @@ public class ProductController {
         btnRemoveProduct.setOnAction(event -> handleRemoveSelectedProduct());
     }
 
+    private void applyPermissions() {
+        if (currentUser != null) {
+            PermissionDAO permissionDAO = new PermissionDAO();
+
+            List<String> permissions = permissionDAO.getUserPermissions(currentUser.getId());
+            System.out.println("✅ Permissions: " + permissions);
+
+            btnAddNewProduct.setVisible(permissions.contains("add_product"));
+            btnStockUp.setVisible(permissions.contains("stock_up_product"));
+            btnUpdateProduct.setVisible(permissions.contains("update_product"));
+            btnRemoveProduct.setVisible(permissions.contains("remove_product"));
+        } else {
+            System.err.println("⚠️ Lỗi: currentUser bị null trong ProductController!");
+        }
+    }
+
     private void loadProducts() {
         try {
             productList.clear();
-            productList.addAll(productDAO.getAllProducts());
+            List<Product> products = productDAO.getAllProducts();
+            System.out.println("Debug: Số sản phẩm lấy từ DB = " + products.size());
+
+            if (products.isEmpty()) {
+                System.out.println("⚠ Cảnh báo: Không có sản phẩm nào trong DB!");
+            } else {
+                for (Product p : products) {
+                    System.out.println("✅ Sản phẩm: " + p.getName());
+                }
+            }
+
+            productList.addAll(products);
             tableProducts.setItems(productList);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -182,4 +215,26 @@ public class ProductController {
             e.printStackTrace();
         }
     }
+
+    private User loggedInUser;
+
+    public void setLoggedInUser(User user) {
+        System.out.println("🟢 Gọi setCurrentUser() với user: " + (user != null ? user.getUsername() : "null"));
+
+        this.loggedInUser = user;
+        if (user != null) {
+            System.out.println("🟢 Gọi setCurrentUser() với user: " + user.getUsername());
+            System.out.println("🎯 Kiểm tra quyền sau khi truyền user...");
+            List<String> permissions = user.getPermissionsAsString();
+            System.out.println("🔎 Debug: Quyền sau khi truyền user = " + permissions);
+            applyPermissions();
+        } else {
+            System.err.println("❌ Lỗi: currentUser vẫn null sau khi set!");
+        }
+    }
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+    }
+
 }

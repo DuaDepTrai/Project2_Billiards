@@ -2,13 +2,16 @@ package src.billiardsmanagement.controller.users;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.MainController;
+import src.billiardsmanagement.dao.PermissionDAO;
 import src.billiardsmanagement.dao.UserDAO;
+import src.billiardsmanagement.model.Permission;
 import src.billiardsmanagement.model.User;
 import src.billiardsmanagement.view.Main;
 
@@ -16,6 +19,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 public class LoginController {
@@ -55,31 +59,23 @@ public class LoginController {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            errorLabel.setText("Invalid Username or Password.");
-            return;
-        }
-
         try {
-            User user = userDAO.getUserByUsername(username);
-            if (user == null) {
-                errorLabel.setText("Invalid username or password.");
-                return;
+            UserDAO userDAO = new UserDAO();
+            PermissionDAO permissionDAO = new PermissionDAO();
+
+            User user = userDAO.authenticateUser(username, password);
+            if (user != null) {
+                List<String> userPermissions = permissionDAO.getUserPermissions(user.getId());
+                user.setPermissions(userPermissions);
+
+                openMainWindow(user);
+            } else {
+                showAlert("Login Failed", "Invalid username or password!");
             }
-
-        String hashedInputPassword = hashPassword(password);
-
-        if (!user.getPassword().equals(hashedInputPassword)) {
-            errorLabel.setText("Invalid username or password.");
-            return;
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "An error occurred while logging in.");
         }
-
-            // Đăng nhập thành công, mở main window
-            openMainWindow(user);
-        } catch (SQLException e) {
-            errorLabel.setText("Database error.");
-        }
-
     }
 
     private void openMainWindow(User user) {
@@ -121,5 +117,13 @@ public class LoginController {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

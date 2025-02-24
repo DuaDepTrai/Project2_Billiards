@@ -9,6 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import src.billiardsmanagement.controller.products.ProductController;
 import src.billiardsmanagement.controller.users.RolesPermissionsController;
 import src.billiardsmanagement.controller.users.UserController;
 import src.billiardsmanagement.model.TestDBConnection;
@@ -139,8 +140,21 @@ public class MainController {
     private void showProductsPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/products.fxml"));
         AnchorPane productPage = loader.load();
+
+        ProductController productController = loader.getController();
+        productController.setCurrentUser(loggedInUser);
+        System.out.println("🔹 Truyền user vào ProductController: " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
+
+        if (productController == null) {
+            System.out.println("Lỗi: Không lấy được ProductController!");
+        } else {
+            System.out.println("Debug: ProductController đã load, truyền user...");
+            productController.setLoggedInUser(loggedInUser); // ✅ Truyền user đúng cách
+        }
+
         contentArea.getChildren().setAll(productPage);
     }
+
 
     @FXML
     private void showCategoryPage() throws IOException {
