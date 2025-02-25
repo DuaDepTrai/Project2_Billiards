@@ -1,0 +1,118 @@
+/* Main Layout Styles */
+.main-container {
+    -fx-background-color: #f5f5f5;
+    -fx-padding: 0; /* Remove any padding from main container */
+}
+
+/* Sidebar Styles */
+.sidebar {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 0);
+    -fx-padding: 0; /* Remove padding from sidebar */
+    -fx-start-margin: 0; /* Ensure no margin on the left */
+}
+
+/* Top Bar Styles */
+.top-bar {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 1, 0, 0, 1);
+    -fx-padding: 10 20; /* Adjust padding to match design */
+    -fx-min-height: 60;
+    -fx-start-margin: 0; /* Ensure no margin on the left */
+}
+
+/* Content Area Styles */
+.page-container {
+    -fx-background-color: #f5f5f5;
+    -fx-padding: 20;
+    -fx-start-margin: 0; /* Ensure no margin on the left */
+}
+
+/* Center VBox Container */
+.center-container {
+    -fx-padding: 0; /* Remove padding */
+    -fx-start-margin: 0; /* Ensure no margin on the left */
+}
+
+
+.app-name {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.app-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #666666;
+}
+
+.nav-menu {
+    -fx-padding: 10 0;
+}
+
+.nav-item {
+    -fx-background-color: transparent;
+    -fx-padding: 10 15;
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 10;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+    -fx-border-width: 0;
+    -fx-min-width: 250;
+}
+
+.nav-item:hover {
+    -fx-background-color: #f5f5f5;
+}
+
+.nav-item .glyph-icon {
+    -fx-fill: #666666;
+}
+
+.nav-item:selected {
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: #2196f3;
+}
+
+.nav-item:selected .glyph-icon {
+    -fx-fill: #2196f3;
+}
+
+/* Top Bar Styles */
+.top-bar {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 1, 0, 0, 1);
+    -fx-min-height: 60;
+}
+
+.notification-button {
+    -fx-background-color: transparent;
+    -fx-padding: 8;
+    -fx-cursor: hand;
+}
+
+.notification-button:hover {
+    -fx-background-color: #f5f5f5;
+}
+
+.notification-button .glyph-icon {
+    -fx-fill: #666666;
+}
+
+.user-profile {
+    -fx-padding: 5 10;
+}
+
+.profile-image {
+    -fx-background-radius: 50%;
+}
+
+.user-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.user-role {
+    -fx-font-size: 12px;
+    -fx-text-fill: #666666;
+}

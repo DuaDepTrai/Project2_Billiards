@@ -191,5 +191,18 @@ public class MainController {
     }
 
 
+    public void showHomePage(ActionEvent actionEvent) {
+    }
 
+    public void showPoolTablePage(ActionEvent actionEvent) {
+    }
+
+    public void showStaffPage(ActionEvent actionEvent) {
+    }
+
+    public void showCustomerPage(ActionEvent actionEvent) {
+    }
+
+    public void showStatisticPage(ActionEvent actionEvent) {
+    }
 }

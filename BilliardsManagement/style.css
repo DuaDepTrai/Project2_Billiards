@@ -124,4 +124,86 @@
 .status-finished {
     -fx-text-fill: #1976d2;  /* Màu xanh dương */
     -fx-font-weight: bold;
+}
+
+/* Style cho container chính */
+.root {
+    -fx-background-color: #f8f9fa;
+    background-color: #f8f9fa;
+}
+
+/* Style cho navbar */
+.nav-container {
+    -fx-background-color: white;
+    background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 0);
+    -fx-padding: 20px 0;
+    -fx-pref-width: 250px;
+    -fx-min-height: 100%;
+}
+
+/* Style cho content area */
+.content-area {
+    -fx-background-color: #f8f9fa;
+    background-color: #f8f9fa;
+    -fx-padding: 20px;
+    -fx-alignment: top-left;
+}
+
+/* Style cho main container */
+.main-container {
+    -fx-alignment: top-left;
+    -fx-fill-height: true;
+}
+
+/* Style cho menu items */
+.menu-item {
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.menu-item:hover {
+    -fx-background-color: #f0f2f5;
+    background-color: #f0f2f5;
+}
+
+/* Style cho active menu item */
+.menu-item.active {
+    -fx-background-color: #e8f0fe;
+    background-color: #e8f0fe;
+    -fx-text-fill: #1a73e8;
+}
+
+/* Style cho logo container */
+.logo-container {
+    -fx-padding: 0 20px 20px 20px;
+    -fx-border-color: transparent transparent #e0e0e0 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+/* Style cho header */
+.header {
+    -fx-background-color: white;
+    background-color: white;
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 0);
+    -fx-alignment: center-left;
+}
+
+/* Đảm bảo content và navbar có chiều cao bằng nhau */
+.split-pane {
+    -fx-background-color: transparent;
+    -fx-box-border: transparent;
+    -fx-padding: 0;
+}
+
+.split-pane:horizontal > .split-pane-divider {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Đảm bảo không có khoảng trống giữa navbar và content */
+.split-pane > .split-pane-divider {
+    -fx-padding: 0;
 } 

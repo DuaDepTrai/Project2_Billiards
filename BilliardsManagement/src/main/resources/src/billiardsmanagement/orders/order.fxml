@@ -11,7 +11,8 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="src.billiardsmanagement.controller.orders.OrderController"
-            styleClass="main-container">
+            styleClass="main-container"
+            fx:id="mainPane">
 
     <top>
         <HBox spacing="10" alignment="CENTER_LEFT" styleClass="header">
