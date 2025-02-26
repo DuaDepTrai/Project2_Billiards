@@ -7,7 +7,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import src.billiardsmanagement.controller.products.ProductController;
 import src.billiardsmanagement.controller.users.RolesPermissionsController;
 import src.billiardsmanagement.controller.users.UserController;
 import src.billiardsmanagement.model.TestDBConnection;
@@ -130,7 +132,7 @@ public class MainController {
     @FXML
     private void showOrdersPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/order.fxml"));
-        AnchorPane orderPage = loader.load();  // Tải FXML thành AnchorPane
+        BorderPane orderPage = loader.load();  // Tải FXML thành AnchorPane
         contentArea.getChildren().setAll(orderPage);
     }
 
@@ -138,8 +140,21 @@ public class MainController {
     private void showProductsPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/products.fxml"));
         AnchorPane productPage = loader.load();
+
+        ProductController productController = loader.getController();
+        productController.setCurrentUser(loggedInUser);
+        System.out.println("🔹 Truyền user vào ProductController: " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
+
+        if (productController == null) {
+            System.out.println("Lỗi: Không lấy được ProductController!");
+        } else {
+            System.out.println("Debug: ProductController đã load, truyền user...");
+            productController.setLoggedInUser(loggedInUser); // ✅ Truyền user đúng cách
+        }
+
         contentArea.getChildren().setAll(productPage);
     }
+
 
     @FXML
     private void showCategoryPage() throws IOException {
@@ -176,5 +191,18 @@ public class MainController {
     }
 
 
+    public void showHomePage(ActionEvent actionEvent) {
+    }
 
+    public void showPoolTablePage(ActionEvent actionEvent) {
+    }
+
+    public void showStaffPage(ActionEvent actionEvent) {
+    }
+
+    public void showCustomerPage(ActionEvent actionEvent) {
+    }
+
+    public void showStatisticPage(ActionEvent actionEvent) {
+    }
 }

@@ -20,8 +20,15 @@ public class Order extends Application {
         Parent root = loader.load();
         // Scene scene = new Scene(root, 800, 600);
         Scene scene = new Scene(root, 1000, 750);
+
+
+        scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/style.css").toExternalForm());
+
+        primaryStage.setTitle("BILLIARDS MANAGEMENT");
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Billiards Management");
+
+        primaryStage.setMaximized(true);
+        primaryStage.show();
         primaryStage.show();
     }
 }

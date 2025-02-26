@@ -1,6 +1,5 @@
 package src.billiardsmanagement.dao;
 
-import src.billiardsmanagement.model.Booking;
 import src.billiardsmanagement.model.Order;
 import src.billiardsmanagement.model.DatabaseConnection;
 
@@ -73,21 +72,38 @@ public class OrderDAO {
         return paidOrders;
     }
 
-    public static List<Order> getOrdersByPhone(String phoneNumber) {
+
+    public static List<Order> getOrdersByPhone(String input) {
         List<Order> orders = new ArrayList<>();
+
+        // Tách chuỗi nếu có dấu "-"
+        String[] parts = input.split("-");
+        String nameOrPhone = parts[0].trim();
+        String possiblePhone = parts.length > 1 ? parts[1].trim() : "";
+
+        // Kiểm tra xem phần sau có phải số điện thoại không
+        boolean isPhoneNumber = possiblePhone.matches("\\d{6,}"); // Chứa ít nhất 6 chữ số
+
         String query = """
         SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
                o.total_cost, o.order_status
         FROM orders o
         JOIN customers c ON o.customer_id = c.customer_id
-        WHERE c.phone = ?
+        WHERE c.phone LIKE ? OR c.name LIKE ?
         ORDER BY o.order_id DESC
     """;
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, phoneNumber);
+            if (isPhoneNumber) {
+                stmt.setString(1, "%" + possiblePhone + "%"); // Tìm theo số điện thoại
+                stmt.setString(2, "%" + nameOrPhone + "%");   // Tìm theo tên
+            } else {
+                stmt.setString(1, "%" + input + "%"); // Nếu không phải số điện thoại, tìm theo toàn bộ chuỗi
+                stmt.setString(2, "%" + input + "%");
+            }
+
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -106,6 +122,8 @@ public class OrderDAO {
         }
         return orders;
     }
+
+
 
     // Không cần khai báo URL, USER, PASSWORD nữa, vì đã có trong DatabaseConnection
     public List<Order> getAllOrders() {
@@ -360,4 +378,5 @@ public class OrderDAO {
         }
         return order;
     }
+
 }
