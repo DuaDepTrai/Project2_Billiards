@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 23, 2025 at 06:45 PM
+-- Generation Time: Feb 26, 2025 at 06:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -140,7 +140,6 @@ CREATE TABLE `category` (
 --
 
 INSERT INTO `category` (`category_id`, `category_name`, `image_path`) VALUES
-(1, 'Cues-sale', 'cues-sale.png'),
 (2, 'Cues-rent', 'cues-rent.png'),
 (3, 'Drinks', 'drinks.png'),
 (4, 'Food', 'food.png'),
@@ -175,8 +174,8 @@ INSERT INTO `cate_pooltables` (`id`, `name`, `price`) VALUES
 
 CREATE TABLE `customers` (
   `customer_id` int(11) NOT NULL,
-  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `phone` varchar(255) NOT NULL,
+  `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `phone` varchar(15) NOT NULL,
   `total_playtime` double DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -216,7 +215,9 @@ INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUE
 CREATE TABLE `orders` (
   `order_id` int(11) NOT NULL,
   `customer_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `total_cost` double DEFAULT NULL,
+  `order_date` date NOT NULL,
   `order_status` enum('Order','Playing','Finished','Paid','Canceled') NOT NULL DEFAULT 'Playing'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -224,27 +225,28 @@ CREATE TABLE `orders` (
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`order_id`, `customer_id`, `total_cost`, `order_status`) VALUES
-(1, 1, 1345000, 'Finished'),
-(2, 2, 1647500, 'Paid'),
-(3, 3, 3280000, 'Finished'),
-(4, 4, 695000, 'Finished'),
-(5, 5, 1513750, 'Finished'),
-(6, 1, 300000, 'Finished'),
-(7, 2, 202500, 'Finished'),
-(8, 3, 225000, 'Paid'),
-(9, 4, 0, 'Canceled'),
-(26, 4, NULL, 'Finished'),
-(27, 2, 320000, 'Finished'),
-(28, 1, 611750, 'Finished'),
-(29, 21, 467000, 'Finished'),
-(30, 1, NULL, 'Canceled'),
-(31, 3, NULL, 'Canceled'),
-(32, 5, NULL, 'Canceled'),
-(33, 2, 215000, 'Finished'),
-(34, 5, 1666.6666, 'Finished'),
-(35, 5, 0, 'Finished'),
-(36, 9, NULL, 'Canceled');
+INSERT INTO `orders` (`order_id`, `customer_id`, `user_id`, `total_cost`, `order_date`, `order_status`) VALUES
+(1, 1, 2, 1345000, '2025-01-01', 'Finished'),
+(2, 2, 2, 1647500, '2025-01-02', 'Paid'),
+(3, 3, 2, 3280000, '2025-01-03', 'Finished'),
+(4, 4, 2, 695000, '2025-01-04', 'Finished'),
+(5, 5, 2, 1513750, '2025-01-05', 'Finished'),
+(6, 1, 2, 300000, '2025-01-06', 'Finished'),
+(7, 2, 2, 202500, '2025-01-07', 'Finished'),
+(8, 3, 2, 225000, '2025-01-08', 'Paid'),
+(9, 4, 2, 0, '2025-01-09', 'Canceled'),
+(26, 4, 2, NULL, '2025-02-14', 'Finished'),
+(27, 2, 2, 320000, '2025-02-22', 'Finished'),
+(28, 1, 2, 611750, '2025-02-22', 'Finished'),
+(29, 21, 2, 467000, '2025-02-21', 'Canceled'),
+(30, 1, 2, NULL, '2025-02-22', 'Canceled'),
+(31, 3, 2, NULL, '2025-02-22', 'Canceled'),
+(32, 5, 2, NULL, '2025-02-22', 'Canceled'),
+(33, 2, 2, 215000, '2025-02-22', 'Finished'),
+(34, 5, 2, 1666.6666, '2025-02-22', 'Canceled'),
+(35, 5, 2, 0, '2025-02-22', 'Finished'),
+(36, 9, 2, NULL, '2025-02-22', 'Canceled'),
+(37, 11, 2, NULL, '2025-02-22', 'Playing');
 
 -- --------------------------------------------------------
 
@@ -267,19 +269,14 @@ CREATE TABLE `orders_items` (
 --
 
 INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity`, `subtotal`, `net_total`, `promotion_id`) VALUES
-(1, 1, 1, 2, 1000000, 1000000, NULL),
 (2, 1, 12, 3, 60000, 60000, NULL),
 (3, 1, 7, 1, 15000, 15000, NULL),
-(4, 2, 2, 1, 1000000, 1000000, NULL),
 (5, 2, 13, 2, 60000, 60000, NULL),
 (6, 2, 8, 1, 25000, 25000, NULL),
-(7, 3, 3, 2, 3000000, 3000000, NULL),
 (8, 3, 14, 1, 25000, 25000, NULL),
 (9, 3, 10, 1, 30000, 30000, NULL),
-(10, 4, 1, 1, 500000, 500000, NULL),
 (11, 4, 15, 1, 40000, 40000, NULL),
 (12, 4, 11, 1, 20000, 20000, NULL),
-(13, 5, 2, 1, 1000000, 1000000, NULL),
 (14, 5, 16, 2, 100000, 100000, NULL),
 (15, 5, 9, 2, 20000, 20000, NULL),
 (50, 26, 17, 24, 480000, 480000, NULL),
@@ -289,7 +286,6 @@ INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity
 (54, 28, 10, 1, 30000, 30000, NULL),
 (55, 28, 16, 1, 50000, 50000, NULL),
 (56, 28, 8, 1, 25000, 25000, NULL),
-(57, 28, 1, 1, 500000, 500000, NULL),
 (58, 33, 17, 10, 200000, 200000, NULL);
 
 -- --------------------------------------------------------
@@ -367,12 +363,9 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `quantity`) VALUES
-(1, 'Standard Cue - Sale', 1, 500000, 'Piece', 19),
-(2, 'Deluxe Cue - Sale', 1, 1000000, 'Piece', 15),
-(3, 'Professional Cue - Sale', 1, 1500000, 'Piece', 10),
-(4, 'Standard Cue - Rent', 2, 50000, 'Piece', 10),
-(5, 'Deluxe Cue - Rent', 2, 100000, 'Piece', 1),
-(6, 'Professional Cue - Rent', 2, 150000, 'Piece', 10),
+(4, 'Standard Cue - For Rent', 2, 50000, 'Piece', 10),
+(5, 'Deluxe Cue - For Rent', 2, 100000, 'Piece', 1),
+(6, 'Professional Cue - For Rent', 2, 150000, 'Piece', 10),
 (7, 'Soda', 3, 15000, 'Can', 100),
 (8, 'Juice', 3, 25000, 'Bottle', 79),
 (9, 'Water', 3, 10000, 'Bottle', 120),
@@ -384,99 +377,6 @@ INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `q
 (15, 'Chocolate', 4, 40000, 'Bar', 10),
 (16, 'Cookies', 4, 50000, 'Box', 24),
 (17, 'Coca Cola', 3, 20000, 'Can', 16);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `promotions`
---
-
-CREATE TABLE `promotions` (
-  `promotion_id` int(11) UNSIGNED NOT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `promotion_type` enum('LoyaltyCustomer','SinglePlaytime','Combo','NoPromotion') DEFAULT NULL,
-  `discount` double DEFAULT NULL,
-  `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `promotions`
---
-
-INSERT INTO `promotions` (`promotion_id`, `name`, `promotion_type`, `discount`, `description`) VALUES
-(1, 'Loyalty Reward', 'LoyaltyCustomer', 10, 'Giảm giá 10% cho khách hàng thân thiết.'),
-(2, 'Weekend Special', 'SinglePlaytime', 15, 'Giảm giá 15% cho các lượt chơi vào cuối tuần.'),
-(3, 'Combo Offer', 'Combo', 20, 'Mua 1 gậy thuê + 1 đồ uống + 1 đồ ăn, giảm giá 20%.'),
-(4, 'Happy Hour', 'SinglePlaytime', 25, 'Giảm giá 25% cho các lượt chơi từ 15:00 đến 17:00.'),
-(5, 'New Customer Discount', 'LoyaltyCustomer', 5, 'Giảm giá 5% cho khách hàng mới lần đầu sử dụng dịch vụ.'),
-(6, 'Holiday Deal', 'Combo', 30, 'Ưu đãi 30% cho combo 2 gậy thuê + 2 đồ uống + 2 đồ ăn vào các ngày lễ.'),
-(7, 'Birthday Special', 'NoPromotion', 50, 'Giảm giá 50% cho khách hàng vào ngày sinh nhật.'),
-(8, 'Group Discount', 'Combo', 15, 'Giảm giá 15% cho các nhóm từ 4 người trở lên.'),
-(9, 'Student Offer', 'SinglePlaytime', 10, 'Giảm giá 10% cho sinh viên có thẻ sinh viên hợp lệ.'),
-(10, 'Early Bird Discount', 'SinglePlaytime', 20, 'Giảm giá 20% cho các lượt chơi trước 12:00 trưa.');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `rent_cues`
---
-
-CREATE TABLE `rent_cues` (
-  `rent_cue_id` int(11) NOT NULL,
-  `order_id` int(11) NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `start_time` timestamp NOT NULL DEFAULT current_timestamp(),
-  `end_time` timestamp NULL DEFAULT NULL,
-  `status` enum('Rented','Available') NOT NULL DEFAULT 'Available',
-  `timeplay` double DEFAULT NULL,
-  `subtotal` double DEFAULT NULL,
-  `net_total` double DEFAULT NULL,
-  `promotion_id` int(10) UNSIGNED DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `rent_cues`
---
-
-INSERT INTO `rent_cues` (`rent_cue_id`, `order_id`, `product_id`, `start_time`, `end_time`, `status`, `timeplay`, `subtotal`, `net_total`, `promotion_id`) VALUES
-(1, 1, 4, '2024-12-31 20:00:00', '2024-12-31 22:00:00', 'Available', 2, 100000, 100000, NULL),
-(2, 1, 5, '2024-12-31 20:00:00', '2024-12-31 21:00:00', 'Available', 1, 100000, 100000, NULL),
-(3, 2, 6, '2025-01-02 00:00:00', '2025-01-02 02:30:00', 'Available', 2.5, 375000, 375000, NULL),
-(4, 3, 4, '2025-01-03 04:00:00', '2025-01-03 05:30:00', 'Available', 1.5, 75000, 75000, NULL),
-(5, 4, 5, '2025-01-03 19:00:00', '2025-01-03 20:00:00', 'Available', 1, 100000, 100000, NULL),
-(6, 5, 6, '2025-01-04 21:00:00', '2025-01-04 22:45:00', 'Available', 1.75, 262500, 262500, NULL),
-(7, 6, 4, '2025-01-05 23:00:00', '2025-01-06 01:00:00', 'Available', 2, 100000, 100000, NULL),
-(8, 7, 5, '2025-01-07 02:00:00', '2025-01-07 03:30:00', 'Available', 1.5, 150000, 150000, NULL),
-(9, 8, 6, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 'Available', 1, 150000, 150000, NULL),
-(10, 26, 5, '2025-02-14 16:57:20', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
-(11, 26, 5, '2025-02-14 16:57:20', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
-(12, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
-(13, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
-(14, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
-(15, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
-(16, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
-(17, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
-(18, 26, 5, '2025-02-14 16:59:01', '2025-02-14 17:00:15', 'Available', 0, 0, 0, NULL),
-(19, 29, 6, '2025-02-21 16:45:04', '2025-02-21 16:57:06', 'Available', 0.2, 30000, 30000, NULL),
-(20, 29, 6, '2025-02-21 16:45:04', '2025-02-21 16:57:06', 'Available', 0.2, 30000, 30000, NULL),
-(21, 28, 6, '2025-02-21 17:32:27', '2025-02-21 17:34:38', 'Available', 0, 0, 0, NULL),
-(22, 28, 5, '2025-02-21 17:32:31', '2025-02-21 17:34:38', 'Available', 0, 0, 0, NULL),
-(23, 27, 6, '2025-02-21 17:39:19', '2025-02-21 17:39:29', 'Available', 0, 0, 0, NULL),
-(24, 33, 6, '2025-02-22 16:18:44', '2025-02-22 16:25:39', 'Available', 0.1, 15000, 15000, NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `revenue`
---
-
-CREATE TABLE `revenue` (
-  `revenue_id` int(11) NOT NULL,
-  `date` date DEFAULT NULL,
-  `total_revenue` int(11) DEFAULT NULL,
-  `total_customers` int(11) DEFAULT NULL,
-  `total_orders` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -546,6 +446,11 @@ CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
   `username` varchar(100) NOT NULL,
   `password` varchar(100) NOT NULL,
+  `fullname` varchar(50) NOT NULL,
+  `phone` varchar(15) NOT NULL,
+  `address` varchar(100) DEFAULT NULL,
+  `hire_date` date NOT NULL,
+  `birthday` date DEFAULT NULL,
   `role_id` int(11) NOT NULL,
   `image_path` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -554,16 +459,16 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `username`, `password`, `role_id`, `image_path`) VALUES
-(1, 'admin', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 1, 'manager.png'),
-(2, 'hieu', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 2, 'manager.png'),
-(3, 'quan', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 2, 'manager.png'),
-(4, 'manh', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 2, 'manager.png'),
-(6, 'long', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 2, 'manager.png'),
-(7, 'receptionist1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 3, 'user.png'),
-(8, 'whstaff1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 4, 'user.png'),
-(9, 'test123', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 3, 'user.png'),
-(10, 'test23', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 4, 'attention.png');
+INSERT INTO `users` (`user_id`, `username`, `password`, `fullname`, `phone`, `address`, `hire_date`, `birthday`, `role_id`, `image_path`) VALUES
+(1, 'admin', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Admin', '0961886965', 'Hà Nội', '2025-01-01', '1992-01-01', 1, 'manager.png'),
+(2, 'hieu', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyễn Văn Hiếu', '0961886965', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'manager.png'),
+(3, 'quan', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Lưu Minh Quân', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'manager.png'),
+(4, 'manh', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyễn Đức Mạnh', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'manager.png'),
+(6, 'long', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyễn Việt Long', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'manager.png'),
+(7, 'receptionist1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Hồ Hiền', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 3, 'user.png'),
+(8, 'whstaff1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Phạm Kiên', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 4, 'user.png'),
+(9, 'test123', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Vũ Trà', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 3, 'user.png'),
+(10, 'test23', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Lê Khánh', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 4, 'attention.png');
 
 --
 -- Indexes for dumped tables
@@ -601,7 +506,8 @@ ALTER TABLE `customers`
 --
 ALTER TABLE `orders`
   ADD PRIMARY KEY (`order_id`),
-  ADD KEY `customers_id` (`customer_id`);
+  ADD KEY `customers_id` (`customer_id`),
+  ADD KEY `orders_users_FK` (`user_id`);
 
 --
 -- Indexes for table `orders_items`
@@ -631,27 +537,6 @@ ALTER TABLE `pooltables`
 ALTER TABLE `products`
   ADD PRIMARY KEY (`product_id`),
   ADD KEY `category_id` (`category_id`);
-
---
--- Indexes for table `promotions`
---
-ALTER TABLE `promotions`
-  ADD PRIMARY KEY (`promotion_id`);
-
---
--- Indexes for table `rent_cues`
---
-ALTER TABLE `rent_cues`
-  ADD PRIMARY KEY (`rent_cue_id`),
-  ADD KEY `orders_id` (`order_id`),
-  ADD KEY `products_id` (`product_id`),
-  ADD KEY `promotion_id` (`promotion_id`);
-
---
--- Indexes for table `revenue`
---
-ALTER TABLE `revenue`
-  ADD PRIMARY KEY (`revenue_id`);
 
 --
 -- Indexes for table `roles`
@@ -706,7 +591,7 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `orders_items`
@@ -733,24 +618,6 @@ ALTER TABLE `products`
   MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
--- AUTO_INCREMENT for table `promotions`
---
-ALTER TABLE `promotions`
-  MODIFY `promotion_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT for table `rent_cues`
---
-ALTER TABLE `rent_cues`
-  MODIFY `rent_cue_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
-
---
--- AUTO_INCREMENT for table `revenue`
---
-ALTER TABLE `revenue`
-  MODIFY `revenue_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
@@ -771,22 +638,21 @@ ALTER TABLE `users`
 --
 ALTER TABLE `bookings`
   ADD CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `bookings_ibfk_2` FOREIGN KEY (`table_id`) REFERENCES `pooltables` (`table_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `bookings_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`promotion_id`);
+  ADD CONSTRAINT `bookings_ibfk_2` FOREIGN KEY (`table_id`) REFERENCES `pooltables` (`table_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `orders`
 --
 ALTER TABLE `orders`
-  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `orders_users_FK` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `orders_items`
 --
 ALTER TABLE `orders_items`
   ADD CONSTRAINT `orders_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `orders_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `orders_items_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`promotion_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `orders_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `pooltables`
@@ -799,14 +665,6 @@ ALTER TABLE `pooltables`
 --
 ALTER TABLE `products`
   ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `rent_cues`
---
-ALTER TABLE `rent_cues`
-  ADD CONSTRAINT `rent_cues_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `rent_cues_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `rent_cues_ibfk_3` FOREIGN KEY (`promotion_id`) REFERENCES `promotions` (`promotion_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `role_permission`

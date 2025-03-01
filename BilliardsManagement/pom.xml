@@ -95,12 +95,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itextpdf</artifactId>
-            <version>5.5.13.3</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>3.0.3</version>
@@ -108,8 +102,14 @@
 
         <dependency>
             <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.13.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.itextpdf</groupId>
             <artifactId>kernel</artifactId>
-            <version>9.0.0</version>
+            <version>9.1.0</version>
         </dependency>
 
         <dependency>
@@ -129,6 +129,14 @@
             <artifactId>fontawesomefx-materialdesignfont</artifactId>
             <version>2.0.26-9.1.2</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/io.github.palexdev/materialfx -->
+        <dependency>
+            <groupId>io.github.palexdev</groupId>
+            <artifactId>materialfx</artifactId>
+            <version>11.17.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

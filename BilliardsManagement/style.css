@@ -1,209 +1,141 @@
-/* Style cho toàn bộ TableView */
-.table-view {
-    -fx-background-color: white;
-    background-color: white;
-    -fx-border-width: 0;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
-    -fx-padding: 20px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 0);
-}
-
-/* Style cho header background */
-.table-view .column-header-background {
-    -fx-background-color: transparent;
-    background-color: transparent;
-    -fx-padding: 0 0 20px 0;  /* Tăng khoảng cách giữa header và nội dung */
-}
-
-/* Style cho header */
-.table-view .column-header {
-    -fx-background-color: #f0f2f5;
-    background-color: #f0f2f5;
-    -fx-border-width: 0;
-    -fx-padding: 15px;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #1a1a1a;
-    -fx-background-radius: 6px;
-    -fx-border-radius: 6px;
-    -fx-margin: 0 5px;
-}
-
-/* Style cho các ô trong bảng */
-.table-view .table-cell {
-    -fx-padding: 15px;
-    -fx-border-width: 0;
-    -fx-alignment: CENTER;
-    -fx-font-size: 13px;
-}
-
-/* Style cho hàng */
-.table-view .table-row-cell {
+/* Root styles */
+.main-container {
     -fx-background-color: #f8f9fa;
-    background-color: #f8f9fa;
-    -fx-background-radius: 6px;
-    -fx-border-radius: 6px;
+}
+
+/* Header styles */
+.header {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 8, 0, 0, 2);
+    -fx-padding: 20px;
+    -fx-spacing: 15;
+}
+
+.title-label {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+/* Search field styles */
+.search-field, .name-field {
+    -fx-pref-width: 280px;
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 25;
+    -fx-border-radius: 25;
+    -fx-border-color: #e9ecef;
+    -fx-padding: 10 15;
+    -fx-font-size: 13px;
+    -fx-prompt-text-fill: #adb5bd; /* Giữ nguyên placeholder khi chưa nhập */
+}
+
+/* Khi focus, giữ nguyên dữ liệu */
+.search-field:focused, .name-field:focused {
+    -fx-background-color: white;
+    -fx-border-color: #0095ff;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,149,255,0.1), 5, 0, 0, 0);
+}
+
+/* Search button styles */
+.search-button {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #e9ecef;
+    -fx-border-radius: 50%;
+    -fx-background-radius: 50%;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-cursor: hand;
+}
+
+.search-button:hover {
+    -fx-background-color: #e9ecef;
+}
+
+/* Action buttons styles */
+.add-button {
+    -fx-background-color: #0095ff;
+    -fx-text-fill: white;
+    -fx-background-radius: 25;
+    -fx-padding: 10 20;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,149,255,0.25), 5, 0, 0, 0);
+}
+
+.add-button:hover {
+    -fx-background-color: #0082e6;
+}
+
+/* Table styles */
+.order-table {
+    -fx-background-color: transparent;
+    -fx-padding: 20;
+    -fx-border-color: transparent;
+}
+
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* Table header styles */
+.table-view .column-header-background {
+    -fx-background-color: #e0e0e0;  /* Màu nền xám cho toàn bộ header */
+    -fx-background-radius: 8;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 12 8;
+    -fx-pref-height: 45px;
+    -fx-alignment: center-left;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+    -fx-font-size: 13px;
+    -fx-border-color: transparent;
+}
+
+.table-view .column-header-background .filler {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header .label {
+    -fx-alignment: CENTER;
+    -fx-padding: 5 8;
+}
+
+/* Table content styles */
+.table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: transparent;
+    -fx-padding: 5;
     -fx-cell-size: 50px;
 }
 
-/* Tạo khoảng trắng giữa các hàng */
+/* Giữ nền khi hover */
+.table-row-cell:hover {
+    -fx-background-color: #e3f2fd;
+}
+
+/* Màu xen kẽ cho hàng chẵn/lẻ */
+.table-row-cell:odd {
+    -fx-background-color: #f8f9fa;
+}
+
+/* Khi hàng được chọn, giữ màu nền */
+.table-row-cell:selected {
+    -fx-background-color: #0095ff !important;
+    -fx-text-fill: white;
+}
+
+/* Giữ màu chữ trong TableView khi chọn */
+.table-row-cell:selected .text {
+    -fx-fill: white;
+}
+
+/* Thêm khoảng cách giữa header và content */
 .table-view > .virtual-flow > .clipped-container > .sheet > .table-row-cell {
-    -fx-background-insets: 0, 0 0 10px 0;  /* Tăng khoảng cách giữa các hàng */
-    -fx-padding: 5px;
+    -fx-padding: 2;
 }
-
-/* Style cho hàng khi được chọn */
-.table-view .table-row-cell:selected {
-    -fx-background-color: #e8f0fe;
-    background-color: #e8f0fe;
-}
-
-.table-view .table-row-cell:selected .table-cell {
-    -fx-text-fill: #1a1a1a;  /* Giữ màu chữ như bình thường */
-}
-
-/* Style cho trạng thái Playing khi được chọn */
-.table-view .table-row-cell:selected .status-playing {
-    -fx-text-fill: #2e7d32;  /* Giữ màu xanh lá */
-    -fx-font-weight: bold;
-}
-
-/* Style cho trạng thái Finished khi được chọn */
-.table-view .table-row-cell:selected .status-finished {
-    -fx-text-fill: #1976d2;  /* Giữ màu xanh dương */
-    -fx-font-weight: bold;
-}
-
-/* Style cho các nút trong cột Action khi được chọn */
-.table-view .table-row-cell:selected .button {
-    -fx-background-color: transparent;
-    -fx-text-fill: #1a1a1a;
-}
-
-.table-view .table-row-cell:selected .button:hover {
-    -fx-background-color: #f0f2f5;
-}
-
-/* Style cho scroll bars */
-.table-view .scroll-bar:horizontal,
-.table-view .scroll-bar:vertical {
-    -fx-background-color: transparent;
-}
-
-.table-view .scroll-bar:horizontal .thumb,
-.table-view .scroll-bar:vertical .thumb {
-    -fx-background-color: #dcdcdc;
-    -fx-background-radius: 5px;
-}
-
-/* Style cho cột Action */
-.table-view .action-column {
-    -fx-alignment: CENTER;
-}
-
-/* Style cho các nút trong cột Action */
-.table-view .button {
-    -fx-background-color: transparent;
-    -fx-padding: 5px 10px;
-    -fx-cursor: hand;
-}
-
-.table-view .button:hover {
-    -fx-background-color: #f0f2f5;
-    -fx-background-radius: 4px;
-}
-
-/* Style cho trạng thái Playing */
-.status-playing {
-    -fx-text-fill: #2e7d32;  /* Màu xanh lá */
-    -fx-font-weight: bold;
-}
-
-/* Style cho trạng thái Finished */
-.status-finished {
-    -fx-text-fill: #1976d2;  /* Màu xanh dương */
-    -fx-font-weight: bold;
-}
-
-/* Style cho container chính */
-.root {
-    -fx-background-color: #f8f9fa;
-    background-color: #f8f9fa;
-}
-
-/* Style cho navbar */
-.nav-container {
-    -fx-background-color: white;
-    background-color: white;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 0);
-    -fx-padding: 20px 0;
-    -fx-pref-width: 250px;
-    -fx-min-height: 100%;
-}
-
-/* Style cho content area */
-.content-area {
-    -fx-background-color: #f8f9fa;
-    background-color: #f8f9fa;
-    -fx-padding: 20px;
-    -fx-alignment: top-left;
-}
-
-/* Style cho main container */
-.main-container {
-    -fx-alignment: top-left;
-    -fx-fill-height: true;
-}
-
-/* Style cho menu items */
-.menu-item {
-    -fx-padding: 10px 20px;
-    -fx-background-radius: 5px;
-    -fx-cursor: hand;
-}
-
-.menu-item:hover {
-    -fx-background-color: #f0f2f5;
-    background-color: #f0f2f5;
-}
-
-/* Style cho active menu item */
-.menu-item.active {
-    -fx-background-color: #e8f0fe;
-    background-color: #e8f0fe;
-    -fx-text-fill: #1a73e8;
-}
-
-/* Style cho logo container */
-.logo-container {
-    -fx-padding: 0 20px 20px 20px;
-    -fx-border-color: transparent transparent #e0e0e0 transparent;
-    -fx-border-width: 0 0 1 0;
-}
-
-/* Style cho header */
-.header {
-    -fx-background-color: white;
-    background-color: white;
-    -fx-padding: 20px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 0);
-    -fx-alignment: center-left;
-}
-
-/* Đảm bảo content và navbar có chiều cao bằng nhau */
-.split-pane {
-    -fx-background-color: transparent;
-    -fx-box-border: transparent;
-    -fx-padding: 0;
-}
-
-.split-pane:horizontal > .split-pane-divider {
-    -fx-background-color: transparent;
-    -fx-padding: 0;
-}
-
-/* Đảm bảo không có khoảng trống giữa navbar và content */
-.split-pane > .split-pane-divider {
-    -fx-padding: 0;
-} 

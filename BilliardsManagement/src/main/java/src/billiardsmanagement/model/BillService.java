@@ -5,7 +5,6 @@ import javafx.collections.ObservableList;
 import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.OrderItemDAO;
 import src.billiardsmanagement.dao.ProductDAO;
-import src.billiardsmanagement.dao.RentCueDAO;
 
 import java.util.List;
 
@@ -39,19 +38,6 @@ public class BillService {
                     item.getNetTotal() // Thành tiền
             ));
         }
-
-        // Lấy danh sách gậy thuê từ RentCueDAO
-        List<RentCue> rentCues = RentCueDAO.getAllRentCuesByOrderId(orderId);
-        for (RentCue rentCue : rentCues) {
-            billItems.add(new BillItem(
-                    rentCue.getProductName(),
-                    "Hour", // Đơn vị tính là giờ
-                    rentCue.getTimeplay(),
-                    rentCue.getProductPrice(),
-                    rentCue.getNetTotal()
-            ));
-        }
-
         return billItems;
     }
 }
