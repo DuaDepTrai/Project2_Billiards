@@ -5,9 +5,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.Node;
 import javafx.stage.Stage;
-import src.billiardsmanagement.dao.CategoryDAO;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.dao.OrderItemDAO;
@@ -16,16 +13,10 @@ import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.model.OrderItem;
 import src.billiardsmanagement.model.Pair;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+
 import src.billiardsmanagement.model.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
-import org.controlsfx.control.textfield.AutoCompletionBinding;
-import org.controlsfx.control.textfield.TextFields;
-
-import java.util.*;
 
 public class UpdateOrderItemController {
     @FXML
@@ -43,8 +34,9 @@ public class UpdateOrderItemController {
     private int orderItemId;
 
     private List<String> productList;
-    protected Map<String, String> productCategoryMap;
+    private List<String> currentItemList;
 
+//    protected Map<String, String> productCategoryMap;
     private String initialProductName;
     private String initialPromotionName;
 
@@ -52,7 +44,7 @@ public class UpdateOrderItemController {
     // private AutoCompletionBinding<String> promotionNameAutoBinding;
 
     public void initializeOrderItem() {
-        productCategoryMap = CategoryDAO.getProductAndCategoryUnitMap();
+//        productCategoryMap = CategoryDAO.getProductAndCategoryUnitMap();
 
         ArrayList<String> list = ProductDAO.getAllProductsName();
         productList = new ArrayList<>();
@@ -61,7 +53,7 @@ public class UpdateOrderItemController {
         } else {
             for (String s : list) {
                 productList.add(s);
-                if (!s.contains(" ")) {
+                if (!s.contains(" ") && !currentItemList.contains(s)) {
                     s = s + " ";
                     productList.add(s);
                 }
@@ -215,7 +207,8 @@ public class UpdateOrderItemController {
                     productName,
                     requestQuantity,
                     netTotal,
-                    subTotal);
+                    subTotal
+            );
 
             boolean success = OrderItemDAO.updateOrderItem(orderItem);
             if (!success) {
@@ -259,5 +252,10 @@ public class UpdateOrderItemController {
 
     public void setCurrentQuantity(int currentQuantity) {
         this.currentQuantity = currentQuantity;
+    }
+
+    public void setOrderItemList(List<String> list){
+        this.currentItemList = new ArrayList<>();
+        currentItemList.addAll(list);
     }
 }

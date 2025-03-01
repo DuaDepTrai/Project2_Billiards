@@ -207,6 +207,12 @@ public class ForEachOrderController {
         addBookingButton.setOnAction(event -> addBooking(event));
         bookingActionColumn.setGraphic(addBookingButton);
 
+        // Check Order Status
+        String orderStatus = orderStatusText.getText();
+        if(orderStatus.equals("Finished") || orderStatus.equals("Paid") || orderStatus.equals("Canceled")){
+            addBookingButton.setDisable(true);
+        }
+
         // Set cell factory for action column
         bookingActionColumn.setCellFactory(column -> new TableCell<>() {
             @Override
@@ -355,6 +361,11 @@ public class ForEachOrderController {
         addOrderItemButton.setPrefWidth(orderItemActionColumn.getPrefWidth());
         addOrderItemButton.setOnAction(event -> addOrderItem(event));
         orderItemActionColumn.setGraphic(addOrderItemButton);
+
+        String orderStatus = orderStatusText.getText();
+        if(orderStatus.equals("Finished") || orderStatus.equals("Paid") || orderStatus.equals("Canceled")){
+            addOrderItemButton.setDisable(true);
+        }
 
         // Set cell factory for action column
         orderItemActionColumn.setCellFactory(column -> new TableCell<>() {
@@ -618,6 +629,7 @@ public class ForEachOrderController {
             UpdateOrderItemController updateOrderItemController = loader.getController();
             updateOrderItemController.setOrderId(orderID);
             updateOrderItemController.setOrderItemDetails(selectedItem);
+            updateOrderItemController.setOrderItemList(orderItemsTable.getItems().stream().map(OrderItem::getProductName).toList());
             updateOrderItemController.initializeOrderItem();
 
             Stage stage = new Stage();
