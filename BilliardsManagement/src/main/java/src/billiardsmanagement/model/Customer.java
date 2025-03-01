@@ -1,26 +1,21 @@
 package src.billiardsmanagement.model;
 
 public class Customer {
-    private int customerId; // customer_id
-    private String name;     // name
-    private String phone;    // phone
-    private double totalPlaytime; // total_playtime
+    private int customerId;
+    private String name;
+    private String phone;
+    private double totalPlaytime;
 
-    public Customer(){
-
-    }
     // Constructor
-    public Customer(int customerId, String name, String phone, double totalPlaytime) {
-        this.customerId = customerId;
+    public Customer() {}
+
+    public Customer(String name, String phone, double totalPlaytime) {
         this.name = name;
         this.phone = phone;
         this.totalPlaytime = totalPlaytime;
     }
-    public Customer (String name, String phone){
-        this.name = name;
-        this.phone = phone;
-    }
-    // Getter and Setter methods
+
+    // Getters and setters
     public int getCustomerId() {
         return customerId;
     }
@@ -51,11 +46,5 @@ public class Customer {
 
     public void setTotalPlaytime(double totalPlaytime) {
         this.totalPlaytime = totalPlaytime;
-    }
-
-    // Override toString() method if you want to display Customer's information as a string
-    @Override
-    public String toString() {
-        return customerId + " - " + name; // Display ID and Name in ComboBox or list
     }
 }

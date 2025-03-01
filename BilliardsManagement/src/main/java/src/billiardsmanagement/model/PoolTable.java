@@ -1,64 +1,69 @@
 package src.billiardsmanagement.model;
+
 public class PoolTable {
+    private int tableId; // ID của bàn
+    private String name; // Tên bàn
+    private double price; // Giá thuê bàn
+    private String status; // Trạng thái bàn (Available, Occupied, Under Maintenance)
 
-    private int tableId; // Tương ứng với cột 'table_id'
-    private String name; // Tương ứng với cột 'name'
-    private Double price; // Tương ứng với cột 'price'
-    private String status; // Tương ứng với cột 'status'
-
-    // Constructor không tham số
+    // Constructor
     public PoolTable(int tableId, String name, double price, String status) {
-    }
-
-    // Constructor với tất cả các tham số
-    public PoolTable(int tableId, String name, Double price, String status) {
         this.tableId = tableId;
         this.name = name;
-        this.price = price;
-        this.status = status;
+        setPrice(price); // Sử dụng setter để đảm bảo tính hợp lệ
+        setStatus(status); // Sử dụng setter để đảm bảo tính hợp lệ
     }
 
-    // Getter và Setter cho từng thuộc tính
+    // Getters
     public int getTableId() {
         return tableId;
-    }
-
-    public void setTableId(int tableId) {
-        this.tableId = tableId;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Double getPrice() {
+    public double getPrice() {
         return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
     }
 
     public String getStatus() {
         return status;
     }
 
+    // Setters
+    public void setTableId(int tableId) {
+        this.tableId = tableId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(double price) {
+        if (price < 0) {
+            throw new IllegalArgumentException("Price cannot be negative.");
+        }
+        this.price = price;
+    }
+
     public void setStatus(String status) {
+        // Kiểm tra trạng thái hợp lệ
+        if (!status.equals("Available") && !status.equals("Occupied") && !status.equals("Under Maintenance")) {
+            throw new IllegalArgumentException(
+                    "Invalid status. Must be 'Available', 'Occupied', or 'Under Maintenance'.");
+        }
         this.status = status;
     }
 
-    // Phương thức toString để hiển thị thông tin của đối tượng
+    // Phương thức toString() để dễ dàng in ra thông tin của đối tượng
     @Override
     public String toString() {
         return "PoolTable{" +
                 "tableId=" + tableId +
                 ", name='" + name + '\'' +
                 ", price=" + price +
-                ", status=" + status +
+                ", status='" + status + '\'' +
                 '}';
     }
 }
