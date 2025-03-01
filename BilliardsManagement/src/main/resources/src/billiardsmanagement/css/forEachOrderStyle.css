@@ -1,0 +1,57 @@
+.table-view {
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-view .column-header {
+    -fx-background-color: #A31D1D;
+    -fx-text-overrun: CLIP;
+    -fx-alignment: CENTER;
+    
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #FFFFFF;
+}
+
+.table-view .table-cell {
+    -fx-font-size: 13px;
+    -fx-spacing: 7;
+}
+
+/* Customer Name - Phone - Order Status - Bill No */
+.section-label {
+    -fx-font-size: 15px;
+    -fx-text-fill: #A31D1D;
+    -fx-font-weight: bold;
+}
+
+.header-text{
+    -fx-font-size: 15px;
+    
+}
+
+.left-aligned {
+    -fx-alignment: CENTER-LEFT;
+}
+
+.number-aligned {
+    -fx-alignment: CENTER;
+}
+
+.finish-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: BOLD;
+    -fx-background-radius: 5;
+    -fx-border-color: #4CAF50;
+    -fx-border-width: 1px;
+    -fx-padding: 5 10 5 10;
+}
+
+.table-view .table-row-cell{
+    -fx-spacing: 10;
+    border: transparent;
+    
+}
+

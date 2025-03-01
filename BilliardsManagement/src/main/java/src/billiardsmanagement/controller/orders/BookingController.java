@@ -1,15 +1,16 @@
 package src.billiardsmanagement.controller.orders;
 
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import src.billiardsmanagement.dao.OrderDAO;
-import src.billiardsmanagement.model.*;
+import src.billiardsmanagement.model.Bill;
+import src.billiardsmanagement.model.BillItem;
+import src.billiardsmanagement.model.BillService;
+import src.billiardsmanagement.model.Order;
 
 import java.text.DecimalFormat;
-import java.util.List;
 
 public class BookingController {
     @FXML

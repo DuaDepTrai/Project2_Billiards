@@ -13,6 +13,8 @@ public class OrderItem {
     private String promotionName;
     private double promotionDiscount;
 
+    public OrderItem(){}
+
     public OrderItem(int orderId, int productId, int quantity, double netTotal, double subTotal, int promotionId) {
         this.orderId = orderId;
         this.productId = productId;
@@ -22,7 +24,7 @@ public class OrderItem {
         this.promotionId = promotionId; // nếu = -1 : không có promotion
     }
 
-    public OrderItem(int orderItemId, int orderId, int productId, String productName, int quantity, double netTotal, double subTotal, int promotionId) {
+    public OrderItem(int orderItemId, int orderId, int productId, String productName, int quantity, double netTotal, double subTotal) {
         this.orderItemId = orderItemId;
         this.orderId = orderId;
         this.productId = productId;
@@ -33,9 +35,6 @@ public class OrderItem {
         this.promotionId = promotionId;
     } // Full-model constructor
 
-    public OrderItem() {
-        //TODO Auto-generated constructor stub
-    }
 
     public double getProductPrice() {
         return productPrice;

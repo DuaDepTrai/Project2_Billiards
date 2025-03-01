@@ -1,6 +1,5 @@
 package src.billiardsmanagement.dao;
 
-import src.billiardsmanagement.model.Booking;
 import src.billiardsmanagement.model.Order;
 import src.billiardsmanagement.model.DatabaseConnection;
 
@@ -73,21 +72,38 @@ public class OrderDAO {
         return paidOrders;
     }
 
-    public static List<Order> getOrdersByPhone(String phoneNumber) {
+
+    public static List<Order> getOrdersByPhone(String input) {
         List<Order> orders = new ArrayList<>();
+
+        // Tách chuỗi nếu có dấu "-"
+        String[] parts = input.split("-");
+        String nameOrPhone = parts[0].trim();
+        String possiblePhone = parts.length > 1 ? parts[1].trim() : "";
+
+        // Kiểm tra xem phần sau có phải số điện thoại không
+        boolean isPhoneNumber = possiblePhone.matches("\\d{6,}"); // Chứa ít nhất 6 chữ số
+
         String query = """
         SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
                o.total_cost, o.order_status
         FROM orders o
         JOIN customers c ON o.customer_id = c.customer_id
-        WHERE c.phone = ?
+        WHERE c.phone LIKE ? OR c.name LIKE ?
         ORDER BY o.order_id DESC
     """;
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, phoneNumber);
+            if (isPhoneNumber) {
+                stmt.setString(1, "%" + possiblePhone + "%"); // Tìm theo số điện thoại
+                stmt.setString(2, "%" + nameOrPhone + "%");   // Tìm theo tên
+            } else {
+                stmt.setString(1, "%" + input + "%"); // Nếu không phải số điện thoại, tìm theo toàn bộ chuỗi
+                stmt.setString(2, "%" + input + "%");
+            }
+
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -106,6 +122,8 @@ public class OrderDAO {
         }
         return orders;
     }
+
+
 
     // Không cần khai báo URL, USER, PASSWORD nữa, vì đã có trong DatabaseConnection
     public List<Order> getAllOrders() {
@@ -284,60 +302,35 @@ public class OrderDAO {
     }
 
     public static double calculateOrderTotal(int orderId) {
-        // String query = """
-        // SELECT
-        // COALESCE(SUM(b.net_total), 0) AS total_booking,
-        // COALESCE(SUM(oi.net_total), 0) AS total_products,
-        // COALESCE(SUM(rc.net_total), 0) AS total_rentals
-        // FROM orders o
-        // LEFT JOIN bookings b ON o.order_id = b.order_id
-        // LEFT JOIN orders_items oi ON o.order_id = oi.order_id
-        // LEFT JOIN rent_cues rc ON o.order_id = rc.order_id
-        // WHERE o.order_id = ?;
-        // """;
-
+        double total = 0;
         String query = """
-                            SELECT
-                    COALESCE(b.total_booking, 0) AS total_booking,
-                    COALESCE(oi.total_products, 0) AS total_products,
-                    COALESCE(rc.total_rentals, 0) AS total_rentals
-                FROM orders o
-                LEFT JOIN (
-                    SELECT order_id, SUM(net_total) AS total_booking
-                    FROM bookings
-                    GROUP BY order_id
-                ) b ON o.order_id = b.order_id
-                LEFT JOIN (
-                    SELECT order_id, SUM(net_total) AS total_products
-                    FROM orders_items
-                    GROUP BY order_id
-                ) oi ON o.order_id = oi.order_id
-                LEFT JOIN (
-                    SELECT order_id, SUM(net_total) AS total_rentals
-                    FROM rent_cues
-                    GROUP BY order_id
-                ) rc ON o.order_id = rc.order_id
-                WHERE o.order_id = ?;
-                            """;
+            SELECT COALESCE(SUM(
+                CASE 
+                    WHEN b.net_total IS NOT NULL THEN b.net_total 
+                    ELSE 0 
+                END +
+                CASE 
+                    WHEN oi.net_total IS NOT NULL THEN oi.net_total
+                    ELSE 0 
+                END
+            ), 0) as total_cost
+            FROM orders o
+            LEFT JOIN bookings b ON o.order_id = b.order_id
+            LEFT JOIN orders_items oi ON o.order_id = oi.order_id
+            WHERE o.order_id = ?
+        """;
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setInt(1, orderId);
-            ResultSet rs = stmt.executeQuery();
-
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, orderId);
+            ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                double totalBooking = rs.getDouble("total_booking");
-                double totalProducts = rs.getDouble("total_products");
-                double totalRentals = rs.getDouble("total_rentals");
-
-                return totalBooking + totalProducts + totalRentals;
+                total = rs.getDouble("total_cost");
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return 0.0; // Trả về 0 nếu có lỗi hoặc không tìm thấy order
+        return total;
     }
 
     public Order getLatestOrderByCustomerId(int customerId) {
@@ -360,4 +353,5 @@ public class OrderDAO {
         }
         return order;
     }
+
 }

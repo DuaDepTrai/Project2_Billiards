@@ -88,7 +88,6 @@ public class NotificationService {
                     notificationHeight = newValue.getHeight(); // Get new height
                 }
 
-                System.out.println("Updated Size: " + notificationWidth + " x " + notificationHeight);
                 double xPos = screenWidth - notificationWidth - 10;
                 double yPos = screenHeight - notificationHeight - 55 - 10; // 10px from the bottom edge
 
@@ -108,8 +107,6 @@ public class NotificationService {
 //            double endX = screenWidth - notificationWidth - 10;
             // the d nao endX = 0 lai hoat dong !!?
             double endX = 0;
-            System.out.println("startX = "+startX);
-            System.out.println("endX = "+endX);
             TranslateTransition slideIn = new TranslateTransition(Duration.millis(350), root);
             slideIn.setFromX(startX);
             slideIn.setToX(endX);

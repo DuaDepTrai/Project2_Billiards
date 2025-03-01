@@ -15,13 +15,18 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import src.billiardsmanagement.controller.orders.bookings.AddBookingController;
 import src.billiardsmanagement.controller.orders.items.AddOrderItemController;
 import src.billiardsmanagement.controller.orders.items.UpdateOrderItemController;
-import src.billiardsmanagement.controller.orders.rent.AddRentCueController;
-import src.billiardsmanagement.controller.orders.rent.UpdateRentCueController;
 import src.billiardsmanagement.dao.*;
 import src.billiardsmanagement.model.*;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.scene.layout.HBox;
+import src.billiardsmanagement.model.DatabaseConnection;
+import src.billiardsmanagement.model.NotificationService;
+import src.billiardsmanagement.model.NotificationStatus;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -48,14 +53,6 @@ public class ForEachOrderController {
     @FXML
     protected Button stopBookingButton;
     @FXML
-    protected Button addRentCueButton;
-    @FXML
-    protected Button editRentCueButton;
-    @FXML
-    protected Button deleteRentCueButton;
-    @FXML
-    protected Button endCueRentalButton;
-    @FXML
     protected Button addOrderItemButton;
     @FXML
     protected Button editOrderItemButton;
@@ -66,6 +63,13 @@ public class ForEachOrderController {
     @FXML
     protected Button cancelBookingButton;
 
+    // Actions
+    @FXML
+    private TableColumn<Booking,Void> bookingActionColumn;
+
+    @FXML
+    private TableColumn<OrderItem,Void> orderItemActionColumn;
+
     // Tables
     @FXML
     private TableView<Booking> bookingPoolTable;
@@ -75,9 +79,6 @@ public class ForEachOrderController {
 
     @FXML
     private TableView<Order> orderTable;
-
-    @FXML
-    private TableView<RentCue> rentCueTable;
 
     @FXML
     private Text customerText;
@@ -136,76 +137,33 @@ public class ForEachOrderController {
     @FXML
     private TableColumn<OrderItem, Double> subTotalOrderItemColumn;
 
-    @FXML
-    private TableColumn<OrderItem, String> promotionOrderItem;
+    // @FXML
+    // private TableColumn<OrderItem, String> promotionOrderItem;
 
-    @FXML
-    private TableColumn<OrderItem, Double> promotionDiscountOrderItem;
-
-    // Rent Cue
-    @FXML
-    private TableColumn<RentCue, String> productNameCue;
-
-    @FXML
-    private TableColumn<RentCue, Integer> sttRentCueColumn;
-
-    @FXML
-    private TableColumn<RentCue, LocalDateTime> startTimeCue;
-
-    @FXML
-    private TableColumn<RentCue, LocalDateTime> endTimeCue;
-
-    @FXML
-    private TableColumn<RentCue, String> timeplayCue;
-
-    @FXML
-    private TableColumn<RentCue, Double> priceCue;
-
-    @FXML
-    private TableColumn<RentCue, String> promotionCue;
-
-    @FXML
-    private TableColumn<RentCue, Double> promotionDiscountCue;
-
-    @FXML
-    private TableColumn<RentCue, String> statusCue;
-
-    @FXML
-    private TableColumn<RentCue, Double> subTotalCue;
-
-    @FXML
-    private TableColumn<RentCue, Double> netTotalCue;
-
-    // Order + Customer Overview Details
-    @FXML
-    private Text customerNameData;
-    @FXML
-    private Text phoneData;
-    @FXML
-    private Text currentTableData;
-    @FXML
-    private Text tableStatusData;
+    // @FXML
+    // private TableColumn<OrderItem, Double> promotionDiscountOrderItem;
 
     private final ObservableList<Booking> bookingList = FXCollections.observableArrayList();
     private final ObservableList<OrderItem> orderItemList = FXCollections.observableArrayList();
-    private final ObservableList<RentCue> rentCueList = FXCollections.observableArrayList();
 
     private final BookingDAO bookingDAO = new BookingDAO();
     private final OrderDAO orderDAO = new OrderDAO();
     private final CustomerDAO customerDAO = new CustomerDAO();
     private final OrderItemDAO orderItemDAO = new OrderItemDAO();
-    private final RentCueDAO rentCueDAO = new RentCueDAO();
     private Connection conn = DatabaseConnection.getConnection();
 
     private int orderID;
     private int customerID;
     private int billNo;
+
+    private Booking currentBookingSelected;
+    private OrderItem currentOrderItemSelected;
+
     public void setOrderID(int orderID) {
         this.orderID = orderID;
         if (orderID > 0) {
             loadBookings();
             loadOrderDetail();
-            loadRentCue();
         } else {
             NotificationService.showNotification("Invalid Order ID", "The provided Order ID is invalid.", NotificationStatus.Error);
         }
@@ -213,129 +171,104 @@ public class ForEachOrderController {
 
     private void loadBookings() {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
+        bookings.sort((b1,b2) -> b2.getBookingId() - b1.getBookingId());
         bookingList.clear();
         bookingList.addAll(bookings);
         bookingPoolTable.setItems(bookingList);
     }
 
     private void loadOrderDetail() {
-        List<OrderItem> orderItems = OrderItemDAO.getForEachOrderItem(orderID);
-
-        // Kiểm tra dữ liệu
-        System.out.println(orderItems);
-
-        // Xóa hết các dữ liệu cũ trong orderItemList
         orderItemList.clear();
-
-        // Thêm các OrderItem mới vào list
-        orderItemList.addAll(orderItems);
-
-        // Cập nhật lại dữ liệu cho bảng
+        List<OrderItem> items = OrderItemDAO.getForEachOrderItem(orderID);
+        items.sort((i1,i2) -> i2.getOrderItemId() - i1.getOrderItemId());
+        System.out.println(items.isEmpty() ? "Order Item list in ForEachOrderController, loadOrderDetail() don't have any element !" : "");
+        orderItemList.addAll(items); 
         orderItemsTable.setItems(orderItemList);
-        System.out.println("Order Item" + orderItemsTable.getItems());
-        // Implement this method to load and display order details
-    }
-
-    private void loadRentCue() {
-
-        // Retrieve rent cue items for the current order
-        List<RentCue> rentCues = new ArrayList<>();
-
-        // Kiểm tra dữ liệu
-        System.out.println(rentCues);
-
-        for (RentCue rc : RentCueDAO.getAllRentCuesByOrderId(orderID)) {
-            if (!rc.getProductName().endsWith("Sale")) {
-                rentCues.add(rc);
-            }
-        }
-
-        // Clear existing items in the table
-        rentCueTable.getItems().clear();
-
-        // Check if rentCues is null or empty
-        if (rentCues == null || rentCues.isEmpty()) {
-            System.out.println("No rent cue items found for order ID: " + orderID);
-            return;
-        }
-        // Add retrieved rent cue items to the table
-        rentCueTable.getItems().addAll(rentCues);
-        rentCueList.clear();
-        rentCueList.addAll(rentCues);
+        // Promotion-related code commented out
+        /*
+        promotionOrderItem.setCellValueFactory(cellData -> {
+            OrderItem orderItem = cellData.getValue();
+            String promotionName = orderItem.getPromotionName();
+            return new SimpleStringProperty(promotionName != null ? promotionName : "");
+        });
+        promotionDiscountOrderItem.setCellValueFactory(cellData -> {
+            OrderItem orderItem = cellData.getValue();
+            Double discount = orderItem.getPromotionDiscount();
+            return new SimpleObjectProperty<>(discount != null ? discount : 0.0);
+        });
+        */
     }
 
     private void initializeBookingColumn() {
-        // update buttons status : disabled / enabled, based on each Booking row
-        bookingPoolTable.setRowFactory(tv -> {
-            TableRow<Booking> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 1) { // Handle single click
-                    int index = row.getTableView().getSelectionModel().getSelectedIndex();
-                    if (index >= 0) {
-                        Booking currentBooking = row.getTableView().getItems().get(index);
-                        if ("Playing".equals(currentBooking.getBookingStatus())) {
-                            cancelBookingButton.setDisable(true);
-                            updateBookingButton.setDisable(true);
-                            deleteBookingButton.setDisable(true);
-                            stopBookingButton.setDisable(false);
-                        } else if ("Finish".equals(currentBooking.getBookingStatus())) {
-                            cancelBookingButton.setDisable(true);
-                            updateBookingButton.setDisable(true);
-                            deleteBookingButton.setDisable(true);
-                            stopBookingButton.setDisable(true);
-                        } else if ("Canceled".equals(currentBooking.getBookingStatus())) {
-                            cancelBookingButton.setDisable(true);
-                            updateBookingButton.setDisable(true);
-                            deleteBookingButton.setDisable(true);
-                            stopBookingButton.setDisable(true);
-                        } else if ("Order".equals(currentBooking.getBookingStatus())) {
-                            cancelBookingButton.setDisable(false);
-                            updateBookingButton.setDisable(false);
-                            deleteBookingButton.setDisable(true);
-                            stopBookingButton.setDisable(true);
-                        } else {
-                            // If none of the above conditions are met, enable all buttons
-                            cancelBookingButton.setDisable(false);
-                            updateBookingButton.setDisable(false);
-                            deleteBookingButton.setDisable(false);
-                            stopBookingButton.setDisable(false);
-                        }
-                    }
+        // Add New button in header
+        Button addBookingButton = new Button("Add New");
+        addBookingButton.getStyleClass().add("header-button");
+        addBookingButton.setPrefWidth(bookingActionColumn.getPrefWidth());
+        addBookingButton.setOnAction(event -> addBooking(event));
+        bookingActionColumn.setGraphic(addBookingButton);
+
+        // Set cell factory for action column
+        bookingActionColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                    return;
                 }
-            });
-            row.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null && row.getTableView().getSelectionModel().getSelectedItem() != null) {
-                    Booking currentBooking = row.getTableView().getSelectionModel().getSelectedItem();
-                    if ("Playing".equals(currentBooking.getBookingStatus())) {
-                        cancelBookingButton.setDisable(true);
-                        updateBookingButton.setDisable(true);
-                        deleteBookingButton.setDisable(true);
-                        stopBookingButton.setDisable(false);
-                    } else if ("Finish".equals(currentBooking.getBookingStatus())) {
-                        cancelBookingButton.setDisable(true);
-                        updateBookingButton.setDisable(true);
-                        deleteBookingButton.setDisable(true);
-                        stopBookingButton.setDisable(true);
-                    } else if ("Canceled".equals(currentBooking.getBookingStatus())) {
-                        cancelBookingButton.setDisable(true);
-                        updateBookingButton.setDisable(true);
-                        deleteBookingButton.setDisable(true);
-                        stopBookingButton.setDisable(true);
-                    } else if ("Order".equals(currentBooking.getBookingStatus())) {
-                        cancelBookingButton.setDisable(false);
-                        updateBookingButton.setDisable(false);
-                        deleteBookingButton.setDisable(true);
-                        stopBookingButton.setDisable(true);
-                    } else {
-                        // If none of the above conditions are met, enable all buttons
-                        cancelBookingButton.setDisable(false);
-                        updateBookingButton.setDisable(false);
-                        deleteBookingButton.setDisable(false);
-                        stopBookingButton.setDisable(false);
-                    }
+
+                Booking booking = getTableView().getItems().get(getIndex());
+                HBox actionBox = new HBox();
+                actionBox.getStyleClass().add("action-hbox");
+
+                switch (booking.getBookingStatus()) {
+                    case "Order":
+                        FontAwesomeIconView playIcon = new FontAwesomeIconView(FontAwesomeIcon.PLAY);
+                        playIcon.getStyleClass().add("action-icon");
+                        playIcon.setOnMouseClicked(e -> {
+                            setCurrentBookingSelected(booking);
+                            updateBooking(new ActionEvent());
+                        });
+
+                        FontAwesomeIconView cancelIcon = new FontAwesomeIconView(FontAwesomeIcon.TIMES);
+                        cancelIcon.getStyleClass().add("action-icon");
+                        cancelIcon.setOnMouseClicked(e -> {
+                            setCurrentBookingSelected(booking);
+                            cancelBooking(new ActionEvent());
+                        });
+
+                        actionBox.getChildren().addAll(playIcon, cancelIcon);
+                        break;
+
+                    case "Playing":
+                        FontAwesomeIconView stopIcon = new FontAwesomeIconView(FontAwesomeIcon.PAUSE);
+                        stopIcon.getStyleClass().add("action-icon");
+                        stopIcon.setOnMouseClicked(e -> {
+                            setCurrentBookingSelected(booking);
+                            stopBooking(new ActionEvent());
+                        });
+                        actionBox.getChildren().add(stopIcon);
+                        break;
+
+                    case "Canceled":
+                        FontAwesomeIconView deleteIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
+                        deleteIcon.getStyleClass().add("action-icon");
+                        deleteIcon.setOnMouseClicked(e -> {
+                            setCurrentBookingSelected(booking);
+                            deleteBooking(new ActionEvent());
+                        });
+                        actionBox.getChildren().add(deleteIcon);
+                        break;
+
+                    case "Finish":
+                        Text finishedText = new Text("Finished");
+                        finishedText.getStyleClass().add("finished-text");
+                        actionBox.getChildren().add(finishedText);
+                        break;
                 }
-            });
-            return row;
+
+                setGraphic(actionBox);
+            }
         });
 
         sttColumn.setCellValueFactory(param -> {
@@ -411,9 +344,44 @@ public class ForEachOrderController {
             }
         });
 
+        productNameColumn.getStyleClass().add("left-aligned");
+        priceColumn.getStyleClass().add("right-aligned");
     }
 
     private void initializeOrderDetailColumn() {
+        // Add New button in header
+        Button addOrderItemButton = new Button("Add New");
+        addOrderItemButton.getStyleClass().add("header-button");
+        addOrderItemButton.setPrefWidth(orderItemActionColumn.getPrefWidth());
+        addOrderItemButton.setOnAction(event -> addOrderItem(event));
+        orderItemActionColumn.setGraphic(addOrderItemButton);
+
+        // Set cell factory for action column
+        orderItemActionColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
+
+                OrderItem orderItem = getTableView().getItems().get(getIndex());
+                HBox actionBox = new HBox();
+                actionBox.getStyleClass().add("action-hbox");
+
+                FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
+                editIcon.getStyleClass().add("action-icon");
+                editIcon.setOnMouseClicked(e -> {
+                    setCurrentOrderItemSelected(orderItem);
+                    updateOrderItem(new ActionEvent());
+                });
+
+                actionBox.getChildren().add(editIcon);
+                setGraphic(actionBox);
+            }
+        });
+
         sttOrderItemColumn.setCellValueFactory(this::orderItemCall);
         productNameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
         productNameColumn.setSortType(TableColumn.SortType.ASCENDING);
@@ -465,185 +433,21 @@ public class ForEachOrderController {
             }
         });
 
-        promotionOrderItem.setCellValueFactory(new PropertyValueFactory<>("promotionName"));
-        promotionDiscountOrderItem.setCellValueFactory(new PropertyValueFactory<>("promotionDiscount"));
-    }
-
-    private void initializeRentCueColumn() {
-        rentCueTable.setRowFactory(tv -> {
-            TableRow<RentCue> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 1) {
-                    int index = row.getTableView().getSelectionModel().getSelectedIndex();
-                    if (index >= 0) {
-                        RentCue currentRentCue = row.getTableView().getItems().get(index);
-                        if (RentCueStatus.Available.equals(currentRentCue.getStatus())) { // Fixing the error naming
-                            // here
-                            editRentCueButton.setDisable(true);
-                            deleteRentCueButton.setDisable(true);
-                            endCueRentalButton.setDisable(true);
-                            return;
-                        } else {
-                            editRentCueButton.setDisable(false);
-                            deleteRentCueButton.setDisable(false);
-                            endCueRentalButton.setDisable(false);
-                        }
-                    }
-                }
-            });
-            row.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null && row.getTableView().getSelectionModel().getSelectedItem() != null) {
-                    RentCue currentRentCue = row.getTableView().getSelectionModel().getSelectedItem();
-                    // Assuming there's a method to check the status of order items
-                    if (RentCueStatus.Available.equals(currentRentCue.getStatus())) { // Fixing the error naming here
-                        editRentCueButton.setDisable(true);
-                        deleteRentCueButton.setDisable(true);
-                        endCueRentalButton.setDisable(true);
-                        return;
-                    } else {
-                        editRentCueButton.setDisable(false);
-                        deleteRentCueButton.setDisable(false);
-                        endCueRentalButton.setDisable(false);
-                    }
-                }
-            });
-            return row;
-        });
-
-        sttRentCueColumn.setCellValueFactory(this::rentCueCall);
-        productNameCue.setCellValueFactory(new PropertyValueFactory<>("productName"));
-        productNameCue.setSortType(TableColumn.SortType.ASCENDING);
-
-        startTimeCue.setCellValueFactory(new PropertyValueFactory<>("startTime"));
-        startTimeCue.setSortType(TableColumn.SortType.ASCENDING);
-        startTimeCue.setCellFactory(column -> new TableCell<RentCue, LocalDateTime>() {
-            @Override
-            protected void updateItem(LocalDateTime item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText("");
-                } else {
-                    setText(item.format(DateTimeFormatter.ofPattern("dd-MM '['HH:mm']'")));
-                }
-            }
-        });
-
-        timeplayCue.setCellValueFactory(new PropertyValueFactory<>("timeplay"));
-        timeplayCue.setSortType(TableColumn.SortType.ASCENDING);
-
-        priceCue.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
-        priceCue.setSortType(TableColumn.SortType.ASCENDING);
-        priceCue.setCellFactory(column -> new TableCell<RentCue, Double>() {
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText("");
-                } else {
-                    setText(String.format("%,d", Math.round(item)));
-                }
-            }
-        });
-
-        endTimeCue.setCellValueFactory(new PropertyValueFactory<>("endTime"));
-        endTimeCue.setSortType(TableColumn.SortType.ASCENDING);
-        endTimeCue.setCellFactory(column -> new TableCell<RentCue, LocalDateTime>() {
-            @Override
-            protected void updateItem(LocalDateTime item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText("");
-                } else {
-                    setText(item.format(DateTimeFormatter.ofPattern("dd-MM '['HH:mm']'")));
-                }
-            }
-        });
-
-        promotionCue.setCellValueFactory(new PropertyValueFactory<>("promotionName"));
-        promotionCue.setSortType(TableColumn.SortType.ASCENDING);
-
-        statusCue.setCellValueFactory(param -> {
-            final RentCue rentCue = param.getValue();
-            String rentCueStatus = String.valueOf(rentCue.getStatus());
-            String newStatus = rentCueStatus.equals("Available") ? "Returned" : "Rented";
-            return new SimpleStringProperty(newStatus);
-        });
-        statusCue.setSortType(TableColumn.SortType.ASCENDING);
-
-        subTotalCue.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
-        subTotalCue.setSortType(TableColumn.SortType.ASCENDING);
-        subTotalCue.setCellFactory(column -> new TableCell<RentCue, Double>() {
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText("");
-                } else {
-                    setText(String.format("%,d", Math.round(item)));
-                }
-            }
-        });
-
-        netTotalCue.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
-        netTotalCue.setSortType(TableColumn.SortType.ASCENDING);
-        netTotalCue.setCellFactory(column -> new TableCell<RentCue, Double>() {
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText("");
-                } else {
-                    setText(String.format("%,d", Math.round(item)));
-                }
-            }
-        });
-
-        // Initialize RentCue Promotion Columns
-        promotionCue.setCellValueFactory(new PropertyValueFactory<>("promotionName"));
-        promotionDiscountCue.setCellValueFactory(new PropertyValueFactory<>("promotionDiscount"));
-    }
-
-    private void initializeOrderCustomerDetail() {
-        Order order = OrderDAO.getOrderByIdStatic(orderID);
-        if (order != null) {
-            customerNameData.setText(order.getCustomerName() != null ? order.getCustomerName() : "");
-            phoneData.setText(order.getCustomerPhone() != null ? order.getCustomerPhone() : "");
-            currentTableData.setText(order.getCurrentTableName() != null ? order.getCurrentTableName() : "");
-
-        }
+        // Remove or comment out these lines
+        // promotionOrderItem.setCellValueFactory(new PropertyValueFactory<>("promotionName"));
+        // promotionDiscountOrderItem.setCellValueFactory(new PropertyValueFactory<>("promotionDiscount"));
     }
 
     // Remove implement Initializable to take control over code flow
     public void initializeAllTables() {
+        bookingPoolTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        orderItemsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
         initializeBookingColumn();
         initializeOrderDetailColumn();
-        initializeRentCueColumn();
-        checkBookingStatus();
-        checkOrderStatus();
-        loadOrderList();
-
-        // if Finished / Paid, disable all Buttons
-        String orderStatus = orderStatusText.getText();
-
-        if (orderStatus.equals("Finished") ||
-                orderStatus.equals("Paid") ||
-                orderStatus.equals("Canceled")) {
-
-            finishOrderButton.setDisable(true);
-            updateBookingButton.setDisable(true);
-            deleteBookingButton.setDisable(true);
-            stopBookingButton.setDisable(true);
-            addRentCueButton.setDisable(true);
-            editRentCueButton.setDisable(true);
-            deleteRentCueButton.setDisable(true);
-            endCueRentalButton.setDisable(true);
-            addOrderItemButton.setDisable(true);
-            editOrderItemButton.setDisable(true);
-            deleteOrderItemButton.setDisable(true);
-            addBookingButton.setDisable(true);
-        }
-
-        cancelBookingButton.setDisable(!orderStatus.equals("Order"));
+        loadInfo();
+        loadBookings();
+        loadOrderDetail();
     }
 
     public void addBooking(ActionEvent event) {
@@ -889,255 +693,6 @@ public class ForEachOrderController {
         }
     }
 
-
-    // Rent Cue Functions
-    public void addRentCue(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/src/billiardsmanagement/orders/rent/addRentCue.fxml"));
-            Parent root = loader.load();
-
-            AddRentCueController addRentCueController = loader.getController();
-            addRentCueController.setOrderId(orderID);
-
-            Stage stage = new Stage();
-            stage.setTitle("Add new Rent Cue");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
-
-            loadRentCue();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    public void updateRentCue(ActionEvent event) {
-        if (orderStatusText.getText().equals("Paid")) {
-            NotificationService.showNotification("Error",
-                    "You cannot make any changes in this order as it has already been paid.",
-                    NotificationStatus.Error);
-            return;
-        }
-        try {
-            // Get the selected rent cue from the table
-            RentCue selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
-
-            if (selectedItem == null) {
-                NotificationService.showNotification("Warning",
-                        "You haven't selected an item to edit!",
-                        NotificationStatus.Warning);
-                return;
-            }
-
-            if (selectedItem.getStatus().equals(RentCueStatus.Available)) {
-                NotificationService.showNotification("Warning",
-                        "This Cue Rental has already been returned. You cannot edit this!",
-                        NotificationStatus.Warning);
-                return;
-            }
-
-            try {
-                FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/src/billiardsmanagement/orders/rent/updateRentCue.fxml"));
-                Parent root = loader.load();
-
-                UpdateRentCueController updateRentCueController = loader.getController();
-                updateRentCueController.setOrderID(this.orderID);
-                updateRentCueController.setRentCueId(selectedItem.getRentCueId());
-                updateRentCueController.setPromotionName(selectedItem.getPromotionName());
-                updateRentCueController.initializeRentCue();
-
-                Stage stage = new Stage();
-                stage.setTitle("Edit Rent Cue");
-                stage.setScene(new Scene(root));
-                stage.showAndWait();
-
-                loadRentCue();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        } catch (Exception e) {
-            NotificationService.showNotification("Error",
-                    "Failed to open edit rent cue window: " + e.getMessage(),
-                    NotificationStatus.Error);
-        }
-    }
-
-    @FXML
-    public void deleteRentCue(ActionEvent event) {
-        if (orderStatusText.getText().equals("Paid")) {
-            NotificationService.showNotification("Error",
-                    "You cannot make any changes in this order as it has already been paid.",
-                    NotificationStatus.Error);
-            return;
-        }
-
-        try {
-            // Get the selected rent cue from the table
-            RentCue selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
-
-            if (selectedItem == null) {
-                NotificationService.showNotification("Warning",
-                        "You haven't selected an item to delete!",
-                        NotificationStatus.Warning);
-                return;
-            }
-
-            if (selectedItem.getStatus().equals(RentCueStatus.Available)) {
-                NotificationService.showNotification("Warning",
-                        "You cannot delete this Cue Rental; it has already been returned.",
-                        NotificationStatus.Warning);
-                return;
-            }
-
-            // Confirm deletion
-            Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmAlert.setTitle("Confirm Deletion");
-            confirmAlert.setHeaderText("Are you sure you want to delete this item?");
-            confirmAlert.setContentText("The selected item will be permanently deleted.");
-
-            Optional<ButtonType> result = confirmAlert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                boolean deleteSuccess = RentCueDAO.deleteRentCue(selectedItem)
-                        && ProductDAO.replenishItem(selectedItem.getProductName(), 1);
-
-                if (deleteSuccess) {
-                    // Remove from table
-                    rentCueTable.getItems().remove(selectedItem);
-
-                    // Show success message
-                    NotificationService.showNotification("Success",
-                            "Rent cue has been deleted!",
-                            NotificationStatus.Success);
-                } else {
-                    NotificationService.showNotification("Error",
-                            "Failed to delete rent cue. Please try again.",
-                            NotificationStatus.Error);
-                }
-            }
-        } catch (Exception e) {
-            NotificationService.showNotification("Error",
-                    "Failed to delete item: " + e.getMessage(),
-                    NotificationStatus.Error);
-        }
-    }
-
-    @FXML
-    public void endCueRental(ActionEvent event) {
-        if (orderStatusText.getText().equals("Paid")) {
-            NotificationService.showNotification("Error",
-                    "Cannot add booking with status 'Paid'.",
-                    NotificationStatus.Error);
-            return;
-        }
-
-        try {
-            // Get the selected rent cue from the table
-            RentCue selectedItem = rentCueTable.getSelectionModel().getSelectedItem();
-
-            if (selectedItem == null) {
-                NotificationService.showNotification("Warning",
-                        "You haven't selected a rent cue to end!",
-                        NotificationStatus.Warning);
-                return;
-            }
-
-            if (selectedItem.getStatus().equals(RentCueStatus.Available)) {
-                NotificationService.showNotification("Warning",
-                        "This Cue Rental has already been returned. You cannot return it again!",
-                        NotificationStatus.Warning);
-                return;
-            }
-
-            // Confirm ending the rental
-            Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmAlert.setTitle("Confirm End Rental");
-            confirmAlert.setHeaderText("Are you sure you want to end this rent cue?");
-            confirmAlert.setContentText("This action will mark the rent cue as ended.");
-
-            Optional<ButtonType> result = confirmAlert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                // Calculate end time and time played
-                boolean updateSuccess = finishEachCueRental(selectedItem);
-
-                if (updateSuccess) {
-                    // Refresh the table
-                    loadRentCue();
-
-                    // Show success message
-                    NotificationService.showNotification("Success",
-                            "Cue rental has been successfully ended!",
-                            NotificationStatus.Success);
-                } else {
-                    NotificationService.showNotification("Error",
-                            "Failed to end rent cue rental. Please try again.",
-                            NotificationStatus.Error);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            NotificationService.showNotification("Error",
-                    "Failed to end rent cue rental: " + e.getMessage(),
-                    NotificationStatus.Error);
-        }
-    }
-
-
-    // finishEachCueRental
-    public boolean finishEachCueRental(RentCue selectedItem) {
-        LocalDateTime endTime = LocalDateTime.now();
-        selectedItem.setEndTime(endTime);
-
-        // Calculate total minutes
-        long totalMinutes = java.time.Duration.between(selectedItem.getStartTime(), endTime).toMinutes();
-        double timeplay = Math.round(totalMinutes / 60.0 * 10.0) / 10.0; // Convert to hours and round to 1
-
-        selectedItem.setTimeplay(timeplay);
-
-        // Calculate subtotal (price per hour * hours played)
-        double subTotal = Math.ceil(selectedItem.getProductPrice() * timeplay);
-        selectedItem.setSubTotal(subTotal);
-
-        // Calculate net t otal based on promotion
-        double netTotal;
-        if (selectedItem.getPromotionId() <= 0) {
-            // No promotion applied
-            netTotal = subTotal;
-        } else {
-            // Apply promotion discount
-            netTotal = Math.ceil(subTotal - (subTotal * (selectedItem.getPromotionDiscount() / 100.0)));
-        }
-        selectedItem.setNetTotal(netTotal);
-
-        // Update the status to completed or ended
-        selectedItem.setStatus(RentCueStatus.Available);
-
-        // Update in the database
-        return RentCueDAO.endCueRental(selectedItem) && ProductDAO.replenishItem(selectedItem.getProductName(), 1);
-    }
-
-    protected void updateProductQuantity(String productName) {
-        // Assuming you have a method to get the database connection
-        Connection conn = DatabaseConnection.getConnection();
-
-        try (PreparedStatement pstmt = conn
-                .prepareStatement("UPDATE products SET quantity = quantity + 1 WHERE name = ?")) {
-            pstmt.setString(1, productName);
-            int affectedRows = pstmt.executeUpdate();
-
-            if (affectedRows == 0) {
-                System.out.println("No product found with the name: " + productName);
-            } else {
-                System.out.println("Product quantity updated successfully.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            NotificationService.showNotification("Error", "Failed to update product quantity: " + e.getMessage(), NotificationStatus.Error);
-        }
-    }
-
     public void stopBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
             NotificationService.showNotification("Error",
@@ -1244,77 +799,46 @@ public class ForEachOrderController {
     }
 
     public void finishOrder(ActionEvent event) {
-        if (orderStatusText.getText().equals("Finished")) {
-            NotificationService.showNotification("Error",
-                    "This order has already been finished. You cannot finish it again!",
-                    NotificationStatus.Error);
-            return;
-        }
-
-        // Kiểm tra nếu có booking nào đang ở trạng thái "Order"
-        boolean hasPendingBookings = bookingPoolTable.getItems().stream()
-                .anyMatch(booking -> "Order".equals(booking.getBookingStatus()));
-
-        if (hasPendingBookings) {
-            NotificationService.showNotification("Error",
-                    "There are pending bookings in 'Order' status. Please complete them before finishing the order.",
-                    NotificationStatus.Error);
-            return;
-        }
-
-        // Hiển thị xác nhận trước khi hoàn tất đơn hàng
-        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmationAlert.setTitle("Finish Order");
-        confirmationAlert.setHeaderText("Are you sure you want to finish this order?");
-        confirmationAlert.setContentText("This will mark the order as finished and finalize all bookings and rentals.");
-
-        Optional<ButtonType> result = confirmationAlert.showAndWait();
-        if (result.isEmpty() || result.get() != ButtonType.OK) {
-            return;
-        }
-
         try {
-            boolean finishAllSuccess = RentCueDAO.endAllCueRentals(this.orderID, rentCueList)
-                    && BookingDAO.finishOrder(this.orderID)
-                    && ProductDAO.replenishMultipleItems(rentCueList);
+            // Get confirmation from user
+            Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmAlert.setTitle("Confirm Finish Order");
+            confirmAlert.setHeaderText("Are you sure you want to finish this order?");
+            confirmAlert.setContentText("This will finish all bookings and update the order status.");
 
-            if (!finishAllSuccess) {
-                NotificationService.showNotification("Error",
-                        "An error occurred while finalizing the order. Please try again later.",
-                        NotificationStatus.Error);
-                return;
-            }
+            Optional<ButtonType> result = confirmAlert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                // Finish all bookings
+                boolean finishAllSuccess = BookingDAO.finishOrder(this.orderID);
 
-            // Cập nhật trạng thái đơn hàng và tổng tiền
-            double totalCost = OrderDAO.calculateOrderTotal(orderID);
-            boolean success = OrderDAO.updateOrderStatus(orderID, totalCost);
+                if (finishAllSuccess) {
+                    // Calculate total cost
+                    double totalCost = OrderDAO.calculateOrderTotal(orderID);
+                    // Update order status and total cost
+                    boolean updateOrderSuccess = OrderDAO.updateOrderStatus(this.orderID, totalCost);
 
-            if (success) {
-                System.out.println("Order total cost updated successfully: $" + totalCost);
-
-                // Thông báo thanh toán thành công
-                NotificationService.showNotification("Success",
-                        "The order has been successfully finished! Total cost: $" + totalCost,
-                        NotificationStatus.Success);
-                // Đóng cửa sổ hiện tại
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.close();
-
-                // Cập nhật danh sách đơn hàng
-                loadOrderList();
-            } else {
-                NotificationService.showNotification("Error",
-                        "Failed to finalize the order. Please check the data and try again.",
-                        NotificationStatus.Error);
+                    if (updateOrderSuccess) {
+                        // Show success message
+                        NotificationService.showNotification("Success", 
+                            "Order has been finished successfully! Total cost: " + formatTotal(totalCost), 
+                            NotificationStatus.Success);
+                        
+                        // Refresh the tables
+                        loadBookings();
+                        loadOrderDetail();
+                        loadInfo();
+                    } else {
+                        NotificationService.showNotification("Error", "Failed to update order status.", NotificationStatus.Error);
+                    }
+                } else {
+                    NotificationService.showNotification("Error", "Failed to finish all bookings.", NotificationStatus.Error);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            NotificationService.showNotification("Error",
-                    "Unexpected error: " + e.getMessage(),
-                    NotificationStatus.Error);
+            NotificationService.showNotification("Error", "Failed to finish order: " + e.getMessage(), NotificationStatus.Error);
         }
     }
-
 
     // Giả sử bạn có phương thức refreshOrderDetails để cập nhật giao diện
 
@@ -1330,12 +854,6 @@ public class ForEachOrderController {
     private ObservableValue<Integer> orderItemCall(TableColumn.CellDataFeatures<OrderItem, Integer> cellData) {
         // Lấy vị trí (index) của dòng hiện tại trong danh sách
         int index = orderItemsTable.getItems().indexOf(cellData.getValue()) + 1;
-        return new SimpleIntegerProperty(index).asObject();
-    }
-
-    private ObservableValue<Integer> rentCueCall(TableColumn.CellDataFeatures<RentCue, Integer> cellData) {
-        // Lấy vị trí (index) của dòng hiện tại trong danh sách
-        int index = rentCueTable.getItems().indexOf(cellData.getValue()) + 1;
         return new SimpleIntegerProperty(index).asObject();
     }
 
@@ -1380,5 +898,22 @@ public class ForEachOrderController {
         this.billNo = billNo;
         System.out.println("Bill No: " + billNo);
         billNoText.setText(String.valueOf(billNo));
+    }
+
+    // Getters and Setters for selected items
+    public Booking getCurrentBookingSelected() {
+        return currentBookingSelected;
+    }
+
+    public void setCurrentBookingSelected(Booking booking) {
+        this.currentBookingSelected = booking;
+    }
+
+    public OrderItem getCurrentOrderItemSelected() {
+        return currentOrderItemSelected;
+    }
+
+    public void setCurrentOrderItemSelected(OrderItem orderItem) {
+        this.currentOrderItemSelected = orderItem;
     }
 }

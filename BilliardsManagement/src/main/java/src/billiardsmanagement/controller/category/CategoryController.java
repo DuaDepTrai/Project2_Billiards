@@ -76,7 +76,6 @@ public class CategoryController {
                 image = new Image(getClass().getResource("/src/billiardsmanagement/images/category/default.png").toExternalForm());
             }
 
-            // Tạo ImageView
             ImageView imageView = new ImageView(image);
             imageView.setFitWidth(100);
             imageView.setFitHeight(100);
