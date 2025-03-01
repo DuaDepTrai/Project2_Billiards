@@ -15,23 +15,37 @@ import javafx.stage.StageStyle;
 import java.io.IOException;
 import java.util.Objects;
 
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
 public class Main extends Application {
-
     @Override
-    public void start(Stage primaryStage) throws Exception{
-        // Tải layout chính (Main layout)
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/main.fxml"));
-        BorderPane root = loader.load();
+    public void start(Stage primaryStage) throws Exception {
+        try {
+            // Load trang login
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/users/login.fxml"));
+            Parent root = loader.load();
 
-        Scene scene = new Scene(root, 800, 600);
-        scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/style.css").toExternalForm());
-        scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/main.css").toExternalForm());
-        primaryStage.setTitle("BILLIARDS MANAGEMENT");
-        primaryStage.setScene(scene);
-        
-        primaryStage.setMaximized(true);
-        primaryStage.show();
-        primaryStage.show();
+            Scene scene = new Scene(root);
+
+            // Add CSS
+            scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/style.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/main.css").toExternalForm());
+
+            // Thiết lập stage cho login
+            primaryStage.setTitle("Login - Billiards Management");
+            primaryStage.setScene(scene);
+            primaryStage.setResizable(false);
+            primaryStage.centerOnScreen();
+            primaryStage.show();
+
+        } catch (Exception e) {
+            System.out.println("Error loading FXML: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {

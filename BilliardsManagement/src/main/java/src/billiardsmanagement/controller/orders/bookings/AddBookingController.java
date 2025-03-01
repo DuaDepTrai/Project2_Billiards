@@ -13,6 +13,7 @@ import src.billiardsmanagement.dao.PoolTableDAO;
 import src.billiardsmanagement.model.Booking;
 import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.model.Order;
+import src.billiardsmanagement.model.UserSession;
 
 import java.net.URL;
 import java.sql.*;

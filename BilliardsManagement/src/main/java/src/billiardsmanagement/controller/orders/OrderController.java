@@ -55,6 +55,10 @@ public class OrderController implements Initializable {
     @FXML
     private TableColumn<Order, Void> actionColumn;  // Thêm khai báo này
     @FXML
+    private TableColumn<Order,Date> dateColumn;
+    @FXML
+    private TableColumn<Order,String>managerColumn;
+    @FXML
     private BorderPane mainPane; // Thêm khai báo này
     @FXML
     private TextField autoCompleteTextField;
@@ -118,6 +122,7 @@ public class OrderController implements Initializable {
     }
 
     private void loadOrderList() {
+
         List<Order> orders = orderDAO.getAllOrders();
         orderTable.setItems(FXCollections.observableArrayList(orders));
     }
@@ -310,6 +315,8 @@ public class OrderController implements Initializable {
                 }
             };
         });
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("orderDate"));
+        managerColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
         actionColumn.setCellFactory(column -> {
             return new TableCell<Order, Void>() {
                 private final HBox container = new HBox(10); // spacing = 10

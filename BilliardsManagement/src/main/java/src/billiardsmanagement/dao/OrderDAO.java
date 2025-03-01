@@ -129,31 +129,33 @@ public class OrderDAO {
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
         String query = """
-    SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone,
-           o.total_cost, o.order_status,
-           GROUP_CONCAT(
-               CONCAT(
-                   CASE 
-                       WHEN p.name LIKE 'Standard %' THEN 'STD' 
-                       WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
-                       WHEN p.name LIKE 'VIP %' THEN 'VIP' 
-                       ELSE p.name 
-                   END, 
-                   SUBSTRING_INDEX(p.name, ' ', -1)
-               ) SEPARATOR ', '
-           ) AS currentTableName
-    FROM orders o
-    JOIN customers c ON o.customer_id = c.customer_id
-    LEFT JOIN bookings b ON o.order_id = b.order_id
-    LEFT JOIN pooltables p ON b.table_id = p.table_id
-    GROUP BY o.order_id
-    ORDER BY o.order_id DESC
-""";
-
+        SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone,
+               o.user_id, u.fullname AS user_name, r.role_name, o.order_date,
+               o.total_cost, o.order_status,
+               GROUP_CONCAT(
+                   CONCAT(
+                       CASE 
+                           WHEN p.name LIKE 'Standard %' THEN 'STD' 
+                           WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
+                           WHEN p.name LIKE 'VIP %' THEN 'VIP' 
+                           ELSE p.name 
+                       END, 
+                       SUBSTRING_INDEX(p.name, ' ', -1)
+                   ) SEPARATOR ', '
+               ) AS currentTableName
+        FROM orders o
+        JOIN customers c ON o.customer_id = c.customer_id
+        JOIN users u ON o.user_id = u.user_id
+        JOIN roles r ON u.role_id = r.role_id
+        LEFT JOIN bookings b ON o.order_id = b.order_id
+        LEFT JOIN pooltables p ON b.table_id = p.table_id
+        GROUP BY o.order_id
+        ORDER BY o.order_id DESC
+    """;
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 Order order = new Order(
@@ -161,18 +163,22 @@ public class OrderDAO {
                         rs.getInt("customer_id"),
                         rs.getString("customer_name"),
                         rs.getString("customer_phone"),
+                        rs.getInt("user_id"),
+                        rs.getString("user_name"),
+                        rs.getString("role_name"),
+                        rs.getDate("order_date"),
                         rs.getDouble("total_cost"),
                         rs.getString("order_status"),
-                        rs.getString("currentTableName") // Lấy danh sách bàn
+                        rs.getString("currentTableName")
                 );
                 orders.add(order);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return orders;
     }
+
 
 
     public void addOrder(Order newOrder) {

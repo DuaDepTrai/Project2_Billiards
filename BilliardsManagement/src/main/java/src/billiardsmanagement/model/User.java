@@ -11,9 +11,27 @@ public class User {
     private String password;
     private String plainPassword; // Lưu mật khẩu chưa hash
     private String role;
+    private String roleName;
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
+
     private String imagePath;
     private List<String> permissions;
 
+    public User(int userId, String username, String password, String roleId, String roleName, String imagePath) {
+        this.id= userId;
+        this.username = username;
+        this.password = password;
+        this.role= roleId;
+        this.roleName = roleName;
+        this.imagePath = imagePath;
+    }
     public User(int id, String username, String password, String role, String imagePath) {
         this.id = id;
         this.username = username;
