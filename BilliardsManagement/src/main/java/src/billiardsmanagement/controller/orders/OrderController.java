@@ -394,8 +394,13 @@ public class OrderController implements Initializable {
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
+                        int totalRow = orderTable.getItems().size();
+                        int selectedIndex = getIndex(); // Lấy chỉ số hàng
+                        int billNo = totalRow - selectedIndex;
+
                         PaymentController paymentController = paymentLoader.getController();
                         paymentController.setOrderID(orderId);
+                        paymentController.setBillNo(billNo);
                         paymentController.setBill(createBill());
 
                         Stage stage = new Stage();
