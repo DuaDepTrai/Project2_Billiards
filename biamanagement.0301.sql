@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 26, 2025 at 06:45 PM
+-- Generation Time: Mar 01, 2025 at 05:11 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -184,7 +184,7 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUES
-(1, 'Nguyen Anh Tuan', '0987654321', 0),
+(1, 'Guest', '0999999999', 0),
 (2, 'Le Thi Mai', '0912345678', 0),
 (3, 'Tran Minh Tu', '0903456789', 0),
 (4, 'Phan Quoc Toan', '0856789012', 0),
@@ -204,7 +204,8 @@ INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUE
 (18, 'Phan Thanh Phong', '0582345678', 0),
 (19, 'Dinh Hai Dang', '0356789012', 0),
 (20, 'Cao Anh Tuan', '0765432189', 0),
-(21, 'Tran Van B', '9876543211', NULL);
+(21, 'Tran Van B', '9876543211', 0),
+(22, 'Nguyen Anh Tuan', '0987654321', 0);
 
 -- --------------------------------------------------------
 
@@ -246,7 +247,9 @@ INSERT INTO `orders` (`order_id`, `customer_id`, `user_id`, `total_cost`, `order
 (34, 5, 2, 1666.6666, '2025-02-22', 'Canceled'),
 (35, 5, 2, 0, '2025-02-22', 'Finished'),
 (36, 9, 2, NULL, '2025-02-22', 'Canceled'),
-(37, 11, 2, NULL, '2025-02-22', 'Playing');
+(37, 11, 2, NULL, '2025-02-22', 'Playing'),
+(38, 1, 1, NULL, '2025-03-01', 'Playing'),
+(39, 1, 1, NULL, '2025-03-01', 'Playing');
 
 -- --------------------------------------------------------
 
@@ -585,13 +588,13 @@ ALTER TABLE `cate_pooltables`
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `orders_items`
