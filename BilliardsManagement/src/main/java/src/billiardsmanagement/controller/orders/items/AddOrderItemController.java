@@ -20,7 +20,7 @@ import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.dao.CategoryDAO;
 import src.billiardsmanagement.dao.OrderItemDAO;
 import src.billiardsmanagement.dao.ProductDAO;
-import src.billiardsmanagement.dao.PromotionDAO;
+// import src.billiardsmanagement.dao.PromotionDAO;
 import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.model.OrderItem;
 import src.billiardsmanagement.model.Pair;
@@ -36,24 +36,22 @@ public class AddOrderItemController {
     protected TextField productNameAutoCompleteText;
     protected ArrayList<String> productNameTrimmed;
 
-    @FXML
-    protected TextField promotionNameAutoCompleteText;
-    protected ArrayList<String> promotionNameTrimmed;
+    // @FXML
+    // protected TextField promotionNameAutoCompleteText;
+    // protected ArrayList<String> promotionNameTrimmed;
 
     private int orderId;
-    private int promotionId;
+    // private int promotionId;
 
     @FXML
     private TextField quantityTextField;
 
     private Stage stage;
     private Window window;
-    protected Map<String,String> productCategoryMap;
+    protected Map<String, String> productCategoryMap;
 
     @FXML
     public void initialize() {
-        String saleCueCategory = "Cues-sale";
-        String rentCueCategory = "Cues-rent";
         productCategoryMap = CategoryDAO.getProductAndCategoryUnitMap();
 
         productNameTrimmed = new ArrayList<>();
@@ -63,32 +61,35 @@ public class AddOrderItemController {
         for (Pair<String, Integer> s : list) {
             String str = s.getFirstValue();
             int quant = s.getSecondValue();
-            if (!productCategoryMap.get(str).equalsIgnoreCase(rentCueCategory) && quant > 0) {
-                productNameTrimmed.add(str.trim());
-                str = str + "  / "+quant+" in stock";
-                productList.add(str);
-            }
+
+            productNameTrimmed.add(str.trim());
+            str = str + "  / " + quant + " in stock";
+            productList.add(str);
         }
 
-        AutoCompletionBinding<String> productNameAutoBinding = TextFields.bindAutoCompletion(productNameAutoCompleteText, productList);
+        AutoCompletionBinding<String> productNameAutoBinding = TextFields
+                .bindAutoCompletion(productNameAutoCompleteText, productList);
         HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText, productNameTrimmed);
         productNameAutoBinding.setVisibleRowCount(7);
         productNameAutoBinding.setHideOnEscape(true);
 
-        promotionNameTrimmed = new ArrayList<>();
-        ArrayList<String> pList = (ArrayList<String>) PromotionDAO.getAllPromotionsNameByList();
-        ArrayList<String> promotionList = new ArrayList<>();
-        if (pList != null) {
-            for (String s : pList) {
-                promotionNameTrimmed.add(s.trim());
-                s = s + " ";
-                promotionList.add(s);
-            }
-            AutoCompletionBinding<String> promotionNameAutoBinding = TextFields.bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
-            HandleTextFieldClick(promotionNameAutoBinding, promotionList, promotionNameAutoCompleteText, promotionNameTrimmed);
-            promotionNameAutoBinding.setHideOnEscape(true);
-            promotionNameAutoBinding.setVisibleRowCount(7);
-        }
+        // promotionNameTrimmed = new ArrayList<>();
+        // ArrayList<String> pList = (ArrayList<String>)
+        // PromotionDAO.getAllPromotionsNameByList();
+        // ArrayList<String> promotionList = new ArrayList<>();
+        // if (pList != null) {
+        // for (String s : pList) {
+        // promotionNameTrimmed.add(s.trim());
+        // s = s + " ";
+        // promotionList.add(s);
+        // }
+        // AutoCompletionBinding<String> promotionNameAutoBinding =
+        // TextFields.bindAutoCompletion(promotionNameAutoCompleteText, promotionList);
+        // HandleTextFieldClick(promotionNameAutoBinding, promotionList,
+        // promotionNameAutoCompleteText, promotionNameTrimmed);
+        // promotionNameAutoBinding.setHideOnEscape(true);
+        // promotionNameAutoBinding.setVisibleRowCount(7);
+        // }
 
         quantityTextField.setText("1");
     }
@@ -96,95 +97,105 @@ public class AddOrderItemController {
     @FXML
     public void saveOrderItem(ActionEvent event) {
         try {
-            if (!(orderId > 0))
-                throw new Exception("Error: Order not found ! Please try again.");
+            if (!(orderId > 0)) {
+                throw new Exception("Error: Order not found! Please try again.");
+            }
 
-            String selectedProductName = productNameAutoCompleteText.getText().isBlank() ? "" : productNameAutoCompleteText.getText().trim();
+            // Validate product selection
+            String selectedProductName = productNameAutoCompleteText.getText().isBlank() ? ""
+                    : productNameAutoCompleteText.getText().trim();
+            if (selectedProductName.isBlank()) {
+                throw new IllegalArgumentException("Please select a product!");
+            }
+            if (!productNameTrimmed.contains(selectedProductName)) {
+                throw new IllegalArgumentException(
+                        "The product with name " + selectedProductName + " cannot be found!");
+            }
 
-            if (selectedProductName.isBlank()) throw new IllegalArgumentException("Please select a product !");
-
-            if (!productNameTrimmed.contains(selectedProductName)) throw new IllegalArgumentException("The product with name " + selectedProductName + " cannot be found !");
-
+            // Get product details
             Pair<Integer, Double> productPair = ProductDAO.getProductIdAndPriceByName(selectedProductName);
-            if (productPair == null)
+            if (productPair == null) {
                 throw new SQLException("Connection Error: Can't connect to Database. Please try again later.");
+            }
 
             int productId = productPair.getFirstValue();
             double productPrice = productPair.getSecondValue();
 
+            // Validate quantity
             int quantity;
             try {
                 quantity = Integer.parseInt(quantityTextField.getText().trim());
-                if (quantity > ProductDAO.getProductQuantityByName(selectedProductName)) {
-                    throw new IllegalArgumentException("The quantity you selected exceeds the available stock; please choose a smaller amount.");
+                int availableQuantity = ProductDAO.getProductQuantityByName(selectedProductName);
+                if (quantity <= 0) {
+                    throw new IllegalArgumentException("Quantity must be greater than 0.");
+                }
+                if (quantity > availableQuantity) {
+                    throw new IllegalArgumentException("The quantity you selected exceeds the available stock ("
+                            + availableQuantity + "); please choose a smaller amount.");
                 }
             } catch (NumberFormatException e) {
-                throw new RuntimeException(e);
+                throw new IllegalArgumentException("Please enter a valid quantity.");
             }
 
-            // Check duplicate Order Item
-            for (OrderItem orderItem : OrderItemDAO.getForEachOrderItem(orderId)) {
-                if (orderItem.getProductId() == productId) {
-                    OrderItem newItem = new OrderItem();
-                    newItem.setOrderId(orderId);
-                    newItem.setOrderItemId(orderItem.getOrderItemId());
-                    newItem.setQuantity(orderItem.getQuantity() + quantity);
-                    newItem.setProductId(orderItem.getProductId());
+            // Check for duplicate items and update if found
+            List<OrderItem> existingItems = OrderItemDAO.getForEachOrderItem(orderId);
+            for (OrderItem existingItem : existingItems) {
+                if (existingItem.getProductId() == productId) {
+                    OrderItem updatedItem = new OrderItem();
+                    updatedItem.setOrderId(orderId);
+                    updatedItem.setOrderItemId(existingItem.getOrderItemId());
+                    updatedItem.setProductId(productId);
+                    updatedItem.setQuantity(existingItem.getQuantity() + quantity);
 
-                    ProductDAO.dispatchItem(orderItem.getProductName(), quantity);
+                    double newSubTotal = (existingItem.getQuantity() + quantity) * productPrice;
+                    updatedItem.setSubTotal(newSubTotal);
+                    updatedItem.setNetTotal(newSubTotal); // Since promotions are removed, netTotal equals subTotal
 
-                    if (orderItem.getPromotionDiscount() > 1)
-                        newItem.setNetTotal(orderItem.getNetTotal() + (quantity * productPrice) - ((orderItem.getPromotionDiscount() * quantity * productPrice) / 100));
-                    else
-                        newItem.setNetTotal(orderItem.getNetTotal() + quantity * productPrice);
-
-                    newItem.setSubTotal(orderItem.getSubTotal() + quantity * productPrice);
-
-                    boolean success = OrderItemDAO.addOrderItemDuplicate(newItem);
-
-                    if (success) {
-                        NotificationService.showNotification("Success", "An Order Item has been added successfully!", NotificationStatus.Information);
+                    if (OrderItemDAO.addOrderItemDuplicate(updatedItem)) {
+                        ProductDAO.dispatchItem(selectedProductName, quantity);
+                        NotificationService.showNotification("Success", "Order item updated successfully!",
+                                NotificationStatus.Success);
+                        closeWindow();
+                        return;
                     }
-
-                    Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();
-                    stage.close();
-                    return;
                 }
             }
 
-            // promotionId = -1, if promotion not found
-            promotionId = PromotionDAO.getPromotionIdByName(promotionNameAutoCompleteText.getText().trim());
-            double subTotal;
-            double netTotal;
-            OrderItem orderItem;
-            if (promotionId > 0) {
-                double discount = PromotionDAO.getPromotionDiscountById(promotionId);
-                if (discount == -1)
-                    throw new SQLException("Connection Error: Can't connect to Database. Please try again later.");
-                subTotal = quantity * productPrice;
-                netTotal = subTotal - (subTotal * (discount / 100));
-                orderItem = new OrderItem(orderId, productId, quantity, netTotal, subTotal, promotionId);
+            // Create new order item
+            OrderItem newOrderItem = new OrderItem();
+            newOrderItem.setOrderId(orderId);
+            newOrderItem.setProductId(productId);
+            newOrderItem.setQuantity(quantity);
+
+            double subTotal = quantity * productPrice;
+            newOrderItem.setSubTotal(subTotal);
+            newOrderItem.setNetTotal(subTotal); // Since promotions are removed, netTotal equals subTotal
+
+            // Add the new order item
+            if (OrderItemDAO.addOrderItem(newOrderItem)) {
+                ProductDAO.dispatchItem(selectedProductName, quantity);
+                NotificationService.showNotification("Success", "New order item added successfully!",
+                        NotificationStatus.Success);
+                closeWindow();
             } else {
-                subTotal = quantity * productPrice;
-                netTotal = subTotal;
-                orderItem = new OrderItem(orderId, productId, quantity, netTotal, subTotal, -1);
+                throw new Exception("Failed to add order item. Please try again.");
             }
 
-            ProductDAO.dispatchItem(selectedProductName, quantity);
-            OrderItemDAO.addOrderItem(orderItem);
-
-            NotificationService.showNotification("Success", "An Order Item has been added successfully!", NotificationStatus.Information);
-
-            Stage stage = (Stage) promotionNameAutoCompleteText.getScene().getWindow();
-            stage.close();
-        } catch (IllegalArgumentException illegal) {
-            NotificationService.showNotification("Error", illegal.getMessage(), NotificationStatus.Error);
+        } catch (IllegalArgumentException e) {
+            NotificationService.showNotification("Input Error", e.getMessage(), NotificationStatus.Error);
         } catch (Exception e) {
             NotificationService.showNotification("Error", e.getMessage(), NotificationStatus.Error);
+            e.printStackTrace();
         }
     }
 
-    public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text, ArrayList<String> trimmedList) {
+    private void closeWindow() {
+        Stage stage = (Stage) productNameAutoCompleteText.getScene().getWindow();
+        stage.close();
+    }
+
+    public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text,
+            ArrayList<String> trimmedList) {
         auto.setOnAutoCompleted(autoCompletionEvent -> {
             String finalText = autoCompletionEvent.getCompletion();
             text.setText(finalText.trim().split("/")[0].trim());
@@ -200,7 +211,8 @@ public class AddOrderItemController {
                 input = input == null ? "" : input.trim();
                 if (input.isBlank() || !trimmedList.contains(input)) {
                     text.setText("");
-                } else text.setText(input);
+                } else
+                    text.setText(input);
             }
         });
     }
@@ -214,14 +226,14 @@ public class AddOrderItemController {
         return this;
     }
 
-    public int getPromotionId() {
-        return promotionId;
-    }
+    // public int getPromotionId() {
+    // return promotionId;
+    // }
 
-    public AddOrderItemController setPromotionId(int promotionId) {
-        this.promotionId = promotionId;
-        return this;
-    }
+    // public AddOrderItemController setPromotionId(int promotionId) {
+    // this.promotionId = promotionId;
+    // return this;
+    // }
 
     public void setStage(Stage stage) {
         this.stage = stage;

@@ -124,50 +124,50 @@ public class PrintBillController {
     }
 
     public static void cutPdfBill() throws IOException {
-            PdfReader reader = new PdfReader(currentBillName);
-            PdfWriter writer = new PdfWriter(new FileOutputStream(currentBillName.split("\\.")[0] + "_new.pdf"));
-            PdfDocument pdfDoc = new PdfDocument(reader, writer);
+        PdfReader reader = new PdfReader(currentBillName);
+        PdfWriter writer = new PdfWriter(new FileOutputStream(currentBillName.split("\\.")[0] + "_new.pdf"));
+        PdfDocument pdfDoc = new PdfDocument(reader, writer);
 
-            PdfPage page = pdfDoc.getPage(1); // Get the first page
+        PdfPage page = pdfDoc.getPage(1); // Get the first page
 
-            List<Float> yCoords = new ArrayList<>();
+        List<Float> yCoords = new ArrayList<>();
 
-            // Sử dụng LocationTextExtractionStrategy để lấy tọa độ văn bản
-            IEventListener listener = new LocationTextExtractionStrategy() {
-                @Override
-                public void eventOccurred(com.itextpdf.kernel.pdf.canvas.parser.data.IEventData data, com.itextpdf.kernel.pdf.canvas.parser.EventType type) {
-                    if (type == com.itextpdf.kernel.pdf.canvas.parser.EventType.RENDER_TEXT) {
-                        TextRenderInfo textRenderInfo = (TextRenderInfo) data;
-                        Rectangle rect = textRenderInfo.getBaseline().getBoundingRectangle();
-                        yCoords.add(rect.getY());
-                    }
+        // Sử dụng LocationTextExtractionStrategy để lấy tọa độ văn bản
+        IEventListener listener = new LocationTextExtractionStrategy() {
+            @Override
+            public void eventOccurred(com.itextpdf.kernel.pdf.canvas.parser.data.IEventData data, com.itextpdf.kernel.pdf.canvas.parser.EventType type) {
+                if (type == com.itextpdf.kernel.pdf.canvas.parser.EventType.RENDER_TEXT) {
+                    TextRenderInfo textRenderInfo = (TextRenderInfo) data;
+                    Rectangle rect = textRenderInfo.getBaseline().getBoundingRectangle();
+                    yCoords.add(rect.getY());
                 }
-            };
+            }
+        };
 
-            PdfCanvasProcessor processor = new PdfCanvasProcessor(listener);
-            processor.processPageContent(page);
+        PdfCanvasProcessor processor = new PdfCanvasProcessor(listener);
+        processor.processPageContent(page);
 
-            // Tính toán minY và maxY từ yCoords
-            float minY = yCoords.stream().min(Float::compare).orElse(0f);
-            float maxY = yCoords.stream().max(Float::compare).orElse(page.getPageSize().getHeight());
+        // Tính toán minY và maxY từ yCoords
+        float minY = yCoords.stream().min(Float::compare).orElse(0f);
+        float maxY = yCoords.stream().max(Float::compare).orElse(page.getPageSize().getHeight());
 
-            // Padding
-            float padding = 30;
-            minY = Math.max(minY - padding, 0); // top-padding of the bill
-            maxY = Math.min(maxY + padding, page.getPageSize().getHeight()); // bottom-padding of the bill
+        // Padding
+        float padding = 30;
+        minY = Math.max(minY - padding, 0); // top-padding of the bill
+        maxY = Math.min(maxY + padding, page.getPageSize().getHeight()); // bottom-padding of the bill
 
-            // Vertical Crop Box / Media Box
-            page.setMediaBox(new Rectangle(page.getMediaBox().getX(), minY, page.getMediaBox().getWidth(), maxY - minY));
-            page.setCropBox(new Rectangle(page.getCropBox().getX(), minY, page.getCropBox().getWidth(), maxY - minY));
+        // Vertical Crop Box / Media Box
+        page.setMediaBox(new Rectangle(page.getMediaBox().getX(), minY, page.getMediaBox().getWidth(), maxY - minY));
+        page.setCropBox(new Rectangle(page.getCropBox().getX(), minY, page.getCropBox().getWidth(), maxY - minY));
 
-            // close all process so that Files can overwrite
-            pdfDoc.close();
-            reader.close();
-            writer.close();
+        // close all process so that Files can overwrite
+        pdfDoc.close();
+        reader.close();
+        writer.close();
 
-            // overwrite the old file with the new Cropped file
-            Files.deleteIfExists(Paths.get(currentBillName)); // Delete old file safely
-            Files.move(Paths.get(currentBillName.split("\\.")[0] + "_new.pdf"), Paths.get(currentBillName), StandardCopyOption.REPLACE_EXISTING);
+        // overwrite the old file with the new Cropped file
+        Files.deleteIfExists(Paths.get(currentBillName)); // Delete old file safely
+        Files.move(Paths.get(currentBillName.split("\\.")[0] + "_new.pdf"), Paths.get(currentBillName), StandardCopyOption.REPLACE_EXISTING);
     }
 
     public static void printBill(ObservableList<BillItem> billItems, Bill bill) throws DocumentException, FileNotFoundException {

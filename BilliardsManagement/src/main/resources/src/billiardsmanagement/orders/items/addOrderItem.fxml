@@ -9,11 +9,11 @@
     <Label layoutX="17.0" layoutY="27.0" text="Product Name: " />
     <TextField fx:id="productNameAutoCompleteText" layoutX="134.0" layoutY="22.0" style="-fx-pref-width: 170.0;" />
 
-    <TextField fx:id="promotionNameAutoCompleteText" layoutX="134.0" layoutY="94.0" style="-fx-pref-width: 170.0;" />
+    <!-- <TextField fx:id="promotionNameAutoCompleteText" layoutX="134.0" layoutY="94.0" style="-fx-pref-width: 170.0;" /> -->
 
-    <Label layoutX="17.0" layoutY="173.0" text="Quantity: " />
-    <TextField fx:id="quantityTextField" layoutX="134.0" layoutY="168.0" prefWidth="170.0" />
+    <Label layoutX="17.0" layoutY="85.0" text="Quantity: " />
+    <TextField fx:id="quantityTextField" layoutX="134.0" layoutY="81.0" prefWidth="170.0" />
 
-    <Button layoutX="113.0" layoutY="276.0" onAction="#saveOrderItem" text="Add Order Item" />
-    <Label layoutX="17.0" layoutY="98.0" text="Promotion Name" />
+    <Button layoutX="116.0" layoutY="136.0" onAction="#saveOrderItem" text="Add Order Item" />
+<!--    <Label layoutX="17.0" layoutY="98.0" text="Promotion Name" />-->
 </AnchorPane>

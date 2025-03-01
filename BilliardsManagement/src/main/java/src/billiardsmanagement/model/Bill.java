@@ -2,7 +2,6 @@ package src.billiardsmanagement.model;
 
 import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.OrderItemDAO;
-import src.billiardsmanagement.dao.RentCueDAO;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -153,7 +152,4 @@ public class Bill {
         return BookingDAO.getBookingByOrderId(this.orderId);
     }
 
-    public List<RentCue> getRentCuesFromDB(){
-        return RentCueDAO.getAllRentCuesByOrderId(this.orderId);
-    }
 }
