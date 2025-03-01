@@ -83,34 +83,33 @@ public class OrderController implements Initializable {
     @FXML
     public void addOrder(ActionEvent actionEvent) {
         try {
-            loadCustomerNameToIdMap();
-
-            String customerInput = autoCompleteTextField.getText();
-            if (customerInput == null || customerInput.trim().isEmpty()) {
-                throw new IllegalArgumentException("Please select a valid Customer.");
+            // Lấy thông tin user hiện tại từ UserSession
+            UserSession userSession = UserSession.getInstance();
+            if (userSession.getUserId() == 0) {
+                throw new IllegalArgumentException("No user is currently logged in.");
             }
 
-            Integer customerId = customerNameToIdMap.get(customerInput);
-            if (customerId == null) {
-                throw new IllegalArgumentException("Customer not found: " + customerInput);
-            }
-
-            Order newOrder = new Order(customerId);
+            Order newOrder = new Order();
+            newOrder.setCustomerId(1); // Set customer_id mặc định là 1
+            newOrder.setUserId(userSession.getUserId());
+            
             orderDAO.addOrder(newOrder);
-            Order orderLastest = orderDAO.getLatestOrderByCustomerId(customerId);
+            Order orderLatest = orderDAO.getLatestOrderByCustomerId(1);
 
-            int orderId = orderLastest.getOrderId();
+            int orderId = orderLatest.getOrderId();
             System.out.println(orderId);
             loadOrderList();
+            
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Order Detail");
             stage.setScene(new Scene(root));
             stage.show();
+            
             ForEachOrderController controller = loader.getController();
             controller.setOrderID(orderId);
-            controller.setCustomerID(customerId);
+            controller.setCustomerID(1);
             controller.setOrderTable(orderTable);
             controller.initializeAllTables();
         } catch (IllegalArgumentException e) {

@@ -37,11 +37,11 @@
 
     <TableView fx:id="billTable">
         <columns>
-            <TableColumn fx:id="productNameColumn" text="Product Name" />
-            <TableColumn fx:id="quantityColumn" text="Quantity/Hours" />
-            <TableColumn fx:id="unitColumn" text="Unit" />  <!-- Cột đơn vị tính -->
-            <TableColumn fx:id="unitPriceColumn" text="Unit Price" />
-            <TableColumn fx:id="totalCostColumn" text="Total Price" />
+            <TableColumn fx:id="productNameColumn" prefWidth="120.0" text="Product Name" />
+            <TableColumn fx:id="quantityColumn" prefWidth="35.0" text="Qty" />
+            <TableColumn fx:id="unitColumn" prefWidth="47.0" text="Unit" />  <!-- Cột đơn vị tính -->
+            <TableColumn fx:id="unitPriceColumn" prefWidth="98.0" text="Unit Price" />
+            <TableColumn fx:id="totalCostColumn" prefWidth="100.0" text="Total Price" />
         </columns>
         <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

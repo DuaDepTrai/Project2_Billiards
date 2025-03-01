@@ -47,13 +47,13 @@ public class PaymentController {
     @FXML
     public void printBill() {
         try {
-            PrintBillController.printBill(BillService.getBillItems(orderID), bill);
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setHeaderText("");
-            alert.setContentText("The bill has been successfully printed.");
-            alert.showAndWait();
-            PrintBillController.cutPdfBill();
-            PrintBillController.showPdfBillToScreen();
+                PrintBillController.printBill(BillService.getBillItems(orderID), bill);
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setHeaderText("");
+                alert.setContentText("The bill has been successfully printed.");
+                alert.showAndWait();
+                PrintBillController.cutPdfBill();
+                PrintBillController.showPdfBillToScreen();
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
