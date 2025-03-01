@@ -847,6 +847,7 @@ public class ForEachOrderController {
     }
 
     private void loadOrderList() {
+
         List<Order> orders = orderDAO.getAllOrders();
         orderTable.setItems(FXCollections.observableArrayList(orders));
     }
