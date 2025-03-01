@@ -1,6 +1,7 @@
 package src.billiardsmanagement.dao;
 
 import src.billiardsmanagement.model.Customer;
+import src.billiardsmanagement.model.DatabaseConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class CustomerDAO {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, customerId);
-            pstmt.executeUpdate(); q
+            pstmt.executeUpdate();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -84,6 +85,66 @@ public class CustomerDAO {
         return customers;
     }
 
+    public boolean isPhoneExists(String phone) {
+        String query = "SELECT COUNT(*) FROM customers WHERE phone = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, phone);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0;  // If count > 0, phone number exists
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false; // Return false if no such phone number
+    }
+    public static List<String> fetchCustomersByPhone(String phonePrefix) {
+        List<String> customers = new ArrayList<>();
+        String query = "SELECT name, phone FROM customers WHERE phone LIKE ?";
+        try (PreparedStatement statement = DatabaseConnection.getConnection().prepareStatement(query)) {
+            statement.setString(1, phonePrefix + "%");
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                String name = resultSet.getString("name");
+                String phone = resultSet.getString("phone");
+                customers.add(name + " - " + phone); // Định dạng giống như map
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return customers;
+    }
+
+    public List<Customer> getInfoCustomer(int customerID) {
+        List<Customer> customers = new ArrayList<>();
+        String query = "SELECT name, phone FROM customers WHERE customer_id = ?";
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            // Bind the customer_id parameter to the PreparedStatement
+            statement.setInt(1, customerID);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    String name = resultSet.getString("name");
+                    String phone = resultSet.getString("phone");
+
+                    // Assuming Customer only takes name and phone
+                    customers.add(new Customer(name, phone));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return customers;
+    }
     // Phương thức để lấy tất cả các ID khách hàng
     public List<Integer> getAllCustomerIds() {
         List<Integer> customerIds = new ArrayList<>();

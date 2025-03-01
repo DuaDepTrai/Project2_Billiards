@@ -6,6 +6,10 @@ public class Customer {
     private String phone;
     private double totalPlaytime;
 
+    public Customer (String name, String phone){
+        this.name = name;
+        this.phone = phone;
+    }
     // Constructor
     public Customer() {}
 
