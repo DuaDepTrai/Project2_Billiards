@@ -129,7 +129,9 @@ public class UserDAO {
     }
 
     public User authenticateUser(String username, String password) {
-        String sql = "SELECT * FROM users WHERE BINARY username = ?";
+        String sql = "SELECT u.*, r.role_name FROM users u " +
+                "JOIN roles r ON u.role_id = r.role_id " +
+                "WHERE BINARY u.username = ?";
 
         try (Connection connection = TestDBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -147,6 +149,7 @@ public class UserDAO {
                             resultSet.getString("username"),
                             hashedPasswordFromDB,
                             resultSet.getString("role_id"),
+                            resultSet.getString("role_name"), // Add role_name
                             resultSet.getString("image_path")
                     );
                 }

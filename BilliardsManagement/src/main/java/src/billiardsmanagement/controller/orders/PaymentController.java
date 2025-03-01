@@ -40,6 +40,10 @@ public class PaymentController {
     private TableColumn<BillItem, Double> totalCostColumn;
     @FXML
     private Button printButton;
+    @FXML
+    private Label billNoLabel;
+
+    private int billNo;
 
     private Bill bill;
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.00");
@@ -88,6 +92,8 @@ public class PaymentController {
                 new SimpleObjectProperty<>(cellData.getValue().getTotalPrice()));
         unitColumn.setCellValueFactory(new PropertyValueFactory<>("unit"));
         billTable.setItems(BillService.getBillItems(this.orderID));
+
+        billNoLabel.setText(String.valueOf(billNo));
     }
 
     // Getter
@@ -126,5 +132,9 @@ public class PaymentController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    public void setBillNo(int billNo){
+        this.billNo = billNo;
     }
 }

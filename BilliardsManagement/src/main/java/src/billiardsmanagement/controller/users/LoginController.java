@@ -13,6 +13,7 @@ import src.billiardsmanagement.dao.PermissionDAO;
 import src.billiardsmanagement.dao.UserDAO;
 import src.billiardsmanagement.model.Permission;
 import src.billiardsmanagement.model.User;
+import src.billiardsmanagement.model.UserSession;
 import src.billiardsmanagement.view.Main;
 
 import java.io.IOException;
@@ -67,7 +68,11 @@ public class LoginController {
             if (user != null) {
                 List<String> userPermissions = permissionDAO.getUserPermissions(user.getId());
                 user.setPermissions(userPermissions);
-
+                UserSession.getInstance().setUser(
+                        user.getId(),        // user_id từ database
+                        user.getUsername(),  // username
+                        user.getRoleName()   // role
+                );
                 openMainWindow(user);
             } else {
                 showAlert("Login Failed", "Invalid username or password!");

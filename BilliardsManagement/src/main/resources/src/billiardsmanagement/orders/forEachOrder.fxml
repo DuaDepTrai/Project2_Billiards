@@ -8,108 +8,74 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.control.TextField?>
 
+<?import javafx.scene.layout.VBox?>
 <AnchorPane fx:id="totalBooking" prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/forEachOrderStyle.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
 
     <!-- Top Information Section -->
+    <HBox spacing="20" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="7.0">
+        <!-- Customer Info -->
+        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+            <Label styleClass="section-label" text="Customer Name:" />
+            <TextField fx:id="customerText" styleClass="header-text" text="Johnson Baby" />
+        </HBox>
 
-    <!-- Booking Pane -->
-    <AnchorPane fx:id="bookingPane" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0">
-        <TableView fx:id="bookingPoolTable" layoutX="-1.0" layoutY="23.0" prefHeight="126.0" prefWidth="1011.0">
+        <!-- Phone -->
+        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+            <Label styleClass="section-label" text="Phone: " />
+            <TextField fx:id="phoneText" styleClass="header-text" text="0963872314" />
+        </HBox>
+
+        <!-- Order Status -->
+        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+            <Label styleClass="section-label" text="Order Status: " />
+            <TextField fx:id="orderStatusText" styleClass="header-text" text="Playing" editable="false"/>
+        </HBox>
+
+        <!-- Bill Number -->
+        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+            <Label styleClass="section-label" text="Bill No: " />
+            <TextField fx:id="billNoText" styleClass="header-text" text="2" editable="false" />
+        </HBox>
+
+        <!-- Finish Button -->
+        <Button fx:id="finishOrderButton" onAction="#finishOrder" styleClass="finish-button" text="Finish this Order" />
+    </HBox>
+
+    <!-- Booking Table Section -->
+    <VBox spacing="10" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0">
+        <Label styleClass="section-label" text="Booking Table" />
+        <TableView fx:id="bookingPoolTable" VBox.vgrow="ALWAYS">
             <columns>
-                <TableColumn fx:id="sttColumn" prefWidth="42.0" styleClass="number-aligned" text="STT" />
-                <TableColumn fx:id="tableNameColumn" prefWidth="137.5" styleClass="left-aligned" text="Table Name" />
-                <TableColumn fx:id="startTimeColumn" prefWidth="110.5" styleClass="left-aligned" text="Start Time" />
-                <TableColumn fx:id="endTimeColumn" prefWidth="112.0" styleClass="left-aligned" text="End Time" />
-                <TableColumn fx:id="timeplayColumn" prefWidth="72.0" styleClass="number-aligned" text="Timeplay" />
-                <TableColumn fx:id="priceColumn" prefWidth="94.5" styleClass="number-aligned" text="Price" />
-                <TableColumn fx:id="subTotalColumn" prefWidth="128.5" styleClass="number-aligned" text="SubTotal" />
-                <TableColumn fx:id="costColumn" prefWidth="119.5" styleClass="number-aligned" text="Net Total" />
-                <TableColumn fx:id="statusColumn" prefWidth="91.0" styleClass="left-aligned" text="Status" />
-                <TableColumn fx:id="bookingActionColumn" prefWidth="101.0" styleClass="number-aligned" text="Action" />
+                <TableColumn fx:id="sttColumn" minWidth="42.0" styleClass="number-aligned" text="STT" />
+                <TableColumn fx:id="tableNameColumn" minWidth="137.5" styleClass="left-aligned" text="Table Name" />
+                <TableColumn fx:id="startTimeColumn" minWidth="110.5" styleClass="left-aligned" text="Start Time" />
+                <TableColumn fx:id="endTimeColumn" minWidth="112.0" styleClass="left-aligned" text="End Time" />
+                <TableColumn fx:id="timeplayColumn" minWidth="72.0" styleClass="number-aligned" text="Timeplay" />
+                <TableColumn fx:id="priceColumn" minWidth="94.5" styleClass="number-aligned" text="Price" />
+                <TableColumn fx:id="subTotalColumn" minWidth="128.5" styleClass="number-aligned" text="SubTotal" />
+                <TableColumn fx:id="costColumn" minWidth="119.5" styleClass="number-aligned" text="Net Total" />
+                <TableColumn fx:id="statusColumn" minWidth="91.0" styleClass="left-aligned" text="Status" />
+                <TableColumn fx:id="bookingActionColumn" minWidth="101.0" styleClass="number-aligned" text="Action" />
             </columns>
         </TableView>
-    </AnchorPane>
+    </VBox>
 
-    <!-- Order Items Pane -->
-    <AnchorPane fx:id="orderPane" layoutX="21.0" layoutY="200.0" prefHeight="158.0" prefWidth="868.0" AnchorPane.leftAnchor="21.0" AnchorPane.rightAnchor="11.0" AnchorPane.topAnchor="200.0">
-        <TableView fx:id="orderItemsTable" layoutX="-11.0" layoutY="33.0" prefHeight="190.0" prefWidth="1011.0">
+    <!-- Order Items Section -->
+    <VBox spacing="10" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="200.0">
+        <Label styleClass="section-label" text="Order Item Table" />
+        <TableView fx:id="orderItemsTable" VBox.vgrow="ALWAYS">
             <columns>
-                <TableColumn fx:id="sttOrderItemColumn" prefWidth="61.5" styleClass="number-aligned" text="STT" />
-                <TableColumn fx:id="productNameColumn" prefWidth="159.5" styleClass="left-aligned" text="Product Name" />
-                <TableColumn fx:id="quantityColumn" prefWidth="66.0" styleClass="number-aligned" text="Quantity" />
-                <TableColumn fx:id="priceOrderItemColumn" prefWidth="98.5" styleClass="number-aligned" text="Price" />
-                <TableColumn fx:id="subTotalOrderItemColumn" prefWidth="128.5" styleClass="number-aligned" text="Sub Total" />
-                <TableColumn fx:id="netTotalOrderItemColumn" prefWidth="123.5" styleClass="number-aligned" text="Net Total" />
-                <TableColumn fx:id="orderItemActionColumn" prefWidth="96.5" styleClass="number-aligned" text="Action" />
+                <TableColumn fx:id="sttOrderItemColumn" minWidth="61.5" styleClass="number-aligned" text="STT" />
+                <TableColumn fx:id="productNameColumn" minWidth="159.5" styleClass="left-aligned" text="Product Name" />
+                <TableColumn fx:id="quantityColumn" minWidth="66.0" styleClass="number-aligned" text="Quantity" />
+                <TableColumn fx:id="priceOrderItemColumn" minWidth="98.5" styleClass="number-aligned" text="Price" />
+                <TableColumn fx:id="subTotalOrderItemColumn" minWidth="128.5" styleClass="number-aligned" text="Sub Total" />
+                <TableColumn fx:id="netTotalOrderItemColumn" minWidth="123.5" styleClass="number-aligned" text="Net Total" />
+                <TableColumn fx:id="orderItemActionColumn" minWidth="96.5" styleClass="number-aligned" text="Action" />
             </columns>
         </TableView>
-    </AnchorPane>
-
-    <!-- Action Buttons -->
-    <HBox spacing="30" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="120.0" />
-    <HBox alignment="CENTER" layoutX="11.0" layoutY="7.0" prefHeight="25.0" prefWidth="289.0" AnchorPane.leftAnchor="11.0">
-        <children>
-            <Label prefHeight="20.0" prefWidth="167.0" styleClass="section-label" text="Customer Name:">
-                <HBox.margin>
-                    <Insets top="3.0" />
-                </HBox.margin>
-            </Label>
-            <Text fx:id="customerText" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="header-text" text="Johnson Baby" wrappingWidth="153.63671875">
-                <HBox.margin>
-                    <Insets right="8.0" top="3.0" />
-                </HBox.margin>
-            </Text>
-        </children>
-    </HBox>
-    <HBox alignment="CENTER" layoutX="317.0" layoutY="7.0" prefHeight="25.0" prefWidth="190.0">
-        <children>
-            <Label prefHeight="20.0" prefWidth="69.0" styleClass="section-label" text="Phone: ">
-                <HBox.margin>
-                    <Insets top="3.0" />
-                </HBox.margin>
-            </Label>
-            <Text fx:id="phoneText" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="header-text" text="0963872314" wrappingWidth="127.13671875">
-                <HBox.margin>
-                    <Insets right="8.0" top="3.0" />
-                </HBox.margin>
-            </Text>
-        </children>
-    </HBox>
-    <HBox alignment="CENTER_RIGHT" layoutX="853.0" layoutY="8.0" prefHeight="25.0" prefWidth="168.0">
-        <children>
-            <Button fx:id="finishOrderButton" mnemonicParsing="false" onAction="#finishOrder" prefHeight="25.0" prefWidth="149.0" styleClass="finish-button" text="Finish this Order" />
-        </children>
-    </HBox>
-    <HBox alignment="CENTER" layoutX="718.0" layoutY="7.0" prefHeight="25.0" prefWidth="122.0">
-        <children>
-            <Label prefHeight="20.0" prefWidth="82.0" styleClass="section-label" text="Bill No : ">
-                <HBox.margin>
-                    <Insets top="3.0" />
-                </HBox.margin>
-            </Label>
-            <Text fx:id="billNoText" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="header-text" text="2" wrappingWidth="39.13671875">
-                <HBox.margin>
-                    <Insets right="10.0" top="3.0" />
-                </HBox.margin>
-            </Text>
-        </children>
-    </HBox>
-    <HBox alignment="CENTER" layoutX="526.0" layoutY="7.0" prefHeight="25.0" prefWidth="184.0">
-        <children>
-            <Label prefHeight="21.0" prefWidth="108.0" styleClass="section-label" text="Order Status : ">
-                <HBox.margin>
-                    <Insets top="3.0" />
-                </HBox.margin>
-            </Label>
-            <Text fx:id="orderStatusText" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="header-text" text="Playing" wrappingWidth="61.63671875">
-                <HBox.margin>
-                    <Insets right="8.0" top="3.0" />
-                </HBox.margin>
-            </Text>
-        </children>
-    </HBox>
-    <Label layoutX="11.0" layoutY="213.0" prefHeight="20.0" prefWidth="129.0" styleClass="section-label" text="Order Item Table" />
-    <Label layoutX="11.0" layoutY="52.0" prefHeight="17.0" prefWidth="103.0" styleClass="section-label" text="Booking Table" />
+    </VBox>
 
 </AnchorPane>

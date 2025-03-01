@@ -81,16 +81,16 @@ public class ForEachOrderController {
     private TableView<Order> orderTable;
 
     @FXML
-    private Text customerText;
+    private TextField customerText;
 
     @FXML
-    private Text phoneText;
+    private TextField phoneText;
 
     @FXML
-    private Text orderStatusText;
+    private TextField orderStatusText;
 
     @FXML
-    private Text billNoText;
+    private TextField billNoText;
 
     @FXML
     private TableColumn<Booking, Integer> sttColumn;
@@ -207,6 +207,12 @@ public class ForEachOrderController {
         addBookingButton.setOnAction(event -> addBooking(event));
         bookingActionColumn.setGraphic(addBookingButton);
 
+        // Check Order Status
+        String orderStatus = orderStatusText.getText();
+        if(orderStatus.equals("Finished") || orderStatus.equals("Paid") || orderStatus.equals("Canceled")){
+            addBookingButton.setDisable(true);
+        }
+
         // Set cell factory for action column
         bookingActionColumn.setCellFactory(column -> new TableCell<>() {
             @Override
@@ -280,13 +286,13 @@ public class ForEachOrderController {
         startTimeColumn.setCellValueFactory(cellData -> {
             LocalDateTime startTime = cellData.getValue().getStartTime().toLocalDateTime();
             return new SimpleStringProperty(
-                    startTime != null ? startTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+                    startTime != null ? startTime.format(DateTimeFormatter.ofPattern("HH'h'mm")) : "");
         });
 
         endTimeColumn.setCellValueFactory(cellData -> {
             LocalDateTime endTime = cellData.getValue().getEndTime();
             return new SimpleStringProperty(
-                    endTime != null ? endTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+                    endTime != null ? endTime.format(DateTimeFormatter.ofPattern("HH'h'mm")) : "");
         });
 
         timeplayColumn.setCellValueFactory(new PropertyValueFactory<>("timeplay"));
@@ -355,6 +361,11 @@ public class ForEachOrderController {
         addOrderItemButton.setPrefWidth(orderItemActionColumn.getPrefWidth());
         addOrderItemButton.setOnAction(event -> addOrderItem(event));
         orderItemActionColumn.setGraphic(addOrderItemButton);
+
+        String orderStatus = orderStatusText.getText();
+        if(orderStatus.equals("Finished") || orderStatus.equals("Paid") || orderStatus.equals("Canceled")){
+            addOrderItemButton.setDisable(true);
+        }
 
         // Set cell factory for action column
         orderItemActionColumn.setCellFactory(column -> new TableCell<>() {
@@ -618,6 +629,7 @@ public class ForEachOrderController {
             UpdateOrderItemController updateOrderItemController = loader.getController();
             updateOrderItemController.setOrderId(orderID);
             updateOrderItemController.setOrderItemDetails(selectedItem);
+            updateOrderItemController.setOrderItemList(orderItemsTable.getItems().stream().map(OrderItem::getProductName).toList());
             updateOrderItemController.initializeOrderItem();
 
             Stage stage = new Stage();
@@ -847,6 +859,7 @@ public class ForEachOrderController {
     }
 
     private void loadOrderList() {
+
         List<Order> orders = orderDAO.getAllOrders();
         orderTable.setItems(FXCollections.observableArrayList(orders));
     }
