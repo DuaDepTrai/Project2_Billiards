@@ -10,16 +10,15 @@ import java.util.List;
 public class CustomerDAO {
     private static final String DB_URL = "jdbc:mysql://localhost:3306/biamanagement"; // Thay đổi tên DB
     private static final String USER = "root"; // Thay đổi tên người dùng
-    private static final String PASS = "Qkien@111123"; // Thay đổi mật khẩu
+    private static final String PASS = ""; // Thay đổi mật khẩu
 
     public void addCustomer(Customer customer) {
-        String sql = "INSERT INTO customers (name, phone, total_playtime) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO customers (name, phone, total_playtime) VALUES (?, ?, 0)";
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, customer.getName());
             pstmt.setString(2, customer.getPhone());
-            pstmt.setDouble(3, customer.getTotalPlaytime());
             pstmt.executeUpdate();
 
             // Lấy ID được tạo tự động
@@ -66,7 +65,7 @@ public class CustomerDAO {
         List<Customer> customers = new ArrayList<>();
         String sql = "SELECT * FROM customers";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -153,4 +152,46 @@ public class CustomerDAO {
         }
         return customerIds;
     }
+
+    public List<String> getAllPhoneNumbers() {
+        List<String> phones = new ArrayList<>();
+        String sql = "SELECT phone FROM customers";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                phones.add(rs.getString("phone"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return phones;
+    }
+
+
+    public Customer getCustomerByPhone(String phone) {
+        String sql = "SELECT * FROM customers WHERE phone = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, phone);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("customer_id"));
+                    customer.setName(rs.getString("name"));
+                    customer.setPhone(rs.getString("phone"));
+                    // Set other customer properties as needed
+                    return customer;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.text.Text?>
-<?import javafx.scene.control.TextField?>
-
 <?import javafx.scene.layout.VBox?>
+
 <AnchorPane fx:id="totalBooking" prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/forEachOrderStyle.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
 
     <!-- Top Information Section -->
@@ -30,13 +28,13 @@
         <!-- Order Status -->
         <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
             <Label styleClass="section-label" text="Order Status: " />
-            <TextField fx:id="orderStatusText" styleClass="header-text" text="Playing" editable="false"/>
+            <TextField fx:id="orderStatusText" editable="false" styleClass="header-text" text="Playing" />
         </HBox>
 
         <!-- Bill Number -->
         <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
             <Label styleClass="section-label" text="Bill No: " />
-            <TextField fx:id="billNoText" styleClass="header-text" text="2" editable="false" />
+            <TextField fx:id="billNoText" editable="false" styleClass="header-text" text="2" />
         </HBox>
 
         <!-- Finish Button -->
@@ -45,6 +43,8 @@
 
     <!-- Booking Table Section -->
     <VBox spacing="10" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0">
+      <Button mnemonicParsing="false" onAction="#updateOrder" text="Update" />
+      <Button mnemonicParsing="false" onAction="#saveCustomer" text="Add Customer" />
         <Label styleClass="section-label" text="Booking Table" />
         <TableView fx:id="bookingPoolTable" VBox.vgrow="ALWAYS">
             <columns>
