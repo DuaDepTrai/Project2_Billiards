@@ -111,6 +111,13 @@ public class OrderController implements Initializable {
             controller.setOrderID(orderId);
             controller.setCustomerID(1);
             controller.setOrderTable(orderTable);
+
+            // Tính toán billNo mới
+            List<Order> orders = orderTable.getItems();
+            int totalOrders = orders.size();
+            int newBillNo = totalOrders + 1;
+            
+            controller.setBillNo(newBillNo);
             controller.initializeAllTables();
         } catch (IllegalArgumentException e) {
             NotificationService.showNotification("Validation Error", e.getMessage(), NotificationStatus.Error);
@@ -214,7 +221,7 @@ public class OrderController implements Initializable {
                 List<String> filteredCustomers = CustomerDAO.fetchCustomersByPhone(newValue);
                 listView.getItems().setAll(filteredCustomers);
 
-                if (!filteredCustomers.isEmpty() && !popup.isShowing()) {
+                if (!filteredCustomers.isEmpty()&& !popup.isShowing()) {
                     popup.show(autoCompleteTextField,
                             autoCompleteTextField.localToScreen(autoCompleteTextField.getBoundsInLocal()).getMinX(),
                             autoCompleteTextField.localToScreen(autoCompleteTextField.getBoundsInLocal()).getMaxY());
@@ -374,7 +381,8 @@ public class OrderController implements Initializable {
                     });
 
                     printBtn.setOnAction(event -> {
-                        Order selectedOrder = orderTable.getItems().get(getIndex());
+                        int rowIndex = getIndex();
+                        Order selectedOrder = orderTable.getItems().get(rowIndex);
 
                         if (selectedOrder == null) {
                             NotificationService.showNotification("Error", "Please select an order to payment.", NotificationStatus.Error);
@@ -396,7 +404,11 @@ public class OrderController implements Initializable {
                         }
                         PaymentController paymentController = paymentLoader.getController();
                         paymentController.setOrderID(orderId);
-                        paymentController.setBill(createBill());
+                        System.out.println("Order id: "+orderId);
+                        
+                        // Create bill based on the row index
+                        Bill bill = createBill(selectedOrder);
+                        paymentController.setBill(bill);
 
                         Stage stage = new Stage();
                         stage.setTitle("Payment Details");
@@ -419,9 +431,49 @@ public class OrderController implements Initializable {
                 }
             };
         });
+        orderTable.setOnMouseClicked(event -> {
+            try {
+                showItem(event);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    private Bill createBill() {
+
+    private void showItem(MouseEvent mouseEvent) throws IOException {
+        if (mouseEvent.getClickCount() == 2) {
+            Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
+            if (selectedOrder == null) return;
+
+            int orderId = selectedOrder.getOrderId();
+            int customerId = selectedOrder.getCustomerId();
+            int totalRow = orderTable.getItems().size();
+            int selectedIndex = orderTable.getItems().indexOf(selectedOrder);
+            int billNo = totalRow - selectedIndex;
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+            Parent root = null;
+            try {
+                root = loader.load();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            ForEachOrderController controller = loader.getController();
+            controller.setOrderID(orderId);
+            controller.setCustomerID(customerId);
+            controller.setOrderTable(orderTable);
+            controller.setBillNo(billNo);
+            controller.initializeAllTables();
+
+            Stage stage = new Stage();
+            stage.setTitle("Order Details");
+            stage.setScene(new Scene(root));
+            stage.show();
+        }
+    }
+
+    private Bill createBill(Order selectedOrder) {
         Order currentOrder = orderTable.getItems().get(orderTable.getFocusModel().getFocusedIndex());
         if (currentOrder == null) return null;
 
