@@ -97,6 +97,9 @@ public class OrderController implements Initializable {
             Order orderLatest = orderDAO.getLatestOrderByCustomerId(1);
 
             int orderId = orderLatest.getOrderId();
+            int totalRow = orderTable.getItems().size();
+            int selectedIndex = orderTable.getItems().indexOf(newOrder);
+            int billNo = totalRow - selectedIndex;
             System.out.println(orderId);
             loadOrderList();
             
@@ -111,6 +114,7 @@ public class OrderController implements Initializable {
             controller.setOrderID(orderId);
             controller.setCustomerID(1);
             controller.setOrderTable(orderTable);
+            controller.setBillNo(billNo);
             controller.initializeAllTables();
         } catch (IllegalArgumentException e) {
             NotificationService.showNotification("Validation Error", e.getMessage(), NotificationStatus.Error);
@@ -319,60 +323,21 @@ public class OrderController implements Initializable {
         actionColumn.setCellFactory(column -> {
             return new TableCell<Order, Void>() {
                 private final HBox container = new HBox(10); // spacing = 10
-                private final Button viewBtn = new Button();
+
                 private final Button printBtn = new Button();
 
                 {
                     // View button với icon EYE
-                    FontAwesomeIconView viewIcon = new FontAwesomeIconView(FontAwesomeIcon.EYE);
-                    viewIcon.setSize("16");
-                    viewBtn.setGraphic(viewIcon);
-                    viewBtn.getStyleClass().add("action-button");
-
                     // Print button với icon PRINT
                     FontAwesomeIconView printIcon = new FontAwesomeIconView(FontAwesomeIcon.PRINT);
                     printIcon.setSize("16");
                     printBtn.setGraphic(printIcon);
                     printBtn.getStyleClass().add("action-button");
-
                     // Delete button với icon TRASH
-
-
                     // Add buttons to container
                     container.setAlignment(Pos.CENTER);
-                    container.getChildren().addAll(viewBtn, printBtn);
-
+                    container.getChildren().addAll( printBtn);
                     // Add button actions
-                    viewBtn.setOnAction(event -> {
-                        Order selectedOrder = orderTable.getItems().get(getIndex());
-
-                        int orderId = selectedOrder.getOrderId();
-                        int customerId = selectedOrder.getCustomerId();
-                        int totalRow = orderTable.getItems().size();
-                        int selectedIndex = getIndex(); // Lấy chỉ số hàng
-                        int billNo = totalRow - selectedIndex;
-
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
-                        Parent root = null;
-                        try {
-                            root = loader.load();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                        ForEachOrderController controller = loader.getController();
-                        controller.setOrderID(orderId);
-                        controller.setCustomerID(customerId);
-                        controller.setOrderTable(orderTable);
-                        controller.setBillNo(billNo);
-                        controller.initializeAllTables();
-
-                        Stage stage = new Stage();
-                        stage.setTitle("Order Details");
-                        stage.setScene(new Scene(root));
-                        stage.show();
-
-                    });
-
                     printBtn.setOnAction(event -> {
                         Order selectedOrder = orderTable.getItems().get(getIndex());
 
@@ -385,7 +350,9 @@ public class OrderController implements Initializable {
                             NotificationService.showNotification("Access Denied", "Bills can only be accessed when the order is in Finished or Paid status.", NotificationStatus.Error);
                             return;
                         }
-
+                        int totalRow = orderTable.getItems().size();
+                        int selectedIndex = getIndex(); // Lấy chỉ số hàng
+                        int billNo = totalRow - selectedIndex;
                         int orderId = selectedOrder.getOrderId();
                         FXMLLoader paymentLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
                         Parent paymentRoot = null;
@@ -396,7 +363,9 @@ public class OrderController implements Initializable {
                         }
                         PaymentController paymentController = paymentLoader.getController();
                         paymentController.setOrderID(orderId);
-                        paymentController.setBill(createBill());
+                        paymentController.setBillNo(billNo);
+                        paymentController.setBill(createBill(selectedOrder));
+                        paymentController.setBill(createBill(selectedOrder));
 
                         Stage stage = new Stage();
                         stage.setTitle("Payment Details");
@@ -419,9 +388,16 @@ public class OrderController implements Initializable {
                 }
             };
         });
+        orderTable.setOnMouseClicked(event -> {
+            try {
+                showItem(event);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    private Bill createBill() {
+    private Bill createBill(Order selectedOrder) {
         Order currentOrder = orderTable.getItems().get(orderTable.getFocusModel().getFocusedIndex());
         if (currentOrder == null) return null;
 
@@ -503,13 +479,45 @@ public class OrderController implements Initializable {
             );
         }
     }
+    private void showItem(MouseEvent mouseEvent) throws IOException {
+        if (mouseEvent.getClickCount() == 2) {
+            Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
+            if (selectedOrder == null) return;
 
+            int orderId = selectedOrder.getOrderId();
+            int customerId = selectedOrder.getCustomerId();
+            int totalRow = orderTable.getItems().size();
+            int selectedIndex = orderTable.getItems().indexOf(selectedOrder);
+            int billNo = totalRow - selectedIndex;
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+            Parent root = null;
+            try {
+                root = loader.load();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            ForEachOrderController controller = loader.getController();
+            controller.setOrderID(orderId);
+            controller.setCustomerID(customerId);
+            controller.setOrderTable(orderTable);
+            controller.setBillNo(billNo);
+            controller.initializeAllTables();
+
+            Stage stage = new Stage();
+            stage.setTitle("Order Details");
+            stage.setScene(new Scene(root));
+            stage.show();
+        }
+    }
     @FXML
     public void searchOrder(ActionEvent actionEvent) {
         String phoneNumber = autoCompleteTextField.getText().trim();
         System.out.println(phoneNumber);
         if (phoneNumber.isEmpty()) {
-            NotificationService.showNotification("Input Error", "Please enter a phone number!", NotificationStatus.Warning);
+            List<Order> allOrders = orderDAO.getAllOrders();
+            orderTable.getItems().setAll(allOrders);
+            NotificationService.showNotification("All Orders", "Showing all orders in the system.", NotificationStatus.Information);
             return;
         }
 
@@ -521,6 +529,7 @@ public class OrderController implements Initializable {
         } else {
             orderTable.getItems().setAll(orders);
             NotificationService.showNotification("Search Successful", "Found " + orders.size() + " orders.", NotificationStatus.Success);
+            autoCompleteTextField.clear(); // Clear the search textfield after successful search
         }
     }
 

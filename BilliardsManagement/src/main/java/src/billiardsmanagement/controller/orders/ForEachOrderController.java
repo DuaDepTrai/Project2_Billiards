@@ -81,16 +81,16 @@ public class ForEachOrderController {
     private TableView<Order> orderTable;
 
     @FXML
-    private Text customerText;
+    private TextField customerText;
 
     @FXML
-    private Text phoneText;
+    private TextField phoneText;
 
     @FXML
-    private Text orderStatusText;
+    private TextField orderStatusText;
 
     @FXML
-    private Text billNoText;
+    private TextField billNoText;
 
     @FXML
     private TableColumn<Booking, Integer> sttColumn;
@@ -286,13 +286,13 @@ public class ForEachOrderController {
         startTimeColumn.setCellValueFactory(cellData -> {
             LocalDateTime startTime = cellData.getValue().getStartTime().toLocalDateTime();
             return new SimpleStringProperty(
-                    startTime != null ? startTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+                    startTime != null ? startTime.format(DateTimeFormatter.ofPattern("HH'h'mm")) : "");
         });
 
         endTimeColumn.setCellValueFactory(cellData -> {
             LocalDateTime endTime = cellData.getValue().getEndTime();
             return new SimpleStringProperty(
-                    endTime != null ? endTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+                    endTime != null ? endTime.format(DateTimeFormatter.ofPattern("HH'h'mm")) : "");
         });
 
         timeplayColumn.setCellValueFactory(new PropertyValueFactory<>("timeplay"));

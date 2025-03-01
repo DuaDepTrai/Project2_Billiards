@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.control.TextField?>
 
 <?import javafx.scene.layout.VBox?>
 <AnchorPane fx:id="totalBooking" prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/forEachOrderStyle.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
@@ -17,25 +18,25 @@
         <!-- Customer Info -->
         <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
             <Label styleClass="section-label" text="Customer Name:" />
-            <Text fx:id="customerText" styleClass="header-text" text="Johnson Baby" />
+            <TextField fx:id="customerText" styleClass="header-text" text="Johnson Baby" />
         </HBox>
 
         <!-- Phone -->
         <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
             <Label styleClass="section-label" text="Phone: " />
-            <Text fx:id="phoneText" styleClass="header-text" text="0963872314" />
+            <TextField fx:id="phoneText" styleClass="header-text" text="0963872314" />
         </HBox>
 
         <!-- Order Status -->
         <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
             <Label styleClass="section-label" text="Order Status: " />
-            <Text fx:id="orderStatusText" styleClass="header-text" text="Playing" />
+            <TextField fx:id="orderStatusText" styleClass="header-text" text="Playing" editable="false"/>
         </HBox>
 
         <!-- Bill Number -->
         <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
             <Label styleClass="section-label" text="Bill No: " />
-            <Text fx:id="billNoText" styleClass="header-text" text="2" />
+            <TextField fx:id="billNoText" styleClass="header-text" text="2" editable="false" />
         </HBox>
 
         <!-- Finish Button -->
