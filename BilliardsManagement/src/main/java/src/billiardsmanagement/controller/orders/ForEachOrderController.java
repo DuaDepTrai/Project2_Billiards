@@ -286,13 +286,13 @@ public class ForEachOrderController {
         startTimeColumn.setCellValueFactory(cellData -> {
             LocalDateTime startTime = cellData.getValue().getStartTime().toLocalDateTime();
             return new SimpleStringProperty(
-                    startTime != null ? startTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+                    startTime != null ? startTime.format(DateTimeFormatter.ofPattern("HH'h'mm")) : "");
         });
 
         endTimeColumn.setCellValueFactory(cellData -> {
             LocalDateTime endTime = cellData.getValue().getEndTime();
             return new SimpleStringProperty(
-                    endTime != null ? endTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+                    endTime != null ? endTime.format(DateTimeFormatter.ofPattern("HH'h'mm")) : "");
         });
 
         timeplayColumn.setCellValueFactory(new PropertyValueFactory<>("timeplay"));

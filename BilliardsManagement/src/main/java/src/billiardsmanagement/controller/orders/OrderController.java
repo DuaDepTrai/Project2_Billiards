@@ -374,7 +374,8 @@ public class OrderController implements Initializable {
                     });
 
                     printBtn.setOnAction(event -> {
-                        Order selectedOrder = orderTable.getItems().get(getIndex());
+                        System.out.println("Current Table View : "+getTableView());
+                        Order selectedOrder = getTableView().getItems().get(getIndex());
 
                         if (selectedOrder == null) {
                             NotificationService.showNotification("Error", "Please select an order to payment.", NotificationStatus.Error);
@@ -401,7 +402,7 @@ public class OrderController implements Initializable {
                         PaymentController paymentController = paymentLoader.getController();
                         paymentController.setOrderID(orderId);
                         paymentController.setBillNo(billNo);
-                        paymentController.setBill(createBill());
+                        paymentController.setBill(createBill(selectedOrder));
 
                         Stage stage = new Stage();
                         stage.setTitle("Payment Details");
@@ -426,10 +427,7 @@ public class OrderController implements Initializable {
         });
     }
 
-    private Bill createBill() {
-        Order currentOrder = orderTable.getItems().get(orderTable.getFocusModel().getFocusedIndex());
-        if (currentOrder == null) return null;
-
+    private Bill createBill(Order currentOrder) {
         Bill bill = new Bill();
         bill.setCustomerName(currentOrder.getCustomerName() == null ? "Guest" : currentOrder.getCustomerName());
         bill.setCustomerPhone(currentOrder.getCustomerPhone() == null ? "GuestPhone" : currentOrder.getCustomerPhone());
