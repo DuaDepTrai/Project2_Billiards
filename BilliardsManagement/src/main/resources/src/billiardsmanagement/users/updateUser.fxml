@@ -6,7 +6,7 @@
 
 <VBox spacing="15" alignment="CENTER" xmlns:fx="http://javafx.com/fxml"
       fx:controller="src.billiardsmanagement.controller.users.UpdateUserController"
-      prefWidth="500" prefHeight="350">
+      prefWidth="500" prefHeight="500">
 
     <Label text="Update User" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
 
@@ -23,9 +23,21 @@
         <Label text="Role:" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
         <ComboBox fx:id="comboRole" GridPane.rowIndex="3" GridPane.columnIndex="1" prefWidth="300"/>
 
-        <Label text="Upload Image:" GridPane.rowIndex="4" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
-        <Button text="Upload" onAction="#handleUploadImage" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-        <Label fx:id="lblImagePath" text="No file selected" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+        <Label text="Fullname:" GridPane.rowIndex="4" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <TextField fx:id="txtFullname" GridPane.rowIndex="4" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Phone:" GridPane.rowIndex="5" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <TextField fx:id="txtPhone" GridPane.rowIndex="5" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Birthday:" GridPane.rowIndex="6" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <DatePicker fx:id="txtBirthday" GridPane.rowIndex="6" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Address:" GridPane.rowIndex="7" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <TextField fx:id="txtAddress" GridPane.rowIndex="7" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Upload Image:" GridPane.rowIndex="8" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <Button text="Upload" onAction="#handleUploadImage" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+        <Label fx:id="lblImagePath" text="No file selected" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
     </GridPane>
 
     <HBox spacing="20" alignment="CENTER">

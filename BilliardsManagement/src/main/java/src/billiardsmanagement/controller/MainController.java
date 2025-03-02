@@ -55,7 +55,7 @@ public class MainController {
         String roleName = getRoleName(Integer.parseInt(user.getRole()));
 
         Platform.runLater(() -> {
-            usernameLabel.setText("Welcome, " + user.getUsername());
+            usernameLabel.setText("Welcome, " + user.getFullname());
             roleLabel.setText(roleName);
 
             // Đường dẫn chỉ cần từ thư mục resources trở đi

@@ -11,9 +11,14 @@
     <TableView fx:id="tableUsers" AnchorPane.topAnchor="50.0" AnchorPane.leftAnchor="10.0"
                AnchorPane.rightAnchor="10.0" AnchorPane.bottomAnchor="50.0">
         <columns>
-            <TableColumn fx:id="columnId" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="columnUsername" text="Username" prefWidth="300"/>
-            <TableColumn fx:id="columnRole" text="Role" prefWidth="300"/>
+            <TableColumn fx:id="columnAvatar" text="Avatar"/>
+            <TableColumn fx:id="columnUsername" text="Username"/>
+            <TableColumn fx:id="columnRole" text="Role"/>
+            <TableColumn fx:id="columnFullname" text="FullName"/>
+            <TableColumn fx:id="columnPhone" text="Phone"/>
+            <TableColumn fx:id="columnBirthday" text="Birthday"/>
+            <TableColumn fx:id="columnAddress" text="Address"/>
+            <TableColumn fx:id="columnHireDate" text="Hire Date"/>
         </columns>
     </TableView>
     <Button fx:id="btnAddNewUser" text="Add New User" AnchorPane.bottomAnchor="10.0"

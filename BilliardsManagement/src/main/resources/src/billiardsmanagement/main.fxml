@@ -56,7 +56,7 @@
                     </graphic>
                 </Button>
 
-                <Button styleClass="nav-item" onAction="#showStaffPage" text="Staff">
+                <Button styleClass="nav-item" onAction="#showUsersPage" text="Staff">
                     <graphic>
                         <FontAwesomeIconView glyphName="USERS" size="16"/>
                     </graphic>

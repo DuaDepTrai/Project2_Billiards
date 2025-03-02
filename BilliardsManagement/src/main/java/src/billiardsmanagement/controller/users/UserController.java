@@ -1,5 +1,6 @@
 package src.billiardsmanagement.controller.users;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -8,28 +9,45 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.controller.users.UpdateUserController;
 import src.billiardsmanagement.dao.UserDAO;
 import src.billiardsmanagement.model.User;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Optional;
+import java.text.SimpleDateFormat;
+
 
 public class UserController {
     @FXML
     private TableView<User> tableUsers;
     @FXML
-    private TableColumn<User, Integer> columnId;
+    private TableColumn<User, ImageView> columnAvatar;
     @FXML
     private TableColumn<User, String> columnUsername;
     @FXML
-    private TableColumn<User, String> columnPassword;
-    @FXML
     private TableColumn<User, String> columnRole;
+    @FXML
+    private TableColumn<User, String> columnFullname;
+    @FXML
+    private TableColumn<User, String> columnPhone;
+    @FXML
+    private TableColumn<User, String> columnBirthday;
+    @FXML
+    private TableColumn<User, String> columnAddress;
+    @FXML
+    private TableColumn<User, String> columnHireDate;
     @FXML
     private Button btnAddNewUser;
     @FXML
@@ -40,12 +58,42 @@ public class UserController {
     private Button btnRolesPermissions;
 
     private ObservableList<User> userList = FXCollections.observableArrayList();
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
     private UserDAO userDAO = new UserDAO();
 
     public void initialize() {
-        columnId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        columnAvatar.setCellFactory(createAvatarCellFactory());
         columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         columnRole.setCellValueFactory(new PropertyValueFactory<>("role"));
+        columnFullname.setCellValueFactory(new PropertyValueFactory<>("fullname"));
+        columnPhone.setCellValueFactory(new PropertyValueFactory<>("phone"));
+        columnBirthday.setCellValueFactory(cellData -> {
+            Date date = cellData.getValue().getBirthday(); // Lấy Date từ User
+            String formattedDate = (date != null) ? dateFormat.format(date) : ""; // Chuyển thành String
+            return new SimpleStringProperty(formattedDate);
+        });
+        columnBirthday.setCellFactory(column -> new TableCell<User, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item);
+            }
+        });
+
+        columnAddress.setCellValueFactory(new PropertyValueFactory<>("address"));
+        columnHireDate.setCellValueFactory(cellData -> {
+            Date date = cellData.getValue().getHireDate(); // Lấy Date từ User
+            String formattedDate = (date != null) ? dateFormat.format(date) : ""; // Chuyển thành String
+            return new SimpleStringProperty(formattedDate);
+        });
+        columnHireDate.setCellFactory(column -> new TableCell<User, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item);
+            }
+        });
 
         loadUsers();
 
@@ -63,6 +111,51 @@ public class UserController {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private String formatDate(String dateString) {
+        try {
+            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            return inputFormatter.parse(dateString, outputFormatter::format);
+        } catch (Exception e) {
+            return dateString; // Trả về nguyên bản nếu lỗi
+        }
+    }
+
+    private Callback<TableColumn<User, ImageView>, TableCell<User, ImageView>> createAvatarCellFactory() {
+        return column -> new TableCell<>() {
+            @Override
+            protected void updateItem(ImageView imageView, boolean empty) {
+                super.updateItem(imageView, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                } else {
+                    User user = getTableRow().getItem();
+                    ImageView avatarView = new ImageView();
+                    avatarView.setFitWidth(40);
+                    avatarView.setFitHeight(40);
+                    avatarView.setPreserveRatio(true);
+
+                    // Đường dẫn trong resources (KHÔNG có "/src/")
+                    String avatarPath = "/src/billiardsmanagement/images/avatars/" + user.getImagePath();
+                    URL imageUrl = getClass().getResource(avatarPath);
+
+                    if (imageUrl != null) {
+                        avatarView.setImage(new Image(imageUrl.toExternalForm()));
+                    } else {
+                        URL defaultImageUrl = getClass().getResource("/src/billiardsmanagement/images/avatars/user.png");
+                        if (defaultImageUrl != null) {
+                            avatarView.setImage(new Image(defaultImageUrl.toExternalForm()));
+                        } else {
+                            System.err.println("Default avatar not found!");
+                        }
+                    }
+
+                    setGraphic(avatarView);
+                }
+            }
+        };
     }
 
     @FXML
