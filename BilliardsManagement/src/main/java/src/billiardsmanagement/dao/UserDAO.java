@@ -108,14 +108,33 @@ public class UserDAO {
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                return new User(
+                String fullname = resultSet.getString("fullname");  // Kiểm tra fullname
+                if (fullname == null) {
+                    System.err.println("❌ Lỗi: fullname từ database bị NULL!");
+                }
+
+                User user = new User(
                         resultSet.getInt("user_id"),
                         resultSet.getString("username"),
                         resultSet.getString("password"),
                         resultSet.getString("role_id"),
-                        resultSet.getString("role_id"),
+                        fullname,  // Lấy fullname đúng cách
+                        resultSet.getString("phone"),
+                        resultSet.getDate("birthday"),
+                        resultSet.getString("address"),
+                        resultSet.getDate("hire_date"),
                         resultSet.getString("image_path")
                 );
+
+                // Debug kiểm tra dữ liệu lấy từ database
+                System.out.println("🔍 Debug: User lấy từ DB:");
+                System.out.println("🆔 ID: " + user.getId());
+                System.out.println("👤 Username: " + user.getUsername());
+                System.out.println("📛 Fullname: " + user.getFullname());
+                System.out.println("📷 Avatar: " + user.getImagePath());
+
+                return user;
+
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -165,6 +184,7 @@ public class UserDAO {
                             hashedPasswordFromDB,
                             resultSet.getString("role_id"),
                             resultSet.getString("role_name"), // Add role_name
+                            resultSet.getString("fullname"),
                             resultSet.getString("image_path")
                     );
                 }

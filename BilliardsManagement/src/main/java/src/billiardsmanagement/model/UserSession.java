@@ -4,6 +4,7 @@ public class UserSession {
     private int userId;
     private String username;
     private String role;
+    private String fullname;
 
     private UserSession() {
         // Private constructor để ngăn việc tạo instance trực tiếp
@@ -16,10 +17,11 @@ public class UserSession {
         return instance;
     }
 
-    public void setUser(int userId, String username, String role) {
+    public void setUser(int userId, String username, String role, String fullname) {
         this.userId = userId;
         this.username = username;
         this.role = role;
+        this.fullname = fullname;
     }
 
     public int getUserId() {
@@ -33,6 +35,7 @@ public class UserSession {
     public String getRole() {
         return role;
     }
+    public String getFullname() {return fullname;}
 
     public void clearSession() {
         userId = 0;

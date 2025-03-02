@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import src.billiardsmanagement.controller.products.ProductController;
 import src.billiardsmanagement.controller.users.RolesPermissionsController;
 import src.billiardsmanagement.controller.users.UserController;
+import src.billiardsmanagement.dao.UserDAO;
 import src.billiardsmanagement.model.TestDBConnection;
 import src.billiardsmanagement.model.User;
 
@@ -43,37 +44,35 @@ public class MainController {
     private User loggedInUser;
 
     public void setLoggedInUser(User user) {
+
         this.loggedInUser = user;
 
-        String roleId = user.getRole(); // Lấy role_id từ user
+        String roleId = user.getRole();
         if (roleId == null || roleId.trim().isEmpty()) {
-            System.err.println("Error: roleId is null or empty.");
+            System.err.println("⚠️ Lỗi: roleId là null hoặc rỗng!");
             return;
         }
 
         // Truy vấn role_name từ bảng roles dựa vào role_id
-        String roleName = getRoleName(Integer.parseInt(user.getRole()));
+        String roleName = getRoleName(Integer.parseInt(roleId));
 
         Platform.runLater(() -> {
             usernameLabel.setText("Welcome, " + user.getFullname());
             roleLabel.setText(roleName);
 
-            // Đường dẫn chỉ cần từ thư mục resources trở đi
+            // Đường dẫn ảnh đại diện từ thư mục resources
             String avatarPath = "/src/billiardsmanagement/images/avatars/" + user.getImagePath();
-
             URL imageUrl = getClass().getResource(avatarPath);
 
             if (imageUrl != null) {
                 avatarImageView.setImage(new Image(imageUrl.toExternalForm()));
-            }
-            else
-            {
-                System.out.println("No avatar found, using default.");
+            } else {
+                System.out.println("⚠️ Không tìm thấy avatar, dùng ảnh mặc định.");
                 URL defaultImageUrl = getClass().getResource("/src/billiardsmanagement/images/avatars/user.png");
                 if (defaultImageUrl != null) {
                     avatarImageView.setImage(new Image(defaultImageUrl.toExternalForm()));
                 } else {
-                    System.err.println("Default avatar not found!");
+                    System.err.println("❌ Không tìm thấy ảnh mặc định!");
                 }
             }
         });

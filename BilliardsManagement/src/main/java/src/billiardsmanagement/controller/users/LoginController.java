@@ -71,7 +71,8 @@ public class LoginController {
                 UserSession.getInstance().setUser(
                         user.getId(),        // user_id từ database
                         user.getUsername(),  // username
-                        user.getRoleName()   // role
+                        user.getRoleName(),   // role
+                        user.getFullname()
                 );
                 openMainWindow(user);
             } else {

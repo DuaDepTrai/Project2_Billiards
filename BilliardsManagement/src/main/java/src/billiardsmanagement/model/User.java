@@ -30,12 +30,13 @@ public class User {
 
     private List<String> permissions;
 
-    public User(int userId, String username, String password, String roleId, String roleName, String imagePath) {
+    public User(int userId, String username, String password, String roleId, String roleName, String fullname, String imagePath) {
         this.id= userId;
         this.username = username;
         this.password = password;
         this.role= roleId;
         this.roleName = roleName;
+        this.fullname = fullname;
         this.imagePath = imagePath;
     }
     public User(int id, String username, String password, String role, String fullname,
@@ -111,4 +112,5 @@ public class User {
     public String toString() {
         return username;
     }
+
 }
