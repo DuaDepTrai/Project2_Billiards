@@ -90,6 +90,7 @@ public class LoginController {
 
             Scene scene = new Scene(root, 800, 600);
             scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/style.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/main.css").toExternalForm());
 
             // Lấy MainController từ FXMLLoader
             MainController mainController = loader.getController();

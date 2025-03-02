@@ -464,7 +464,8 @@ public class ForEachOrderController {
         loadOrderDetail();
         setupPhoneAutoCompletion();
         checkBookingStatus();
-
+        checkOrderStatus();
+        loadOrderList();
     }
     private void setupPhoneAutoCompletion() {
         if (phoneAutoCompletion != null) {
@@ -563,7 +564,6 @@ public class ForEachOrderController {
                 NotificationService.showNotification("Start Playing Successful",
                         "Start playing on this table successfully.", NotificationStatus.Success);
                 loadBookings(); // Tải lại danh sách booking sau khi cập nhật
-                checkOrderStatus();
 
             } else {
                 NotificationService.showNotification("Update Failed",
@@ -1025,8 +1025,26 @@ public class ForEachOrderController {
     }
 
     public void updateOrder(ActionEvent actionEvent) {
+        Booking bookingselected = bookingPoolTable.getSelectionModel().getSelectedItem();
+        OrderItem orderItemselected = orderItemsTable.getSelectionModel().getSelectedItem();
 
-
-
+        if(bookingselected == null && orderItemselected == null){
+            try {
+                String phoneNumber = phoneText.getText();
+                if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Phone number is required");
+                    return;
+                }
+                int customerID =  CustomerDAO.getCustomerIdByPhone(phoneNumber);
+                boolean success = orderDAO.updateOrder(orderID,customerID);
+                if(success){
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Order updated successfully");
+                    loadOrderList();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to update order");
+            }
+        }
     }
 }

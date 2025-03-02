@@ -193,5 +193,21 @@ public class CustomerDAO {
         }
         return null;
     }
+    public static Integer getCustomerIdByPhone(String phone) {
+        String query = "SELECT customer_id FROM customers WHERE phone = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, phone);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("customer_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Trả về null nếu không tìm thấy khách hàng
+    }
 
 }
