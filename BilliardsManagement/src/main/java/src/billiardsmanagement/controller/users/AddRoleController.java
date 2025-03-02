@@ -79,7 +79,7 @@ public class AddRoleController {
     }
 
     private boolean isValidRolename(String rolename) {
-        return rolename.matches("^[a-zA-Z0-9_.]{5,}$");
+        return rolename.matches("^[a-zA-Z0-9_.\\s]{5,}$");
     }
 
 }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 01, 2025 at 05:11 AM
+-- Generation Time: Mar 02, 2025 at 07:02 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -140,7 +140,7 @@ CREATE TABLE `category` (
 --
 
 INSERT INTO `category` (`category_id`, `category_name`, `image_path`) VALUES
-(2, 'Cues-rent', 'cues-rent.png'),
+(2, 'Cues For Rent', 'cues-rent.png'),
 (3, 'Drinks', 'drinks.png'),
 (4, 'Food', 'food.png'),
 (5, 'Board Game', 'board_game.png');
@@ -367,7 +367,7 @@ CREATE TABLE `products` (
 
 INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `quantity`) VALUES
 (4, 'Standard Cue - For Rent', 2, 50000, 'Piece', 10),
-(5, 'Deluxe Cue - For Rent', 2, 100000, 'Piece', 1),
+(5, 'Deluxe Cue - For Rent', 2, 100000, 'Piece', 9),
 (6, 'Professional Cue - For Rent', 2, 150000, 'Piece', 10),
 (7, 'Soda', 3, 15000, 'Can', 100),
 (8, 'Juice', 3, 25000, 'Bottle', 79),
@@ -377,9 +377,12 @@ INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `q
 (12, 'Chips', 4, 20000, 'Bag', 50),
 (13, 'Nuts', 4, 30000, 'Bag', 40),
 (14, 'Popcorn', 4, 25000, 'Bag', 60),
-(15, 'Chocolate', 4, 40000, 'Bar', 10),
-(16, 'Cookies', 4, 50000, 'Box', 24),
-(17, 'Coca Cola', 3, 20000, 'Can', 16);
+(15, 'Chocolate', 4, 40000, 'Bar', 25),
+(16, 'Cookies Box', 4, 50000, 'Box', 24),
+(17, 'Coca Cola', 3, 20000, 'Can', 26),
+(20, 'Uno', 5, 60000, 'Set', 20),
+(21, 'Poker Deck (Plastic Cards)', 5, 80000, 'Set', 10),
+(22, 'Poker Deck (Plastic Coated)', 5, 50000, 'Set', 30);
 
 -- --------------------------------------------------------
 
@@ -436,6 +439,7 @@ INSERT INTO `role_permission` (`role_id`, `permission_id`) VALUES
 (3, 2),
 (3, 3),
 (4, 1),
+(4, 2),
 (4, 3),
 (4, 5);
 
@@ -466,12 +470,14 @@ INSERT INTO `users` (`user_id`, `username`, `password`, `fullname`, `phone`, `ad
 (1, 'admin', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Admin', '0961886965', 'Hà Nội', '2025-01-01', '1992-01-01', 1, 'manager.png'),
 (2, 'hieu', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyễn Văn Hiếu', '0961886965', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'manager.png'),
 (3, 'quan', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Lưu Minh Quân', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'manager.png'),
-(4, 'manh', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyễn Đức Mạnh', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'manager.png'),
+(4, 'manh', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyễn Đức Mạnh', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'trancung.jpg'),
 (6, 'long', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyễn Việt Long', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'manager.png'),
-(7, 'receptionist1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Hồ Hiền', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 3, 'user.png'),
-(8, 'whstaff1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Phạm Kiên', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 4, 'user.png'),
-(9, 'test123', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Vũ Trà', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 3, 'user.png'),
-(10, 'test23', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Lê Khánh', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 4, 'attention.png');
+(7, 'letan3', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Hồ Hiền', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 3, 'user.png'),
+(8, 'nvkho2', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Phạm Kiên', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 4, 'user.png'),
+(9, 'letan2', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Vũ Trà', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 3, 'user.png'),
+(10, 'nvkho3', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Lê Khánh', '0987654321', 'Hà Nội', '2025-01-01', '1990-06-15', 4, 'user.png'),
+(11, 'letan1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Phương Thảo', '0965438482', 'Hà Nội', '2025-03-02', '1997-12-09', 3, '366339749_258391096996728_4824303083280686790_n.jpg'),
+(14, 'nvkho1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Văn Dứa', '0979473639', 'Hà Nội', '2025-03-02', '2025-03-06', 4, 'user.png');
 
 --
 -- Indexes for dumped tables
@@ -618,19 +624,19 @@ ALTER TABLE `pooltables`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Constraints for dumped tables

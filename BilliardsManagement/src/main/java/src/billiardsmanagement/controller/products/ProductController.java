@@ -10,10 +10,15 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import src.billiardsmanagement.dao.PermissionDAO;
 import src.billiardsmanagement.model.Product;
 import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.model.User;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.scene.layout.HBox;
+import javafx.geometry.Pos;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -36,13 +41,9 @@ public class ProductController {
     @FXML
     private TableColumn<Product, Integer> columnQuantity;
     @FXML
+    private TableColumn<Product, Void> columnAction;
+    @FXML
     private Button btnAddNewProduct;
-    @FXML
-    private Button btnStockUp;
-    @FXML
-    private Button btnUpdateProduct;
-    @FXML
-    private Button btnRemoveProduct;
 
     private ObservableList<Product> productList = FXCollections.observableArrayList();
     private ProductDAO productDAO = new ProductDAO();
@@ -58,12 +59,11 @@ public class ProductController {
         columnUnit.setCellValueFactory(new PropertyValueFactory<>("unit"));
         columnQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
+        columnAction.setCellFactory(createActionCellFactory());
+
         loadProducts();
 
         btnAddNewProduct.setOnAction(event -> handleAddNewProduct());
-        btnStockUp.setOnAction(event -> handleStockUp());
-        btnUpdateProduct.setOnAction(event -> handleUpdateSelectedProduct());
-        btnRemoveProduct.setOnAction(event -> handleRemoveSelectedProduct());
     }
 
     private void applyPermissions() {
@@ -74,9 +74,6 @@ public class ProductController {
             System.out.println("✅ Permissions: " + permissions);
 
             btnAddNewProduct.setVisible(permissions.contains("add_product"));
-            btnStockUp.setVisible(permissions.contains("stock_up_product"));
-            btnUpdateProduct.setVisible(permissions.contains("update_product"));
-            btnRemoveProduct.setVisible(permissions.contains("remove_product"));
         } else {
             System.err.println("⚠️ Lỗi: currentUser bị null trong ProductController!");
         }
@@ -103,6 +100,60 @@ public class ProductController {
         }
     }
 
+    private Callback<TableColumn<Product, Void>, TableCell<Product, Void>> createActionCellFactory() {
+        return column -> new TableCell<>() {
+            private final HBox container = new HBox(10);
+            private final Button stockUpButton = new Button();
+            private final Button editButton = new Button();
+            private final Button deleteButton = new Button();
+
+            {
+                FontAwesomeIconView stockUpIcon = new FontAwesomeIconView(FontAwesomeIcon.UPLOAD);
+                stockUpIcon.setSize("16");
+                stockUpButton.setGraphic(stockUpIcon);
+                stockUpButton.getStyleClass().add("action-button");
+
+                FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
+                editIcon.setSize("16");
+                editButton.setGraphic(editIcon);
+                editButton.getStyleClass().add("action-button");
+
+                FontAwesomeIconView deleteIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
+                deleteIcon.setSize("16");
+                deleteButton.setGraphic(deleteIcon);
+                deleteButton.getStyleClass().add("action-button");
+
+                container.setAlignment(Pos.CENTER);
+                container.getChildren().addAll(stockUpButton, editButton, deleteButton);
+
+                stockUpButton.setOnAction(event -> {
+                    Product product = getTableView().getItems().get(getIndex());
+                    handleStockUp(product);
+                });
+
+                editButton.setOnAction(event -> {
+                    Product product = getTableView().getItems().get(getIndex());
+                    openUpdateWindow(product);
+                });
+
+                deleteButton.setOnAction(event -> {
+                    Product product = getTableView().getItems().get(getIndex());
+                    confirmAndRemoveProduct(product);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(container);
+                }
+            }
+        };
+    }
+
     @FXML
     private void handleAddNewProduct() {
         try {
@@ -122,10 +173,15 @@ public class ProductController {
         loadProducts();
     }
 
-    private void handleStockUp() {
+    private void handleStockUp(Product product) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/stockUp.fxml"));
             Parent root = loader.load();
+
+            // Lấy controller của StockUpController
+            StockUpController controller = loader.getController();
+            controller.setSelectedProduct(product); // Truyền sản phẩm được chọn
+
             Stage stage = new Stage();
             stage.setTitle("Stock Up Product");
             stage.setScene(new Scene(root));

@@ -11,11 +11,17 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.dao.RolesPermissionsDAO;
+import src.billiardsmanagement.model.Product;
 import src.billiardsmanagement.model.Role;
 import java.sql.SQLException;
 import java.util.Optional;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.scene.layout.HBox;
+import javafx.geometry.Pos;
 
 public class RolesPermissionsController {
     @FXML
@@ -24,13 +30,11 @@ public class RolesPermissionsController {
     private TableColumn<Role, String> roleColumn;
     @FXML
     private TableView<String> permissionTable;
+    @FXML
+    private TableColumn<Role, Void> columnAction;
 
     @FXML
     private Button btnAddNewRole;
-    @FXML
-    private Button btnEditRole;
-    @FXML
-    private Button btnRemoveRole;
 
     @FXML
     private Button btnBack;  // Khai báo nút Back
@@ -50,6 +54,8 @@ public class RolesPermissionsController {
         rolesPermissionsDAO = new RolesPermissionsDAO();
         roleColumn.setCellValueFactory(new PropertyValueFactory<>("roleName"));
 
+        columnAction.setCellFactory(createActionCellFactory());
+
         loadRoles();
 
         roleTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -64,8 +70,6 @@ public class RolesPermissionsController {
 
 
         btnAddNewRole.setOnAction(event -> handleAddNewRole());
-        btnEditRole.setOnAction(event -> handleEditSelectedRole());
-        btnRemoveRole.setOnAction(event -> handleRemoveSelectedRole());
         btnBack.setOnAction(event -> handleBackAction());
 
     }
@@ -82,6 +86,48 @@ public class RolesPermissionsController {
         permissionTable.setItems(permissions);
     }
 
+    private Callback<TableColumn<Role, Void>, TableCell<Role, Void>> createActionCellFactory() {
+        return column -> new TableCell<>() {
+            private final HBox container = new HBox(10);
+            private final Button editButton = new Button();
+            private final Button deleteButton = new Button();
+
+            {
+                FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
+                editIcon.setSize("16");
+                editButton.setGraphic(editIcon);
+                editButton.getStyleClass().add("action-button");
+
+                FontAwesomeIconView deleteIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
+                deleteIcon.setSize("16");
+                deleteButton.setGraphic(deleteIcon);
+                deleteButton.getStyleClass().add("action-button");
+
+                container.setAlignment(Pos.CENTER);
+                container.getChildren().addAll(editButton, deleteButton);
+
+                editButton.setOnAction(event -> {
+                    Role role = getTableView().getItems().get(getIndex());
+                    handleEditSelectedRole(role);
+                });
+
+                deleteButton.setOnAction(event -> {
+                    Role role = getTableView().getItems().get(getIndex());
+                    confirmAndRemoveRole(role);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(container);
+                }
+            }
+        };
+    }
 
     @FXML
     private void handleAddNewRole() {
@@ -143,7 +189,7 @@ public class RolesPermissionsController {
         }
     }
 
-    private void handleEditSelectedRole() {
+    private void handleEditSelectedRole( Role role) {
         Role selectedRole = roleTable.getSelectionModel().getSelectedItem();
         if (selectedRole == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING);

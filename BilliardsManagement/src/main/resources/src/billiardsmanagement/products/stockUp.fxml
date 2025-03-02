@@ -12,7 +12,7 @@
 
     <GridPane hgap="10" vgap="10" alignment="CENTER_LEFT">
         <Label text="Product:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
-        <ComboBox fx:id="comboProduct" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="300"/>
+        <Label fx:id="lblProductName" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
         <Label text="Quantity to Add:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
         <TextField fx:id="txtQuantity" GridPane.rowIndex="1" GridPane.columnIndex="1" prefWidth="300"/>

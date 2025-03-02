@@ -3,39 +3,47 @@ package src.billiardsmanagement.controller.products;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import src.billiardsmanagement.model.Product;
 import src.billiardsmanagement.dao.ProductDAO;
 
 import java.sql.SQLException;
 
 public class StockUpController {
-    @FXML
-    private ComboBox<Product> comboProduct;
+//    @FXML
+//    private ComboBox<Product> comboProduct;
     @FXML
     private TextField txtQuantity;
+    @FXML
+    private Label lblProductName;
+
 
     private ObservableList<Product> productList = FXCollections.observableArrayList();
     private ProductDAO productDAO = new ProductDAO();
+    private Product selectedProduct; // Lưu sản phẩm được chọn
 
     @FXML
     public void initialize() throws SQLException {
         loadProducts();
-        setupAutoCompleteComboBox(comboProduct);
     }
 
     private void loadProducts() throws SQLException {
         productList.addAll(productDAO.getAllProducts());
-        comboProduct.setItems(productList);
+//        comboProduct.setItems(productList);
+    }
+
+
+    // Hàm mới để đặt sản phẩm được chọn từ `ProductController`
+    public void setSelectedProduct(Product product) {
+        this.selectedProduct = product;
+        lblProductName.setText(product.getName()); // Hiển thị tên sản phẩm
+//        comboProduct.setDisable(true); // Không cho người dùng thay đổi sản phẩm
     }
 
     @FXML
     private void handleConfirm() {
-        Product selectedProduct = comboProduct.getSelectionModel().getSelectedItem();
         if (selectedProduct == null) {
-            showAlert("Error", "No Product Selected", "Please select a product to stock up.", Alert.AlertType.ERROR);
+            showAlert("Error", "No Product Selected", "Product selection failed.", Alert.AlertType.ERROR);
             return;
         }
 
@@ -48,18 +56,20 @@ public class StockUpController {
                 throw new NumberFormatException();
             }
         } catch (NumberFormatException e) {
-            showAlert("Error", "Invalid Quantity", "Please enter a valid quantity.", Alert.AlertType.ERROR);
+            showAlert("Error", "Invalid Quantity", "Quantity must be greater than 0\n.", Alert.AlertType.ERROR);
             return;
         }
 
         updateStock(selectedProduct.getId(), quantityToAdd);
     }
+
     private void updateStock(int productId, int quantityToAdd) {
         try {
             productDAO.stockUp(productId, quantityToAdd);
-            showAlert("Success", "Stock Updated", "The stock has been updated successfully.", Alert.AlertType.INFORMATION);
+            showAlert("Success", "Stock Updated", "Stock has been successfully updated.", Alert.AlertType.INFORMATION);
             txtQuantity.getScene().getWindow().hide();
         } catch (SQLException e) {
+            showAlert("Database Error", "Failed to update stock.", e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
         }
     }
@@ -75,49 +85,5 @@ public class StockUpController {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
-    }
-
-    private void setupAutoCompleteComboBox(ComboBox<Product> comboBox) {
-        comboBox.setEditable(true);
-
-        TextField editor = comboBox.getEditor();
-        ObservableList<Product> items = comboBox.getItems();
-
-        editor.textProperty().addListener((observable, oldValue, newValue) -> {
-            ObservableList<Product> filteredItems = FXCollections.observableArrayList();
-            String lowerCaseFilter = newValue.toLowerCase();
-
-            for (Product product : items) {
-                if (product.getName().toLowerCase().contains(lowerCaseFilter)) {
-                    filteredItems.add(product);
-                }
-            }
-
-            comboBox.setItems(filteredItems);
-
-            if (!filteredItems.isEmpty()) {
-                comboBox.show();
-            }
-        });
-
-        editor.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                // Khi người dùng rời khỏi ô nhập liệu, đặt lại danh sách đầy đủ
-                comboBox.setItems(items);
-
-                // Xác nhận giá trị nhập vào
-                String text = editor.getText();
-                Product matchedProduct = items.stream()
-                        .filter(product -> product.getName().equals(text))
-                        .findFirst()
-                        .orElse(null);
-
-                if (matchedProduct != null) {
-                    comboBox.getSelectionModel().select(matchedProduct);
-                } else {
-                    comboBox.getSelectionModel().clearSelection();
-                }
-            }
-        });
     }
 }

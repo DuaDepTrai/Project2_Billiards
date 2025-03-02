@@ -18,6 +18,10 @@ import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.controller.users.UpdateUserController;
 import src.billiardsmanagement.dao.UserDAO;
 import src.billiardsmanagement.model.User;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.scene.layout.HBox;
+import javafx.geometry.Pos;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,11 +53,9 @@ public class UserController {
     @FXML
     private TableColumn<User, String> columnHireDate;
     @FXML
+    private TableColumn<User, Void> columnAction;
+    @FXML
     private Button btnAddNewUser;
-    @FXML
-    private Button btnUpdateUser;
-    @FXML
-    private Button btnRemoveUser;
     @FXML
     private Button btnRolesPermissions;
 
@@ -95,11 +97,11 @@ public class UserController {
             }
         });
 
+        columnAction.setCellFactory(createActionCellFactory());
+
         loadUsers();
 
         btnAddNewUser.setOnAction(event -> handleAddNewUser());
-        btnUpdateUser.setOnAction(event -> handleUpdateSelectedUser());
-        btnRemoveUser.setOnAction(event -> handleRemoveSelectedUser());
         btnRolesPermissions.setOnAction(event -> openRolesPermissions());
     }
 
@@ -121,6 +123,49 @@ public class UserController {
         } catch (Exception e) {
             return dateString; // Trả về nguyên bản nếu lỗi
         }
+    }
+
+    private Callback<TableColumn<User, Void>, TableCell<User, Void>> createActionCellFactory() {
+        return column -> new TableCell<>() {
+            private final HBox container = new HBox(10);
+            private final Button editButton = new Button();
+            private final Button deleteButton = new Button();
+
+            {
+                FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
+                editIcon.setSize("16");
+                editButton.setGraphic(editIcon);
+                editButton.getStyleClass().add("action-button");
+
+                FontAwesomeIconView deleteIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
+                deleteIcon.setSize("16");
+                deleteButton.setGraphic(deleteIcon);
+                deleteButton.getStyleClass().add("action-button");
+
+                container.setAlignment(Pos.CENTER);
+                container.getChildren().addAll(editButton, deleteButton);
+
+                editButton.setOnAction(event -> {
+                    User user = getTableView().getItems().get(getIndex());
+                    openUpdateWindow(user);
+                });
+
+                deleteButton.setOnAction(event -> {
+                    User user = getTableView().getItems().get(getIndex());
+                    confirmAndRemoveUser(user);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(container);
+                }
+            }
+        };
     }
 
     private Callback<TableColumn<User, ImageView>, TableCell<User, ImageView>> createAvatarCellFactory() {

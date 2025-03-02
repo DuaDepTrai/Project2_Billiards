@@ -13,6 +13,9 @@
             <TableView fx:id="roleTable" HBox.hgrow="ALWAYS">
                 <columns>
                     <TableColumn text="Role" fx:id="roleColumn" />
+                    <TableColumn fx:id="columnAction" text="Action"
+                                 prefWidth="100.0" minWidth="100.0" maxWidth="100.0"
+                                 style="-fx-alignment: CENTER;" resizable="false" />
                 </columns>
             </TableView>
 
@@ -26,10 +29,6 @@
     </VBox>
 
     <Button fx:id="btnAddNewRole" text="Add New Role" AnchorPane.bottomAnchor="10.0"
-            AnchorPane.rightAnchor="500.0"/>
-    <Button fx:id="btnEditRole" text="Edit Role" AnchorPane.bottomAnchor="10.0"
-            AnchorPane.rightAnchor="350.0"/>
-    <Button fx:id="btnRemoveRole" text="Remove Role" AnchorPane.bottomAnchor="10.0"
             AnchorPane.rightAnchor="200.0"/>
 </AnchorPane>
 

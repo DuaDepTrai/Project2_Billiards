@@ -19,13 +19,10 @@
             <TableColumn fx:id="columnBirthday" text="Birthday"/>
             <TableColumn fx:id="columnAddress" text="Address"/>
             <TableColumn fx:id="columnHireDate" text="Hire Date"/>
+            <TableColumn fx:id="columnAction" prefWidth="100.0" style="-fx-alignment: CENTER;" text="Action" />
         </columns>
     </TableView>
     <Button fx:id="btnAddNewUser" text="Add New User" AnchorPane.bottomAnchor="10.0"
-            AnchorPane.rightAnchor="500.0"/>
-    <Button fx:id="btnUpdateUser" text="Update User" AnchorPane.bottomAnchor="10.0"
-            AnchorPane.rightAnchor="350.0"/>
-    <Button fx:id="btnRemoveUser" text="Remove User" AnchorPane.bottomAnchor="10.0"
             AnchorPane.rightAnchor="200.0"/>
     <Button fx:id="btnRolesPermissions" text="Roles - Permissions" AnchorPane.bottomAnchor="10.0"
             AnchorPane.rightAnchor="50.0"/>
