@@ -463,6 +463,8 @@ public class ForEachOrderController {
         loadBookings();
         loadOrderDetail();
         setupPhoneAutoCompletion();
+        checkBookingStatus();
+
     }
     private void setupPhoneAutoCompletion() {
         if (phoneAutoCompletion != null) {
@@ -1023,6 +1025,7 @@ public class ForEachOrderController {
     }
 
     public void updateOrder(ActionEvent actionEvent) {
+
 
 
     }
