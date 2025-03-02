@@ -16,6 +16,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.controller.orders.bookings.AddBookingController;
 import src.billiardsmanagement.controller.orders.items.AddOrderItemController;
 import src.billiardsmanagement.controller.orders.items.UpdateOrderItemController;
@@ -158,6 +160,7 @@ public class ForEachOrderController {
 
     private Booking currentBookingSelected;
     private OrderItem currentOrderItemSelected;
+    private AutoCompletionBinding<String> phoneAutoCompletion;
 
     public void setOrderID(int orderID) {
         this.orderID = orderID;
@@ -459,7 +462,34 @@ public class ForEachOrderController {
         loadInfo();
         loadBookings();
         loadOrderDetail();
+        setupPhoneAutoCompletion();
     }
+    private void setupPhoneAutoCompletion() {
+        if (phoneAutoCompletion != null) {
+            phoneAutoCompletion.dispose();
+        }
+
+        // Lấy danh sách customer từ database với cả phone và name
+        List<Customer> customers = customerDAO.getAllCustomers();
+        List<String> suggestions = customers.stream()
+                .map(c -> c.getPhone() + " - " + c.getName())
+                .collect(Collectors.toList());
+
+        phoneAutoCompletion = TextFields.bindAutoCompletion(phoneText, suggestions);
+
+        phoneText.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty()) {
+                // Tách số điện thoại từ chuỗi gợi ý (vd: "0123456789 - John" -> "0123456789")
+                String phone = newValue.split(" - ")[0];
+                Customer customer = customerDAO.getCustomerByPhone(phone);
+                if (customer != null) {
+                    customerText.setText(customer.getName());
+                    phoneText.setText(customer.getPhone()); // Set lại chỉ số điện thoại
+                }
+            }
+        });
+    }
+
 
     public void addBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
@@ -913,6 +943,68 @@ public class ForEachOrderController {
         billNoText.setText(String.valueOf(billNo));
     }
 
+
+    public void saveCustomer(ActionEvent actionEvent) {
+        try {
+            CustomerDAO customerDAO = new CustomerDAO();
+            // Get input from fields
+            String customerName = customerText.getText();
+            String customerPhone = phoneText.getText();
+
+            // Validate input data
+            if (customerName == null || customerName.trim().isEmpty()) {
+                throw new IllegalArgumentException("Please enter the customer's name.");
+            }
+            if (customerPhone == null || customerPhone.trim().isEmpty()) {
+                throw new IllegalArgumentException("Please enter the customer's phone number.");
+            }
+
+            // Validate phone number format (10 digits)
+            if (!customerPhone.matches("^0(3[2-9]|5[2689]|7[0-9]|8[1-9]|9[0-9])\\d{7}")) {
+                throw new IllegalArgumentException("Phone number must be 10 digits.");
+            }
+
+            // Check if the phone number already exists in the database
+            if (customerDAO.isPhoneExists(customerPhone)) {
+                throw new IllegalArgumentException("This phone number already exists.");
+            }
+
+            // Create a Customer object
+            Customer customer = new Customer();
+            customer.setName(customerName);
+            customer.setPhone(customerPhone);
+
+            // Add customer to the database
+            customerDAO.addCustomer(customer);
+
+            // Get the customer ID
+            Integer customerId = customer.getCustomerId();
+            if (customerId == null) {
+                throw new IllegalStateException("Failed to retrieve the customer ID after adding.");
+            }
+
+            // Show success message (optional)
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Customer added successfully!");
+
+
+        } catch (IllegalArgumentException e) {
+            // Show validation error
+            showAlert(Alert.AlertType.ERROR, "Error", e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Show unexpected error message
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while saving the order. Please try again.");
+        }
+    }
+
+
+    private void showAlert(Alert.AlertType alertType, String title, String content) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
     // Getters and Setters for selected items
     public Booking getCurrentBookingSelected() {
         return currentBookingSelected;
@@ -928,5 +1020,10 @@ public class ForEachOrderController {
 
     public void setCurrentOrderItemSelected(OrderItem orderItem) {
         this.currentOrderItemSelected = orderItem;
+    }
+
+    public void updateOrder(ActionEvent actionEvent) {
+
+
     }
 }
