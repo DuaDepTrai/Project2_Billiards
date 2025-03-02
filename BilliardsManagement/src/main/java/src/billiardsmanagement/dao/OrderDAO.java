@@ -202,13 +202,13 @@ public class OrderDAO {
         }
     }
 
-    public boolean updateOrder(int orderID, double totalCost) {
-        String query = "UPDATE orders SET order_status = 'Paid', total_cost = ? WHERE order_id = ?";
+    public boolean updateOrder(int orderID, int customerId) {
+        String query = "UPDATE orders SET customer_id = ? WHERE order_id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setDouble(1, totalCost); // Cập nhật total_cost
+            stmt.setInt(1, customerId); // Cập nhật customer_id
             stmt.setInt(2, orderID); // Cập nhật đúng order_id
 
             int rowsAffected = stmt.executeUpdate();
