@@ -18,8 +18,11 @@ import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 
 public class AddUserController {
@@ -32,6 +35,14 @@ public class AddUserController {
     @FXML
     private ComboBox<String> comboRole;
     @FXML
+    private TextField txtFullname;
+    @FXML
+    private TextField txtPhone;
+    @FXML
+    private DatePicker txtBirthday;
+    @FXML
+    private TextField txtAddress;
+    @FXML
     private Label lblImagePath;
 
     private ObservableList<String> roleList = FXCollections.observableArrayList();
@@ -40,6 +51,7 @@ public class AddUserController {
 
     public void initialize() {
         loadRoles();
+        setupDatePickerFormat();
     }
 
     private void loadRoles() {
@@ -56,12 +68,67 @@ public class AddUserController {
         }
     }
 
+    private void setupDatePickerFormat() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        txtBirthday.setConverter(new javafx.util.StringConverter<LocalDate>() {
+            @Override
+            public String toString(LocalDate date) {
+                return (date != null) ? date.format(formatter) : "";
+            }
+
+            @Override
+            public LocalDate fromString(String text) {
+                if (text == null || text.trim().isEmpty()) {
+                    return null;
+                }
+                try {
+                    return LocalDate.parse(text, formatter);
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+        });
+
+        // Lắng nghe sự kiện khi người dùng nhập vào DatePicker
+        txtBirthday.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            if (isValidDateFormat(newValue)) {
+                txtBirthday.setValue(LocalDate.parse(newValue, formatter)); // Cập nhật giá trị DatePicker
+            }
+        });
+    }
+
     @FXML
     private void handleAdd() {
         String username = txtUsername.getText();
         String password = txtPassword.getText();
         String rePassword = txtRePassword.getText();
         String role = comboRole.getValue();
+        String fullname = txtFullname.getText();
+        String phone = txtPhone.getText();
+        LocalDate birthday = txtBirthday.getValue();
+
+        // Kiểm tra nếu DatePicker trống hoặc có dữ liệu không hợp lệ
+        if (birthday == null) {
+            showAlert("Invalid Date", "Please select a valid date.");
+            return;
+        }
+
+        // Định dạng ngày thành chuỗi dd/MM/yyyy
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String birthdayStr = txtBirthday.getEditor().getText().trim();
+
+        // Kiểm tra nếu ngày nhập vào sai định dạng
+        if (!isValidDateFormat(birthdayStr)) {
+            showAlert("Invalid Date Format", "Date must be in the format DD/MM/YYYY.");
+            return;
+        }
+
+        // Chuyển sang java.sql.Date để lưu vào database
+        Date sqlBirthday = Date.valueOf(birthday);
+
+        String address = txtAddress.getText();
+        Date sqlHireDate = new Date(System.currentTimeMillis());
 
         if (!isValidUsername(username)) {
             showAlert("Invalid Username", "Username must be at least 6 characters long and contain only letters, numbers, '.', or '_'.");
@@ -75,6 +142,11 @@ public class AddUserController {
 
         if (!password.equals(rePassword)) {
             showAlert("Error Password", "Re-entered password does not match the original password.");
+            return;
+        }
+
+        if (!isValidPhone(phone)) {
+            showAlert("Invalid Phone", "Phone must be 10 numbers only, start with 09 | 08 | 07 | 05 | 03.");
             return;
         }
 
@@ -132,7 +204,7 @@ public class AddUserController {
             }
 
             // Thêm user mới
-            userDAO.addUser(username, hashedPassword, role_id, finalImageName);
+            userDAO.addUser(username, hashedPassword, role_id, fullname, phone, sqlBirthday, address, sqlHireDate, finalImageName);
 
             System.out.println("User added successfully!");
 
@@ -195,4 +267,21 @@ public class AddUserController {
         return password.matches("^.{6,}$");
     }
 
+    private boolean isValidPhone(String phone) {
+        return phone.matches("^(0[35789])\\d{8}$");
+    }
+
+    private boolean isValidDateFormat(String date) {
+        if (date == null || date.trim().isEmpty()) {
+            return false;
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        try {
+            LocalDate.parse(date, formatter);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

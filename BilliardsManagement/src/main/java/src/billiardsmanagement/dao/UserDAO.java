@@ -16,7 +16,7 @@ public class UserDAO {
     // Phương thức để lấy tất cả users
     public List<User> getAllUsers() throws SQLException {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT u.user_id, u.username, u.password, r.role_name, u.image_path " +
+        String sql = "SELECT u.user_id, u.username, u.password, r.role_name, u.fullname, u.phone, u.birthday, u.address, u.hire_date, u.image_path " +
                 "FROM users u " +
                 "JOIN roles r ON u.role_id = r.role_id";
 
@@ -29,9 +29,14 @@ public class UserDAO {
                 String username = resultSet.getString("username");
                 String password = resultSet.getString("password");
                 String role = resultSet.getString("role_name");
-                String imagePath = resultSet.getString("image_path");
+                String fullname = resultSet.getString("fullname");
+                String phone = resultSet.getString("phone");
+                Date birthday = resultSet.getDate("birthday");
+                String address = resultSet.getString("address");
+                Date hire_date = resultSet.getDate("hire_date");
+                String image_path = resultSet.getString("image_path");
 
-                users.add(new User(user_id, username, password, role, imagePath));
+                users.add(new User(user_id, username, password, role, fullname, phone, birthday, address, hire_date, image_path));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -40,15 +45,20 @@ public class UserDAO {
     }
 
     // Phương thức để thêm user mới
-    public void addUser(String username, String password, int role_id, String imagePath) throws SQLException {
-        String sql = "INSERT INTO users (username, password, role_id, image_path) VALUES (?, ?, ?, ?)";
+    public void addUser(String username, String password, int role_id, String fullname, String phone, Date birthday, String address, Date hire_date, String imagePath) throws SQLException {
+        String sql = "INSERT INTO users (username, password, role_id, fullname, phone, birthday, address, hire_date, image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = TestDBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, username);
             statement.setString(2, password);
             statement.setInt(3, role_id);
-            statement.setString(4, imagePath);
+            statement.setString(4, fullname);
+            statement.setString(5, phone);
+            statement.setDate(6, birthday);
+            statement.setString(7, address);
+            statement.setDate(8, hire_date);
+            statement.setString(9, imagePath);
             statement.executeUpdate();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -56,16 +66,20 @@ public class UserDAO {
     }
 
     // Phương thức để cập nhật thông tin sản phẩm
-    public void updateUser(int user_id, String username, String password, int role_id, String imagePath) throws SQLException {
-        String sql = "UPDATE users SET username = ?, password = ?, role_id = ?, image_path = ? WHERE user_id = ?";
+    public void updateUser(int user_id, String username, String password, int role_id, String fullname, String phone, Date birthday, String address, String imagePath) throws SQLException {
+        String sql = "UPDATE users SET username = ?, password = ?, role_id = ?, fullname = ?, phone = ?, birthday = ?, address = ?, image_path = ? WHERE user_id = ?";
         try (Connection connection = TestDBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, username);
             statement.setString(2, password);
             statement.setInt(3, role_id);
-            statement.setString(4, imagePath);
-            statement.setInt(5, user_id);
+            statement.setString(4, fullname);
+            statement.setString(5, phone);
+            statement.setDate(6, birthday);
+            statement.setString(7, address);
+            statement.setString(8, imagePath);
+            statement.setInt(9, user_id);
             statement.executeUpdate();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -98,6 +112,7 @@ public class UserDAO {
                         resultSet.getInt("user_id"),
                         resultSet.getString("username"),
                         resultSet.getString("password"),
+                        resultSet.getString("role_id"),
                         resultSet.getString("role_id"),
                         resultSet.getString("image_path")
                 );
