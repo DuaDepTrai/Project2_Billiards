@@ -22,7 +22,7 @@
         </HBox>
         <HBox alignment="CENTER_RIGHT" spacing="10" styleClass="action-buttons">
             <Button onAction="#addOrder" styleClass="btn, btn-primary" text="Add New Order" />
-            <Button onAction="#addCustomer" styleClass="btn, btn-primary" text="Add New Customer" />
+            <Button onAction="#addCustomer" styleClass="btn, btn-primary" text="Add New Customer" />    
         </HBox>
     </HBox>
 

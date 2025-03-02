@@ -175,8 +175,15 @@ public class PrintBillController {
         Document document = new Document();
 
         StringBuilder sb = new StringBuilder();
+        
+        // Create bills directory if it doesn't exist
+        File billsDir = new File("\\BilliardsManagement\\src\\main\\bills");
+        if (!billsDir.exists()) {
+            billsDir.mkdirs();
+        }
 
-        sb.append("BilliardsManagement\\src\\main\\bills\\");
+        sb.append(billsDir.getAbsolutePath());
+        sb.append(File.separator);
         sb.append(handleCustomerName(bill.getCustomerName()));
         sb.append("_");
         sb.append(bill.getCustomerPhone());

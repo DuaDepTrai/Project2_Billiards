@@ -398,7 +398,7 @@ public class OrderController implements Initializable {
     }
 
     private Bill createBill(Order selectedOrder) {
-        Order currentOrder = orderTable.getItems().get(orderTable.getFocusModel().getFocusedIndex());
+        Order currentOrder = selectedOrder;
         if (currentOrder == null) return null;
 
         Bill bill = new Bill();

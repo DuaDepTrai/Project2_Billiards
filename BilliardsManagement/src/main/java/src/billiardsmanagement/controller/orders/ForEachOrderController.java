@@ -89,10 +89,16 @@ public class ForEachOrderController {
     private TextField phoneText;
 
     @FXML
-    private TextField orderStatusText;
+    private Text orderStatusText;
 
     @FXML
-    private TextField billNoText;
+    private Text billNoText;
+
+    @FXML
+    private Text dateText;
+
+    @FXML
+    private TextField staffNameText;
 
     @FXML
     private TableColumn<Booking, Integer> sttColumn;
@@ -111,8 +117,8 @@ public class ForEachOrderController {
     @FXML
     private TableColumn<Booking, Double> timeplayColumn;
 
-    @FXML
-    private TableColumn<Booking, Double> subTotalColumn;
+    // @FXML
+    // private TableColumn<Booking, Double> subTotalColumn;
 
     @FXML
     private TableColumn<Booking, Double> costColumn;
@@ -136,15 +142,12 @@ public class ForEachOrderController {
     @FXML
     private TableColumn<OrderItem, Double> netTotalOrderItemColumn;
 
-    @FXML
-    private TableColumn<OrderItem, Double> subTotalOrderItemColumn;
-
+    // @FXML
+    // private TableColumn<OrderItem, Double> subTotalOrderItemColumn;
     // @FXML
     // private TableColumn<OrderItem, String> promotionOrderItem;
-
     // @FXML
     // private TableColumn<OrderItem, Double> promotionDiscountOrderItem;
-
     private final ObservableList<Booking> bookingList = FXCollections.observableArrayList();
     private final ObservableList<OrderItem> orderItemList = FXCollections.observableArrayList();
 
@@ -204,11 +207,11 @@ public class ForEachOrderController {
 
     private void initializeBookingColumn() {
         // Add New button in header
-        Button addBookingButton = new Button("Add New");
-        addBookingButton.getStyleClass().add("header-button");
-        addBookingButton.setPrefWidth(bookingActionColumn.getPrefWidth());
-        addBookingButton.setOnAction(event -> addBooking(event));
-        bookingActionColumn.setGraphic(addBookingButton);
+        // Button addBookingButton = new Button("Add New");
+        // addBookingButton.getStyleClass().add("header-button");
+        // addBookingButton.setPrefWidth(bookingActionColumn.getPrefWidth());
+        // addBookingButton.setOnAction(event -> addBooking(event));
+        // bookingActionColumn.setGraphic(addBookingButton);
 
         // Check Order Status
         String orderStatus = orderStatusText.getText();
@@ -316,16 +319,16 @@ public class ForEachOrderController {
             };
         });
 
-        subTotalColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
-        subTotalColumn.setCellFactory(column -> new TableCell<>() {
-            private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
+        // subTotalColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
+        // subTotalColumn.setCellFactory(column -> new TableCell<>() {
+        //     private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
 
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                setText((empty || item == null) ? null : decimalFormat.format(item));
-            }
-        });
+        //     @Override
+        //     protected void updateItem(Double item, boolean empty) {
+        //         super.updateItem(item, empty);
+        //         setText((empty || item == null) ? null : decimalFormat.format(item));
+        //     }
+        // });
 
         costColumn.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
         costColumn.setCellFactory(column -> new TableCell<>() {
@@ -359,11 +362,11 @@ public class ForEachOrderController {
 
     private void initializeOrderDetailColumn() {
         // Add New button in header
-        Button addOrderItemButton = new Button("Add New");
-        addOrderItemButton.getStyleClass().add("header-button");
-        addOrderItemButton.setPrefWidth(orderItemActionColumn.getPrefWidth());
-        addOrderItemButton.setOnAction(event -> addOrderItem(event));
-        orderItemActionColumn.setGraphic(addOrderItemButton);
+        // Button addOrderItemButton = new Button("Add New");
+        // addOrderItemButton.getStyleClass().add("header-button");
+        // addOrderItemButton.setPrefWidth(orderItemActionColumn.getPrefWidth());
+        // addOrderItemButton.setOnAction(event -> addOrderItem(event));
+        // orderItemActionColumn.setGraphic(addOrderItemButton);
 
         String orderStatus = orderStatusText.getText();
         if(orderStatus.equals("Finished") || orderStatus.equals("Paid") || orderStatus.equals("Canceled")){
@@ -432,20 +435,20 @@ public class ForEachOrderController {
             }
         });
 
-        subTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
-        subTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
-        // Initialize OrderItem Promotion Columns
-        subTotalOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText("");
-                } else {
-                    setText(String.format("%,d", Math.round(item)));
-                }
-            }
-        });
+        // subTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
+        // subTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+        // // Initialize OrderItem Promotion Columns
+        // subTotalOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
+        //     @Override
+        //     protected void updateItem(Double item, boolean empty) {
+        //         super.updateItem(item, empty);
+        //         if (empty || item == null) {
+        //             setText("");
+        //         } else {
+        //             setText(String.format("%,d", Math.round(item)));
+        //         }
+        //     }
+        // });
 
         // Remove or comment out these lines
         // promotionOrderItem.setCellValueFactory(new PropertyValueFactory<>("promotionName"));
@@ -466,7 +469,13 @@ public class ForEachOrderController {
         checkBookingStatus();
         checkOrderStatus();
         loadOrderList();
+
+        // Set current timestamp in dateText
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH'h'mm '|' dd:MM:yyyy");
+        String currentTimestamp = LocalDateTime.now().format(formatter);
+        dateText.setText(currentTimestamp);
     }
+
     private void setupPhoneAutoCompletion() {
         if (phoneAutoCompletion != null) {
             phoneAutoCompletion.dispose();
@@ -480,14 +489,51 @@ public class ForEachOrderController {
 
         phoneAutoCompletion = TextFields.bindAutoCompletion(phoneText, suggestions);
 
+        // Handle text changes in phone field
         phoneText.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.isEmpty()) {
-                // Tách số điện thoại từ chuỗi gợi ý (vd: "0123456789 - John" -> "0123456789")
-                String phone = newValue.split(" - ")[0];
+                // Split the text if it contains the separator
+                String[] parts = newValue.split(" - ");
+                String phone = parts[0].trim();
+
+                // Get customer by phone and update fields
                 Customer customer = customerDAO.getCustomerByPhone(phone);
                 if (customer != null) {
                     customerText.setText(customer.getName());
-                    phoneText.setText(customer.getPhone()); // Set lại chỉ số điện thoại
+                    phoneText.setText(customer.getPhone()); // Keep only the phone number
+                }
+            }
+        });
+
+        // Handle focus changes
+        phoneText.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) { // When focus is lost
+                String currentText = phoneText.getText();
+                if (currentText != null && !currentText.isEmpty()) {
+                    // If the text contains the separator, keep only the phone number
+                    if (currentText.contains(" - ")) {
+                        String phone = currentText.split(" - ")[0].trim();
+                        phoneText.setText(phone);
+                    }
+                }
+            }
+        });
+
+        // Preserve text when clicking on other fields
+        customerText.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                String currentPhone = phoneText.getText();
+                if (currentPhone != null && !currentPhone.isEmpty()) {
+                    phoneText.setText(currentPhone);
+                }
+            }
+        });
+
+        staffNameText.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                String currentPhone = phoneText.getText();
+                if (currentPhone != null && !currentPhone.isEmpty()) {
+                    phoneText.setText(currentPhone);
                 }
             }
         });

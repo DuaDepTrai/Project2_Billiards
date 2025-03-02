@@ -7,75 +7,113 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
 <AnchorPane fx:id="totalBooking" prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/forEachOrderStyle.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
 
     <!-- Top Information Section -->
-    <HBox spacing="20" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="7.0">
-        <!-- Customer Info -->
-        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-            <Label styleClass="section-label" text="Customer Name:" />
-            <TextField fx:id="customerText" styleClass="header-text" text="Johnson Baby" />
-        </HBox>
 
-        <!-- Phone -->
-        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-            <Label styleClass="section-label" text="Phone: " />
-            <TextField fx:id="phoneText" styleClass="header-text" text="0963872314" />
-        </HBox>
+    <!-- Booking Pane -->
+    <AnchorPane fx:id="bookingPane" layoutX="20.0" layoutY="162.0" prefHeight="258.0" prefWidth="1010.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="2.400000000000091" AnchorPane.topAnchor="162.0">
+        <TableView fx:id="bookingPoolTable" layoutX="-9.0" layoutY="35.0" prefHeight="132.0" prefWidth="1011.0">
+            <columns>
+                <TableColumn fx:id="sttColumn" prefWidth="42.0" styleClass="number-aligned" text="STT" />
+                <TableColumn fx:id="tableNameColumn" prefWidth="137.5" styleClass="left-aligned" text="Table Name" />
+                <TableColumn fx:id="startTimeColumn" prefWidth="136.0" styleClass="left-aligned" text="Start Time" />
+                <TableColumn fx:id="endTimeColumn" prefWidth="187.99996948242188" styleClass="left-aligned" text="End Time" />
+                <TableColumn fx:id="timeplayColumn" prefWidth="58.39996337890625" styleClass="number-aligned" text="Timeplay" />
+                <TableColumn fx:id="priceColumn" prefWidth="112.0" styleClass="number-aligned" text="Price" />
+                <TableColumn fx:id="costColumn" prefWidth="83.20001220703125" styleClass="number-aligned" text="Total Cost" />
+                <TableColumn fx:id="statusColumn" prefWidth="127.199951171875" styleClass="left-aligned" text="Status" />
+                <TableColumn fx:id="bookingActionColumn" prefWidth="127.2000732421875" styleClass="number-aligned" text="Action" />
+            </columns>
+        </TableView>
+        <Button fx:id="addOrderItemButton" layoutX="832.0" layoutY="195.0" mnemonicParsing="false" onAction="#addOrderItem" prefHeight="16.0" prefWidth="168.0" styleClass="finish-button" text="Add New Order" textAlignment="CENTER" textFill="WHITE">
+            <font>
+                <Font size="11.0" />
+            </font></Button>
+        <Button fx:id="addBookingButton" layoutX="833.0" layoutY="-2.0" mnemonicParsing="false" onAction="#addBooking" prefHeight="16.0" prefWidth="168.0" styleClass="finish-button" text="Add New Booking" textAlignment="CENTER" textFill="WHITE">
+            <font>
+                <Font size="11.0" />
+            </font>
+        </Button>
+    </AnchorPane>
 
-        <!-- Order Status -->
-        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-            <Label styleClass="section-label" text="Order Status: " />
-            <TextField fx:id="orderStatusText" editable="false" styleClass="header-text" text="Playing" />
-        </HBox>
+    <!-- Order Items Pane -->
+    <AnchorPane fx:id="orderPane" layoutX="21.0" layoutY="452.8" prefHeight="141.0" prefWidth="1001.0" AnchorPane.leftAnchor="21.0" AnchorPane.rightAnchor="11.0" AnchorPane.topAnchor="453.0">
+        <TableView fx:id="orderItemsTable" layoutX="-11.0" layoutY="-57.0" prefHeight="204.0" prefWidth="1011.0">
+            <columns>
+                <TableColumn fx:id="sttOrderItemColumn" prefWidth="61.5" styleClass="number-aligned" text="STT" />
+                <TableColumn fx:id="productNameColumn" prefWidth="273.49998474121094" styleClass="left-aligned" text="Product Name" />
+                <TableColumn fx:id="quantityColumn" prefWidth="108.5" styleClass="number-aligned" text="Quantity" />
+                <TableColumn fx:id="priceOrderItemColumn" prefWidth="234.0" styleClass="number-aligned" text="Price" />
+                <!-- <TableColumn fx:id="subTotalOrderItemColumn" prefWidth="193.5999755859375" styleClass="number-aligned" text="Sub Total" /> -->
+                <TableColumn fx:id="netTotalOrderItemColumn" prefWidth="207.0" styleClass="number-aligned" text="Total Cost" />
+                <TableColumn fx:id="orderItemActionColumn" prefWidth="125.5" styleClass="number-aligned" text="Action" />
+            </columns>
+        </TableView>
+    </AnchorPane>
 
-        <!-- Bill Number -->
-        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-            <Label styleClass="section-label" text="Bill No: " />
-            <TextField fx:id="billNoText" editable="false" styleClass="header-text" text="2" />
-        </HBox>
-
-        <!-- Finish Button -->
-        <Button fx:id="finishOrderButton" onAction="#finishOrder" styleClass="finish-button" text="Finish this Order" />
+    <!-- Action Buttons -->
+    <HBox spacing="30" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="120.0" />
+    <HBox alignment="CENTER_LEFT" layoutX="11.0" layoutY="8.0" prefHeight="25.0" prefWidth="141.0" AnchorPane.leftAnchor="11.0">
+        <children>
+            <Label prefHeight="20.0" prefWidth="167.0" styleClass="section-label" text="Customer Name:" />
+        </children>
     </HBox>
-
-    <!-- Booking Table Section -->
-    <VBox spacing="10" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0">
-      <Button mnemonicParsing="false" onAction="#updateOrder" text="Update" />
-      <Button mnemonicParsing="false" onAction="#saveCustomer" text="Add Customer" />
-        <Label styleClass="section-label" text="Booking Table" />
-        <TableView fx:id="bookingPoolTable" VBox.vgrow="ALWAYS">
-            <columns>
-                <TableColumn fx:id="sttColumn" minWidth="42.0" styleClass="number-aligned" text="STT" />
-                <TableColumn fx:id="tableNameColumn" minWidth="137.5" styleClass="left-aligned" text="Table Name" />
-                <TableColumn fx:id="startTimeColumn" minWidth="110.5" styleClass="left-aligned" text="Start Time" />
-                <TableColumn fx:id="endTimeColumn" minWidth="112.0" styleClass="left-aligned" text="End Time" />
-                <TableColumn fx:id="timeplayColumn" minWidth="72.0" styleClass="number-aligned" text="Timeplay" />
-                <TableColumn fx:id="priceColumn" minWidth="94.5" styleClass="number-aligned" text="Price" />
-                <TableColumn fx:id="subTotalColumn" minWidth="128.5" styleClass="number-aligned" text="SubTotal" />
-                <TableColumn fx:id="costColumn" minWidth="119.5" styleClass="number-aligned" text="Net Total" />
-                <TableColumn fx:id="statusColumn" minWidth="91.0" styleClass="left-aligned" text="Status" />
-                <TableColumn fx:id="bookingActionColumn" minWidth="101.0" styleClass="number-aligned" text="Action" />
-            </columns>
-        </TableView>
-    </VBox>
-
-    <!-- Order Items Section -->
-    <VBox spacing="10" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="200.0">
-        <Label styleClass="section-label" text="Order Item Table" />
-        <TableView fx:id="orderItemsTable" VBox.vgrow="ALWAYS">
-            <columns>
-                <TableColumn fx:id="sttOrderItemColumn" minWidth="61.5" styleClass="number-aligned" text="STT" />
-                <TableColumn fx:id="productNameColumn" minWidth="159.5" styleClass="left-aligned" text="Product Name" />
-                <TableColumn fx:id="quantityColumn" minWidth="66.0" styleClass="number-aligned" text="Quantity" />
-                <TableColumn fx:id="priceOrderItemColumn" minWidth="98.5" styleClass="number-aligned" text="Price" />
-                <TableColumn fx:id="subTotalOrderItemColumn" minWidth="128.5" styleClass="number-aligned" text="Sub Total" />
-                <TableColumn fx:id="netTotalOrderItemColumn" minWidth="123.5" styleClass="number-aligned" text="Net Total" />
-                <TableColumn fx:id="orderItemActionColumn" minWidth="96.5" styleClass="number-aligned" text="Action" />
-            </columns>
-        </TableView>
-    </VBox>
+    <HBox alignment="CENTER_RIGHT" layoutX="853.0" layoutY="8.0" prefHeight="25.0" prefWidth="168.0">
+        <children>
+            <Button fx:id="finishOrderButton" mnemonicParsing="false" onAction="#finishOrder" prefHeight="32.0" prefWidth="168.0" styleClass="finish-button" text="Finish this Order" textAlignment="CENTER" textFill="WHITE" />
+        </children>
+    </HBox>
+    <HBox alignment="CENTER" layoutX="718.0" layoutY="7.0" prefHeight="25.0" prefWidth="122.0" />
+    <Label layoutX="11.0" layoutY="368.0" prefHeight="20.0" prefWidth="129.0" styleClass="section-label" text="Order Item Table">
+        <font>
+            <Font size="18.0" />
+        </font></Label>
+    <Label layoutX="11.0" layoutY="168.0" prefHeight="17.0" prefWidth="103.0" styleClass="section-label" text="Booking Table">
+        <font>
+            <Font size="18.0" />
+        </font></Label>
+    <Label layoutX="11.0" layoutY="43.0" prefHeight="20.0" prefWidth="167.0" styleClass="section-label" text="Phone Number:" />
+    <Line endX="963.199951171875" endY="149.89999389648438" startX="75.19999694824219" startY="149.89999389648438" stroke="#a31d1d" />
+    <Line endX="963.199951171875" endY="149.89999389648438" layoutY="200.0" startX="75.19999694824219" startY="149.89999389648438" stroke="#a31d1d" />
+    <TextField fx:id="phoneText" layoutX="141.0" layoutY="41.0" prefHeight="27.0" prefWidth="167.0">
+      <font>
+         <Font name="Arial" size="15.0" />
+      </font></TextField>
+    <TextField fx:id="customerText" layoutX="141.0" layoutY="8.0" prefHeight="27.0" prefWidth="167.0">
+      <font>
+         <Font name="Arial" size="15.0" />
+      </font>
+   </TextField>
+    <Text fx:id="dateText" layoutX="629.0" layoutY="50.0" text="Order Date" wrappingWidth="208.5">
+      <font>
+         <Font name="FontAwesome" size="16.0" />
+      </font></Text>
+    <TextField fx:id="staffNameText" layoutX="141.0" layoutY="74.0" prefHeight="27.0" prefWidth="167.0">
+      <font>
+         <Font name="Arial" size="15.0" />
+      </font></TextField>
+    <Label layoutX="581.0" layoutY="34.0" prefHeight="21.0" prefWidth="86.0" styleClass="section-label" text="Date:" />
+    <Label layoutX="11.0" layoutY="77.0" prefHeight="21.0" prefWidth="149.0" styleClass="section-label" text="Staff Name:" />
+    <Label layoutX="358.0" layoutY="34.0" prefHeight="21.0" prefWidth="77.0" styleClass="section-label" text="Bill No:" />
+    <Label layoutX="581.0" layoutY="7.0" prefHeight="21.0" prefWidth="86.0" styleClass="section-label" text="Total:" />
+    <Text fx:id="billNoText" layoutX="435.0" layoutY="50.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Bill Number" wrappingWidth="114.0">
+      <font>
+         <Font name="FontAwesome" size="16.0" />
+      </font></Text>
+    <Text layoutX="629.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Cost">
+      <font>
+         <Font name="FontAwesome" size="16.0" />
+      </font></Text>
+    <Text fx:id="orderStatusText" layoutX="435.0" layoutY="24.0" text="Order Status" wrappingWidth="114.0">
+      <font>
+         <Font name="FontAwesome" size="16.0" />
+      </font>
+   </Text>
+   <Label layoutX="358.0" layoutY="7.0" prefHeight="21.0" prefWidth="77.0" styleClass="section-label" text="Status: " />
 
 </AnchorPane>
