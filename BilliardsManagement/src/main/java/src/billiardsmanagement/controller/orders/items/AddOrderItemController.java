@@ -1,17 +1,8 @@
 package src.billiardsmanagement.controller.orders.items;
 
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import javafx.stage.Window;
@@ -21,15 +12,13 @@ import src.billiardsmanagement.dao.CategoryDAO;
 import src.billiardsmanagement.dao.OrderItemDAO;
 import src.billiardsmanagement.dao.ProductDAO;
 // import src.billiardsmanagement.dao.PromotionDAO;
-import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.model.OrderItem;
 import src.billiardsmanagement.model.Pair;
-import src.billiardsmanagement.model.NotificationService;
+import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
 
 import java.sql.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class AddOrderItemController {
     @FXML

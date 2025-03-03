@@ -18,7 +18,7 @@ module src.billiardsmanagement {
     exports src.billiardsmanagement.controller;
     exports src.billiardsmanagement.view;
     exports src.billiardsmanagement.dao;
-
+    exports src.billiardsmanagement.controller.report to javafx.fxml;
     exports src.billiardsmanagement.controller.orders;  // add this line
     exports src.billiardsmanagement.controller.orders.items;
     exports src.billiardsmanagement.controller.orders.bookings;
@@ -34,4 +34,7 @@ module src.billiardsmanagement {
     opens src.billiardsmanagement.controller.products to javafx.fxml;
     opens src.billiardsmanagement.controller.category to javafx.fxml;
     opens src.billiardsmanagement.controller.users to javafx.fxml;
+    exports src.billiardsmanagement.service;
+    opens src.billiardsmanagement.service to javafx.base;
+    opens src.billiardsmanagement.controller.report to javafx.fxml;
 }

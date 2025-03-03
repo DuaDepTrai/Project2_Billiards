@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.chart.PieChart?>
+
+<?import javafx.scene.text.Text?>
+<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.report.CustomerStatsController">
+    <content>
+        <VBox spacing="20.0" styleClass="content-pane">
+            <children>
+                <VBox styleClass="stat-card">
+                    <Label text="Customer Statistics" styleClass="section-title"/>
+                    <VBox styleClass="stat-box">
+                        <Label text="Total Customers"/>
+                        <Text fx:id="txtTotalCustomers" styleClass="stat-value" text="0"/>
+                    </VBox>
+                </VBox>
+
+                <VBox styleClass="chart-container">
+                    <Label text="Customer Distribution by Play Time" styleClass="chart-title"/>
+                    <PieChart fx:id="chartCustomersByPlayTime" prefHeight="400.0"/>
+                </VBox>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

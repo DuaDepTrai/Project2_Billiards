@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="src.billiardsmanagement.controller.report.OrderStatsController"
+
+      spacing="20" style="-fx-padding: 20;">
+
+    <HBox spacing="20">
+        <ComboBox fx:id="periodComboBox" promptText="Select Period"/>
+        <Button text="Apply" onAction="#applyPeriodFilter"/>
+    </HBox>
+
+    <HBox spacing="20" alignment="CENTER">
+        <VBox styleClass="stat-box" alignment="CENTER" spacing="10">
+            <Label text="Total Orders" styleClass="stat-label"/>
+            <Label fx:id="totalOrdersLabel" text="0" styleClass="stat-value"/>
+        </VBox>
+
+        <VBox styleClass="stat-box" alignment="CENTER" spacing="10">
+            <Label text="Total Revenue" styleClass="stat-label"/>
+            <Label fx:id="totalRevenueLabel" text="" styleClass="stat-value"/>
+        </VBox>
+    </HBox>
+
+    <VBox spacing="10">
+        <Label text="Revenue by Period" styleClass="chart-title"/>
+        <BarChart fx:id="revenueByPeriodChart">
+            <xAxis>
+                <CategoryAxis label="Period"/>
+            </xAxis>
+            <yAxis>
+                <NumberAxis label="Revenue ($)"/>
+            </yAxis>
+        </BarChart>
+    </VBox>
+
+    <HBox spacing="20">
+        <VBox spacing="10" HBox.hgrow="ALWAYS">
+            <Label text="Revenue by Table Group" styleClass="chart-title"/>
+            <PieChart fx:id="revenueByTableChart" legendVisible="true"
+                      labelsVisible="true"/>
+        </VBox>
+
+        <VBox spacing="10" HBox.hgrow="ALWAYS">
+            <Label text="Revenue by Product Category" styleClass="chart-title"/>
+            <PieChart fx:id="revenueByProductCategoryChart" legendVisible="true"
+                      labelsVisible="true"/>
+        </VBox>
+    </HBox>
+</VBox>

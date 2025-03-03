@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+
+<BorderPane fx:id="mainPane" prefHeight="700.0" prefWidth="1000.0"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="src.billiardsmanagement.controller.report.ReportController">
+    <center>
+        <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+<!--                <Tab fx:id="customerTab" text="Customers">-->
+<!--                    <content>-->
+<!--                        <fx:include source="customer_stats.fxml"/>-->
+<!--                    </content>-->
+<!--                </Tab>-->
+                <Tab fx:id="ordersTab" text="Orders">
+                    <content>
+                        <fx:include source="orders_stats.fxml"/>
+                    </content>
+                </Tab>
+                <Tab fx:id="productsTab" text="Products">
+                    <content>
+                        <fx:include source="orders_stats.fxml"/>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </center>
+</BorderPane>

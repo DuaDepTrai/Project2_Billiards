@@ -1,6 +1,5 @@
 package src.billiardsmanagement.controller.orders;
 
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -10,6 +9,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.stage.Stage;
 import src.billiardsmanagement.model.*;
+import src.billiardsmanagement.service.BillService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

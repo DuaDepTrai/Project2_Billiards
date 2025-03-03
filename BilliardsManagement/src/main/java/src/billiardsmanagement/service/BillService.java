@@ -1,10 +1,13 @@
-package src.billiardsmanagement.model;
+package src.billiardsmanagement.service;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.OrderItemDAO;
 import src.billiardsmanagement.dao.ProductDAO;
+import src.billiardsmanagement.model.BillItem;
+import src.billiardsmanagement.model.Booking;
+import src.billiardsmanagement.model.OrderItem;
 
 import java.util.List;
 
