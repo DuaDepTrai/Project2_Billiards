@@ -8,11 +8,13 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -117,8 +119,8 @@ public class ForEachOrderController {
     @FXML
     private TableColumn<Booking, Double> timeplayColumn;
 
-    // @FXML
-    // private TableColumn<Booking, Double> subTotalColumn;
+    @FXML
+    private TableColumn<Booking, Double> subTotalColumn;
 
     @FXML
     private TableColumn<Booking, Double> costColumn;
@@ -142,12 +144,15 @@ public class ForEachOrderController {
     @FXML
     private TableColumn<OrderItem, Double> netTotalOrderItemColumn;
 
-    // @FXML
-    // private TableColumn<OrderItem, Double> subTotalOrderItemColumn;
+    @FXML
+    private TableColumn<OrderItem, Double> subTotalOrderItemColumn;
+
     // @FXML
     // private TableColumn<OrderItem, String> promotionOrderItem;
+
     // @FXML
     // private TableColumn<OrderItem, Double> promotionDiscountOrderItem;
+
     private final ObservableList<Booking> bookingList = FXCollections.observableArrayList();
     private final ObservableList<OrderItem> orderItemList = FXCollections.observableArrayList();
 
@@ -207,11 +212,11 @@ public class ForEachOrderController {
 
     private void initializeBookingColumn() {
         // Add New button in header
-        // Button addBookingButton = new Button("Add New");
-        // addBookingButton.getStyleClass().add("header-button");
-        // addBookingButton.setPrefWidth(bookingActionColumn.getPrefWidth());
-        // addBookingButton.setOnAction(event -> addBooking(event));
-        // bookingActionColumn.setGraphic(addBookingButton);
+//        Button addBookingButton = new Button("Add New");
+//        addBookingButton.getStyleClass().add("header-button");
+//        addBookingButton.setPrefWidth(bookingActionColumn.getPrefWidth());
+//        addBookingButton.setOnAction(event -> addBooking(event));
+//        bookingActionColumn.setGraphic(addBookingButton);
 
         // Check Order Status
         String orderStatus = orderStatusText.getText();
@@ -230,7 +235,8 @@ public class ForEachOrderController {
                 }
 
                 Booking booking = getTableView().getItems().get(getIndex());
-                HBox actionBox = new HBox();
+                HBox actionBox = new HBox(10); // Optional: add spacing between icons
+                actionBox.setAlignment(Pos.CENTER); // This centers the children horizontally
                 actionBox.getStyleClass().add("action-hbox");
 
                 switch (booking.getBookingStatus()) {
@@ -275,10 +281,12 @@ public class ForEachOrderController {
                     case "Finish":
                         Text finishedText = new Text("Finished");
                         finishedText.getStyleClass().add("finished-text");
+                        HBox.setHgrow(finishedText, Priority.ALWAYS); // This helps with centering
                         actionBox.getChildren().add(finishedText);
                         break;
                 }
 
+                setAlignment(Pos.CENTER); // This centers the entire cell content
                 setGraphic(actionBox);
             }
         });
@@ -319,16 +327,16 @@ public class ForEachOrderController {
             };
         });
 
-        // subTotalColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
-        // subTotalColumn.setCellFactory(column -> new TableCell<>() {
-        //     private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
-
-        //     @Override
-        //     protected void updateItem(Double item, boolean empty) {
-        //         super.updateItem(item, empty);
-        //         setText((empty || item == null) ? null : decimalFormat.format(item));
-        //     }
-        // });
+//        subTotalColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
+//        subTotalColumn.setCellFactory(column -> new TableCell<>() {
+//            private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
+//
+//            @Override
+//            protected void updateItem(Double item, boolean empty) {
+//                super.updateItem(item, empty);
+//                setText((empty || item == null) ? null : decimalFormat.format(item));
+//            }
+//        });
 
         costColumn.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
         costColumn.setCellFactory(column -> new TableCell<>() {
@@ -362,11 +370,11 @@ public class ForEachOrderController {
 
     private void initializeOrderDetailColumn() {
         // Add New button in header
-        // Button addOrderItemButton = new Button("Add New");
-        // addOrderItemButton.getStyleClass().add("header-button");
-        // addOrderItemButton.setPrefWidth(orderItemActionColumn.getPrefWidth());
-        // addOrderItemButton.setOnAction(event -> addOrderItem(event));
-        // orderItemActionColumn.setGraphic(addOrderItemButton);
+//        Button addOrderItemButton = new Button("Add New");
+//        addOrderItemButton.getStyleClass().add("header-button");
+//        addOrderItemButton.setPrefWidth(orderItemActionColumn.getPrefWidth());
+//        addOrderItemButton.setOnAction(event -> addOrderItem(event));
+//        orderItemActionColumn.setGraphic(addOrderItemButton);
 
         String orderStatus = orderStatusText.getText();
         if(orderStatus.equals("Finished") || orderStatus.equals("Paid") || orderStatus.equals("Canceled")){
@@ -385,6 +393,7 @@ public class ForEachOrderController {
 
                 OrderItem orderItem = getTableView().getItems().get(getIndex());
                 HBox actionBox = new HBox();
+                actionBox.setAlignment(Pos.CENTER); // Center horizontally
                 actionBox.getStyleClass().add("action-hbox");
 
                 FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
@@ -395,6 +404,8 @@ public class ForEachOrderController {
                 });
 
                 actionBox.getChildren().add(editIcon);
+
+                setAlignment(Pos.CENTER); // Center the entire cell content
                 setGraphic(actionBox);
             }
         });
@@ -435,20 +446,20 @@ public class ForEachOrderController {
             }
         });
 
-        // subTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
-        // subTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
-        // // Initialize OrderItem Promotion Columns
-        // subTotalOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
-        //     @Override
-        //     protected void updateItem(Double item, boolean empty) {
-        //         super.updateItem(item, empty);
-        //         if (empty || item == null) {
-        //             setText("");
-        //         } else {
-        //             setText(String.format("%,d", Math.round(item)));
-        //         }
-        //     }
-        // });
+//        subTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
+//        subTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+//        // Initialize OrderItem Promotion Columns
+//        subTotalOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
+//            @Override
+//            protected void updateItem(Double item, boolean empty) {
+//                super.updateItem(item, empty);
+//                if (empty || item == null) {
+//                    setText("");
+//                } else {
+//                    setText(String.format("%,d", Math.round(item)));
+//                }
+//            }
+//        });
 
         // Remove or comment out these lines
         // promotionOrderItem.setCellValueFactory(new PropertyValueFactory<>("promotionName"));
@@ -460,22 +471,34 @@ public class ForEachOrderController {
         bookingPoolTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         orderItemsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
+        // Staff Name
+        UserSession userSession = UserSession.getInstance();
+        if(userSession.getUserId()==0){
+            System.out.println("Error : Currently, there is no user logged in !");
+            staffNameText.setText("[ No staff logged in ! ]");
+        }
+        else{
+            boolean success = OrderDAO.updateOrderStaff(userSession.getUserId(), this.orderID);
+            if(!success){
+                NotificationService.showNotification("Error Setting Staff Name","An unexpected error happen when setting staff name. Please try again later !", NotificationStatus.Error);
+            }
+            else{
+                staffNameText.setText(userSession.getFullname());
+            }
+        }
+
         initializeBookingColumn();
         initializeOrderDetailColumn();
         loadInfo();
         loadBookings();
         loadOrderDetail();
         setupPhoneAutoCompletion();
-        checkBookingStatus();
-        checkOrderStatus();
-        loadOrderList();
 
         // Set current timestamp in dateText
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH'h'mm '|' dd:MM:yyyy");
         String currentTimestamp = LocalDateTime.now().format(formatter);
         dateText.setText(currentTimestamp);
     }
-
     private void setupPhoneAutoCompletion() {
         if (phoneAutoCompletion != null) {
             phoneAutoCompletion.dispose();
@@ -489,51 +512,14 @@ public class ForEachOrderController {
 
         phoneAutoCompletion = TextFields.bindAutoCompletion(phoneText, suggestions);
 
-        // Handle text changes in phone field
         phoneText.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.isEmpty()) {
-                // Split the text if it contains the separator
-                String[] parts = newValue.split(" - ");
-                String phone = parts[0].trim();
-
-                // Get customer by phone and update fields
+                // Tách số điện thoại từ chuỗi gợi ý (vd: "0123456789 - John" -> "0123456789")
+                String phone = newValue.split(" - ")[0];
                 Customer customer = customerDAO.getCustomerByPhone(phone);
                 if (customer != null) {
                     customerText.setText(customer.getName());
-                    phoneText.setText(customer.getPhone()); // Keep only the phone number
-                }
-            }
-        });
-
-        // Handle focus changes
-        phoneText.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) { // When focus is lost
-                String currentText = phoneText.getText();
-                if (currentText != null && !currentText.isEmpty()) {
-                    // If the text contains the separator, keep only the phone number
-                    if (currentText.contains(" - ")) {
-                        String phone = currentText.split(" - ")[0].trim();
-                        phoneText.setText(phone);
-                    }
-                }
-            }
-        });
-
-        // Preserve text when clicking on other fields
-        customerText.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) {
-                String currentPhone = phoneText.getText();
-                if (currentPhone != null && !currentPhone.isEmpty()) {
-                    phoneText.setText(currentPhone);
-                }
-            }
-        });
-
-        staffNameText.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) {
-                String currentPhone = phoneText.getText();
-                if (currentPhone != null && !currentPhone.isEmpty()) {
-                    phoneText.setText(currentPhone);
+                    phoneText.setText(customer.getPhone()); // Set lại chỉ số điện thoại
                 }
             }
         });
@@ -610,6 +596,7 @@ public class ForEachOrderController {
                 NotificationService.showNotification("Start Playing Successful",
                         "Start playing on this table successfully.", NotificationStatus.Success);
                 loadBookings(); // Tải lại danh sách booking sau khi cập nhật
+                checkOrderStatus();
 
             } else {
                 NotificationService.showNotification("Update Failed",

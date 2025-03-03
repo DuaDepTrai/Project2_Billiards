@@ -177,6 +177,8 @@ public class PrintBillController {
         StringBuilder sb = new StringBuilder();
         
         // Create bills directory if it doesn't exist
+        // This code will create a new directory in your disk with the path specified.
+        // For example, D:\BilliardsManagement\src\main\bills
         File billsDir = new File("\\BilliardsManagement\\src\\main\\bills");
         if (!billsDir.exists()) {
             billsDir.mkdirs();
@@ -235,7 +237,7 @@ public class PrintBillController {
         customerPhonePara.setAlignment(Element.ALIGN_LEFT);
         document.add(customerPhonePara);
 
-        Chunk totalPaymentValueChunk = new Chunk("Total Payment: " + bill.getTotalCost());
+        Chunk totalPaymentValueChunk = new Chunk("Total Payment: " + Math.round(bill.getTotalCost()));
         totalPaymentValueChunk.setFont(customerDetailFont);
         // Set line height to 20% of font size, and align text fully in width
         totalPaymentValueChunk.setLineHeight(1.2f);
@@ -288,7 +290,17 @@ public class PrintBillController {
             cell.setVerticalAlignment(Element.ALIGN_CENTER);
             cell.setPaddingTop(3.0f);
             cell.setPaddingBottom(3.0f);
-            cell.addElement(new Phrase(String.valueOf(billItem.getQuantity()), cellFont));
+
+            double quantity = billItem.getQuantity();
+            String roundedQuantity;
+            // SimpleStringProperty return the whole string "StringProperty [value: Booking]" what the fuck
+            if(billItem.getItemType().contains("Booking")){
+                roundedQuantity = String.format("%.1f", Math.ceil(quantity * 10) / 10.0) + "h"; // Rounds to 1 decimal place
+            }
+            else {
+                roundedQuantity = String.valueOf((int)Math.round(quantity)); // Removes decimals for OrderItem
+            }
+            cell.addElement(new Phrase(roundedQuantity, cellFont));
             table.addCell(cell);
 
             cell = new PdfPCell();
@@ -305,7 +317,7 @@ public class PrintBillController {
             cell.setVerticalAlignment(Element.ALIGN_CENTER);
             cell.setPaddingTop(3.0f);
             cell.setPaddingBottom(3.0f);
-            cell.addElement(new Phrase(String.valueOf(billItem.getUnitPrice()), cellFont));
+            cell.addElement(new Phrase(String.valueOf(Math.round(billItem.getUnitPrice())), cellFont));
             table.addCell(cell);
 
             cell = new PdfPCell();
@@ -313,7 +325,7 @@ public class PrintBillController {
             cell.setVerticalAlignment(Element.ALIGN_CENTER);
             cell.setPaddingTop(3.0f);
             cell.setPaddingBottom(3.0f);
-            cell.addElement(new Phrase(String.valueOf(billItem.getTotalPrice()), cellFont));
+            cell.addElement(new Phrase(String.valueOf(Math.round(billItem.getTotalPrice())), cellFont));
             table.addCell(cell);
         }
 

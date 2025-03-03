@@ -92,7 +92,7 @@ public class OrderController implements Initializable {
             Order newOrder = new Order();
             newOrder.setCustomerId(1); // Set customer_id mặc định là 1
             newOrder.setUserId(userSession.getUserId());
-            
+
             orderDAO.addOrder(newOrder);
             Order orderLatest = orderDAO.getLatestOrderByCustomerId(1);
 
@@ -102,14 +102,14 @@ public class OrderController implements Initializable {
             int billNo = totalRow - selectedIndex;
             System.out.println(orderId);
             loadOrderList();
-            
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Order Detail");
             stage.setScene(new Scene(root));
             stage.show();
-            
+
             ForEachOrderController controller = loader.getController();
             controller.setOrderID(orderId);
             controller.setCustomerID(1);
@@ -197,7 +197,6 @@ public class OrderController implements Initializable {
                 }
             }
         });
-
 
         totalCostColumn.setCellFactory(param -> new TableCell<Order, Double>() {
             private final DecimalFormat df = new DecimalFormat("#,###");
@@ -320,74 +319,67 @@ public class OrderController implements Initializable {
         });
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("orderDate"));
         managerColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
-        actionColumn.setCellFactory(column -> {
-            return new TableCell<Order, Void>() {
-                private final HBox container = new HBox(10); // spacing = 10
+        actionColumn.setCellFactory(column -> new TableCell<>() {
+            private final HBox container = new HBox(10); // spacing = 10
 
-                private final Button printBtn = new Button();
+            private final Button printBtn = new Button();
 
-                {
-                    // View button với icon EYE
-                    // Print button với icon PRINT
-                    FontAwesomeIconView printIcon = new FontAwesomeIconView(FontAwesomeIcon.PRINT);
-                    printIcon.setSize("16");
-                    printBtn.setGraphic(printIcon);
-                    printBtn.getStyleClass().add("action-button");
-                    // Delete button với icon TRASH
-                    // Add buttons to container
-                    container.setAlignment(Pos.CENTER);
-                    container.getChildren().addAll( printBtn);
-                    // Add button actions
-                    printBtn.setOnAction(event -> {
-                        Order selectedOrder = orderTable.getItems().get(getIndex());
-
-                        if (selectedOrder == null) {
-                            NotificationService.showNotification("Error", "Please select an order to payment.", NotificationStatus.Error);
-                            return;
-                        }
-
-                        if (!"Finished".equals(selectedOrder.getOrderStatus()) && !"Paid".equals(selectedOrder.getOrderStatus())) {
-                            NotificationService.showNotification("Access Denied", "Bills can only be accessed when the order is in Finished or Paid status.", NotificationStatus.Error);
-                            return;
-                        }
-                        int totalRow = orderTable.getItems().size();
-                        int selectedIndex = getIndex(); // Lấy chỉ số hàng
-                        int billNo = totalRow - selectedIndex;
-                        int orderId = selectedOrder.getOrderId();
-                        FXMLLoader paymentLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
-                        Parent paymentRoot = null;
-                        try {
-                            paymentRoot = paymentLoader.load();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                        PaymentController paymentController = paymentLoader.getController();
-                        paymentController.setOrderID(orderId);
-                        paymentController.setBillNo(billNo);
-                        paymentController.setBill(createBill(selectedOrder));
-                        paymentController.setBill(createBill(selectedOrder));
-
-                        Stage stage = new Stage();
-                        stage.setTitle("Payment Details");
-                        stage.setScene(new Scene(paymentRoot));
-                        stage.setOnHidden(e -> loadOrderList());
-                        stage.show();
-                    });
-
-
-                }
-
-                @Override
-                protected void updateItem(Void item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty) {
-                        setGraphic(null);
-                    } else {
-                        setGraphic(container);
+            {
+                // View button với icon EYE
+                // Print button với icon PRINT
+                FontAwesomeIconView printIcon = new FontAwesomeIconView(FontAwesomeIcon.PRINT);
+                printIcon.setSize("16");
+                printBtn.setGraphic(printIcon);
+                printBtn.getStyleClass().add("action-button");
+                // Delete button với icon TRASH
+                // Add buttons to container
+                container.setAlignment(Pos.CENTER);
+                container.getChildren().addAll(printBtn);
+                // Add button actions
+                printBtn.setOnAction(event -> {
+                    Order selectedOrder = getTableView().getItems().get(getIndex());
+                    if (selectedOrder == null) {
+                        NotificationService.showNotification("Error", "Please select an order to payment.", NotificationStatus.Error);
+                        return;
                     }
+                    if (!"Finished".equals(selectedOrder.getOrderStatus()) && !"Paid".equals(selectedOrder.getOrderStatus())) {
+                        NotificationService.showNotification("Access Denied", "Bills can only be accessed when the order is in Finished or Paid status.", NotificationStatus.Error);
+                    }
+                    int totalRow = orderTable.getItems().size();
+                    int selectedIndex = getIndex(); // Lấy chỉ số hàng
+                    int billNo = totalRow - selectedIndex;
+                    int orderId = selectedOrder.getOrderId();
+                    FXMLLoader paymentLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
+                    Parent paymentRoot = null;
+                    try {
+                        paymentRoot = paymentLoader.load();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    PaymentController paymentController = paymentLoader.getController();
+                    paymentController.setOrderID(orderId);
+                    paymentController.setBillNo(billNo);
+                    paymentController.setBill(createBill(selectedOrder));
+
+                    Stage stage = new Stage();
+                    stage.setTitle("Payment Details");
+                    stage.setScene(new Scene(paymentRoot));
+                    stage.setOnHidden(e -> loadOrderList());
+                    stage.show();
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(container);
                 }
-            };
+            }
         });
+
         orderTable.setOnMouseClicked(event -> {
             try {
                 showItem(event);

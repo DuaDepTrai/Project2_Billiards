@@ -20,12 +20,12 @@
         <TableView fx:id="bookingPoolTable" layoutX="-9.0" layoutY="35.0" prefHeight="132.0" prefWidth="1011.0">
             <columns>
                 <TableColumn fx:id="sttColumn" prefWidth="42.0" styleClass="number-aligned" text="STT" />
-                <TableColumn fx:id="tableNameColumn" prefWidth="137.5" styleClass="left-aligned" text="Table Name" />
-                <TableColumn fx:id="startTimeColumn" prefWidth="136.0" styleClass="left-aligned" text="Start Time" />
-                <TableColumn fx:id="endTimeColumn" prefWidth="187.99996948242188" styleClass="left-aligned" text="End Time" />
-                <TableColumn fx:id="timeplayColumn" prefWidth="58.39996337890625" styleClass="number-aligned" text="Timeplay" />
-                <TableColumn fx:id="priceColumn" prefWidth="112.0" styleClass="number-aligned" text="Price" />
-                <TableColumn fx:id="costColumn" prefWidth="83.20001220703125" styleClass="number-aligned" text="Total Cost" />
+                <TableColumn fx:id="tableNameColumn" prefWidth="147.0" styleClass="left-aligned" text="Table Name" />
+                <TableColumn fx:id="startTimeColumn" prefWidth="101.0" styleClass="left-aligned" text="Start Time" />
+                <TableColumn fx:id="endTimeColumn" prefWidth="101.0" styleClass="left-aligned" text="End Time" />
+                <TableColumn fx:id="timeplayColumn" prefWidth="70.0" styleClass="number-aligned" text="Timeplay" />
+                <TableColumn fx:id="priceColumn" prefWidth="143.5" styleClass="number-aligned" text="Price" />
+                <TableColumn fx:id="costColumn" prefWidth="156.5" styleClass="number-aligned" text="Total Cost" />
                 <TableColumn fx:id="statusColumn" prefWidth="127.199951171875" styleClass="left-aligned" text="Status" />
                 <TableColumn fx:id="bookingActionColumn" prefWidth="127.2000732421875" styleClass="number-aligned" text="Action" />
             </columns>
@@ -33,7 +33,8 @@
         <Button fx:id="addOrderItemButton" layoutX="832.0" layoutY="195.0" mnemonicParsing="false" onAction="#addOrderItem" prefHeight="16.0" prefWidth="168.0" styleClass="finish-button" text="Add New Order" textAlignment="CENTER" textFill="WHITE">
             <font>
                 <Font size="11.0" />
-            </font></Button>
+            </font>
+        </Button>
         <Button fx:id="addBookingButton" layoutX="833.0" layoutY="-2.0" mnemonicParsing="false" onAction="#addBooking" prefHeight="16.0" prefWidth="168.0" styleClass="finish-button" text="Add New Booking" textAlignment="CENTER" textFill="WHITE">
             <font>
                 <Font size="11.0" />
@@ -72,48 +73,56 @@
     <Label layoutX="11.0" layoutY="368.0" prefHeight="20.0" prefWidth="129.0" styleClass="section-label" text="Order Item Table">
         <font>
             <Font size="18.0" />
-        </font></Label>
+        </font>
+    </Label>
     <Label layoutX="11.0" layoutY="168.0" prefHeight="17.0" prefWidth="103.0" styleClass="section-label" text="Booking Table">
         <font>
             <Font size="18.0" />
-        </font></Label>
+        </font>
+    </Label>
     <Label layoutX="11.0" layoutY="43.0" prefHeight="20.0" prefWidth="167.0" styleClass="section-label" text="Phone Number:" />
     <Line endX="963.199951171875" endY="149.89999389648438" startX="75.19999694824219" startY="149.89999389648438" stroke="#a31d1d" />
     <Line endX="963.199951171875" endY="149.89999389648438" layoutY="200.0" startX="75.19999694824219" startY="149.89999389648438" stroke="#a31d1d" />
     <TextField fx:id="phoneText" layoutX="141.0" layoutY="41.0" prefHeight="27.0" prefWidth="167.0">
-      <font>
-         <Font name="Arial" size="15.0" />
-      </font></TextField>
+        <font>
+            <Font name="Arial" size="15.0" />
+        </font>
+    </TextField>
     <TextField fx:id="customerText" layoutX="141.0" layoutY="8.0" prefHeight="27.0" prefWidth="167.0">
-      <font>
-         <Font name="Arial" size="15.0" />
-      </font>
-   </TextField>
+        <font>
+            <Font name="Arial" size="15.0" />
+        </font>
+    </TextField>
     <Text fx:id="dateText" layoutX="629.0" layoutY="50.0" text="Order Date" wrappingWidth="208.5">
-      <font>
-         <Font name="FontAwesome" size="16.0" />
-      </font></Text>
+        <font>
+            <Font name="FontAwesome" size="16.0" />
+        </font>
+    </Text>
     <TextField fx:id="staffNameText" layoutX="141.0" layoutY="74.0" prefHeight="27.0" prefWidth="167.0">
-      <font>
-         <Font name="Arial" size="15.0" />
-      </font></TextField>
+        <font>
+            <Font name="Arial" size="15.0" />
+        </font>
+    </TextField>
     <Label layoutX="581.0" layoutY="34.0" prefHeight="21.0" prefWidth="86.0" styleClass="section-label" text="Date:" />
     <Label layoutX="11.0" layoutY="77.0" prefHeight="21.0" prefWidth="149.0" styleClass="section-label" text="Staff Name:" />
     <Label layoutX="358.0" layoutY="34.0" prefHeight="21.0" prefWidth="77.0" styleClass="section-label" text="Bill No:" />
     <Label layoutX="581.0" layoutY="7.0" prefHeight="21.0" prefWidth="86.0" styleClass="section-label" text="Total:" />
     <Text fx:id="billNoText" layoutX="435.0" layoutY="50.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Bill Number" wrappingWidth="114.0">
-      <font>
-         <Font name="FontAwesome" size="16.0" />
-      </font></Text>
+        <font>
+            <Font name="FontAwesome" size="16.0" />
+        </font>
+    </Text>
     <Text layoutX="629.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Cost">
-      <font>
-         <Font name="FontAwesome" size="16.0" />
-      </font></Text>
+        <font>
+            <Font name="FontAwesome" size="16.0" />
+        </font>
+    </Text>
     <Text fx:id="orderStatusText" layoutX="435.0" layoutY="24.0" text="Order Status" wrappingWidth="114.0">
-      <font>
-         <Font name="FontAwesome" size="16.0" />
-      </font>
-   </Text>
-   <Label layoutX="358.0" layoutY="7.0" prefHeight="21.0" prefWidth="77.0" styleClass="section-label" text="Status: " />
-
+        <font>
+            <Font name="FontAwesome" size="16.0" />
+        </font>
+    </Text>
+    <Label layoutX="358.0" layoutY="7.0" prefHeight="21.0" prefWidth="77.0" styleClass="section-label" text="Status: " />
+    <Button layoutX="75.0" layoutY="107.0" mnemonicParsing="false" onAction="#updateOrder" text="Update" />
+    <Button layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" text="Add Customer" />
 </AnchorPane>
