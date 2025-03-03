@@ -4,8 +4,11 @@ import src.billiardsmanagement.model.Order;
 import src.billiardsmanagement.model.DatabaseConnection;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OrderDAO {
 
@@ -397,7 +400,128 @@ public class OrderDAO {
 
         return staffName;
     }
+    public Map<String, Double> getTotalOrdersAndRevenue(LocalDate startDate, LocalDate endDate) throws SQLException {
+        String sql = "SELECT COUNT(*) as total_orders, SUM(total_cost) as total_revenue FROM orders WHERE order_date BETWEEN ? AND ?";
+        Map<String, Double> result = new HashMap<>();
 
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setDate(1, java.sql.Date.valueOf(startDate));
+            pstmt.setDate(2, java.sql.Date.valueOf(endDate));
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    result.put("totalOrders", rs.getDouble("total_orders"));
+                    result.put("totalRevenue", rs.getDouble("total_revenue"));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public List<Map<String, Object>> getRevenueByPeriod(String period, LocalDate startDate, LocalDate endDate) throws SQLException {
+        String sql;
+        String dateFormat;
+
+        switch (period) {
+            case "Ngày":
+                sql = "SELECT DATE(order_date) as date, SUM(total_cost) as revenue FROM orders WHERE order_date BETWEEN ? AND ? GROUP BY DATE(order_date)";
+                dateFormat = "yyyy-MM-dd";
+                break;
+            case "Tháng":
+                sql = "SELECT DATE_FORMAT(order_date, '%Y-%m') as date, SUM(total_cost) as revenue FROM orders WHERE order_date BETWEEN ? AND ? GROUP BY DATE_FORMAT(order_date, '%Y-%m')";
+                dateFormat = "yyyy-MM";
+                break;
+            case "Năm":
+                sql = "SELECT YEAR(order_date) as date, SUM(total_cost) as revenue FROM orders WHERE order_date BETWEEN ? AND ? GROUP BY YEAR(order_date)";
+                dateFormat = "yyyy";
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid period: " + period);
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setDate(1, java.sql.Date.valueOf(startDate));
+            pstmt.setDate(2, java.sql.Date.valueOf(endDate));
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("date", rs.getString("date"));
+                    row.put("revenue", rs.getDouble("revenue"));
+                    result.add(row);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public List<Map<String, Object>> getRevenueByTableGroup(LocalDate startDate, LocalDate endDate) throws SQLException {
+        String sql = "SELECT ct.name as group_name, SUM(b.net_total) as revenue " +
+                "FROM bookings b " +
+                "JOIN pooltables pt ON b.table_id = pt.table_id " +
+                "JOIN cate_pooltables ct ON pt.cate_id = ct.id " +
+                "JOIN orders o ON b.order_id = o.order_id " +
+                "WHERE o.order_date BETWEEN ? AND ? " +
+                "GROUP BY ct.id";
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setDate(1, java.sql.Date.valueOf(startDate));
+            pstmt.setDate(2, java.sql.Date.valueOf(endDate));
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("groupName", rs.getString("group_name"));
+                    row.put("revenue", rs.getDouble("revenue"));
+                    result.add(row);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public List<Map<String, Object>> getRevenueByProductCategory(LocalDate startDate, LocalDate endDate) throws SQLException {
+        String sql = "SELECT c.category_name, SUM(oi.net_total) as revenue " +
+                "FROM orders_items oi " +
+                "JOIN products p ON oi.product_id = p.product_id " +
+                "JOIN category c ON p.category_id = c.category_id " +
+                "JOIN orders o ON oi.order_id = o.order_id " +
+                "WHERE o.order_date BETWEEN ? AND ? " +
+                "GROUP BY c.category_id";
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setDate(1, java.sql.Date.valueOf(startDate));
+            pstmt.setDate(2, java.sql.Date.valueOf(endDate));
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("categoryName", rs.getString("category_name"));
+                    row.put("revenue", rs.getDouble("revenue"));
+                    result.add(row);
+                }
+            }
+        }
+
+        return result;
+    }
 
 
 }

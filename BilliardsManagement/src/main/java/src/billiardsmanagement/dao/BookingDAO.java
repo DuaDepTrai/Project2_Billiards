@@ -2,11 +2,10 @@ package src.billiardsmanagement.dao;
 
 import src.billiardsmanagement.model.Booking;
 import src.billiardsmanagement.model.DatabaseConnection;
-import src.billiardsmanagement.model.NotificationService;
+import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

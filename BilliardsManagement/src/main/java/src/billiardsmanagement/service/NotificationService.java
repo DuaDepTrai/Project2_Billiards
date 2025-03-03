@@ -1,4 +1,4 @@
-package src.billiardsmanagement.model;
+package src.billiardsmanagement.service;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
@@ -11,8 +11,8 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
-import org.controlsfx.control.NotificationPane;
 import src.billiardsmanagement.controller.NotificationController;
+import src.billiardsmanagement.model.NotificationStatus;
 
 public class NotificationService {
 
