@@ -275,6 +275,37 @@ public class ProductDAO {
         return products;
     }
 
+    public Product getProductByName(String productName) {
+        String sql = "SELECT p.product_id, p.name, c.category_name, p.quantity, p.price, p.unit " +
+                "FROM products p " +
+                "JOIN category c ON p.category_id = c.category_id " +
+                "WHERE p.name = ?";
+
+        try (Connection connection = TestDBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, productName);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                int id = resultSet.getInt("product_id");
+                String name = resultSet.getString("name");
+                String category = resultSet.getString("category_name");
+                int quantity = resultSet.getInt("quantity");
+                double price = resultSet.getDouble("price");
+                String unit = resultSet.getString("unit");
+
+                return new Product(id, name, category, quantity, price, unit);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return null; // Trả về null nếu không tìm thấy sản phẩm
+    }
+
     public static ArrayList<String> getAllProductsName() {
         try (Connection con = DatabaseConnection.getConnection()) {
             if (con == null)

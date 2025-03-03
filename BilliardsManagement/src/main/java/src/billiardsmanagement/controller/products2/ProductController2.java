@@ -18,8 +18,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import src.billiardsmanagement.controller.products.StockUpController;
-import src.billiardsmanagement.controller.products.UpdateProductController;
+import org.controlsfx.control.textfield.TextFields;
+import src.billiardsmanagement.controller.products2.StockUpController2;
+import src.billiardsmanagement.controller.products2.UpdateProductController2;
 import src.billiardsmanagement.dao.PermissionDAO;
 import src.billiardsmanagement.model.Category;
 import src.billiardsmanagement.model.Product;
@@ -38,6 +39,11 @@ public class ProductController2 {
     private GridPane gridPane;
     @FXML
     private TableView<Product> tableProducts;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private Button searchButton;
+
 
 
     private final CategoryDAO categoryDAO = new CategoryDAO();
@@ -48,6 +54,9 @@ public class ProductController2 {
     public void initialize() throws SQLException {
         List<Category> categories = categoryDAO.getAllCategories();
         FontAwesomeIconFactory icons = FontAwesomeIconFactory.get();
+
+        // Thêm tìm kiếm sản phẩm
+        setupSearchField();
 
         int categoryCount = categories.size();
 
@@ -66,6 +75,12 @@ public class ProductController2 {
     }
 
     private VBox createCategoryTable(Category category) throws SQLException {
+        if (category == null) {
+            System.out.println("Category is null at index: ");
+        } else {
+            System.out.println("Category name: " + category.getName());
+        }
+
         Label categoryLabel = new Label(category.getName()); // Tiêu đề là tên danh mục
         categoryLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 5px;");
 
@@ -146,7 +161,7 @@ public class ProductController2 {
             private final Button deleteButton = new Button();
 
             {
-                FontAwesomeIconView stockUpIcon = new FontAwesomeIconView(FontAwesomeIcon.SEARCH);
+                FontAwesomeIconView stockUpIcon = new FontAwesomeIconView(FontAwesomeIcon.ARROW_CIRCLE_UP);
                 stockUpIcon.setSize("16");
                 stockUpButton.setGraphic(stockUpIcon);
                 stockUpButton.getStyleClass().add("action-button");
@@ -273,6 +288,53 @@ public class ProductController2 {
             e.printStackTrace();
         }
     }
+
+    private void setupSearchField() throws SQLException {
+        List<Product> allProducts = productDAO.getAllProducts(); // Lấy toàn bộ sản phẩm từ DB
+        List<String> productNames = allProducts.stream()
+                .map(Product::getName)
+                .toList(); // Lấy danh sách tên sản phẩm
+
+        // AutoComplete sử dụng ControlsFX
+        TextFields.bindAutoCompletion(searchField, productNames);
+
+        searchButton.setOnAction(event -> {
+            String searchText = searchField.getText().trim();
+            if (!searchText.isEmpty()) {
+                filterByProductName(searchText);
+            } else {
+                try {
+                    initialize(); // Load lại danh mục nếu tìm kiếm rỗng
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void filterByProductName(String productName) {
+        try {
+            Product foundProduct = productDAO.getProductByName(productName); // Trả về 1 sản phẩm, không phải danh sách
+
+            if (foundProduct != null) {
+                Category productCategory = categoryDAO.getCategoryById(foundProduct.getId());
+
+                gridPane.getChildren().clear(); // Xóa danh mục cũ
+                VBox categoryBox = createCategoryTable(productCategory);
+                gridPane.add(categoryBox, 0, 0); // Hiển thị sản phẩm ở vị trí đầu tiên
+            } else {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Not Found");
+                alert.setHeaderText(null);
+                alert.setContentText("No products found with name: " + productName);
+                alert.showAndWait();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private void refreshTable() {
         try {

@@ -112,6 +112,26 @@ public class CategoryDAO {
         }
     }
 
+    public Category getCategoryById(int id) {
+        String sql = "SELECT category_id, category_name, image_path FROM category WHERE category_id = ?";
+
+        try (Connection connection = TestDBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, id);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                String name = resultSet.getString("category_name");
+                String imagePath = resultSet.getString("image_path");
+                return new Category(id, name, imagePath);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null; // Trả về null nếu không tìm thấy danh mục
+    }
+
     // Lấy đơn vị (unit) của sản phẩm từ bảng orders_items và products
     public static String getUnitByProductId(int productId) {
         String sql = "SELECT p.unit " + "FROM orders_items oi " + "JOIN products p ON oi.product_id = p.product_id " + "WHERE p.product_id = ?";
