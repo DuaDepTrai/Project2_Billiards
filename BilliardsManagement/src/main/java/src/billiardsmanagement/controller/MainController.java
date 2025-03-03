@@ -10,6 +10,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.products.ProductController;
+import src.billiardsmanagement.controller.products2.ProductController2;
 import src.billiardsmanagement.controller.users.RolesPermissionsController;
 import src.billiardsmanagement.controller.users.UserController;
 import src.billiardsmanagement.dao.UserDAO;
@@ -137,10 +138,13 @@ public class MainController {
 
     @FXML
     private void showProductsPage() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/products.fxml"));
-        AnchorPane productPage = loader.load();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products2/products2.fxml"));
+        BorderPane productPage = loader.load();
 
-        ProductController productController = loader.getController();
+//        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/products.fxml"));
+//        AnchorPane productPage = loader.load();
+
+        ProductController2 productController = loader.getController();
         productController.setCurrentUser(loggedInUser);
         System.out.println("🔹 Truyền user vào ProductController: " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
 

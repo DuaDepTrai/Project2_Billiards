@@ -61,7 +61,7 @@ public class ProductController {
 
         columnAction.setCellFactory(createActionCellFactory());
 
-        loadProducts();
+//        loadProducts();
 
         btnAddNewProduct.setOnAction(event -> handleAddNewProduct());
     }
@@ -79,26 +79,26 @@ public class ProductController {
         }
     }
 
-    private void loadProducts() {
-        try {
-            productList.clear();
-            List<Product> products = productDAO.getAllProducts();
-            System.out.println("Debug: Số sản phẩm lấy từ DB = " + products.size());
-
-            if (products.isEmpty()) {
-                System.out.println("⚠ Cảnh báo: Không có sản phẩm nào trong DB!");
-            } else {
-                for (Product p : products) {
-                    System.out.println("✅ Sản phẩm: " + p.getName());
-                }
-            }
-
-            productList.addAll(products);
-            tableProducts.setItems(productList);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+//    private void loadProducts() {
+//        try {
+//            productList.clear();
+//            List<Product> products = productDAO.getAllProducts();
+//            System.out.println("Debug: Số sản phẩm lấy từ DB = " + products.size());
+//
+//            if (products.isEmpty()) {
+//                System.out.println("⚠ Cảnh báo: Không có sản phẩm nào trong DB!");
+//            } else {
+//                for (Product p : products) {
+//                    System.out.println("✅ Sản phẩm: " + p.getName());
+//                }
+//            }
+//
+//            productList.addAll(products);
+//            tableProducts.setItems(productList);
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private Callback<TableColumn<Product, Void>, TableCell<Product, Void>> createActionCellFactory() {
         return column -> new TableCell<>() {
@@ -108,7 +108,7 @@ public class ProductController {
             private final Button deleteButton = new Button();
 
             {
-                FontAwesomeIconView stockUpIcon = new FontAwesomeIconView(FontAwesomeIcon.UPLOAD);
+                FontAwesomeIconView stockUpIcon = new FontAwesomeIconView(FontAwesomeIcon.ARROW_CIRCLE_ALT_DOWN);
                 stockUpIcon.setSize("16");
                 stockUpButton.setGraphic(stockUpIcon);
                 stockUpButton.getStyleClass().add("action-button");
@@ -163,15 +163,15 @@ public class ProductController {
             stage.setTitle("Add New Product");
             stage.setScene(new Scene(root));
             stage.show();
-            stage.setOnHidden(event -> refreshTable());
+//            stage.setOnHidden(event -> refreshTable());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void refreshTable() {
-        loadProducts();
-    }
+//    private void refreshTable() {
+//        loadProducts();
+//    }
 
     private void handleStockUp(Product product) {
         try {
@@ -187,7 +187,7 @@ public class ProductController {
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
-            stage.setOnHidden(event -> refreshTable());
+//            stage.setOnHidden(event -> refreshTable());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -256,7 +256,7 @@ public class ProductController {
             stage.setTitle("Update Product");
             stage.setScene(new Scene(root));
             stage.show();
-            stage.setOnHidden(event -> refreshTable());
+//            stage.setOnHidden(event -> refreshTable());
         } catch (Exception e) {
             e.printStackTrace();
         }

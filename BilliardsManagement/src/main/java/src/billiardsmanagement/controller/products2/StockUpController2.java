@@ -1,15 +1,17 @@
-package src.billiardsmanagement.controller.products;
+package src.billiardsmanagement.controller.products2;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import src.billiardsmanagement.model.Product;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import src.billiardsmanagement.dao.ProductDAO;
+import src.billiardsmanagement.model.Product;
 
 import java.sql.SQLException;
 
-public class StockUpController {
+public class StockUpController2 {
 //    @FXML
 //    private ComboBox<Product> comboProduct;
     @FXML

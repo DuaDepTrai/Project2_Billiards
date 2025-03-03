@@ -1,18 +1,18 @@
-package src.billiardsmanagement.controller.products;
+package src.billiardsmanagement.controller.products2;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import src.billiardsmanagement.model.Product;
 import src.billiardsmanagement.dao.ProductDAO;
+import src.billiardsmanagement.model.Product;
 import src.billiardsmanagement.model.TestDBConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class UpdateProductController {
+public class UpdateProductController2 {
     @FXML private TextField txtName;
     @FXML private ComboBox<String> comboCategory;
     @FXML private TextField txtPrice;
@@ -41,7 +41,7 @@ public class UpdateProductController {
     public void setProductData(Product product) {
         this.productId = product.getId();  // Lưu product_id vào biến
         txtName.setText(product.getName());
-//        comboCategory.setValue(product.getCategory());
+        comboCategory.setValue(product.getCategory()); // Đặt giá trị của ComboBox
         txtPrice.setText(String.valueOf(product.getPrice()));
         txtUnit.setText(product.getUnit());
         txtQuantity.setText(String.valueOf(product.getQuantity()));
