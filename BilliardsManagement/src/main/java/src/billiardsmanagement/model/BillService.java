@@ -16,6 +16,7 @@ public class BillService {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderId);
         for (Booking booking : bookings) {
             billItems.add(new BillItem(
+                    "Booking",
                     booking.getTableName(), // Tên bàn
                     "Hour", // Đơn vị tính là giờ
                     booking.getTimeplay(), // Số giờ chơi
@@ -31,6 +32,7 @@ public class BillService {
             String unit = ProductDAO.getProductUnitById(item.getProductId()); // Cần thêm phương thức này trong ProductDAO
 
             billItems.add(new BillItem(
+                    "OrderItem",
                     item.getProductName(), // Tên sản phẩm
                     unit, // Đơn vị tính lấy từ product
                     item.getQuantity(), // Số lượng

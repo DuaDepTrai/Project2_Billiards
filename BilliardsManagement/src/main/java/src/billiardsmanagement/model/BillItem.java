@@ -4,6 +4,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 public class BillItem {
+    private SimpleStringProperty itemType;
     private SimpleStringProperty itemName;
     private SimpleStringProperty unit; // Đơn vị tính
     private SimpleDoubleProperty quantity;
@@ -11,6 +12,15 @@ public class BillItem {
     private SimpleDoubleProperty totalPrice;
 
     public BillItem(String itemName, String unit, double quantity, double unitPrice, double totalPrice) {
+        this.itemName = new SimpleStringProperty(itemName);
+        this.unit = new SimpleStringProperty(unit);
+        this.quantity = new SimpleDoubleProperty(quantity);
+        this.unitPrice = new SimpleDoubleProperty(unitPrice);
+        this.totalPrice = new SimpleDoubleProperty(totalPrice);
+    }
+
+    public BillItem(String itemType, String itemName, String unit, double quantity, double unitPrice, double totalPrice) {
+        this.itemType = new SimpleStringProperty(itemType);
         this.itemName = new SimpleStringProperty(itemName);
         this.unit = new SimpleStringProperty(unit);
         this.quantity = new SimpleDoubleProperty(quantity);
@@ -36,5 +46,13 @@ public class BillItem {
 
     public double getTotalPrice() {
         return totalPrice.get();
+    }
+
+    public void setItemType(String itemType){
+        this.itemType = new SimpleStringProperty(itemType);
+    }
+
+    public String getItemType(){
+        return String.valueOf(itemType);
     }
 }

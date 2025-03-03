@@ -1,4 +1,6 @@
 package src.billiardsmanagement.controller.orders;
+
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -51,13 +53,13 @@ public class PaymentController {
     @FXML
     public void printBill() {
         try {
-                PrintBillController.printBill(BillService.getBillItems(orderID), bill);
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setHeaderText("");
-                alert.setContentText("The bill has been successfully printed.");
-                alert.showAndWait();
-                PrintBillController.cutPdfBill();
-                PrintBillController.showPdfBillToScreen();
+            PrintBillController.printBill(BillService.getBillItems(orderID), bill);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setHeaderText("");
+            alert.setContentText("The bill has been successfully printed.");
+            alert.showAndWait();
+            PrintBillController.cutPdfBill();
+            PrintBillController.showPdfBillToScreen();
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -84,15 +86,33 @@ public class PaymentController {
     public void initializeBillTable() {
         productNameColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getItemName()));
-        quantityColumn.setCellValueFactory(cellData ->
-                new SimpleObjectProperty<>(cellData.getValue().getQuantity()));
+
+        quantityColumn.setCellValueFactory(cellData -> {
+            BillItem billItem = cellData.getValue();
+            double quantity = billItem.getQuantity();
+            double formattedQuantity;
+
+            // return : Bill Item Type : StringProperty [value: Booking] ( what the fuck ? )
+            if (billItem.getItemType().contains("Booking")) {
+                formattedQuantity = Math.ceil(quantity * 10) / 10.0; // Round up to 1 decimal place
+                System.out.println("Booking Formatted Quantity = "+formattedQuantity);
+            } else {
+                formattedQuantity = Math.round(quantity); // Round to nearest integer
+                System.out.println("OrderItem rounded quantity = "+formattedQuantity);
+            }
+
+            return new SimpleObjectProperty<>(formattedQuantity); // Wrap in SimpleObjectProperty<Double>
+        });
+
         unitPriceColumn.setCellValueFactory(cellData ->
                 new SimpleObjectProperty<>(cellData.getValue().getUnitPrice()));
+
         totalCostColumn.setCellValueFactory(cellData ->
                 new SimpleObjectProperty<>(cellData.getValue().getTotalPrice()));
-        unitColumn.setCellValueFactory(new PropertyValueFactory<>("unit"));
-        billTable.setItems(BillService.getBillItems(this.orderID));
 
+        unitColumn.setCellValueFactory(new PropertyValueFactory<>("unit"));
+
+        billTable.setItems(BillService.getBillItems(this.orderID));
         billNoLabel.setText(String.valueOf(billNo));
     }
 
@@ -134,7 +154,7 @@ public class PaymentController {
         alert.showAndWait();
     }
 
-    public void setBillNo(int billNo){
+    public void setBillNo(int billNo) {
         this.billNo = billNo;
     }
 }

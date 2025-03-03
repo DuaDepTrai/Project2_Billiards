@@ -362,4 +362,42 @@ public class OrderDAO {
         return order;
     }
 
+    public static boolean updateOrderStaff(int userId, int orderId) {
+        String query = "UPDATE orders SET user_id = ? WHERE order_id = ?"; // Assuming you have staff_id and staff_name columns
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, userId);
+            stmt.setInt(2, orderId); // You need to provide the orderId to update the specific order
+
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0; // Return true if the update was successful
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // Return false if there was an error
+        }
+    }
+
+    public static String getStaffNameByOrderId(int orderId) {
+        String staffName = null;
+        String query = "SELECT u.fullname FROM users u JOIN orders o ON u.user_id = o.user_id WHERE o.order_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, orderId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                staffName = rs.getString("fullname");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return staffName;
+    }
+
+
+
 }
