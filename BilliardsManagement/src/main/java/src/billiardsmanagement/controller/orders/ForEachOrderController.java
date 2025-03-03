@@ -472,21 +472,14 @@ public class ForEachOrderController {
         orderItemsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // Staff Name
-        UserSession userSession = UserSession.getInstance();
-        if(userSession.getUserId()==0){
+        String staffName = OrderDAO.getStaffNameByOrderId(orderID);
+
+        if(staffName.equals("")){
             System.out.println("Error : Currently, there is no user logged in !");
             staffNameText.setText("[ No staff logged in ! ]");
+        }else{
+            staffNameText.setText(staffName);
         }
-        else{
-            boolean success = OrderDAO.updateOrderStaff(userSession.getUserId(), this.orderID);
-            if(!success){
-                NotificationService.showNotification("Error Setting Staff Name","An unexpected error happen when setting staff name. Please try again later !", NotificationStatus.Error);
-            }
-            else{
-                staffNameText.setText(userSession.getFullname());
-            }
-        }
-
         initializeBookingColumn();
         initializeOrderDetailColumn();
         loadInfo();

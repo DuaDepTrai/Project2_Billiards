@@ -378,4 +378,26 @@ public class OrderDAO {
         }
     }
 
+    public static String getStaffNameByOrderId(int orderId) {
+        String staffName = null;
+        String query = "SELECT u.fullname FROM users u JOIN orders o ON u.user_id = o.user_id WHERE o.order_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, orderId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                staffName = rs.getString("fullname");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return staffName;
+    }
+
+
+
 }
