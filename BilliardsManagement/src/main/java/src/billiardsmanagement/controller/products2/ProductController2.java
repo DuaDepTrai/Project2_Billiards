@@ -2,6 +2,7 @@ package src.billiardsmanagement.controller.products2;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,9 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.products.StockUpController;
@@ -48,6 +47,8 @@ public class ProductController2 {
     @FXML
     public void initialize() throws SQLException {
         List<Category> categories = categoryDAO.getAllCategories();
+        FontAwesomeIconFactory icons = FontAwesomeIconFactory.get();
+
         int categoryCount = categories.size();
 
         gridPane.getChildren().clear(); // Xóa bảng cũ trước khi load mới
@@ -70,7 +71,7 @@ public class ProductController2 {
 
         // Tạo nút Add Product với icon
         FontAwesomeIconView addIcon = new FontAwesomeIconView(FontAwesomeIcon.PLUS_CIRCLE);
-        addIcon.setStyle("-fx-fill: green; -fx-font-size: 18px;");
+        addIcon.setGlyphSize(18);
 
         Button addButton = new Button();
         addButton.setGraphic(addIcon);
@@ -84,9 +85,12 @@ public class ProductController2 {
         });
 
         // Đặt tiêu đề + nút vào HBox
-        HBox headerBox = new HBox(categoryLabel, addButton);
+        HBox headerBox = new HBox();
         headerBox.setSpacing(10);
         headerBox.setAlignment(Pos.CENTER_LEFT);
+        headerBox.getChildren().addAll(categoryLabel, new Region(), addButton);
+        HBox.setHgrow(headerBox.getChildren().get(1), Priority.ALWAYS); // Đẩy nút về phải
+
 
         TableView<Product> tableView = new TableView<>();
         tableView.setPrefSize(500, 350); // Đặt kích thước mỗi bảng
@@ -109,6 +113,9 @@ public class ProductController2 {
         priceColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getPrice()).asObject());
         unitColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUnit()));
 
+        quantityColumn.setSortType(TableColumn.SortType.DESCENDING);
+        tableView.getSortOrder().add(quantityColumn);
+
         actionColumn.setCellFactory(col -> createActionCellFactory(product -> {
             tableView.getItems().remove(product); // Xóa khỏi UI sau khi delete
         }));
@@ -120,6 +127,8 @@ public class ProductController2 {
 
         List<Product> products = productDAO.getProductsByCategory(category.getId());
         tableView.getItems().addAll(products);
+
+        tableView.sort(); // Kích hoạt sắp xếp ngay khi load dữ liệu
 
         VBox categoryBox = new VBox();
         categoryBox.getChildren().addAll(headerBox, tableView);
@@ -137,7 +146,7 @@ public class ProductController2 {
             private final Button deleteButton = new Button();
 
             {
-                FontAwesomeIconView stockUpIcon = new FontAwesomeIconView(FontAwesomeIcon.ARROW_CIRCLE_ALT_UP);
+                FontAwesomeIconView stockUpIcon = new FontAwesomeIconView(FontAwesomeIcon.SEARCH);
                 stockUpIcon.setSize("16");
                 stockUpButton.setGraphic(stockUpIcon);
                 stockUpButton.getStyleClass().add("action-button");
@@ -188,6 +197,10 @@ public class ProductController2 {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products2/addProduct2.fxml"));
             Parent root = loader.load();
+
+            AddProductController2 controller = loader.getController();
+            controller.setCategoryName(category.getName()); // Hiển thị category cố định
+
             Stage stage = new Stage();
             stage.setTitle("Add New Product");
             stage.setScene(new Scene(root));

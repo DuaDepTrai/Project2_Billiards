@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.ProductDAO;
@@ -17,7 +18,7 @@ public class AddProductController2 {
     @FXML
     private TextField txtName;
     @FXML
-    private ComboBox<String> comboCategory;
+    private Label lblCategory;
     @FXML
     private TextField txtPrice;
     @FXML
@@ -29,27 +30,31 @@ public class AddProductController2 {
     private ProductDAO productDAO = new ProductDAO();
 
     public void initialize() {
-        loadCategories();
+
     }
 
-    private void loadCategories() {
-        try (Connection connection = TestDBConnection.getConnection()) {
-            String sql = "SELECT category_name FROM category";
-            ResultSet resultSet = connection.createStatement().executeQuery(sql);
 
-            while (resultSet.next()) {
-                categoryList.add(resultSet.getString("category_name"));
-            }
-            comboCategory.setItems(categoryList);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//    private void loadCategories() {
+//        try (Connection connection = TestDBConnection.getConnection()) {
+//            String sql = "SELECT category_name FROM category";
+//            ResultSet resultSet = connection.createStatement().executeQuery(sql);
+//
+//            while (resultSet.next()) {
+//                categoryList.add(resultSet.getString("category_name"));
+//            }
+//            comboCategory.setItems(categoryList);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    public void setCategoryName(String categoryName) {
+        lblCategory.setText(categoryName);
     }
-
     @FXML
     private void handleAdd() {
         String name = txtName.getText();
-        String category = comboCategory.getValue();
+        String category = lblCategory.getText();
         String price = txtPrice.getText();
         String unit = txtUnit.getText();
         String quantity = txtQuantity.getText();
