@@ -41,7 +41,7 @@ public class UpdateProductController {
     public void setProductData(Product product) {
         this.productId = product.getId();  // Lưu product_id vào biến
         txtName.setText(product.getName());
-        comboCategory.setValue(product.getCategory());
+//        comboCategory.setValue(product.getCategory());
         txtPrice.setText(String.valueOf(product.getPrice()));
         txtUnit.setText(product.getUnit());
         txtQuantity.setText(String.valueOf(product.getQuantity()));

@@ -24,13 +24,13 @@ public class StockUpController {
 
     @FXML
     public void initialize() throws SQLException {
-        loadProducts();
+//        loadProducts();
     }
 
-    private void loadProducts() throws SQLException {
-        productList.addAll(productDAO.getAllProducts());
+//    private void loadProducts() throws SQLException {
+//        productList.addAll(productDAO.getAllProducts());
 //        comboProduct.setItems(productList);
-    }
+//    }
 
 
     // Hàm mới để đặt sản phẩm được chọn từ `ProductController`

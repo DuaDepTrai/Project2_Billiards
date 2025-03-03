@@ -16,7 +16,7 @@ public class Product extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/src/billiardsmanagement/products/products.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/src/billiardsmanagement/products2/products2.fxml"));
     //        primaryStage.initStyle(StageStyle.UNDECORATED);
 
         root.setOnMousePressed((event->{
