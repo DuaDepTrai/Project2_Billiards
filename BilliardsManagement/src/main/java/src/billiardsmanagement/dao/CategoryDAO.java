@@ -21,6 +21,7 @@ public class CategoryDAO {
         List<Category> categories = new ArrayList<>();
         String sql = "SELECT category_id, category_name, image_path FROM category";
 
+
         try (Connection connection = TestDBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql); ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -113,6 +114,9 @@ public class CategoryDAO {
     }
 
     public Category getCategoryById(int id) {
+        String query = "SELECT * FROM categories WHERE id = ?";
+        System.out.println("DEBUG: Query lấy danh mục: " + query + " với ID: " + id);
+
         String sql = "SELECT category_id, category_name, image_path FROM category WHERE category_id = ?";
 
         try (Connection connection = TestDBConnection.getConnection();
@@ -122,9 +126,15 @@ public class CategoryDAO {
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
+                int categoryId = resultSet.getInt("category_id");
                 String name = resultSet.getString("category_name");
                 String imagePath = resultSet.getString("image_path");
+                System.out.println("Danh mục từ DB -> ID: " + categoryId + ", Name: " + name);
+
                 return new Category(id, name, imagePath);
+            }else {
+                System.out.println("Không tìm thấy danh mục với ID: " + id);
+                return null;
             }
         } catch (Exception e) {
             e.printStackTrace();

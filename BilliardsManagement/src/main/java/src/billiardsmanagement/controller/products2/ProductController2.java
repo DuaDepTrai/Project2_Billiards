@@ -75,78 +75,73 @@ public class ProductController2 {
     }
 
     private VBox createCategoryTable(Category category) throws SQLException {
+        System.out.println("----- DEBUG: createCategoryTable() -----");
+
         if (category == null) {
-            System.out.println("Category is null at index: ");
+            System.out.println("Category is NULL! Không thể tạo bảng.");
+            return new VBox(); // Trả về VBox rỗng để tránh lỗi
         } else {
             System.out.println("Category name: " + category.getName());
         }
 
-        Label categoryLabel = new Label(category.getName()); // Tiêu đề là tên danh mục
+        // Tiêu đề danh mục
+        Label categoryLabel = new Label(category.getName());
         categoryLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 5px;");
 
-        // Tạo nút Add Product với icon
+        // Nút Add Product
         FontAwesomeIconView addIcon = new FontAwesomeIconView(FontAwesomeIcon.PLUS_CIRCLE);
         addIcon.setGlyphSize(18);
 
         Button addButton = new Button();
         addButton.setGraphic(addIcon);
         addButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
+        addButton.setOnAction(event -> handleAddNewProduct(category));
 
-        // Thêm sự kiện cho nút Add Product
-        addButton.setOnAction(event -> {
-            System.out.println("Thêm sản phẩm vào danh mục: " + category.getName());
-            // Gọi method mở form thêm sản phẩm
-            handleAddNewProduct(category);
-        });
-
-        // Đặt tiêu đề + nút vào HBox
-        HBox headerBox = new HBox();
+        // Header chứa tiêu đề + nút Add
+        HBox headerBox = new HBox(categoryLabel, addButton);
         headerBox.setSpacing(10);
         headerBox.setAlignment(Pos.CENTER_LEFT);
-        headerBox.getChildren().addAll(categoryLabel, new Region(), addButton);
-        HBox.setHgrow(headerBox.getChildren().get(1), Priority.ALWAYS); // Đẩy nút về phải
+        HBox.setHgrow(addButton, Priority.ALWAYS); // Đẩy nút về phải
 
-
+        // Tạo TableView
         TableView<Product> tableView = new TableView<>();
-        tableView.setPrefSize(500, 350); // Đặt kích thước mỗi bảng
+        tableView.setPrefSize(500, 350);
 
+        // Định nghĩa các cột
         TableColumn<Product, String> nameColumn = new TableColumn<>("Product Name");
         TableColumn<Product, Integer> quantityColumn = new TableColumn<>("Quantity");
         TableColumn<Product, Double> priceColumn = new TableColumn<>("Price");
         TableColumn<Product, String> unitColumn = new TableColumn<>("Unit");
         TableColumn<Product, Void> actionColumn = new TableColumn<>("Action");
 
-        // Kéo dãn tối đa chiều rộng cột
-        nameColumn.setPrefWidth(100);
-        quantityColumn.setPrefWidth(100);
-        priceColumn.setPrefWidth(100);
-        unitColumn.setPrefWidth(100);
-        actionColumn.setPrefWidth(150);
-
+        // Gán giá trị cho cột
         nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
         quantityColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getQuantity()).asObject());
         priceColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getPrice()).asObject());
         unitColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUnit()));
 
+        // Sắp xếp theo số lượng giảm dần
         quantityColumn.setSortType(TableColumn.SortType.DESCENDING);
         tableView.getSortOrder().add(quantityColumn);
 
-        actionColumn.setCellFactory(col -> createActionCellFactory(product -> {
-            tableView.getItems().remove(product); // Xóa khỏi UI sau khi delete
-        }));
+        // Cột hành động (Xóa sản phẩm)
+        actionColumn.setCellFactory(col -> createActionCellFactory(product -> tableView.getItems().remove(product)));
 
+        // Gộp các cột vào bảng
         tableView.getColumns().addAll(nameColumn, quantityColumn, priceColumn, unitColumn, actionColumn);
-
-        // Kéo dãn cột theo bảng
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
+        // Hiển thị thông báo nếu danh mục không có sản phẩm
+        tableView.setPlaceholder(new Label("No products available in this category."));
+
+        // Load dữ liệu từ database
         List<Product> products = productDAO.getProductsByCategory(category.getId());
+        System.out.println("Lấy sản phẩm cho danh mục: " + category.getName() + " (ID: " + category.getId() + ")");
         tableView.getItems().addAll(products);
+        tableView.sort();
 
-        tableView.sort(); // Kích hoạt sắp xếp ngay khi load dữ liệu
-
-        VBox categoryBox = new VBox();
-        categoryBox.getChildren().addAll(headerBox, tableView);
+        // Tạo VBox chứa bảng
+        VBox categoryBox = new VBox(headerBox, tableView);
         categoryBox.setSpacing(5);
         categoryBox.setStyle("-fx-border-color: #ccc; -fx-padding: 10px;");
 
@@ -316,8 +311,22 @@ public class ProductController2 {
         try {
             Product foundProduct = productDAO.getProductByName(productName); // Trả về 1 sản phẩm, không phải danh sách
 
+            System.out.println("DEBUG: Tìm sản phẩm với tên: " + productName);
+            if (foundProduct == null) {
+                System.out.println("Không tìm thấy sản phẩm.");
+            } else {
+                System.out.println("Tìm thấy sản phẩm -> ID: " + foundProduct.getId() + ", Name: " + foundProduct.getName());
+            }
+
+
             if (foundProduct != null) {
-                Category productCategory = categoryDAO.getCategoryById(foundProduct.getId());
+                Category productCategory = categoryDAO.getCategoryById(foundProduct.getCategoryId());
+
+                if (productCategory == null) {
+                    System.out.println("LỖI: Không tìm thấy danh mục với ID: " + foundProduct.getCategoryId());
+                } else {
+                    System.out.println("Danh mục tìm thấy: " + productCategory.getName());
+                }
 
                 gridPane.getChildren().clear(); // Xóa danh mục cũ
                 VBox categoryBox = createCategoryTable(productCategory);

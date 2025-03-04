@@ -50,7 +50,7 @@ public class ProductDAO {
     // Phương thức để lấy tất cả sản phẩm
     public List<Product> getAllProducts() {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT p.product_id, p.name, c.category_name, p.quantity, p.price, p.unit " +
+        String sql = "SELECT p.product_id, p.name, c.category_id, c.category_name, p.quantity, p.price, p.unit " +
                 "FROM products p " +
                 "JOIN category c ON p.category_id = c.category_id"; // ✅ Lấy category_name
 
@@ -61,12 +61,13 @@ public class ProductDAO {
             while (resultSet.next()) {
                 int id = resultSet.getInt("product_id");
                 String name = resultSet.getString("name");
+                int categoryId = resultSet.getInt("category_id");
                 String category = resultSet.getString("category_name"); // ✅ Lấy category_name
                 int quantity = resultSet.getInt("quantity");
                 double price = resultSet.getDouble("price");
                 String unit = resultSet.getString("unit");
 
-                products.add(new Product(id, name, category, quantity, price, unit)); // ✅ Truyền category vào constructor
+                products.add(new Product(id, name, categoryId, category, quantity, price, unit)); // ✅ Truyền category vào constructor
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -267,7 +268,7 @@ public class ProductDAO {
                 double price = resultSet.getDouble("price");
                 String unit = resultSet.getString("unit");
 
-                products.add(new Product(id, name, category, quantity, price, unit));
+                products.add(new Product(id, name, categoryId, category, quantity, price, unit));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -276,7 +277,7 @@ public class ProductDAO {
     }
 
     public Product getProductByName(String productName) {
-        String sql = "SELECT p.product_id, p.name, c.category_name, p.quantity, p.price, p.unit " +
+        String sql = "SELECT p.product_id, p.name, c.category_id, c.category_name, p.quantity, p.price, p.unit " +
                 "FROM products p " +
                 "JOIN category c ON p.category_id = c.category_id " +
                 "WHERE p.name = ?";
@@ -290,12 +291,13 @@ public class ProductDAO {
             if (resultSet.next()) {
                 int id = resultSet.getInt("product_id");
                 String name = resultSet.getString("name");
+                int categoryId = resultSet.getInt("category_id"); // ✅ Lấy category_id
                 String category = resultSet.getString("category_name");
                 int quantity = resultSet.getInt("quantity");
                 double price = resultSet.getDouble("price");
                 String unit = resultSet.getString("unit");
 
-                return new Product(id, name, category, quantity, price, unit);
+                return new Product(id, name, categoryId, category, quantity, price, unit);
             }
         } catch (SQLException e) {
             e.printStackTrace();
