@@ -32,11 +32,11 @@
 
             <!-- Navigation Menu -->
             <VBox styleClass="nav-menu" spacing="5">
-                <Button styleClass="nav-item" onAction="#showHomePage" text="Home">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="HOME" size="16"/>
-                    </graphic>
-                </Button>
+<!--                <Button styleClass="nav-item" onAction="#showHomePage" text="Home">-->
+<!--                    <graphic>-->
+<!--                        <FontAwesomeIconView glyphName="HOME" size="16"/>-->
+<!--                    </graphic>-->
+<!--                </Button>-->
 
                 <Button styleClass="nav-item" onAction="#showPoolTablePage" text="Pool Table">
                     <graphic>

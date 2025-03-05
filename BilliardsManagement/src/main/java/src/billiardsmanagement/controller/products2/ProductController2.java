@@ -309,40 +309,81 @@ public class ProductController2 {
 
     private void filterByProductName(String productName) {
         try {
-            Product foundProduct = productDAO.getProductByName(productName); // Trả về 1 sản phẩm, không phải danh sách
-
-            System.out.println("DEBUG: Tìm sản phẩm với tên: " + productName);
-            if (foundProduct == null) {
-                System.out.println("Không tìm thấy sản phẩm.");
-            } else {
-                System.out.println("Tìm thấy sản phẩm -> ID: " + foundProduct.getId() + ", Name: " + foundProduct.getName());
-            }
-
+            // Tìm sản phẩm theo tên
+            Product foundProduct = productDAO.getProductByName(productName);
 
             if (foundProduct != null) {
+                // Lấy danh mục của sản phẩm
                 Category productCategory = categoryDAO.getCategoryById(foundProduct.getCategoryId());
 
-                if (productCategory == null) {
-                    System.out.println("LỖI: Không tìm thấy danh mục với ID: " + foundProduct.getCategoryId());
-                } else {
-                    System.out.println("Danh mục tìm thấy: " + productCategory.getName());
-                }
+                if (productCategory != null) {
+                    // Xóa tất cả danh mục hiện có trong gridPane
+                    gridPane.getChildren().clear();
 
-                gridPane.getChildren().clear(); // Xóa danh mục cũ
-                VBox categoryBox = createCategoryTable(productCategory);
-                gridPane.add(categoryBox, 0, 0); // Hiển thị sản phẩm ở vị trí đầu tiên
+                    // Tạo VBox chứa danh mục với TableView chỉ chứa sản phẩm được tìm thấy
+                    VBox categoryBox = createCategoryTable(productCategory);
+                    for (javafx.scene.Node child : categoryBox.getChildren()) {
+                        if (child instanceof TableView<?> tableView) {
+                            TableView<Product> productTableView = (TableView<Product>) tableView;
+
+                            // Xóa danh sách sản phẩm cũ và chỉ hiển thị sản phẩm được tìm thấy
+                            productTableView.getItems().clear();
+                            productTableView.getItems().add(foundProduct);
+                        }
+                    }
+
+                    // Thêm danh mục vào gridPane
+                    gridPane.add(categoryBox, 0, 0);
+                }
             } else {
+                // Hiển thị thông báo nếu không tìm thấy sản phẩm
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Not Found");
                 alert.setHeaderText(null);
                 alert.setContentText("No products found with name: " + productName);
                 alert.showAndWait();
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
+//    private void filterByProductName(String productName) {
+//        try {
+//            Product foundProduct = productDAO.getProductByName(productName); // Trả về 1 sản phẩm, không phải danh sách
+//
+//            System.out.println("DEBUG: Tìm sản phẩm với tên: " + productName);
+//            if (foundProduct == null) {
+//                System.out.println("Không tìm thấy sản phẩm.");
+//            } else {
+//                System.out.println("Tìm thấy sản phẩm -> ID: " + foundProduct.getId() + ", Name: " + foundProduct.getName());
+//            }
+//
+//
+//            if (foundProduct != null) {
+//                Category productCategory = categoryDAO.getCategoryById(foundProduct.getCategoryId());
+//
+//                if (productCategory == null) {
+//                    System.out.println("LỖI: Không tìm thấy danh mục với ID: " + foundProduct.getCategoryId());
+//                } else {
+//                    System.out.println("Danh mục tìm thấy: " + productCategory.getName());
+//                }
+//
+//                gridPane.getChildren().clear(); // Xóa danh mục cũ
+//                VBox categoryBox = createCategoryTable(productCategory);
+//                gridPane.add(categoryBox, 0, 0); // Hiển thị sản phẩm ở vị trí đầu tiên
+//            } else {
+//                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                alert.setTitle("Not Found");
+//                alert.setHeaderText(null);
+//                alert.setContentText("No products found with name: " + productName);
+//                alert.showAndWait();
+//            }
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
     private void refreshTable() {

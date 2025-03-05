@@ -130,19 +130,16 @@ public class MainController {
     private StackPane contentArea;
 
     @FXML
-    private void showOrdersPage() throws IOException {
+    public void showOrdersPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/order.fxml"));
         BorderPane orderPage = loader.load();  // Tải FXML thành AnchorPane
         contentArea.getChildren().setAll(orderPage);
     }
 
     @FXML
-    private void showProductsPage() throws IOException {
+    public void showProductsPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products2/products2.fxml"));
         BorderPane productPage = loader.load();
-
-//        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/products.fxml"));
-//        AnchorPane productPage = loader.load();
 
         ProductController2 productController = loader.getController();
         productController.setCurrentUser(loggedInUser);

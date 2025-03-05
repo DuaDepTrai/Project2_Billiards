@@ -10,6 +10,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.MainController;
+import src.billiardsmanagement.controller.products.ProductController;
+import src.billiardsmanagement.controller.products2.ProductController2;
 import src.billiardsmanagement.dao.PermissionDAO;
 import src.billiardsmanagement.dao.UserDAO;
 import src.billiardsmanagement.model.Permission;
@@ -97,10 +99,12 @@ public class LoginController {
             // Lấy MainController từ FXMLLoader
             MainController mainController = loader.getController();
             mainController.setLoggedInUser(user); // Cập nhật username
+            mainController.showProductsPage();
 
             Stage mainStage = new Stage();
             mainStage.setScene(scene);
             mainStage.setTitle("BILLIARDS MANAGEMENT");
+            mainStage.setMaximized(true);
             mainStage.show();
 
             // Đóng cửa sổ login
