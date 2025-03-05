@@ -7,7 +7,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.model.Bill;
 import src.billiardsmanagement.model.BillItem;
-import src.billiardsmanagement.model.BillService;
+import src.billiardsmanagement.service.BillService;
 import src.billiardsmanagement.model.Order;
 
 import java.text.DecimalFormat;

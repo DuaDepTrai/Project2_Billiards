@@ -1,6 +1,5 @@
 package src.billiardsmanagement.controller.orders.bookings;
 
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -8,12 +7,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.model.BillItem;
-import src.billiardsmanagement.model.BillService;
-import src.billiardsmanagement.model.Booking;
+import src.billiardsmanagement.service.BillService;
 import src.billiardsmanagement.model.Order;
 
 import java.text.DecimalFormat;
-import java.util.List;
 
 public class BookingController {
     @FXML

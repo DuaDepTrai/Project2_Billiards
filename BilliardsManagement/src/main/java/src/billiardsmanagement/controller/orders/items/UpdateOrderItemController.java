@@ -15,7 +15,7 @@ import src.billiardsmanagement.model.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-import src.billiardsmanagement.model.NotificationService;
+import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
 
 public class UpdateOrderItemController {

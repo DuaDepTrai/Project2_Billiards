@@ -48,27 +48,33 @@ public class ProductDAO {
 
 
     // Phương thức để lấy tất cả sản phẩm
-//    public List<Product> getAllProducts() throws SQLException {
-//        List<Product> products = new ArrayList<>();
-//        String sql = "SELECT p.product_id, p.name, c.category_name, p.price, p.unit, p.quantity " + "FROM products p " + "JOIN category c ON p.category_id = c.category_id";
-//
-//        try (Connection connection = TestDBConnection.getConnection(); Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
-//
-//            while (resultSet.next()) {
-//                int id = resultSet.getInt("product_id");
-//                String name = resultSet.getString("name");
-//                String category = resultSet.getString("category_name");
-//                double price = resultSet.getDouble("price");
-//                String unit = resultSet.getString("unit");
-//                int quantity = resultSet.getInt("quantity");
-//
-//                products.add(new Product(id, name, category, price, unit, quantity));
-//            }
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//        return products;
-//    }
+    public List<Product> getAllProducts() {
+        List<Product> products = new ArrayList<>();
+        String sql = "SELECT p.product_id, p.name, c.category_id, c.category_name, p.quantity, p.price, p.unit " +
+                "FROM products p " +
+                "JOIN category c ON p.category_id = c.category_id"; // ✅ Lấy category_name
+
+        try (Connection connection = TestDBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("product_id");
+                String name = resultSet.getString("name");
+                int categoryId = resultSet.getInt("category_id");
+                String category = resultSet.getString("category_name"); // ✅ Lấy category_name
+                int quantity = resultSet.getInt("quantity");
+                double price = resultSet.getDouble("price");
+                String unit = resultSet.getString("unit");
+
+                products.add(new Product(id, name, categoryId, category, quantity, price, unit)); // ✅ Truyền category vào constructor
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
+
 
     // Phương thức để thêm sản phẩm mới
     public void addProduct(String name, int categoryId, double price, String unit, int quantity) throws SQLException {
@@ -243,8 +249,10 @@ public class ProductDAO {
     // Phương thức để lấy sản phẩm theo danh mục
     public List<Product> getProductsByCategory(int categoryId) throws SQLException {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT p.product_id, p.name, p.quantity, p.price, p.unit " +
-                "FROM products p WHERE p.category_id = ?";
+        String sql = "SELECT p.product_id, p.name, c.category_name, p.quantity, p.price, p.unit " +
+                "FROM products p " +
+                "JOIN category c ON p.category_id = c.category_id " + // ✅ JOIN để lấy category_name
+                "WHERE p.category_id = ?";
 
         try (Connection connection = TestDBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -255,16 +263,49 @@ public class ProductDAO {
             while (resultSet.next()) {
                 int id = resultSet.getInt("product_id");
                 String name = resultSet.getString("name");
+                String category = resultSet.getString("category_name"); // ✅ Lấy category_name
                 int quantity = resultSet.getInt("quantity");
                 double price = resultSet.getDouble("price");
                 String unit = resultSet.getString("unit");
 
-                products.add(new Product(id, name, quantity, price, unit));
+                products.add(new Product(id, name, categoryId, category, quantity, price, unit));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return products;
+    }
+
+    public Product getProductByName(String productName) {
+        String sql = "SELECT p.product_id, p.name, c.category_id, c.category_name, p.quantity, p.price, p.unit " +
+                "FROM products p " +
+                "JOIN category c ON p.category_id = c.category_id " +
+                "WHERE p.name = ?";
+
+        try (Connection connection = TestDBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, productName);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                int id = resultSet.getInt("product_id");
+                String name = resultSet.getString("name");
+                int categoryId = resultSet.getInt("category_id"); // ✅ Lấy category_id
+                String category = resultSet.getString("category_name");
+                int quantity = resultSet.getInt("quantity");
+                double price = resultSet.getDouble("price");
+                String unit = resultSet.getString("unit");
+
+                return new Product(id, name, categoryId, category, quantity, price, unit);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return null; // Trả về null nếu không tìm thấy sản phẩm
     }
 
     public static ArrayList<String> getAllProductsName() {
