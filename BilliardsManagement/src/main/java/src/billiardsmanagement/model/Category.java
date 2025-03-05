@@ -3,12 +3,10 @@ package src.billiardsmanagement.model;
 public class Category {
     private int id;
     private String name;
-    private String imagePath;
 
-    public Category(int id, String name, String imagePath) {
+    public Category(int id, String name) {
         this.id = id;
         this.name = name;
-        this.imagePath = imagePath;
     }
 
     public int getId() {
@@ -22,12 +20,6 @@ public class Category {
     }
     public void setName(String name) {
         this.name = name;
-    }
-    public String getImagePath() {
-        return imagePath;
-    }
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
     }
     public String toString() {
         return name;

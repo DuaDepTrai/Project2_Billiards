@@ -34,30 +34,30 @@ public class AddCategoryController {
             return;
         }
 
-        String finalImageName = "default.png"; // Sử dụng ảnh mặc định nếu không có ảnh tải lên
-
-        if (uploadedImagePath != null && !uploadedImagePath.isEmpty()) {
-            try {
-                File destinationDir = new File("BilliardsManagement/src/main/resources/src/billiardsmanagement/images/category");
-                if (!destinationDir.exists()) {
-                    destinationDir.mkdirs();
-                }
-
-                Path sourcePath = Paths.get(uploadedImagePath); // File ảnh được chọn
-                finalImageName = sourcePath.getFileName().toString(); // Lấy tên file ảnh
-                Path destinationPath = Paths.get(destinationDir.getAbsolutePath(), finalImageName);
-
-                // Sao chép ảnh
-                Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("Error copying file: " + e.getMessage());
-                return;
-            }
-        }
+//        String finalImageName = "default.png"; // Sử dụng ảnh mặc định nếu không có ảnh tải lên
+//
+//        if (uploadedImagePath != null && !uploadedImagePath.isEmpty()) {
+//            try {
+//                File destinationDir = new File("BilliardsManagement/src/main/resources/src/billiardsmanagement/images/category");
+//                if (!destinationDir.exists()) {
+//                    destinationDir.mkdirs();
+//                }
+//
+//                Path sourcePath = Paths.get(uploadedImagePath); // File ảnh được chọn
+//                finalImageName = sourcePath.getFileName().toString(); // Lấy tên file ảnh
+//                Path destinationPath = Paths.get(destinationDir.getAbsolutePath(), finalImageName);
+//
+//                // Sao chép ảnh
+//                Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                System.out.println("Error copying file: " + e.getMessage());
+//                return;
+//            }
+//        }
 
         // Thêm danh mục mới vào DB
-        categoryDAO.addCategory(name, finalImageName);
+        categoryDAO.addCategory(name);
         System.out.println("Category added successfully!");
 
         // Tìm controller của CategoryController và gọi refreshTable()

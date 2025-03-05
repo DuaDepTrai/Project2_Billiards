@@ -19,9 +19,9 @@
         <Label text="New Category Name:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
         <TextField fx:id="txtNewCategoryName" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-        <Label text="Upload Image:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
-        <Button text="Upload" onAction="#handleUploadImage" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-        <Label fx:id="lblImagePath" text="No file selected" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+<!--        <Label text="Upload Image:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>-->
+<!--        <Button text="Upload" onAction="#handleUploadImage" GridPane.rowIndex="2" GridPane.columnIndex="1"/>-->
+<!--        <Label fx:id="lblImagePath" text="No file selected" GridPane.rowIndex="3" GridPane.columnIndex="1"/>-->
     </GridPane>
 
     <HBox spacing="10" alignment="CENTER">

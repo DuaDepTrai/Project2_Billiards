@@ -96,7 +96,7 @@ public class UpdateCategoryController {
             return;
         }
 
-        categoryDAO.updateCategory(categoryId, newCategoryName, imagePath);
+        categoryDAO.updateCategory(categoryId, newCategoryName);
         showInfo("Category updated successfully!");
     }
 
