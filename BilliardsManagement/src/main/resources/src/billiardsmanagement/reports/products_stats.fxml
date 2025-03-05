@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="src.billiardsmanagement.controller.report.ProductStatsController"
+            styleClass="root-pane">
+
+    <!-- Header -->
+    <top>
+        <HBox alignment="CENTER" styleClass="header">
+            <Label text="Product Statistics" styleClass="section-title"/>
+        </HBox>
+    </top>
+
+    <!-- Nội dung thống kê -->
+    <center>
+        <VBox spacing="20.0" styleClass="content-pane">
+
+            <!-- Thống kê tổng số sản phẩm -->
+            <HBox spacing="15.0" styleClass="stat-box">
+                <Label text="Total Products" styleClass="stat-label"/>
+                <Text fx:id="txtTotalProducts" styleClass="stat-value" text="0"/>
+            </HBox>
+
+            <!-- Thống kê tổng số hàng tồn kho -->
+            <HBox spacing="15.0" styleClass="stat-box">
+                <Label text="Total Stock" styleClass="stat-label"/>
+                <Text fx:id="txtTotalStock" styleClass="stat-value" text="0"/>
+            </HBox>
+
+        </VBox>
+    </center>
+
+    <!-- Biểu đồ top sản phẩm bán chạy -->
+    <bottom>
+        <VBox styleClass="chart-container">
+            <Label text="Top 10 Best Selling Products" styleClass="chart-title"/>
+            <BarChart fx:id="chartTopProducts" title="Top 10 Best Selling Products">
+                <xAxis>
+                    <CategoryAxis label="Product Name"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis label="Quantity Sold"/>
+                </yAxis>
+            </BarChart>
+        </VBox>
+    </bottom>
+
+</BorderPane>

@@ -16,7 +16,7 @@ public class Report extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/reports/report.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/reports/orders_stats.fxml"));
         Parent root = null;
         try {
             root = loader.load();
