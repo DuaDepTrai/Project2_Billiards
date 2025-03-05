@@ -1,55 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="src.billiardsmanagement.controller.report.OrderStatsController"
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="src.billiardsmanagement.controller.report.OrderStatsController">
+    <top>
+        <VBox spacing="10" styleClass="filter-box">
+            <HBox spacing="15" alignment="CENTER">
+                <Label text="Lọc theo:"/>
+                <ComboBox fx:id="filterTypeComboBox" onAction="#updateFilterType"/>
+            </HBox>
 
-      spacing="20" style="-fx-padding: 20;">
+            <HBox spacing="15" alignment="CENTER">
+                <!-- Date Range Filter -->
+                <HBox fx:id="dateRangeBox" spacing="10">
+                    <Label text="Từ ngày:"/>
+                    <DatePicker fx:id="startDatePicker"/>
+                    <Label text="Đến ngày:"/>
+                    <DatePicker fx:id="endDatePicker"/>
+                </HBox>
 
-    <HBox spacing="20">
-        <ComboBox fx:id="periodComboBox" promptText="Select Period"/>
-        <Button text="Apply" onAction="#applyPeriodFilter"/>
-    </HBox>
+                <!-- Month Filter -->
+                <HBox fx:id="monthBox" spacing="10" visible="false">
+                    <Label text="Tháng:"/>
+                    <ComboBox fx:id="monthComboBox"/>
+                    <Label text="Năm:"/>
+                    <ComboBox fx:id="yearComboBox"/>
+                </HBox>
 
-    <HBox spacing="20" alignment="CENTER">
-        <VBox styleClass="stat-box" alignment="CENTER" spacing="10">
-            <Label text="Total Orders" styleClass="stat-label"/>
-            <Label fx:id="totalOrdersLabel" text="0" styleClass="stat-value"/>
+                <!-- Year Filter -->
+                <HBox fx:id="yearBox" spacing="10" visible="false">
+                    <Label text="Năm:"/>
+                    <ComboBox fx:id="yearOnlyComboBox"/>
+                </HBox>
+
+                <Button text="Lọc" onAction="#filterRevenue" styleClass="filter-btn"/>
+            </HBox>
         </VBox>
+    </top>
 
-        <VBox styleClass="stat-box" alignment="CENTER" spacing="10">
-            <Label text="Total Revenue" styleClass="stat-label"/>
-            <Label fx:id="totalRevenueLabel" text="" styleClass="stat-value"/>
+    <!-- Bảng dữ liệu doanh thu -->
+    <center>
+        <VBox spacing="15" styleClass="data-box">
+            <HBox spacing="20">
+                <Label text="Tổng doanh thu:" styleClass="total-label"/>
+                <Label fx:id="totalRevenueLabel" styleClass="total-revenue"/>
+                <Label text="Tổng số order:" styleClass="total-label"/>
+                <Label fx:id="totalOrdersLabel" styleClass="total-revenue"/>
+            </HBox>
+            <TableView fx:id="revenueTable" styleClass="data-table">
+                <columns>
+                    <TableColumn text="Danh mục" fx:id="colCategory"/>
+                </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                </columnResizePolicy>
+            </TableView>
         </VBox>
-    </HBox>
+    </center>
 
-    <VBox spacing="10">
-        <Label text="Revenue by Period" styleClass="chart-title"/>
-        <BarChart fx:id="revenueByPeriodChart">
-            <xAxis>
-                <CategoryAxis label="Period"/>
-            </xAxis>
-            <yAxis>
-                <NumberAxis label="Revenue ($)"/>
-            </yAxis>
-        </BarChart>
-    </VBox>
+    <!-- Biểu đồ -->
+    <bottom>
+        <GridPane hgap="20" vgap="20" styleClass="chart-container">
+            <BarChart fx:id="revenueBarChart" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <xAxis>
+                    <CategoryAxis label="Thời gian"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis label="Doanh thu"/>
+                </yAxis>
+            </BarChart>
+            <PieChart fx:id="tablePieChart" title="Doanh thu theo nhóm bàn" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            <PieChart fx:id="productPieChart" title="Doanh thu theo nhóm sản phẩm" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+        </GridPane>
+    </bottom>
 
-    <HBox spacing="20">
-        <VBox spacing="10" HBox.hgrow="ALWAYS">
-            <Label text="Revenue by Table Group" styleClass="chart-title"/>
-            <PieChart fx:id="revenueByTableChart" legendVisible="true"
-                      labelsVisible="true"/>
-        </VBox>
-
-        <VBox spacing="10" HBox.hgrow="ALWAYS">
-            <Label text="Revenue by Product Category" styleClass="chart-title"/>
-            <PieChart fx:id="revenueByProductCategoryChart" legendVisible="true"
-                      labelsVisible="true"/>
-        </VBox>
-    </HBox>
-</VBox>
+</BorderPane>

@@ -1,28 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.chart.PieChart?>
-
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
-<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.report.CustomerStatsController">
-    <content>
-        <VBox spacing="20.0" styleClass="content-pane">
-            <children>
-                <VBox styleClass="stat-card">
-                    <Label text="Customer Statistics" styleClass="section-title"/>
-                    <VBox styleClass="stat-box">
-                        <Label text="Total Customers"/>
-                        <Text fx:id="txtTotalCustomers" styleClass="stat-value" text="0"/>
-                    </VBox>
-                </VBox>
 
-                <VBox styleClass="chart-container">
-                    <Label text="Customer Distribution by Play Time" styleClass="chart-title"/>
-                    <PieChart fx:id="chartCustomersByPlayTime" prefHeight="400.0"/>
-                </VBox>
-            </children>
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="src.billiardsmanagement.controller.report.CustomerStatsController"
+            styleClass="root-pane">
+
+    <!-- Header -->
+    <top>
+        <HBox alignment="CENTER" styleClass="header">
+            <Label text="Customer Statistics" styleClass="section-title"/>
+        </HBox>
+    </top>
+
+    <!-- Nội dung chính -->
+    <center>
+        <VBox spacing="20.0" styleClass="content-pane">
+
+            <!-- Thống kê tổng số khách hàng -->
+            <HBox spacing="15.0" styleClass="stat-box">
+                <Label text="Total Customers" styleClass="stat-label"/>
+                <Text fx:id="txtTotalCustomers" styleClass="stat-value" text="0"/>
+            </HBox>
+
+            <!-- Biểu đồ thống kê khách hàng -->
+            <VBox styleClass="chart-container">
+                <Label text="Customer Distribution by Play Time" styleClass="chart-title"/>
+                <PieChart fx:id="chartCustomersByPlayTime" prefHeight="400.0"/>
+            </VBox>
+
         </VBox>
-    </content>
-</ScrollPane>
+    </center>
+
+</BorderPane>

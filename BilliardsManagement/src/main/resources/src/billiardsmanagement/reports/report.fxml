@@ -22,7 +22,7 @@
                 </Tab>
                 <Tab fx:id="productsTab" text="Products">
                     <content>
-                        <fx:include source="orders_stats.fxml"/>
+                        <fx:include source="products_stats.fxml"/>
                     </content>
                 </Tab>
             </tabs>
