@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 03, 2025 at 06:02 PM
+-- Generation Time: Mar 05, 2025 at 06:03 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -129,19 +129,18 @@ DELIMITER ;
 
 CREATE TABLE `category` (
   `category_id` int(11) NOT NULL,
-  `category_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `image_path` varchar(100) NOT NULL
+  `category_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `category`
 --
 
-INSERT INTO `category` (`category_id`, `category_name`, `image_path`) VALUES
-(2, 'Cues For Rent', 'cues-rent.png'),
-(3, 'Drinks', 'drinks.png'),
-(4, 'Food', 'food.png'),
-(5, 'Board Game', 'board_game.png');
+INSERT INTO `category` (`category_id`, `category_name`) VALUES
+(2, 'Cues For Rent'),
+(3, 'Drinks'),
+(4, 'Food'),
+(5, 'Board Game');
 
 -- --------------------------------------------------------
 
@@ -363,10 +362,10 @@ CREATE TABLE `products` (
 
 INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `quantity`) VALUES
 (4, 'Standard Cue - For Rent', 2, 50000, 'Piece', 10),
-(5, 'Deluxe Cue - For Rent', 2, 100000, 'Piece', 9),
+(5, 'Deluxe Cue - For Rent', 2, 100000, 'Piece', 10),
 (6, 'Professional Cue - For Rent', 2, 150000, 'Piece', 10),
-(7, 'Soda', 3, 15000, 'Can', 100),
-(8, 'Juice', 3, 25000, 'Bottle', 79),
+(7, 'Soda', 3, 15000, 'Can', 50),
+(8, 'Juice', 3, 25000, 'Can', 50),
 (9, 'Water', 3, 10000, 'Bottle', 120),
 (10, 'Coffee', 3, 30000, 'Cup', 49),
 (11, 'Tea', 3, 20000, 'Cup', 60),
@@ -377,8 +376,9 @@ INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `q
 (16, 'Cookies Box', 4, 50000, 'Box', 24),
 (17, 'Coca Cola', 3, 20000, 'Can', 26),
 (20, 'Uno', 5, 60000, 'Set', 20),
-(21, 'Poker Deck (Plastic Cards)', 5, 80000, 'Set', 10),
-(22, 'Poker Deck (Plastic Coated)', 5, 50000, 'Set', 30);
+(21, 'Poker Deck (Plastic Cards)', 5, 80000, 'Set', 15),
+(22, 'Poker Deck (Plastic Coated)', 5, 50000, 'Set', 30),
+(23, 'Sting', 3, 15000, 'Bottle', 50);
 
 -- --------------------------------------------------------
 
@@ -618,7 +618,7 @@ ALTER TABLE `pooltables`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `roles`

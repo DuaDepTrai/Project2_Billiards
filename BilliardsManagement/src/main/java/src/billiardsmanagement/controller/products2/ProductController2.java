@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.controller.products2.StockUpController2;
 import src.billiardsmanagement.controller.products2.UpdateProductController2;
+import src.billiardsmanagement.controller.category.CategoryController;
 import src.billiardsmanagement.dao.PermissionDAO;
 import src.billiardsmanagement.model.Category;
 import src.billiardsmanagement.model.Product;
@@ -43,7 +44,8 @@ public class ProductController2 {
     private TextField searchField;
     @FXML
     private Button searchButton;
-
+    @FXML
+    private Button btnAddNewCategory;
 
 
     private final CategoryDAO categoryDAO = new CategoryDAO();
@@ -72,6 +74,9 @@ public class ProductController2 {
             int col = i % 2;
             gridPane.add(categoryBox, col, row);
         }
+
+        btnAddNewCategory.setOnAction(event -> handleAddNewCategory());
+
     }
 
     private VBox createCategoryTable(Category category) throws SQLException {
@@ -89,19 +94,37 @@ public class ProductController2 {
         categoryLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 5px;");
 
         // Nút Add Product
-        FontAwesomeIconView addIcon = new FontAwesomeIconView(FontAwesomeIcon.PLUS_CIRCLE);
-        addIcon.setGlyphSize(18);
+        FontAwesomeIconView addProductIcon = new FontAwesomeIconView(FontAwesomeIcon.PLUS_CIRCLE);
+        addProductIcon.setGlyphSize(18);
 
-        Button addButton = new Button();
-        addButton.setGraphic(addIcon);
-        addButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
-        addButton.setOnAction(event -> handleAddNewProduct(category));
+        FontAwesomeIconView updateCategoryIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
+        updateCategoryIcon.setGlyphSize(18);
+
+        FontAwesomeIconView removeCategoryIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
+        removeCategoryIcon.setGlyphSize(18);
+
+        Button addProductButton = new Button();
+        addProductButton.setGraphic(addProductIcon);
+        addProductButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
+        addProductButton.setOnAction(event -> handleAddNewProduct(category));
+
+        Button updateCategoryButton = new Button();
+        updateCategoryButton.setGraphic(updateCategoryIcon);
+        updateCategoryButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
+        updateCategoryButton.setOnAction(event -> handleUpdateCategory());
+
+        Button removeCategoryButton = new Button();
+        removeCategoryButton.setGraphic(removeCategoryIcon);
+        removeCategoryButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
+        removeCategoryButton.setOnAction(event -> handleRemoveCategory());
 
         // Header chứa tiêu đề + nút Add
-        HBox headerBox = new HBox(categoryLabel, addButton);
+        HBox headerBox = new HBox(categoryLabel, addProductButton, updateCategoryButton, removeCategoryButton);
         headerBox.setSpacing(10);
         headerBox.setAlignment(Pos.CENTER_LEFT);
-        HBox.setHgrow(addButton, Priority.ALWAYS); // Đẩy nút về phải
+        HBox.setHgrow(addProductButton, Priority.ALWAYS); // Đẩy nút về phải
+        HBox.setHgrow(updateCategoryIcon, Priority.ALWAYS); // Đẩy nút về phải
+        HBox.setHgrow(removeCategoryIcon, Priority.ALWAYS); // Đẩy nút về phải
 
         // Tạo TableView
         TableView<Product> tableView = new TableView<>();
@@ -348,43 +371,53 @@ public class ProductController2 {
         }
     }
 
-//    private void filterByProductName(String productName) {
-//        try {
-//            Product foundProduct = productDAO.getProductByName(productName); // Trả về 1 sản phẩm, không phải danh sách
-//
-//            System.out.println("DEBUG: Tìm sản phẩm với tên: " + productName);
-//            if (foundProduct == null) {
-//                System.out.println("Không tìm thấy sản phẩm.");
-//            } else {
-//                System.out.println("Tìm thấy sản phẩm -> ID: " + foundProduct.getId() + ", Name: " + foundProduct.getName());
-//            }
-//
-//
-//            if (foundProduct != null) {
-//                Category productCategory = categoryDAO.getCategoryById(foundProduct.getCategoryId());
-//
-//                if (productCategory == null) {
-//                    System.out.println("LỖI: Không tìm thấy danh mục với ID: " + foundProduct.getCategoryId());
-//                } else {
-//                    System.out.println("Danh mục tìm thấy: " + productCategory.getName());
-//                }
-//
-//                gridPane.getChildren().clear(); // Xóa danh mục cũ
-//                VBox categoryBox = createCategoryTable(productCategory);
-//                gridPane.add(categoryBox, 0, 0); // Hiển thị sản phẩm ở vị trí đầu tiên
-//            } else {
-//                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-//                alert.setTitle("Not Found");
-//                alert.setHeaderText(null);
-//                alert.setContentText("No products found with name: " + productName);
-//                alert.showAndWait();
-//            }
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    @FXML
+    private void handleAddNewCategory() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/addCategory.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Add New Category");
+            stage.setScene(new Scene(root));
+            stage.show();
 
+            stage.setOnHidden(event -> refreshTable());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleUpdateCategory() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/updateCategory.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Update Category");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+            stage.setOnHidden(event -> refreshTable());
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Could not load the Update Category interface: " + e.getMessage());
+        }
+    }
+
+    private void handleRemoveCategory() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/removeCategory.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Remove Category");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+            stage.setOnHidden(event -> refreshTable());
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Could not load the Remove Category interface: " + e.getMessage());
+        }
+    }
 
     private void refreshTable() {
         try {
@@ -392,6 +425,14 @@ public class ProductController2 {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     private void applyPermissions() {

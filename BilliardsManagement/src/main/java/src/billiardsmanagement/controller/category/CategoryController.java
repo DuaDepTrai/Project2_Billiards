@@ -55,7 +55,7 @@ public class CategoryController {
 
             List<Category> categories = categoryDAO.getAllCategories();
             for (Category category : categories) {
-                createCategoryThumbnail(category.getId(), category.getName(), category.getImagePath());
+//                createCategoryThumbnail(category.getId(), category.getName(), category.getImagePath());
             }
         } catch (Exception e) {
             e.printStackTrace();

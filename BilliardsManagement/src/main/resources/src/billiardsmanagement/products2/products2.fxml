@@ -15,6 +15,10 @@
                     </graphic>
                 </Button>
             </HBox>
+            <HBox>
+                <Button fx:id="btnAddNewCategory" text="Add Category" AnchorPane.bottomAnchor="20.0"
+                        AnchorPane.rightAnchor="350.0"/>
+            </HBox>
 
             <!-- Khu vực GridPane -->
             <GridPane fx:id="gridPane" hgap="10" vgap="10">
