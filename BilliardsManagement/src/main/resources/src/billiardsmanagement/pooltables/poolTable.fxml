@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.mfxcore.controls.Text?>
+<?import io.github.palexdev.virtualizedfx.table.VirtualTable?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="609.0" prefWidth="1001.0" stylesheets="@../css/poolTable.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.pooltables.PoolTableController">
+    <children>
+        <!-- Search and Add New Section -->
+        <HBox spacing="10" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
+            <TextField fx:id="searchField" prefHeight="26.0" prefWidth="117.0" promptText="Search..." />
+            <Button fx:id="searchButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" styleClass="search-button" />
+        </HBox>
+
+        <Button fx:id="addNewButton" layoutX="666.0" layoutY="13.0" mnemonicParsing="false" onAction="#showAddDialog" prefHeight="28.0" prefWidth="153.0" styleClass="add-button" text="Add new Pool Table" textAlignment="CENTER" textFill="WHITE">
+            <font>
+                <Font size="13.0" />
+            </font>
+        </Button>
+
+<!--        <ImageView fitHeight="26.0" fitWidth="26.0" layoutX="134.0" layoutY="15.0">-->
+<!--            <image>-->
+<!--                <Image url="@../images/pooltables/searchIcon.png" />-->
+<!--            </image>-->
+<!--        </ImageView>-->
+
+<!--        <ImageView fitHeight="105.0" fitWidth="76.0" layoutX="34.0" layoutY="68.0">-->
+<!--            <image>-->
+<!--                <Image url="@../images/pooltables/Background.png" />-->
+<!--            </image>-->
+<!--        </ImageView>-->
+
+<!--        <Text fill="#04ff00" layoutX="44.0" layoutY="198.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-weight: bold;" text="Available" textAlignment="CENTER" underline="true">-->
+<!--            <font>-->
+<!--                <Font size="13.0" />-->
+<!--            </font>-->
+<!--        </Text>-->
+
+<!--        <Text fill="#c21e00" layoutX="62.0" layoutY="100.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-weight: bold;" text="VIP" underline="true">-->
+<!--            <font>-->
+<!--                <Font size="13.0" />-->
+<!--            </font>-->
+<!--        </Text>-->
+
+<!--        <Text fill="#c21e00" layoutX="65.0" layoutY="139.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-weight: bold;" text="1">-->
+<!--            <font>-->
+<!--                <Font size="26.0" />-->
+<!--            </font>-->
+<!--        </Text>-->
+        <VirtualTable layoutX="97.0" layoutY="236.0" />
+        <VirtualTable layoutX="140.0" layoutY="255.0" prefHeight="258.0" prefWidth="257.0" />
+
+        <!-- Tables Container -->
+        <FlowPane fx:id="tablesContainer" hgap="20" layoutX="14.0" layoutY="50.0" prefHeight="540.0" prefWidth="818.0" vgap="20" />
+      <ScrollPane layoutX="830.0" layoutY="370.0" prefHeight="222.0" prefWidth="175.0" />
+      <HBox alignment="CENTER" layoutX="832.0" layoutY="50.0" prefHeight="20.0" prefWidth="175.0">
+         <children>
+            <Text text="Pool Tables" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" layoutX="843.0" layoutY="70.0" prefHeight="20.0" prefWidth="175.0" />
+      <ScrollPane layoutX="831.0" layoutY="72.0" prefHeight="265.0" prefWidth="175.0">
+         <content>
+            <Text text="Currently Available Tables : " />
+         </content></ScrollPane>
+      <HBox alignment="CENTER" layoutX="831.0" layoutY="346.0" prefHeight="20.0" prefWidth="175.0">
+         <children>
+            <Text text="Pool Table Categories" />
+         </children>
+      </HBox>
+      <Button fx:id="addNewTableCategory" layoutX="841.0" layoutY="13.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="153.0" styleClass="add-button" text="New Table Category" textAlignment="CENTER" textFill="WHITE">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Button>
+    </children>
+</AnchorPane>

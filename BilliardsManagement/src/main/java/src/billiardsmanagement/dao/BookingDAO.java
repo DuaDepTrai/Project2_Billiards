@@ -181,9 +181,6 @@ public class BookingDAO {
         return bookings;
     }
 
-
-
-
     public static boolean stopBooking(int bookingId, Timestamp startTime, int poolTableId) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         if (conn == null) return false;

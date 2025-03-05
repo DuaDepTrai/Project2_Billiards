@@ -37,7 +37,7 @@ public class PoolTable extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/src/billiardsmanagement/pooltable.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/src/billiardsmanagement/pooltables/poolTable.fxml"));
         primaryStage.setTitle("Category List");
         primaryStage.setScene(new Scene(root, 1000, 750));
         primaryStage.show();

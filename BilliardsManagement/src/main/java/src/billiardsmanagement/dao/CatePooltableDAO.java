@@ -9,7 +9,7 @@ import src.billiardsmanagement.model.PoolTable;
 
 public class CatePooltableDAO {
     // CRUD operations for cate_pooltables
-    public List<CatePooltable> getAllCategories() {
+    public static List<CatePooltable> getAllCategories() {
         List<CatePooltable> categories = new ArrayList<>();
         String query = "SELECT * FROM cate_pooltables";
 
@@ -29,7 +29,7 @@ public class CatePooltableDAO {
         return categories;
     }
 
-    public int addCategory(CatePooltable category) {
+    public static int addCategory(CatePooltable category) {
         String query = "INSERT INTO cate_pooltables (name, price) VALUES (?, ?)";
         int generatedId = -1;
 
@@ -49,7 +49,7 @@ public class CatePooltableDAO {
         return generatedId;
     }
 
-    public void updateCategory(CatePooltable category) {
+    public static void updateCategory(CatePooltable category) {
         String query = "UPDATE cate_pooltables SET name = ?, price = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -63,7 +63,7 @@ public class CatePooltableDAO {
         }
     }
 
-    public void deleteCategory(int categoryId) {
+    public static void deleteCategory(int categoryId) {
         // First delete all pool tables in this category
         String deleteTablesQuery = "DELETE FROM pooltables WHERE cate_id = ?";
         String deleteCategoryQuery = "DELETE FROM cate_pooltables WHERE id = ?";
@@ -85,7 +85,7 @@ public class CatePooltableDAO {
         }
     }
 
-    public CatePooltable getCategoryById(int categoryId) {
+    public static CatePooltable getCategoryById(int categoryId) {
         CatePooltable category = null;
         String query = "SELECT * FROM cate_pooltables WHERE id = ?";
 
@@ -106,7 +106,7 @@ public class CatePooltableDAO {
     }
 
     // Methods for managing pool tables within categories
-    public List<PoolTable> getTablesByCategory(int categoryId) {
+    public static List<PoolTable> getTablesByCategory(int categoryId) {
         List<PoolTable> tables = new ArrayList<>();
         String query = "SELECT p.table_id, p.name, p.status, cp.name AS category_name, cp.price " +
                 "FROM pooltables p " +
@@ -132,7 +132,7 @@ public class CatePooltableDAO {
         return tables;
     }
 
-    public int addTableToCategory(int categoryId, String tableName, String status) {
+    public static int addTableToCategory(int categoryId, String tableName, String status) {
         String query = "INSERT INTO pooltables (cate_id, name, status) VALUES (?, ?, ?)";
         int generatedId = -1;
 

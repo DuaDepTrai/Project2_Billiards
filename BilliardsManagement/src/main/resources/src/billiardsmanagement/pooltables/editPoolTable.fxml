@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" alignment="CENTER" prefWidth="300" prefHeight="200"
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="src.billiardsmanagement.controller.pooltables.UpdatePoolTableController">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Edit Pool Table" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+
+    <Label text="Table Name:"/>
+    <TextField fx:id="editNameField" promptText="Enter table name"/>
+
+    <Label text="Status:"/>
+    <ComboBox fx:id="editStatusCombo" prefWidth="260"/>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Save" onAction="#handleEditTableSave" defaultButton="true"/>
+        <Button text="Cancel" onAction="#handleEditTableCancel" cancelButton="true"/>
+    </HBox>
+
+</VBox> 

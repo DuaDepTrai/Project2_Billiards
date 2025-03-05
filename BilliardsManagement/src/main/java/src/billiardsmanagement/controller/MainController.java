@@ -10,11 +10,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import src.billiardsmanagement.controller.products.ProductController;
+import src.billiardsmanagement.controller.pooltables.PoolTableController;
 import src.billiardsmanagement.controller.products2.ProductController2;
 import src.billiardsmanagement.controller.users.RolesPermissionsController;
 import src.billiardsmanagement.controller.users.UserController;
-import src.billiardsmanagement.dao.UserDAO;
 import src.billiardsmanagement.model.TestDBConnection;
 import src.billiardsmanagement.model.User;
 
@@ -222,7 +221,20 @@ public class MainController {
     public void showHomePage(ActionEvent actionEvent) {
     }
 
-    public void showPoolTablePage(ActionEvent actionEvent) {
+    @FXML
+    private void showPoolTablePage() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/pooltables/poolTable.fxml"));
+        AnchorPane poolTablePage = loader.load();
+
+        // Get the controller and pass the logged-in user if needed
+        PoolTableController poolTableController = loader.getController();
+        if (poolTableController != null) {
+            // poolTableController.setLoggedInUser(loggedInUser); // Assuming you have a method to set the user
+        } else {
+            System.out.println("Error: Unable to retrieve PoolTableController!");
+        }
+
+        contentArea.getChildren().setAll(poolTablePage);
     }
 
     public void showStaffPage(ActionEvent actionEvent) {

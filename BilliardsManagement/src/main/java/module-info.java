@@ -38,4 +38,6 @@ module src.billiardsmanagement {
     exports src.billiardsmanagement.service;
     opens src.billiardsmanagement.service to javafx.base;
     opens src.billiardsmanagement.controller.report to javafx.fxml;
+    exports src.billiardsmanagement.controller.pooltables;
+    opens src.billiardsmanagement.controller.pooltables to javafx.fxml;
 }

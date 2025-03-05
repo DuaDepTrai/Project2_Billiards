@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" alignment="CENTER" prefWidth="300" prefHeight="250"
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="src.billiardsmanagement.controller.pooltables.AddPoolTableController">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Add New Pool Table" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+
+    <Label text="Table Name:"/>
+    <TextField fx:id="addNameField" promptText="Enter table name"/>
+
+    <Label text="Category:"/>
+    <ComboBox fx:id="addCategoryCombo" prefWidth="260"/>
+
+    <Label text="Status:"/>
+    <ComboBox fx:id="addStatusCombo" prefWidth="260"/>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Save" onAction="#handleAddTableSave" defaultButton="true"/>
+        <Button text="Cancel" onAction="#handleAddTableCancel" cancelButton="true"/>
+    </HBox>
+
+</VBox> 

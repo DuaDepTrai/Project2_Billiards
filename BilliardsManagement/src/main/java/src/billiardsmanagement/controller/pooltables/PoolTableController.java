@@ -1,10 +1,13 @@
-package src.billiardsmanagement.controller;
+package src.billiardsmanagement.controller.pooltables;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -14,27 +17,49 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import src.billiardsmanagement.dao.CatePooltableDAO;
 import src.billiardsmanagement.dao.PoolTableDAO;
+import src.billiardsmanagement.model.CatePooltable;
 import src.billiardsmanagement.model.PoolTable;
+import src.billiardsmanagement.service.NotificationService;
+import src.billiardsmanagement.model.NotificationStatus;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class PoolTableController {
     @FXML
-    private FlowPane tablesContainer;
+    protected FlowPane tablesContainer;
 
     @FXML
-    private TextField searchField;
+    protected TextField searchField;
 
     @FXML
-    private Button searchButton;
+    protected Button searchButton;
 
     @FXML
-    private Button addNewButton;
+    protected Button addNewButton;
 
-    private ObservableList<PoolTable> tableList = FXCollections.observableArrayList();
-    private PoolTableDAO poolTableDAO = new PoolTableDAO();
+    @FXML
+    private TextField addNameField;
+    @FXML
+    private ComboBox<String> addCategoryCombo;
+    @FXML
+    private ComboBox<String> addStatusCombo;
+    @FXML
+    private TextField editNameField;
+    @FXML
+    private ComboBox<String> editStatusCombo;
+
+    protected ObservableList<PoolTable> tableList = FXCollections.observableArrayList();
+    protected PoolTableDAO poolTableDAO = new PoolTableDAO();
+    protected ArrayList<CatePooltable> catePooltablesList;
 
     @FXML
     public void initialize() {
+        catePooltablesList = new ArrayList<>();
+        catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
+
         // Set search icon
         ImageView searchIcon = new ImageView(
                 new Image(getClass().getResourceAsStream("/src/billiardsmanagement/images/pooltables/searchIcon.png")));
@@ -51,7 +76,7 @@ public class PoolTableController {
         });
     }
 
-    private void filterTables(String searchText) {
+    protected void filterTables(String searchText) {
         tablesContainer.getChildren().clear();
         if (searchText == null || searchText.isEmpty()) {
             tableList.forEach(this::createTableUI);
@@ -62,7 +87,7 @@ public class PoolTableController {
         }
     }
 
-    private void createTableUI(PoolTable table) {
+    protected void createTableUI(PoolTable table) {
         StackPane tableStack = new StackPane();
         tableStack.setPrefSize(76, 105);
         tableStack.getStyleClass().add("table-stack");
@@ -117,7 +142,7 @@ public class PoolTableController {
         Button updateButton = new Button("Update");
         updateButton.getStyleClass().add("hover-button");
         updateButton.setMaxWidth(Double.MAX_VALUE);
-        updateButton.setOnAction(e -> showEditDialog(table));
+        updateButton.setOnAction(e -> showUpdateDialog(table));
 
         // Create divider
         Region divider = new Region();
@@ -141,7 +166,7 @@ public class PoolTableController {
         FlowPane.setMargin(tableStack, new Insets(10));
     }
 
-    private void showInfoDialog(PoolTable table) {
+    protected void showInfoDialog(PoolTable table) {
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Table Information");
@@ -169,124 +194,7 @@ public class PoolTableController {
     }
 
     @FXML
-    private void showAddTableDialog() {
-        // Create dialog
-        Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setTitle("Add New Table");
-
-        // Create form elements
-        TextField nameField = new TextField();
-        nameField.setPromptText("Table Name");
-
-        ComboBox<String> statusCombo = new ComboBox<>();
-        statusCombo.getItems().addAll("Available", "Ordered", "Playing");
-        statusCombo.setPromptText("Status");
-
-        // TODO: Add ComboBox for category selection
-        // This should be populated from cate_pooltables table
-        ComboBox<String> categoryCombo = new ComboBox<>();
-        categoryCombo.setPromptText("Category");
-
-        Button saveButton = new Button("Save");
-        Button cancelButton = new Button("Cancel");
-
-        // Create layout
-        VBox layout = new VBox(10);
-        layout.setPadding(new Insets(10));
-        layout.getChildren().addAll(
-                new Label("Table Name:"), nameField,
-                new Label("Category:"), categoryCombo,
-                new Label("Status:"), statusCombo,
-                new HBox(10, saveButton, cancelButton));
-
-        // Handle save
-        saveButton.setOnAction(e -> {
-            try {
-                String name = nameField.getText();
-                String status = statusCombo.getValue();
-                // TODO: Get selected category ID
-                int categoryId = 1; // Temporary default value
-
-                if (name.isEmpty() || status == null) {
-                    showAlert("Invalid Input", "Please fill in all fields");
-                    return;
-                }
-
-                // Create and save new table
-                PoolTable newTable = new PoolTable(0, name, status, categoryId, categoryCombo.getValue(), 0.0);
-                int newId = poolTableDAO.addTable(newTable);
-                newTable.setTableId(newId);
-
-                // Refresh UI
-                handleViewAllTables();
-                dialog.close();
-
-            } catch (Exception ex) {
-                showAlert("Error", "Failed to add table: " + ex.getMessage());
-            }
-        });
-
-        // Handle cancel
-        cancelButton.setOnAction(e -> dialog.close());
-
-        // Show dialog
-        Scene scene = new Scene(layout);
-        dialog.setScene(scene);
-        dialog.showAndWait();
-    }
-
-    private void showEditDialog(PoolTable table) {
-        // Create dialog
-        Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setTitle("Edit Table");
-
-        // Create form elements
-        TextField nameField = new TextField(table.getName());
-
-        ComboBox<String> statusCombo = new ComboBox<>();
-        statusCombo.getItems().addAll("Available", "Ordered", "Playing");
-        statusCombo.setValue(table.getStatus());
-
-        // Create layout
-        VBox layout = new VBox(10);
-        layout.setPadding(new Insets(10));
-        layout.getChildren().addAll(
-                new Label("Table Name:"), nameField,
-                new Label("Status:"), statusCombo,
-                new HBox(10, new Button("Save"), new Button("Cancel")));
-
-        // Get the buttons
-        Button saveButton = (Button) ((HBox) layout.getChildren().get(4)).getChildren().get(0);
-        Button cancelButton = (Button) ((HBox) layout.getChildren().get(4)).getChildren().get(1);
-
-        // Handle save
-        saveButton.setOnAction(e -> {
-            try {
-                table.setName(nameField.getText());
-                table.setStatus(statusCombo.getValue());
-
-                poolTableDAO.updateTable(table);
-                handleViewAllTables();
-                dialog.close();
-
-            } catch (Exception ex) {
-                showAlert("Error", "Failed to update table: " + ex.getMessage());
-            }
-        });
-
-        // Handle cancel
-        cancelButton.setOnAction(e -> dialog.close());
-
-        // Show dialog
-        Scene scene = new Scene(layout);
-        dialog.setScene(scene);
-        dialog.showAndWait();
-    }
-
-    @FXML
-    private void handleViewAllTables() {
+    protected void handleViewAllTables() {
         tableList.clear();
         tableList.addAll(poolTableDAO.getAllTables());
 
@@ -295,11 +203,43 @@ public class PoolTableController {
         tableList.forEach(this::createTableUI);
     }
 
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    @FXML
+    private void showAddDialog() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/pooltables/addPoolTable.fxml"));
+        Parent root = loader.load();
+        
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setTitle("Add New Table");
+        
+        Scene scene = new Scene(root);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+        
+        // Refresh the table list after dialog closes
+        handleViewAllTables();
+    }
+
+    private void showUpdateDialog(PoolTable table) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/pooltables/editPoolTable.fxml"));
+            Parent root = loader.load();
+            
+            UpdatePoolTableController controller = loader.getController();
+            controller.setPoolTable(table);
+            
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.setTitle("Edit Table");
+            
+            Scene scene = new Scene(root);
+            dialog.setScene(scene);
+            dialog.showAndWait();
+            
+            // Refresh the table list after dialog closes
+            handleViewAllTables();
+        } catch (IOException e) {
+            NotificationService.showNotification("Error", "Failed to open update dialog: " + e.getMessage(), NotificationStatus.Error);
+        }
     }
 }
