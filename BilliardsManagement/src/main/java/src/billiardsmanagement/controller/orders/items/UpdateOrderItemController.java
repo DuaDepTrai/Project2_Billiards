@@ -38,7 +38,7 @@ public class UpdateOrderItemController {
 
 //    protected Map<String, String> productCategoryMap;
     private String initialProductName;
-    private String initialPromotionName;
+//    private String initialPromotionName;
 
     private AutoCompletionBinding<String> productNameAutoBinding;
     // private AutoCompletionBinding<String> promotionNameAutoBinding;
@@ -126,7 +126,7 @@ public class UpdateOrderItemController {
             orderItemId = item.getOrderItemId();
             productNameAutoCompleteText.setText(initialProductName);
             quantityTextField.setText(String.valueOf(item.getQuantity()));
-            initialPromotionName = item.getPromotionName() == null ? "No Promotion" : item.getPromotionName();
+//            initialPromotionName = item.getPromotionName() == null ? "No Promotion" : item.getPromotionName();
             currentQuantity = item.getQuantity();
         }
     }
@@ -190,8 +190,8 @@ public class UpdateOrderItemController {
             int productId = productPair.getFirstValue();
             double productPrice = productPair.getSecondValue();
 
-            double subTotal = productPrice * requestQuantity;
-            double netTotal = subTotal;
+            double total = productPrice * requestQuantity;
+//            double netTotal = subTotal;
 
             // if (promotionId > 0) {
             // double discount = PromotionDAO.getPromotionDiscountById(promotionId);
@@ -206,8 +206,8 @@ public class UpdateOrderItemController {
                     productId,
                     productName,
                     requestQuantity,
-                    netTotal,
-                    subTotal
+//                    netTotal,
+                    total
             );
 
             boolean success = OrderItemDAO.updateOrderItem(orderItem);

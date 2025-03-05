@@ -116,7 +116,7 @@ public class ForEachOrderController {
     private TableColumn<Booking, Double> timeplayColumn;
 
     @FXML
-    private TableColumn<Booking, Double> subTotalColumn;
+    private TableColumn<Booking, Double> totalColumn;
 
     @FXML
     private TableColumn<Booking, Double> costColumn;
@@ -138,10 +138,10 @@ public class ForEachOrderController {
     private TableColumn<OrderItem, Double> priceOrderItemColumn;
 
     @FXML
-    private TableColumn<OrderItem, Double> netTotalOrderItemColumn;
+    private TableColumn<OrderItem, Double> totalOrderItemColumn;
 
-    @FXML
-    private TableColumn<OrderItem, Double> subTotalOrderItemColumn;
+//    @FXML
+//    private TableColumn<OrderItem, Double> subTotalOrderItemColumn;
 
     // @FXML
     // private TableColumn<OrderItem, String> promotionOrderItem;
@@ -334,7 +334,7 @@ public class ForEachOrderController {
 //            }
 //        });
 
-        costColumn.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
+        costColumn.setCellValueFactory(new PropertyValueFactory<>("total"));
         costColumn.setCellFactory(column -> new TableCell<>() {
             private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
 
@@ -428,9 +428,9 @@ public class ForEachOrderController {
             }
         });
 
-        netTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("netTotal"));
-        netTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
-        netTotalOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
+        totalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("total"));
+        totalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
+        totalOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
             @Override
             protected void updateItem(Double item, boolean empty) {
                 super.updateItem(item, empty);

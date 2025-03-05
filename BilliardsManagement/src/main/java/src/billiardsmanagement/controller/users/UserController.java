@@ -103,6 +103,20 @@ public class UserController {
 
         btnAddNewUser.setOnAction(event -> handleAddNewUser());
         btnRolesPermissions.setOnAction(event -> openRolesPermissions());
+
+        tableUsers.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY); // Tự động giãn cột
+
+        double totalColumns = 9.0; // Số lượng cột thực tế (trừ cột action nhỏ hơn)
+        columnAvatar.setPrefWidth(80); // Ảnh có chiều rộng cố định
+        columnUsername.setPrefWidth(tableUsers.getWidth() / totalColumns);
+        columnRole.setPrefWidth(tableUsers.getWidth() / totalColumns);
+        columnFullname.setPrefWidth(tableUsers.getWidth() / totalColumns);
+        columnPhone.setPrefWidth(tableUsers.getWidth() / totalColumns);
+        columnBirthday.setPrefWidth(tableUsers.getWidth() / totalColumns);
+        columnAddress.setPrefWidth(tableUsers.getWidth() / totalColumns);
+        columnHireDate.setPrefWidth(tableUsers.getWidth() / totalColumns);
+        columnAction.setPrefWidth(100); // Giữ cột action nhỏ hơn một chút
+
     }
 
     private void loadUsers() {

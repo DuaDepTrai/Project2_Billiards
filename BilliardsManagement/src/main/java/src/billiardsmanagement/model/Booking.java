@@ -13,20 +13,18 @@ public class Booking {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private double timeplay;
-    private double subTotal;
-    private int promotionId;
-    private double netTotal;
+    private double total;
 
     public Booking() {}
 
     // Constructor for table data display
-    public Booking(String tableName, double priceTable, LocalDateTime startTime, LocalDateTime endTime, double timeplay, double subTotal, String bookingStatus) {
+    public Booking(String tableName, double priceTable, LocalDateTime startTime, LocalDateTime endTime, double timeplay, double total, String bookingStatus) {
         this.tableName = tableName;
         this.priceTable = priceTable;
         this.startTime = startTime;
         this.endTime = endTime;
         this.timeplay = timeplay;
-        this.subTotal = subTotal;
+        this.total = total;
         this.bookingStatus = bookingStatus;
     }
 
@@ -39,7 +37,7 @@ public class Booking {
     }
 
     // Full constructor for DAO usage
-    public Booking(int bookingId, int orderId, int tableId, String tableName, double priceTable, LocalDateTime startTime, LocalDateTime endTime, double timeplay, double netTotal, double subTotal, String bookingStatus, int promotionId) {
+    public Booking(int bookingId, int orderId, int tableId, String tableName, double priceTable, LocalDateTime startTime, LocalDateTime endTime, double timeplay, double total, String bookingStatus) {
         this.bookingId = bookingId;
         this.orderId = orderId;
         this.tableId = tableId;
@@ -48,10 +46,8 @@ public class Booking {
         this.startTime = startTime;
         this.endTime = endTime;
         this.timeplay = timeplay;
-        this.netTotal = netTotal;
-        this.subTotal = subTotal;
+        this.total = total;
         this.bookingStatus = bookingStatus;
-        this.promotionId = promotionId;
     }
 
     // Getters and Setters
@@ -136,32 +132,32 @@ public class Booking {
         return this;
     }
 
-    public double getSubTotal() {
-        return subTotal;
+    public double getTotal() {
+        return total;
     }
 
-    public Booking setSubTotal(double subTotal) {
-        this.subTotal = subTotal;
+    public Booking getTotal(double total) {
+        this.total = total;
         return this;
     }
 
-    public int getPromotionId() {
-        return promotionId;
-    }
+//    public int getPromotionId() {
+//        return promotionId;
+//    }
 
-    public Booking setPromotionId(int promotionId) {
-        this.promotionId = promotionId;
-        return this;
-    }
-
-    public double getNetTotal() {
-        return netTotal;
-    }
-
-    public Booking setNetTotal(double netTotal) {
-        this.netTotal = netTotal;
-        return this;
-    }
+//    public Booking setPromotionId(int promotionId) {
+//        this.promotionId = promotionId;
+//        return this;
+//    }
+//
+//    public double getNetTotal() {
+//        return total;
+//    }
+//
+//    public Booking setNetTotal(double netTotal) {
+//        this.netTotal = netTotal;
+//        return this;
+//    }
 
     @Override
     public String toString() {
@@ -175,9 +171,7 @@ public class Booking {
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", timeplay=" + timeplay +
-                ", subTotal=" + subTotal +
-                ", promotionId=" + promotionId +
-                ", netTotal=" + netTotal +
+                ", total=" + total +
                 '}';
     }
 

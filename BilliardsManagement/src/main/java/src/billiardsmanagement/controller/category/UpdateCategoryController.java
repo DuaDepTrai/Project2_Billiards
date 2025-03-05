@@ -25,8 +25,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class UpdateCategoryController {
+//    @FXML
+//    private ComboBox<Category> comboBoxCategory;
     @FXML
-    private ComboBox<Category> comboBoxCategory;
+    private Label lblCategory;
     @FXML
     private TextField txtNewCategoryName;
     @FXML
@@ -47,11 +49,15 @@ public class UpdateCategoryController {
             for (Category category : categoryDAO.getAllCategories()) {
                 categoryList.add(category);
             }
-            comboBoxCategory.setItems(categoryList);
+//            comboBoxCategory.setItems(categoryList);
         } catch (Exception e) {
             e.printStackTrace();
             showError("Error loading categories: " + e.getMessage());
         }
+    }
+
+    public void setCategoryName(String categoryName) {
+        lblCategory.setText(categoryName);
     }
 
     @FXML
@@ -80,25 +86,32 @@ public class UpdateCategoryController {
         }
     }
 
+
     @FXML
     public void handleSave() {
-        Category selectedCategory = comboBoxCategory.getValue();
-        String newCategoryName = txtNewCategoryName.getText();
+        String categoryName = lblCategory.getText();
+        Category selectedCategory = categoryList.stream()
+                .filter(category -> category.getName().equals(categoryName))
+                .findFirst()
+                .orElse(null);
 
         if (selectedCategory == null) {
-            showError("Please select a category to update.");
+            showError("Selected category not found.");
             return;
         }
 
+        String newCategoryName = txtNewCategoryName.getText();
         int categoryId = selectedCategory.getId();
+
         if (categoryId == 0) {
             showError("Invalid category selected.");
             return;
         }
 
         categoryDAO.updateCategory(categoryId, newCategoryName);
-        showInfo("Category updated successfully!");
+        closeWindow();
     }
+
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
@@ -116,7 +129,7 @@ public class UpdateCategoryController {
     }
 
     private void closeWindow() {
-        Stage stage = (Stage) comboBoxCategory.getScene().getWindow();
+        Stage stage = (Stage) lblCategory.getScene().getWindow();
         stage.close();
     }
 }

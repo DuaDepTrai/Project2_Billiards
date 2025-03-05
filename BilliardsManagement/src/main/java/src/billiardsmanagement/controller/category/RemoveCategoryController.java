@@ -14,8 +14,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class RemoveCategoryController {
+//    @FXML
+//    private ComboBox<Category> comboBoxCategory;
     @FXML
-    private ComboBox<Category> comboBoxCategory;
+    private Label lblCategory;
 
     private ObservableList<Category> categoryList = FXCollections.observableArrayList();
     private CategoryDAO categoryDAO = new CategoryDAO();
@@ -31,16 +33,26 @@ public class RemoveCategoryController {
             for (Category category : categoryDAO.getAllCategories()) {
                 categoryList.add(category);
             }
-            comboBoxCategory.setItems(categoryList);
+//            comboBoxCategory.setItems(categoryList);
         } catch (Exception e) {
             e.printStackTrace();
             showError("Error loading categories: " + e.getMessage());
         }
     }
 
+    public void setCategoryName(String categoryName) {
+        lblCategory.setText(categoryName);
+    }
+
+
     @FXML
     public void handleRemove() {
-        Category selectedCategory = comboBoxCategory.getValue();
+        String categoryName = lblCategory.getText();
+        Category selectedCategory = categoryList.stream()
+                .filter(category -> category.getName().equals(categoryName))
+                .findFirst()
+                .orElse(null);
+
         if (selectedCategory == null) {
             showError("Please select a category to delete.");
             return;
@@ -58,9 +70,11 @@ public class RemoveCategoryController {
         if (!categoryDAO.hasProducts(category.getId())) {
             categoryDAO.removeCategory(category.getId());
             showInfo("Category deleted successfully!");
+            closeWindow();
             loadCategories();
         } else {
             showError("Cannot delete category because it contains products.");
+            closeWindow();
         }
     }
 
@@ -70,7 +84,7 @@ public class RemoveCategoryController {
     }
 
     private void closeWindow() {
-        Stage stage = (Stage) comboBoxCategory.getScene().getWindow();
+        Stage stage = (Stage) lblCategory.getScene().getWindow();
         stage.close();
     }
 

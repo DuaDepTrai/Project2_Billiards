@@ -7,32 +7,32 @@ public class OrderItem {
     private String productName; // products.name
     private double productPrice;
     private int quantity;
-    private double netTotal;
-    private double subTotal;
-    private int promotionId;
-    private String promotionName;
-    private double promotionDiscount;
+    private double total;
+//    private double subTotal;
+//    private int promotionId;
+//    private String promotionName;
+//    private double promotionDiscount;
 
     public OrderItem(){}
 
-    public OrderItem(int orderId, int productId, int quantity, double netTotal, double subTotal, int promotionId) {
+    public OrderItem(int orderId, int productId, int quantity, double total) {
         this.orderId = orderId;
         this.productId = productId;
         this.quantity = quantity;
-        this.netTotal = netTotal;
-        this.subTotal = subTotal;
-        this.promotionId = promotionId; // nếu = -1 : không có promotion
+        this.total = total;
+//        this.subTotal = subTotal;
+//        this.promotionId = promotionId; // nếu = -1 : không có promotion
     }
 
-    public OrderItem(int orderItemId, int orderId, int productId, String productName, int quantity, double netTotal, double subTotal) {
+    public OrderItem(int orderItemId, int orderId, int productId, String productName, int quantity, double total) {
         this.orderItemId = orderItemId;
         this.orderId = orderId;
         this.productId = productId;
         this.productName = productName;
         this.quantity = quantity;
-        this.netTotal = netTotal;
-        this.subTotal = subTotal;
-        this.promotionId = promotionId;
+        this.total = total;
+//        this.subTotal = subTotal;
+//        this.promotionId = promotionId;
     } // Full-model constructor
 
 
@@ -94,48 +94,48 @@ public class OrderItem {
         return this;
     }
 
-    public double getNetTotal() {
-        return netTotal;
+    public double getTotal() {
+        return total;
     }
 
-    public OrderItem setNetTotal(double netTotal) {
-        this.netTotal = netTotal;
+    public OrderItem setTotal(double total) {
+        this.total = total;
         return this;
     }
 
-    public double getSubTotal() {
-        return subTotal;
-    }
-
-    public OrderItem setSubTotal(double subTotal) {
-        this.subTotal = subTotal;
-        return this;
-    }
-
-    public int getPromotionId() {
-        return promotionId;
-    }
-
-    public OrderItem setPromotionId(int promotionId) {
-        this.promotionId = promotionId;
-        return this;
-    }
-
-    public String getPromotionName() {
-        return promotionName;
-    }
-
-    public OrderItem setPromotionName(String promotionName) {
-        this.promotionName = promotionName;
-        return this;
-    }
-
-    public double getPromotionDiscount() {
-        return promotionDiscount;
-    }
-
-    public OrderItem setPromotionDiscount(double promotionDiscount) {
-        this.promotionDiscount = promotionDiscount;
-        return this;
-    }
+//    public double getSubTotal() {
+//        return subTotal;
+//    }
+//
+//    public OrderItem setSubTotal(double subTotal) {
+//        this.subTotal = subTotal;
+//        return this;
+//    }
+//
+//    public int getPromotionId() {
+//        return promotionId;
+//    }
+//
+//    public OrderItem setPromotionId(int promotionId) {
+//        this.promotionId = promotionId;
+//        return this;
+//    }
+//
+//    public String getPromotionName() {
+//        return promotionName;
+//    }
+//
+//    public OrderItem setPromotionName(String promotionName) {
+//        this.promotionName = promotionName;
+//        return this;
+//    }
+//
+//    public double getPromotionDiscount() {
+//        return promotionDiscount;
+//    }
+//
+//    public OrderItem setPromotionDiscount(double promotionDiscount) {
+//        this.promotionDiscount = promotionDiscount;
+//        return this;
+//    }
 }

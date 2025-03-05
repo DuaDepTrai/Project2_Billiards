@@ -37,7 +37,7 @@ public class CategoryDAO {
 
     // Thêm danh mục
     public void addCategory(String name) {
-        String sql = "INSERT INTO category (category_name) VALUES (?, ?)";
+        String sql = "INSERT INTO category (category_name) VALUES (?)";
         try (Connection connection = TestDBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, name);
             statement.executeUpdate();
@@ -48,13 +48,10 @@ public class CategoryDAO {
 
     // Cập nhật danh mục
     public void updateCategory(int id, String newName) {
-        String sql = "UPDATE category " + "SET " + "category_name = CASE WHEN ? IS NOT NULL AND ? != '' THEN ? ELSE category_name END, " + "WHERE category_id = ?";
+        String sql = "UPDATE category SET category_name = ? WHERE category_id = ?";
         try (Connection connection = TestDBConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, newName); // CASE WHEN condition for name
-            statement.setString(2, newName);
-            statement.setString(3, newName);
-
-            statement.setInt(4, id); // WHERE condition
+            statement.setInt(2, id); // WHERE condition
             statement.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();

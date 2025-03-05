@@ -19,6 +19,8 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.controlsfx.control.textfield.TextFields;
+import src.billiardsmanagement.controller.category.RemoveCategoryController;
+import src.billiardsmanagement.controller.category.UpdateCategoryController;
 import src.billiardsmanagement.controller.products2.StockUpController2;
 import src.billiardsmanagement.controller.products2.UpdateProductController2;
 import src.billiardsmanagement.controller.category.CategoryController;
@@ -111,24 +113,29 @@ public class ProductController2 {
         Button updateCategoryButton = new Button();
         updateCategoryButton.setGraphic(updateCategoryIcon);
         updateCategoryButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
-        updateCategoryButton.setOnAction(event -> handleUpdateCategory());
+        updateCategoryButton.setOnAction(event -> handleUpdateCategory(category));
 
         Button removeCategoryButton = new Button();
         removeCategoryButton.setGraphic(removeCategoryIcon);
         removeCategoryButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
-        removeCategoryButton.setOnAction(event -> handleRemoveCategory());
+        removeCategoryButton.setOnAction(event -> handleRemoveCategory(category));
 
         // Header chứa tiêu đề + nút Add
-        HBox headerBox = new HBox(categoryLabel, addProductButton, updateCategoryButton, removeCategoryButton);
+        HBox headerBox = new HBox();
         headerBox.setSpacing(10);
         headerBox.setAlignment(Pos.CENTER_LEFT);
-        HBox.setHgrow(addProductButton, Priority.ALWAYS); // Đẩy nút về phải
-        HBox.setHgrow(updateCategoryIcon, Priority.ALWAYS); // Đẩy nút về phải
-        HBox.setHgrow(removeCategoryIcon, Priority.ALWAYS); // Đẩy nút về phải
+
+// Tạo một Region để đẩy các nút về bên phải
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        headerBox.getChildren().addAll(categoryLabel, spacer, addProductButton, updateCategoryButton, removeCategoryButton);
 
         // Tạo TableView
         TableView<Product> tableView = new TableView<>();
-        tableView.setPrefSize(500, 350);
+//        tableView.setPrefHeight(200); // Hiển thị tối đa 5 sản phẩm (~40px mỗi dòng)
+        tableView.setPrefSize(750, 300);
+//        tableView.setMaxHeight(300);
 
         // Định nghĩa các cột
         TableColumn<Product, String> nameColumn = new TableColumn<>("Product Name");
@@ -387,10 +394,14 @@ public class ProductController2 {
         }
     }
 
-    private void handleUpdateCategory() {
+    private void handleUpdateCategory(Category category) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/updateCategory.fxml"));
             Parent root = loader.load();
+
+            UpdateCategoryController controller = loader.getController();
+            controller.setCategoryName(category.getName()); // Hiển thị category cố định
+
             Stage stage = new Stage();
             stage.setTitle("Update Category");
             stage.setScene(new Scene(root));
@@ -403,10 +414,14 @@ public class ProductController2 {
         }
     }
 
-    private void handleRemoveCategory() {
+    private void handleRemoveCategory(Category category) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/removeCategory.fxml"));
             Parent root = loader.load();
+
+            RemoveCategoryController controller = loader.getController();
+            controller.setCategoryName(category.getName()); // Hiển thị category cố định
+
             Stage stage = new Stage();
             stage.setTitle("Remove Category");
             stage.setScene(new Scene(root));

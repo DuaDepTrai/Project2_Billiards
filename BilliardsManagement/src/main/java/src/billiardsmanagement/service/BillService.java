@@ -24,7 +24,7 @@ public class BillService {
                     "Hour", // Đơn vị tính là giờ
                     booking.getTimeplay(), // Số giờ chơi
                     booking.getPriceTable(), // Giá bàn/giờ
-                    booking.getNetTotal() // Tổng tiền bàn
+                    booking.getTotal() // Tổng tiền bàn
             ));
         }
 
@@ -40,7 +40,7 @@ public class BillService {
                     unit, // Đơn vị tính lấy từ product
                     item.getQuantity(), // Số lượng
                     item.getProductPrice(), // Đơn giá sản phẩm
-                    item.getNetTotal() // Thành tiền
+                    item.getTotal() // Thành tiền
             ));
         }
         return billItems;

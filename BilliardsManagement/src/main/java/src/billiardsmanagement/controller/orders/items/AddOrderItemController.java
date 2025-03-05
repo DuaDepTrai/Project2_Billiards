@@ -136,9 +136,9 @@ public class AddOrderItemController {
                     updatedItem.setProductId(productId);
                     updatedItem.setQuantity(existingItem.getQuantity() + quantity);
 
-                    double newSubTotal = (existingItem.getQuantity() + quantity) * productPrice;
-                    updatedItem.setSubTotal(newSubTotal);
-                    updatedItem.setNetTotal(newSubTotal); // Since promotions are removed, netTotal equals subTotal
+                    double newTotal = (existingItem.getQuantity() + quantity) * productPrice;
+                    updatedItem.setTotal(newTotal);
+//                    updatedItem.setNetTotal(newSubTotal); // Since promotions are removed, netTotal equals subTotal
 
                     if (OrderItemDAO.addOrderItemDuplicate(updatedItem)) {
                         ProductDAO.dispatchItem(selectedProductName, quantity);
@@ -156,9 +156,9 @@ public class AddOrderItemController {
             newOrderItem.setProductId(productId);
             newOrderItem.setQuantity(quantity);
 
-            double subTotal = quantity * productPrice;
-            newOrderItem.setSubTotal(subTotal);
-            newOrderItem.setNetTotal(subTotal); // Since promotions are removed, netTotal equals subTotal
+            double total = quantity * productPrice;
+            newOrderItem.setTotal(total);
+//            newOrderItem.setNetTotal(subTotal); // Since promotions are removed, netTotal equals subTotal
 
             // Add the new order item
             if (OrderItemDAO.addOrderItem(newOrderItem)) {

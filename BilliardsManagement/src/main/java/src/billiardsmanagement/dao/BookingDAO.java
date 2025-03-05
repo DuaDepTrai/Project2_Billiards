@@ -52,8 +52,7 @@ public class BookingDAO {
             UPDATE bookings b 
             JOIN pooltables p ON b.table_id = p.table_id 
             JOIN cate_pooltables c ON p.cate_id = c.id
-            SET b.subtotal = (TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time) / 60.0) * c.price, 
-                b.net_total = b.subtotal
+            SET b.total = (TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time) / 60.0) * c.price
             WHERE b.order_id = ?""";
             try (PreparedStatement stmt = conn.prepareStatement(updateBookingCostQuery)) {
                 stmt.setInt(1, orderId);
@@ -143,7 +142,7 @@ public class BookingDAO {
     public static List<Booking> getBookingByOrderId(int orderId) {
         List<Booking> bookings = new ArrayList<>();
         String query = "SELECT b.booking_id, b.table_id, b.order_id, pt.name AS table_name, cp.price AS table_price, " +
-                "b.start_time, b.end_time, b.timeplay, b.subtotal, b.promotion_id, b.net_total, b.booking_status " +
+                "b.start_time, b.end_time, b.timeplay, b.total, b.booking_status " +
                 "FROM bookings b " +
                 "JOIN pooltables pt ON b.table_id = pt.table_id " +
                 "JOIN cate_pooltables cp ON pt.cate_id = cp.id " + // Add JOIN with cate_pooltables
@@ -170,10 +169,8 @@ public class BookingDAO {
                                 ? resultSet.getTimestamp("end_time").toLocalDateTime()
                                 : null,
                         resultSet.getDouble("timeplay"),
-                        resultSet.getDouble("net_total"),
-                        resultSet.getDouble("subtotal"),
-                        resultSet.getString("booking_status"),
-                        resultSet.getInt("promotion_id")
+                        resultSet.getDouble("total"),
+                        resultSet.getString("booking_status")
                 );
 
                 bookings.add(booking);
@@ -234,17 +231,17 @@ public class BookingDAO {
             }
 
             // Tính toán tổng tiền
-            double subtotal = timeplayInHours * price;
-            double netTotal = subtotal;
+            double total = timeplayInHours * price;
+//            double netTotal = subtotal;
 
             // Cập nhật trạng thái booking
-            String updateQuery = "UPDATE bookings SET end_time = ?, timeplay = ?, subtotal = ?, net_total = ?, booking_status = 'finish' WHERE booking_id = ?";
+            String updateQuery = "UPDATE bookings SET end_time = ?, timeplay = ?, total = ?, booking_status = 'finish' WHERE booking_id = ?";
             try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
                 updateStmt.setTimestamp(1, currentTime);
                 updateStmt.setDouble(2, timeplayInHours);
-                updateStmt.setDouble(3, subtotal);
-                updateStmt.setDouble(4, netTotal);
-                updateStmt.setInt(5, bookingId);
+                updateStmt.setDouble(3, total);
+//                updateStmt.setDouble(4, netTotal);
+                updateStmt.setInt(4, bookingId);
                 updateStmt.executeUpdate();
             }
 

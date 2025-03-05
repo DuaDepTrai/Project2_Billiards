@@ -51,7 +51,7 @@
                 <TableColumn fx:id="quantityColumn" prefWidth="108.5" styleClass="number-aligned" text="Quantity" />
                 <TableColumn fx:id="priceOrderItemColumn" prefWidth="234.0" styleClass="number-aligned" text="Price" />
                 <!-- <TableColumn fx:id="subTotalOrderItemColumn" prefWidth="193.5999755859375" styleClass="number-aligned" text="Sub Total" /> -->
-                <TableColumn fx:id="netTotalOrderItemColumn" prefWidth="207.0" styleClass="number-aligned" text="Total Cost" />
+                <TableColumn fx:id="totalOrderItemColumn" prefWidth="207.0" styleClass="number-aligned" text="Total Cost" />
                 <TableColumn fx:id="orderItemActionColumn" prefWidth="125.5" styleClass="number-aligned" text="Action" />
             </columns>
         </TableView>
