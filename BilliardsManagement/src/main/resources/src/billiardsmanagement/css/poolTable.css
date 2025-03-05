@@ -1,0 +1,41 @@
+.table-stack {
+    -fx-cursor: hand;
+}
+
+.table-stack:hover .hover-buttons {
+    -fx-opacity: 1;
+}
+
+.hover-buttons {
+    -fx-opacity: 0;
+    -fx-background-color: rgba(135, 206, 235, 0.8);
+    -fx-border-color: black;
+    -fx-border-width: 1px;
+}
+
+.hover-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.hover-button:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.1);
+}
+
+.divider {
+    -fx-background-color: black;
+}
+
+.add-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.search-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+} 

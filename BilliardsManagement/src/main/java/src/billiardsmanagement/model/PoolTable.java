@@ -3,15 +3,27 @@ package src.billiardsmanagement.model;
 public class PoolTable {
     private int tableId; // ID của bàn
     private String name; // Tên bàn
-    private double price; // Giá thuê bàn
     private String status; // Trạng thái bàn (Available, Occupied, Under Maintenance)
+    private int catePooltableId;
+    private String catePooltableName;
+    private double price; // Giá thuê bàn
 
     // Constructor
-    public PoolTable(int tableId, String name, double price, String status) {
+    public PoolTable(int tableId, String name, String status, int catePooltableId, String catePooltableName, double price) {
         this.tableId = tableId;
         this.name = name;
-        setPrice(price); // Sử dụng setter để đảm bảo tính hợp lệ
-        setStatus(status); // Sử dụng setter để đảm bảo tính hợp lệ
+        setStatus(status);
+        this.catePooltableId = catePooltableId;
+        this.catePooltableName = catePooltableName;
+        setPrice(price);
+    }
+
+    public PoolTable(int tableId, String name, double price, String status, String categoryName) {
+        this.tableId = tableId;
+        this.name = name;
+        this.price = price;
+        this.status = status;
+        this.catePooltableName = categoryName;
     }
 
     // Getters
@@ -23,12 +35,20 @@ public class PoolTable {
         return name;
     }
 
-    public double getPrice() {
-        return price;
-    }
-
     public String getStatus() {
         return status;
+    }
+
+    public int getCatePooltableId() {
+        return catePooltableId;
+    }
+
+    public String getCatePooltableName() {
+        return catePooltableName;
+    }
+
+    public double getPrice() {
+        return price;
     }
 
     // Setters
@@ -40,20 +60,28 @@ public class PoolTable {
         this.name = name;
     }
 
+    public void setStatus(String status) {
+        // Check valid status
+        if (!status.equals("Available") && !status.equals("Ordered") && !status.equals("Playing")) {
+            throw new IllegalArgumentException(
+                    "Invalid status. Must be 'Available', 'Ordered', or 'Playing'.");
+        }
+        this.status = status;
+    }
+
+    public void setCatePooltableId(int catePooltableId) {
+        this.catePooltableId = catePooltableId;
+    }
+
+    public void setCatePooltableName(String catePooltableName) {
+        this.catePooltableName = catePooltableName;
+    }
+
     public void setPrice(double price) {
         if (price < 0) {
             throw new IllegalArgumentException("Price cannot be negative.");
         }
         this.price = price;
-    }
-
-    public void setStatus(String status) {
-        // Kiểm tra trạng thái hợp lệ
-        if (!status.equals("Available") && !status.equals("Occupied") && !status.equals("Under Maintenance")) {
-            throw new IllegalArgumentException(
-                    "Invalid status. Must be 'Available', 'Occupied', or 'Under Maintenance'.");
-        }
-        this.status = status;
     }
 
     // Phương thức toString() để dễ dàng in ra thông tin của đối tượng
@@ -62,8 +90,10 @@ public class PoolTable {
         return "PoolTable{" +
                 "tableId=" + tableId +
                 ", name='" + name + '\'' +
-                ", price=" + price +
                 ", status='" + status + '\'' +
+                ", catePooltableId=" + catePooltableId +
+                ", catePooltableName='" + catePooltableName + '\'' +
+                ", price=" + price +
                 '}';
     }
 }

@@ -17,5 +17,4 @@
             <TableColumn fx:id="costColumn" prefWidth="135.0" text="Cost" />
         </columns>
     </TableView>
-
 </AnchorPane>

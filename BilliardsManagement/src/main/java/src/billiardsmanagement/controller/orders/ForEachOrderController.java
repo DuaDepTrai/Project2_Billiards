@@ -466,6 +466,12 @@ public class ForEachOrderController {
     public void initializeAllTables() {
         bookingPoolTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         orderItemsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // Finish Order Button disable / enable
+        String status = orderStatusText.getText();
+        if(status.equalsIgnoreCase("Finished") || status.equalsIgnoreCase("Canceled") || status.equalsIgnoreCase("Paid")){
+            finishOrderButton.setDisable(true);
+        }
+        else finishOrderButton.setDisable(false);
 
         // Staff Name
         String staffName = OrderDAO.getStaffNameByOrderId(orderID);

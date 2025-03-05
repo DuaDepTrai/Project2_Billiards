@@ -194,7 +194,20 @@ public class MainController {
     public void showHomePage(ActionEvent actionEvent) {
     }
 
-    public void showPoolTablePage(ActionEvent actionEvent) {
+    @FXML
+    private void showPoolTablePage() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/poolTable.fxml"));
+        AnchorPane poolTablePage = loader.load();
+
+        // Get the controller and pass the logged-in user if needed
+        PoolTableController poolTableController = loader.getController();
+        if (poolTableController != null) {
+            // poolTableController.setLoggedInUser(loggedInUser); // Assuming you have a method to set the user
+        } else {
+            System.out.println("Error: Unable to retrieve PoolTableController!");
+        }
+
+        contentArea.getChildren().setAll(poolTablePage);
     }
 
     public void showStaffPage(ActionEvent actionEvent) {
