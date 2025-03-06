@@ -99,7 +99,7 @@ public class LoginController {
             // Lấy MainController từ FXMLLoader
             MainController mainController = loader.getController();
             mainController.setLoggedInUser(user); // Cập nhật username
-            mainController.showProductsPage();
+            mainController.showPoolTablePage();
 
             Stage mainStage = new Stage();
             mainStage.setScene(scene);

@@ -42,6 +42,16 @@ public class MainController {
     @FXML
     private Label logoutLabel;
     @FXML
+    private void onLogoutHover() {
+        logoutLabel.setStyle("-fx-text-fill: darkblue; -fx-underline: true; -fx-cursor: hand;");
+    }
+
+    @FXML
+    private void onLogoutExit() {
+        logoutLabel.setStyle("-fx-text-fill: blue; -fx-underline: true; -fx-cursor: hand;");
+    }
+
+    @FXML
     private ImageView avatarImageView;
     @FXML
     private BorderPane mainContainer;
@@ -135,8 +145,8 @@ public class MainController {
 
         if (result.isPresent() && result.get() == ButtonType.YES) {
             // Đóng cửa sổ hiện tại
-//            Stage stage = (Stage) logoutLabel.getScene().getWindow();
-//            stage.close();
+            Stage stage = (Stage) logoutLabel.getScene().getWindow();
+            stage.close();
 
             // Mở lại cửa sổ login
             try {
@@ -156,7 +166,7 @@ public class MainController {
 
 
     @FXML
-    private void showOrdersPage() throws IOException {
+    public void showOrdersPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/order.fxml"));
         BorderPane orderPage = loader.load();  // Tải FXML thành AnchorPane
         contentArea.getChildren().setAll(orderPage);
@@ -182,14 +192,6 @@ public class MainController {
         }
 
         contentArea.getChildren().setAll(productPage);
-    }
-
-
-    @FXML
-    private void showCategoryPage() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/category/category.fxml"));
-        AnchorPane categoryPage = loader.load();
-        contentArea.getChildren().setAll(categoryPage);
     }
 
     @FXML
@@ -219,12 +221,8 @@ public class MainController {
         contentArea.getChildren().setAll(rolesPermissionsPage);
     }
 
-
-    public void showHomePage(ActionEvent actionEvent) {
-    }
-
     @FXML
-    private void showPoolTablePage() throws IOException {
+    public void showPoolTablePage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/poolTables/poolTable.fxml"));
         AnchorPane poolTablePage = loader.load();
 
@@ -239,12 +237,12 @@ public class MainController {
         contentArea.getChildren().setAll(poolTablePage);
     }
 
-    public void showStaffPage(ActionEvent actionEvent) {
-    }
-
     public void showCustomerPage(ActionEvent actionEvent) {
     }
 
-    public void showStatisticPage(ActionEvent actionEvent) {
+    public void showReportPage(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/reports/report.fxml"));
+        BorderPane reportPage = loader.load();  // Tải FXML thành AnchorPane
+        contentArea.getChildren().setAll(reportPage);
     }
 }
