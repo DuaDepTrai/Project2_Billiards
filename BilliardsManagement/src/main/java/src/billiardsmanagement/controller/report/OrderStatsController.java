@@ -214,7 +214,7 @@
             String selectedFilter = filterTypeComboBox.getValue();
 
             if ("Date Range".equals(selectedFilter)) {
-                return "SELECT c.category_name, DATE(o.order_date) AS date, SUM(oi.net_total) AS revenue " +
+                return "SELECT c.category_name, DATE(o.order_date) AS date, SUM(oi.total) AS revenue " +
                         "FROM orders_items oi " +
                         "JOIN products p ON oi.product_id = p.product_id " +
                         "JOIN category c ON p.category_id = c.category_id " +
@@ -222,7 +222,7 @@
                         "WHERE o.order_status = 'Paid' AND o.order_date BETWEEN ? AND ? " +
                         "GROUP BY c.category_name, DATE(o.order_date)";
             } else if ("Month".equals(selectedFilter)) {
-                return "SELECT c.category_name, DATE(o.order_date) AS date, SUM(oi.net_total) AS revenue " +
+                return "SELECT c.category_name, DATE(o.order_date) AS date, SUM(oi.total) AS revenue " +
                         "FROM orders_items oi " +
                         "JOIN products p ON oi.product_id = p.product_id " +
                         "JOIN category c ON p.category_id = c.category_id " +
@@ -230,7 +230,7 @@
                         "WHERE o.order_status = 'Paid' AND MONTH(o.order_date) = ? AND YEAR(o.order_date) = ? " +
                         "GROUP BY c.category_name, DATE(o.order_date)";
             } else { // Lọc theo Năm
-                return "SELECT c.category_name, DATE(o.order_date) AS date, SUM(oi.net_total) AS revenue " +
+                return "SELECT c.category_name, DATE(o.order_date) AS date, SUM(oi.total) AS revenue " +
                         "FROM orders_items oi " +
                         "JOIN products p ON oi.product_id = p.product_id " +
                         "JOIN category c ON p.category_id = c.category_id " +
@@ -244,7 +244,7 @@
             String selectedFilter = filterTypeComboBox.getValue();
 
             if ("Date Range".equals(selectedFilter)) {
-                return "SELECT cp.name AS table_type, DATE(o.order_date) AS date, SUM(b.net_total) AS revenue " +
+                return "SELECT cp.name AS table_type, DATE(o.order_date) AS date, SUM(b.total) AS revenue " +
                         "FROM bookings b " +
                         "JOIN pooltables pt ON b.table_id = pt.table_id " +
                         "JOIN cate_pooltables cp ON pt.cate_id = cp.id " +
@@ -252,7 +252,7 @@
                         "WHERE o.order_status = 'Paid' AND o.order_date BETWEEN ? AND ? " +
                         "GROUP BY cp.name";
             } else if ("Month".equals(selectedFilter)) {
-                return "SELECT cp.name AS table_type, DATE(o.order_date) AS date, SUM(b.net_total) AS revenue " +
+                return "SELECT cp.name AS table_type, DATE(o.order_date) AS date, SUM(b.total) AS revenue " +
                         "FROM bookings b " +
                         "JOIN pooltables pt ON b.table_id = pt.table_id " +
                         "JOIN cate_pooltables cp ON pt.cate_id = cp.id " +
@@ -260,7 +260,7 @@
                         "WHERE o.order_status = 'Paid' AND MONTH(o.order_date) = ? AND YEAR(o.order_date) = ? " +
                         "GROUP BY cp.name";
             } else { // Lọc theo Năm
-                return "SELECT cp.name AS table_type, DATE(o.order_date) AS date, SUM(b.net_total) AS revenue " +
+                return "SELECT cp.name AS table_type, DATE(o.order_date) AS date, SUM(b.total) AS revenue " +
                         "FROM bookings b " +
                         "JOIN pooltables pt ON b.table_id = pt.table_id " +
                         "JOIN cate_pooltables cp ON pt.cate_id = cp.id " +
@@ -370,7 +370,7 @@
                 String selectedFilter = filterTypeComboBox.getValue();
 
                 if ("Date Range".equals(selectedFilter)) {
-                    sql = "SELECT cp.name AS table_type, SUM(b.net_total) AS revenue " +
+                    sql = "SELECT cp.name AS table_type, SUM(b.total) AS revenue " +
                             "FROM bookings b " +
                             "JOIN pooltables pt ON b.table_id = pt.table_id " +
                             "JOIN cate_pooltables cp ON pt.cate_id = cp.id " +
@@ -381,7 +381,7 @@
                     stmt.setString(1, startDatePicker.getValue().toString());
                     stmt.setString(2, endDatePicker.getValue().toString());
                 } else if ("Month".equals(selectedFilter)) {
-                    sql = "SELECT cp.name AS table_type, SUM(b.net_total) AS revenue " +
+                    sql = "SELECT cp.name AS table_type, SUM(b.total) AS revenue " +
                             "FROM bookings b " +
                             "JOIN pooltables pt ON b.table_id = pt.table_id " +
                             "JOIN cate_pooltables cp ON pt.cate_id = cp.id " +
@@ -392,7 +392,7 @@
                     stmt.setInt(1, monthComboBox.getValue());
                     stmt.setInt(2, yearComboBox.getValue());
                 } else { // Lọc theo Năm
-                    sql = "SELECT cp.name AS table_type, SUM(b.net_total) AS revenue " +
+                    sql = "SELECT cp.name AS table_type, SUM(b.total) AS revenue " +
                             "FROM bookings b " +
                             "JOIN pooltables pt ON b.table_id = pt.table_id " +
                             "JOIN cate_pooltables cp ON pt.cate_id = cp.id " +
@@ -435,7 +435,7 @@
                 String selectedFilter = filterTypeComboBox.getValue();
 
                 if ("Date Range".equals(selectedFilter)) {
-                    sql = "SELECT c.category_name, SUM(oi.net_total) AS revenue " +
+                    sql = "SELECT c.category_name, SUM(oi.total) AS revenue " +
                             "FROM orders_items oi " +
                             "JOIN products p ON oi.product_id = p.product_id " +
                             "JOIN category c ON p.category_id = c.category_id " +
@@ -446,7 +446,7 @@
                     stmt.setString(1, startDatePicker.getValue().toString());
                     stmt.setString(2, endDatePicker.getValue().toString());
                 } else if ("Month".equals(selectedFilter)) {
-                    sql = "SELECT c.category_name, SUM(oi.net_total) AS revenue " +
+                    sql = "SELECT c.category_name, SUM(oi.total) AS revenue " +
                             "FROM orders_items oi " +
                             "JOIN products p ON oi.product_id = p.product_id " +
                             "JOIN category c ON p.category_id = c.category_id " +
@@ -457,7 +457,7 @@
                     stmt.setInt(1, monthComboBox.getValue());
                     stmt.setInt(2, yearComboBox.getValue());
                 } else { // Lọc theo Năm
-                    sql = "SELECT c.category_name, SUM(oi.net_total) AS revenue " +
+                    sql = "SELECT c.category_name, SUM(oi.total) AS revenue " +
                             "FROM orders_items oi " +
                             "JOIN products p ON oi.product_id = p.product_id " +
                             "JOIN category c ON p.category_id = c.category_id " +
@@ -490,4 +490,5 @@
                 e.printStackTrace();
             }
         }
+
     }
