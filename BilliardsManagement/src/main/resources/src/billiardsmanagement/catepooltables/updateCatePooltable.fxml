@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" alignment="CENTER" prefWidth="300" prefHeight="180"
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="src.billiardsmanagement.controller.pooltables.catepooltables.UpdateCategoryPooltableController">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Update Pool Table Category" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+
+    <Label text="Price:"/>
+    <TextField fx:id="priceField" promptText="Enter new price"/>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Confirm" onAction="#handleConfirm" defaultButton="true"/>
+        <Button text="Close" onAction="#handleClose" cancelButton="true"/>
+    </HBox>
+
+</VBox> 

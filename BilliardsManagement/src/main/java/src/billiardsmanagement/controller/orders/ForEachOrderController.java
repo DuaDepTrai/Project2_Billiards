@@ -1,5 +1,6 @@
 package src.billiardsmanagement.controller.orders;
 
+import io.github.palexdev.materialfx.controls.MFXTableView;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -189,7 +190,7 @@ public class ForEachOrderController {
         List<OrderItem> items = OrderItemDAO.getForEachOrderItem(orderID);
         items.sort((i1,i2) -> i2.getOrderItemId() - i1.getOrderItemId());
         System.out.println(items.isEmpty() ? "Order Item list in ForEachOrderController, loadOrderDetail() don't have any element !" : "");
-        orderItemList.addAll(items); 
+        orderItemList.addAll(items);
         orderItemsTable.setItems(orderItemList);
         // Promotion-related code commented out
         /*
@@ -891,10 +892,10 @@ public class ForEachOrderController {
 
                     if (updateOrderSuccess) {
                         // Show success message
-                        NotificationService.showNotification("Success", 
-                            "Order has been finished successfully! Total cost: " + formatTotal(totalCost), 
-                            NotificationStatus.Success);
-                        
+                        NotificationService.showNotification("Success",
+                                "Order has been finished successfully! Total cost: " + formatTotal(totalCost),
+                                NotificationStatus.Success);
+
                         // Refresh the tables
                         loadBookings();
                         loadOrderDetail();

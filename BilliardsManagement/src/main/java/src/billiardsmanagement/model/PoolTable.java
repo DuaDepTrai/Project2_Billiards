@@ -3,7 +3,8 @@ package src.billiardsmanagement.model;
 public class PoolTable {
     private int tableId; // ID của bàn
     private String name; // Tên bàn
-    private String status; // Trạng thái bàn (Available, Occupied, Under Maintenance)
+    private String status; // Trạng thái bàn
+    // ( Current : Available, Ordered, Playing )
     private int catePooltableId;
     private String catePooltableName;
     private double price; // Giá thuê bàn

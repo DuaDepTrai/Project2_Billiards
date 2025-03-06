@@ -30,12 +30,40 @@
 }
 
 .add-button {
+    -fx-pref-height: 23.0;
+    -fx-max-height: 23.0;
     -fx-background-color: #4CAF50;
     -fx-text-fill: white;
     -fx-font-weight: bold;
+    -fx-padding: 0;
 }
 
 .search-button {
     -fx-background-color: transparent;
     -fx-cursor: hand;
-} 
+}
+
+.poolReportHeader {
+    -fx-font-weight: bold;
+
+}
+
+.add-cate-pooltable-button {
+    -fx-font-size: 13;
+    -fx-pref-height: 25.0;
+    -fx-max-height: 25.0;
+    -fx-font-weight: bold;
+    -fx-background-color: #212121; /* Initial background color */
+    -fx-text-fill: white; /* Text color */
+    -fx-padding: 10; /* Optional: padding for better appearance */
+    -fx-border-color: transparent; /* Optional: border color */
+    -fx-border-radius: 5; /* Optional: border radius for rounded corners */
+}
+
+.add-cate-pooltable-button:hover {
+    -fx-font-size: 13;
+    -fx-pref-height: 25.0;
+    -fx-max-height: 25.0;
+    -fx-background-color: gray; /* Background color on hover */
+    -fx-text-fill: black; /* Text color on hover */
+}

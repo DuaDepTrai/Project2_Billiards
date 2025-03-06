@@ -1,5 +1,8 @@
 package src.billiardsmanagement.controller.pooltables;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,11 +26,16 @@ import src.billiardsmanagement.model.CatePooltable;
 import src.billiardsmanagement.model.PoolTable;
 import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
+import src.billiardsmanagement.controller.pooltables.catepooltables.UpdateCategoryPooltableController;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class PoolTableController {
+    public MFXScrollPane availableTableScrollPane;
+    public MFXScrollPane catePooltablesScrollPane;
+    public Button addNewTableCategory;
+
     @FXML
     protected FlowPane tablesContainer;
 
@@ -52,6 +60,9 @@ public class PoolTableController {
     private ComboBox<String> editStatusCombo;
 
     protected ObservableList<PoolTable> tableList = FXCollections.observableArrayList();
+    protected ObservableList<PoolTable> availableTableList = FXCollections.observableArrayList();
+    protected ObservableList<PoolTable> orderedTableList = FXCollections.observableArrayList();
+    protected ObservableList<PoolTable> playingTableList = FXCollections.observableArrayList();
     protected PoolTableDAO poolTableDAO = new PoolTableDAO();
     protected ArrayList<CatePooltable> catePooltablesList;
 
@@ -74,6 +85,12 @@ public class PoolTableController {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             filterTables(newValue);
         });
+
+        // Initialize category list
+        initializeCategoryList();
+
+        // Add handler for new category button
+        addNewTableCategory.setOnAction(e -> showAddCategoryDialog());
     }
 
     protected void filterTables(String searchText) {
@@ -193,6 +210,173 @@ public class PoolTableController {
         dialog.showAndWait();
     }
 
+    private void updateStatusLists() {
+        // Clear all status lists
+        availableTableList.clear();
+        orderedTableList.clear();
+        playingTableList.clear();
+
+        // Filter tables by status
+        tableList.forEach(table -> {
+            switch (table.getStatus()) {
+                case "Available":
+                    availableTableList.add(table);
+                    break;
+                case "Ordered":
+                    orderedTableList.add(table);
+                    break;
+                case "Playing":
+                    playingTableList.add(table);
+                    break;
+            }
+        });
+
+
+        VBox fullContent = new VBox(5);
+        
+        // Available
+        VBox availableContent = new VBox(5);
+        Label availableText = new Label("Available Tables : " + availableTableList.size());
+        availableText.setStyle("-fx-font-weight: bold; -fx-font-size: 12.5;"); // Make bold, set font size
+        availableText.setPadding(new Insets(0, 0, 0, 5)); // Apply left padding
+        availableContent.getChildren().add(availableText);
+
+        catePooltablesList.forEach(cate -> {
+            Label text = new Label(cate.getName() + " : " + availableTableList.stream()
+                    .filter(i -> i.getCatePooltableName().equalsIgnoreCase(cate.getName()))
+                    .count());
+            text.setStyle("-fx-font-size: 12.5;"); // Set font size
+            text.setPadding(new Insets(0, 0, 0, 20)); // Apply left padding
+            availableContent.getChildren().add(text);
+        });
+        availableContent.getChildren().add(new Region()); // Empty region as spacer
+
+        // Ordered
+        VBox orderedContent = new VBox(5);
+        Label orderedText = new Label("Ordered Tables : " + orderedTableList.size());
+        orderedText.setStyle("-fx-font-weight: bold; -fx-font-size: 12.5;"); // Make bold, set font size
+        orderedText.setPadding(new Insets(0, 0, 0, 10)); // Apply left padding
+        orderedContent.getChildren().add(orderedText);
+
+        catePooltablesList.forEach(cate -> {
+            Label text = new Label(cate.getName() + " : " + orderedTableList.stream()
+                    .filter(i -> i.getCatePooltableName().equalsIgnoreCase(cate.getName()))
+                    .count());
+            text.setStyle("-fx-font-size: 12.5;"); // Set font size
+            text.setPadding(new Insets(0, 0, 0, 20)); // Apply left padding
+            orderedContent.getChildren().add(text);
+        });
+        orderedContent.getChildren().add(new Region()); // Empty region as spacer
+
+        // Playing
+        VBox playingContent = new VBox(5);
+        Label playingText = new Label("Playing Tables : " + playingTableList.size());
+        playingText.setStyle("-fx-font-weight: bold; -fx-font-size: 12.5;"); // Make bold, set font size
+        playingText.setPadding(new Insets(0, 0, 0, 10)); // Apply left padding
+        playingContent.getChildren().add(playingText);
+
+        catePooltablesList.forEach(cate -> {
+            Label text = new Label(cate.getName() + " : " + playingTableList.stream()
+                    .filter(i -> i.getCatePooltableName().equalsIgnoreCase(cate.getName()))
+                    .count());
+            text.setStyle("-fx-font-size: 12.5;"); // Set font size
+            text.setPadding(new Insets(0, 0, 0, 20)); // Apply left padding
+            playingContent.getChildren().add(text);
+        });
+        playingContent.getChildren().add(new Region()); // Empty region as spacer
+
+        // Add all sections to fullContent
+        fullContent.getChildren().addAll(availableContent, orderedContent, playingContent);
+        availableTableScrollPane.setContent(fullContent);
+    }
+
+    private void initializeCategoryList() {
+        VBox categoryContent = new VBox(5);
+        categoryContent.setPadding(new Insets(10));
+
+        catePooltablesList.forEach(category -> {
+            HBox categoryRow = new HBox(10);
+            categoryRow.setAlignment(Pos.CENTER_LEFT);
+
+            Text categoryText = new Text(category.getName() + " - " + String.format("%.2f", category.getPrice()));
+            categoryText.setStyle("-fx-line-spacing: 5;"); // Increase line height (spacing)
+
+// Create the edit button
+            Button editButton = new Button();
+            editButton.getStyleClass().add("edit-button");
+
+// Set button size to 25x25
+            editButton.setMinSize(25, 25); // Minimum size
+            editButton.setMaxSize(25, 25); // Maximum size
+
+// Add pencil icon from FontAwesome
+            FontAwesomeIconView pencilIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
+            pencilIcon.prefWidth(15); // Adjust icon size as needed
+            pencilIcon.prefHeight(15);
+
+            editButton.setGraphic(pencilIcon);
+            editButton.setGraphicTextGap(0); // Remove gap between icon and text if needed
+
+// Center the icon within the button
+            editButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+            editButton.setOnAction(e -> showUpdateCategoryDialog(category));
+
+            categoryRow.getChildren().addAll(editButton, categoryText);
+            categoryContent.getChildren().add(categoryRow);
+        });
+        catePooltablesScrollPane.setContent(categoryContent);
+    }
+
+    private void showAddCategoryDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/catepooltables/addCatePooltable.fxml"));
+            Parent root = loader.load();
+
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.setTitle("Add New Category");
+
+            Scene scene = new Scene(root);
+            dialog.setScene(scene);
+            dialog.showAndWait();
+
+            // Refresh categories after dialog closes
+            catePooltablesList.clear();
+            catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
+            initializeCategoryList();
+        } catch (IOException e) {
+            e.printStackTrace();
+            NotificationService.showNotification("Error", "Failed to open add category dialog: " + e.getMessage(), NotificationStatus.Error);
+        }
+    }
+
+    private void showUpdateCategoryDialog(CatePooltable category) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/catepooltables/updateCatePooltable.fxml"));
+            Parent root = loader.load();
+
+            UpdateCategoryPooltableController controller = loader.getController();
+            controller.setCatePooltable(category);
+
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.setTitle("Update Category");
+
+            Scene scene = new Scene(root);
+            dialog.setScene(scene);
+            dialog.showAndWait();
+
+            // Refresh categories after dialog closes
+            catePooltablesList.clear();
+            catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
+            initializeCategoryList();
+        } catch (IOException e) {
+            e.printStackTrace();
+            NotificationService.showNotification("Error", "Failed to open update category dialog: " + e.getMessage(), NotificationStatus.Error);
+        }
+    }
+
     @FXML
     protected void handleViewAllTables() {
         tableList.clear();
@@ -201,21 +385,24 @@ public class PoolTableController {
         // Clear and rebuild UI
         tablesContainer.getChildren().clear();
         tableList.forEach(this::createTableUI);
+
+        // Update status lists
+        updateStatusLists();
     }
 
     @FXML
     private void showAddDialog() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/pooltables/addPoolTable.fxml"));
         Parent root = loader.load();
-        
+
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Add New Table");
-        
+
         Scene scene = new Scene(root);
         dialog.setScene(scene);
         dialog.showAndWait();
-        
+
         // Refresh the table list after dialog closes
         handleViewAllTables();
     }
@@ -224,21 +411,22 @@ public class PoolTableController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/pooltables/editPoolTable.fxml"));
             Parent root = loader.load();
-            
+
             UpdatePoolTableController controller = loader.getController();
             controller.setPoolTable(table);
-            
+
             Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.setTitle("Edit Table");
-            
+
             Scene scene = new Scene(root);
             dialog.setScene(scene);
             dialog.showAndWait();
-            
+
             // Refresh the table list after dialog closes
             handleViewAllTables();
         } catch (IOException e) {
+            e.printStackTrace();
             NotificationService.showNotification("Error", "Failed to open update dialog: " + e.getMessage(), NotificationStatus.Error);
         }
     }

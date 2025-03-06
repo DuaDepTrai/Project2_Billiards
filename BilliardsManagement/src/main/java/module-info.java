@@ -1,6 +1,4 @@
 module src.billiardsmanagement {
-    requires javafx.controls;
-    requires javafx.fxml;
     requires de.jensd.fx.glyphs.fontawesome;
     requires de.jensd.fx.glyphs.commons;
     requires java.sql;
@@ -8,11 +6,11 @@ module src.billiardsmanagement {
 
     requires mysql.connector.j;
 
-    requires java.desktop;
     requires org.apache.pdfbox;
     requires kernel;
     requires io;
     requires itextpdf;
+    requires MaterialFX;
 
     exports src.billiardsmanagement.model;
     exports src.billiardsmanagement.controller;
@@ -40,4 +38,7 @@ module src.billiardsmanagement {
     opens src.billiardsmanagement.controller.report to javafx.fxml;
     exports src.billiardsmanagement.controller.pooltables;
     opens src.billiardsmanagement.controller.pooltables to javafx.fxml;
+
+    exports src.billiardsmanagement.controller.pooltables.catepooltables;
+    opens src.billiardsmanagement.controller.pooltables.catepooltables to javafx.fxml;
 }

@@ -6,7 +6,7 @@
     -fx-background-color: #A31D1D;
     -fx-text-overrun: CLIP;
     -fx-alignment: CENTER;
-    
+
 }
 
 .table-view .column-header .label {
@@ -27,7 +27,7 @@
 
 .header-text{
     -fx-font-size: 15px;
-    
+
 }
 
 .left-aligned {
@@ -52,6 +52,6 @@
 .table-view .table-row-cell{
     -fx-spacing: 10;
     border: transparent;
-    
+
 }
 
