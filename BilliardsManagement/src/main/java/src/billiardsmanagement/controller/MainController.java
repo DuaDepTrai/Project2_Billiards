@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.products.ProductController;
 import src.billiardsmanagement.controller.products2.ProductController2;
@@ -41,7 +42,32 @@ public class MainController {
     private Label roleLabel;
     @FXML
     private ImageView avatarImageView;
+    @FXML
+    private BorderPane mainContainer;
+    @FXML
+    private VBox navbarContainer; // VBox chứa Navbar
+    @FXML
+    private StackPane contentArea;
+    public void initialize() {
+        loadNavbar();
+    }
 
+    private void loadNavbar() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/navbar.fxml"));
+            VBox navbar = loader.load();
+            NavbarController navbarController = loader.getController();
+            navbarContainer.getChildren().setAll(navbar);
+
+            // Lấy controller của Navbar
+
+            // Truyền contentArea vào NavbarController
+            navbarController.setContentArea(contentArea);
+            mainContainer.setLeft(navbar);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private User loggedInUser;
 
     public void setLoggedInUser(User user) {
@@ -126,11 +152,10 @@ public class MainController {
         }
     }
 
-    @FXML
-    private StackPane contentArea;
+
 
     @FXML
-    public void showOrdersPage() throws IOException {
+    private void showOrdersPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/order.fxml"));
         BorderPane orderPage = loader.load();  // Tải FXML thành AnchorPane
         contentArea.getChildren().setAll(orderPage);
@@ -140,6 +165,9 @@ public class MainController {
     public void showProductsPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products2/products2.fxml"));
         BorderPane productPage = loader.load();
+
+//        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/products.fxml"));
+//        AnchorPane productPage = loader.load();
 
         ProductController2 productController = loader.getController();
         productController.setCurrentUser(loggedInUser);
@@ -194,20 +222,7 @@ public class MainController {
     public void showHomePage(ActionEvent actionEvent) {
     }
 
-    @FXML
-    private void showPoolTablePage() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/poolTable.fxml"));
-        AnchorPane poolTablePage = loader.load();
-
-        // Get the controller and pass the logged-in user if needed
-        PoolTableController poolTableController = loader.getController();
-        if (poolTableController != null) {
-            // poolTableController.setLoggedInUser(loggedInUser); // Assuming you have a method to set the user
-        } else {
-            System.out.println("Error: Unable to retrieve PoolTableController!");
-        }
-
-        contentArea.getChildren().setAll(poolTablePage);
+    public void showPoolTablePage(ActionEvent actionEvent) {
     }
 
     public void showStaffPage(ActionEvent actionEvent) {

@@ -139,3 +139,25 @@
 .table-view > .virtual-flow > .clipped-container > .sheet > .table-row-cell {
     -fx-padding: 2;
 }
+
+
+.submenu-container {
+    -fx-background-color: #ffffff;
+    -fx-padding: 0 0 0 30;
+}
+
+.submenu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 8 15;
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 10;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-text-fill: #555555;
+    -fx-min-width: 220;
+    -fx-border-width: 0;
+}
+
+.submenu-item:hover {
+    -fx-background-color: #e8e8e8;
+}

@@ -9,76 +9,16 @@
 <BorderPane xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="src.billiardsmanagement.controller.MainController"
-            styleClass="main-container">
+            styleClass="main-container"
+            fx:id="mainContainer"
+>
 
-    <!-- Left Sidebar -->
     <left>
-        <VBox styleClass="sidebar" prefWidth="250">
-            <!-- Logo and App Name -->
-            <HBox styleClass="logo-container" alignment="CENTER_LEFT" spacing="10">
-                <padding>
-                    <Insets top="20" right="15" bottom="20" left="15"/>
-                </padding>
-                <ImageView fitHeight="40" fitWidth="40" styleClass="logo-image">
-                    <image>
-                        <Image url="@images/logo.jpg"/>
-                    </image>
-                </ImageView>
-                <VBox>
-                    <Label text="Billiard" styleClass="app-name"/>
-                    <Label text="Management" styleClass="app-subtitle"/>
-                </VBox>
-            </HBox>
+        <VBox fx:id="navbarContainer" styleClass="navbar" spacing="10">
 
-            <!-- Navigation Menu -->
-            <VBox styleClass="nav-menu" spacing="5">
-<!--                <Button styleClass="nav-item" onAction="#showHomePage" text="Home">-->
-<!--                    <graphic>-->
-<!--                        <FontAwesomeIconView glyphName="HOME" size="16"/>-->
-<!--                    </graphic>-->
-<!--                </Button>-->
-
-                <Button styleClass="nav-item" onAction="#showPoolTablePage" text="Pool Table">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="TABLE" size="16"/>
-                    </graphic>
-                </Button>
-
-                <Button styleClass="nav-item" onAction="#showOrdersPage" text="Order">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="SHOPPING_CART" size="16"/>
-                    </graphic>
-                </Button>
-
-                <Button styleClass="nav-item" onAction="#showProductsPage" text ="Product">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="CUBE" size="16"/>
-                    </graphic>
-                </Button>
-
-                <Button styleClass="nav-item" onAction="#showUsersPage" text="Staff">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="USERS" size="16"/>
-                    </graphic>
-                </Button>
-
-                <Button styleClass="nav-item" onAction="#showCustomerPage" text="Customer">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="USER" size="16"/>
-                    </graphic>
-                </Button>
-
-                <Button styleClass="nav-item" onAction="#showStatisticPage" text="Report">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="BAR_CHART" size="16"/>
-                    </graphic>
-                </Button>
-            </VBox>
         </VBox>
     </left>
 
-    <!-- Main Content Area -->
-    <!-- Main Content Area -->
     <center>
         <VBox styleClass="center-container" spacing="0">
             <!-- Top Bar -->
