@@ -10,7 +10,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import src.billiardsmanagement.controller.poolTables.PoolTableController;
+import src.billiardsmanagement.controller.poolTables.*;
 import src.billiardsmanagement.controller.products2.ProductController2;
 import src.billiardsmanagement.controller.users.RolesPermissionsController;
 import src.billiardsmanagement.controller.users.UserController;
@@ -39,6 +39,8 @@ public class MainController {
     private Label usernameLabel;
     @FXML
     private Label roleLabel;
+    @FXML
+    private Label logoutLabel;
     @FXML
     private ImageView avatarImageView;
     @FXML
@@ -133,8 +135,8 @@ public class MainController {
 
         if (result.isPresent() && result.get() == ButtonType.YES) {
             // Đóng cửa sổ hiện tại
-            Stage stage = (Stage) usernameLabel.getScene().getWindow();
-            stage.close();
+//            Stage stage = (Stage) logoutLabel.getScene().getWindow();
+//            stage.close();
 
             // Mở lại cửa sổ login
             try {
@@ -223,11 +225,11 @@ public class MainController {
 
     @FXML
     private void showPoolTablePage() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/pooltables/poolTable.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/poolTables/poolTable.fxml"));
         AnchorPane poolTablePage = loader.load();
 
         // Get the controller and pass the logged-in user if needed
-        PoolTableController poolTableController = loader.getController();
+        src.billiardsmanagement.controller.poolTables.PoolTableController poolTableController = loader.getController();
         if (poolTableController != null) {
             // poolTableController.setLoggedInUser(loggedInUser); // Assuming you have a method to set the user
         } else {

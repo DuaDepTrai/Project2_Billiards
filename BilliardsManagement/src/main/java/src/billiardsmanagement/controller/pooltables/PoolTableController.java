@@ -1,4 +1,4 @@
-package src.billiardsmanagement.controller.pooltables;
+package src.billiardsmanagement.controller.poolTables;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;

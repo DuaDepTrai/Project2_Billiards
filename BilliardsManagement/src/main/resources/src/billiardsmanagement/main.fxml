@@ -12,7 +12,6 @@
             styleClass="main-container"
             fx:id="mainContainer"
 >
-
     <left>
         <VBox fx:id="navbarContainer" styleClass="navbar" spacing="10">
             <Button styleClass="nav-item" onAction="#showPoolTablePage" text="Pool Table">
@@ -78,6 +77,7 @@
                     <VBox>
                         <Label fx:id="usernameLabel" text="Andrew" styleClass="user-name"/>
                         <Label fx:id="roleLabel" text="Admin account" styleClass="user-role"/>
+<!--                        <Label fx:id="logoutLabel" text="Logout" styleClass="logout-label" onMouseClicked="#handleLogout"/>-->
                     </VBox>
                 </HBox>
             </HBox>
