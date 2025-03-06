@@ -1,6 +1,5 @@
 package src.billiardsmanagement.controller.orders;
 
-import io.github.palexdev.materialfx.controls.MFXTableView;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
