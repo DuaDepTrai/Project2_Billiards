@@ -15,7 +15,41 @@
 
     <left>
         <VBox fx:id="navbarContainer" styleClass="navbar" spacing="10">
+            <Button styleClass="nav-item" onAction="#showPoolTablePage" text="Pool Table">
+                <graphic>
+                    <FontAwesomeIconView glyphName="TABLE" size="16"/>
+                </graphic>
+            </Button>
 
+            <Button styleClass="nav-item" onAction="#showOrdersPage" text="Order">
+                <graphic>
+                    <FontAwesomeIconView glyphName="SHOPPING_CART" size="16"/>
+                </graphic>
+            </Button>
+
+            <Button styleClass="nav-item" onAction="#showProductsPage" text ="Product">
+                <graphic>
+                    <FontAwesomeIconView glyphName="CUBE" size="16"/>
+                </graphic>
+            </Button>
+
+            <Button styleClass="nav-item" onAction="#showUsersPage" text="Staff">
+                <graphic>
+                    <FontAwesomeIconView glyphName="USERS" size="16"/>
+                </graphic>
+            </Button>
+
+            <Button styleClass="nav-item" onAction="#showCustomerPage" text="Customer">
+                <graphic>
+                    <FontAwesomeIconView glyphName="USER" size="16"/>
+                </graphic>
+            </Button>
+
+            <Button styleClass="nav-item" onAction="#showStatisticPage" text="Report">
+                <graphic>
+                    <FontAwesomeIconView glyphName="BAR_CHART" size="16"/>
+                </graphic>
+            </Button>
         </VBox>
     </left>
 
