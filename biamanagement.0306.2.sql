@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 05, 2025 at 06:03 PM
+-- Generation Time: Mar 06, 2025 at 04:38 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -34,7 +34,7 @@ CREATE TABLE `bookings` (
   `start_time` timestamp NOT NULL DEFAULT current_timestamp(),
   `end_time` timestamp NULL DEFAULT NULL,
   `timeplay` double DEFAULT NULL,
-  `net_total` double DEFAULT NULL,
+  `total` double DEFAULT NULL,
   `booking_status` enum('Order','Playing','Finish','Canceled') NOT NULL DEFAULT 'Playing'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -42,7 +42,7 @@ CREATE TABLE `bookings` (
 -- Dumping data for table `bookings`
 --
 
-INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end_time`, `timeplay`, `net_total`, `booking_status`) VALUES
+INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end_time`, `timeplay`, `total`, `booking_status`) VALUES
 (1, 1, 1, '2024-12-31 20:00:00', '2024-12-31 22:00:00', 2, 70000, 'Finish'),
 (2, 2, 2, '2025-01-02 00:00:00', '2025-01-02 02:30:00', 2.5, 187500, 'Finish'),
 (3, 3, 3, '2025-01-03 04:00:00', '2025-01-03 05:30:00', 1.5, 150000, 'Finish'),
@@ -259,14 +259,14 @@ CREATE TABLE `orders_items` (
   `order_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
   `quantity` int(11) NOT NULL,
-  `net_total` double DEFAULT NULL
+  `total` double DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `orders_items`
 --
 
-INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity`, `net_total`) VALUES
+INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity`, `total`) VALUES
 (2, 1, 12, 3, 60000),
 (3, 1, 7, 1, 15000),
 (5, 2, 13, 2, 60000),
@@ -378,7 +378,8 @@ INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `q
 (20, 'Uno', 5, 60000, 'Set', 20),
 (21, 'Poker Deck (Plastic Cards)', 5, 80000, 'Set', 15),
 (22, 'Poker Deck (Plastic Coated)', 5, 50000, 'Set', 30),
-(23, 'Sting', 3, 15000, 'Bottle', 50);
+(23, 'Sting', 3, 15000, 'Bottle', 50),
+(24, 'VIP Cues', 2, 200000, 'Piece', 5);
 
 -- --------------------------------------------------------
 
@@ -576,7 +577,7 @@ ALTER TABLE `bookings`
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `cate_pooltables`
@@ -618,7 +619,7 @@ ALTER TABLE `pooltables`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `roles`
