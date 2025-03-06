@@ -47,26 +47,26 @@ public class MainController {
     private VBox navbarContainer; // VBox chứa Navbar
     @FXML
     private StackPane contentArea;
-    public void initialize() {
-        loadNavbar();
-    }
-
-    private void loadNavbar() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/navbar.fxml"));
-            VBox navbar = loader.load();
-            NavbarController navbarController = loader.getController();
-            navbarContainer.getChildren().setAll(navbar);
-
-            // Lấy controller của Navbar
-
-            // Truyền contentArea vào NavbarController
-            navbarController.setContentArea(contentArea);
-            mainContainer.setLeft(navbar);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public void initialize() {
+//        loadNavbar();
+//    }
+//
+//    private void loadNavbar() {
+//        try {
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/navbar.fxml"));
+//            VBox navbar = loader.load();
+//            NavbarController navbarController = loader.getController();
+//            navbarContainer.getChildren().setAll(navbar);
+//
+//            // Lấy controller của Navbar
+//
+//            // Truyền contentArea vào NavbarController
+//            navbarController.setContentArea(contentArea);
+//            mainContainer.setLeft(navbar);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
     private User loggedInUser;
 
     public void setLoggedInUser(User user) {
