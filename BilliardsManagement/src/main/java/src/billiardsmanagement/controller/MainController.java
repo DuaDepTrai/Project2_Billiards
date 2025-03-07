@@ -1,8 +1,10 @@
 package src.billiardsmanagement.controller;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -17,11 +19,15 @@ import src.billiardsmanagement.controller.users.UserController;
 import src.billiardsmanagement.model.TestDBConnection;
 import src.billiardsmanagement.model.User;
 
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import javafx.event.ActionEvent;
@@ -59,10 +65,9 @@ public class MainController {
     private VBox navbarContainer; // VBox chứa Navbar
     @FXML
     private StackPane contentArea;
-//    public void initialize() {
-//        loadNavbar();
-//    }
-//
+
+
+    //
 //    private void loadNavbar() {
 //        try {
 //            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/navbar.fxml"));
@@ -82,8 +87,13 @@ public class MainController {
     private User loggedInUser;
 
     public void setLoggedInUser(User user) {
+        if (user == null) {
+            System.err.println("❌ Lỗi: User được truyền vào là null!");
+            return;
+        }
 
         this.loggedInUser = user;
+        System.out.println("✅ loggedInUser đã được cập nhật: " + loggedInUser.getUsername());
 
         String roleId = user.getRole();
         if (roleId == null || roleId.trim().isEmpty()) {
@@ -113,6 +123,8 @@ public class MainController {
                     System.err.println("❌ Không tìm thấy ảnh mặc định!");
                 }
             }
+            setupMenu();
+
         });
     }
 
@@ -163,7 +175,89 @@ public class MainController {
         }
     }
 
+    private List<Button> allMenus = new ArrayList<>();
 
+    public void initialize() {
+        System.out.println("🔄 MainController đã khởi tạo");
+        System.out.println("🔍 Debug: loggedInUser = " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
+
+//        setupMenu();
+    }
+
+    private void setupMenu() {
+        // Xóa các button cũ (nếu có)
+        navbarContainer.getChildren().clear();
+
+        // Tạo danh sách menu
+        Button poolTableButton = createNavButton("Pool Table", "TABLE", "showPoolTablePage");
+        Button ordersButton = createNavButton("Order", "SHOPPING_CART", "showOrdersPage");
+        Button productsButton = createNavButton("Product", "CUBE", "showProductsPage");
+        Button staffButton = createNavButton("Staff", "USERS", "showUsersPage");
+        Button customerButton = createNavButton("Customer", "USER", "showCustomerPage");
+        Button reportButton = createNavButton("Report", "BAR_CHART", "showReportPage");
+
+        // Lưu tất cả menu vào danh sách để kiểm soát quyền truy cập
+        allMenus.addAll(Arrays.asList(poolTableButton, ordersButton, productsButton, staffButton, customerButton, reportButton));
+
+        // Kiểm tra quyền user và thêm menu hợp lệ vào VBox
+        for (Button btn : allMenus) {
+            if (isAllowed(btn.getText())) {
+                navbarContainer.getChildren().add(btn); // Chỉ thêm Button nếu có quyền
+            }
+        }
+    }
+
+    // Hàm tạo Button cho Navbar
+    private Button createNavButton(String text, String icon, String actionMethod) {
+        Button button = new Button(text);
+        button.getStyleClass().add("nav-item");
+
+        FontAwesomeIconView iconView = new FontAwesomeIconView();
+        iconView.setGlyphName(icon);
+        iconView.setSize("16");
+        button.setGraphic(iconView);
+
+        button.setOnAction(event -> handleMenuClick(actionMethod));
+        return button;
+    }
+
+    // Xử lý sự kiện khi click menu
+    private void handleMenuClick(String actionMethod) {
+        try {
+            System.out.println("🛠 Gọi method: " + actionMethod);
+
+            Method method = getClass().getMethod(actionMethod);
+            method.invoke(this);
+        } catch (NoSuchMethodException e) {
+            System.out.println("⚠ Không tìm thấy phương thức: " + actionMethod);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Kiểm tra user có quyền vào menu không
+    private boolean isAllowed(String menuName) {
+        if (loggedInUser == null) return false;
+
+        String userRole = loggedInUser.getRoleName(); // Lấy role của user
+        List<String> allowedMenus = getAllowedMenusForRole(userRole);
+
+        return allowedMenus.contains(menuName);
+    }
+
+    // Hàm trả về danh sách menu mà role này được phép truy cập
+    private List<String> getAllowedMenusForRole(String role) {
+        switch (role) {
+            case "Admin":
+                return Arrays.asList("Pool Table", "Order", "Product", "Staff", "Customer", "Report");
+            case "Manager":
+                return Arrays.asList("Pool Table", "Order", "Product", "Customer", "Report"); // Ẩn Staff
+            case "Receptionist":
+                return Arrays.asList("Pool Table", "Order", "Customer"); // Ẩn Staff, Report, Product
+            default:
+                return Arrays.asList("Pool Table", "Order"); // Chỉ thấy mỗi Customer
+        }
+    }
 
     @FXML
     public void showOrdersPage() throws IOException {
