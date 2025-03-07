@@ -25,7 +25,6 @@ public class OrderItemDAO {
             try (PreparedStatement pst = con.prepareStatement(updateQuery)) {
                 pst.setInt(1, orderItem.getQuantity());
                 pst.setDouble(2, orderItem.getTotal());
-//                pst.setDouble(3, orderItem.getSubTotal());
                 pst.setInt(3, orderItem.getOrderId());
                 pst.setInt(4, orderItem.getOrderItemId());
 
@@ -49,6 +48,7 @@ public class OrderItemDAO {
             String checkOrderQuery = "SELECT 1 FROM orders WHERE order_id = ?";
             try (PreparedStatement checkStmt = con.prepareStatement(checkOrderQuery)) {
                 checkStmt.setInt(1, orderItem.getOrderId());
+                System.out.println("Add Order Item prepared = "+checkStmt);
                 try (ResultSet rs = checkStmt.executeQuery()) {
                     if (!rs.next()) {
                         System.err.println(ANSI_RED + "✖ Error: Order does not exist with ID " + orderItem.getOrderId()
@@ -59,14 +59,12 @@ public class OrderItemDAO {
             }
 
             // If order exists, proceed with adding order item
-            String addOrderItemQuery = "INSERT INTO orders_items(order_id,product_id,quantity,total) VALUES (?,?,?,?,?,?)";
+            String addOrderItemQuery = "INSERT INTO orders_items(order_id,product_id,quantity,total) VALUES (?,?,?,?)";
             try (PreparedStatement pre = con.prepareStatement(addOrderItemQuery)) {
                 pre.setInt(1, orderItem.getOrderId());
                 pre.setInt(2, orderItem.getProductId());
                 pre.setInt(3, orderItem.getQuantity());
                 pre.setDouble(4, orderItem.getTotal());
-//                pre.setDouble(5, orderItem.getSubTotal());
-                pre.setNull(5, Types.INTEGER);
                 System.out.println("Add Order Item Query = " + pre);
                 // Promotion
                 // if(orderItem.getPromotionId() > 0) {
@@ -118,7 +116,6 @@ public class OrderItemDAO {
                 orderItem.setProductPrice(rs.getDouble("product_price"));
                 orderItem.setQuantity(rs.getInt("quantity"));
                 orderItem.setTotal(rs.getDouble("total"));
-//                orderItem.setSubTotal(rs.getDouble("subtotal"));
 
                 orderItemList.add(orderItem);
             }
@@ -142,9 +139,7 @@ public class OrderItemDAO {
             queryBuilder.append("UPDATE orders_items SET ")
                     .append("product_id = ?, ")
                     .append("quantity = ?, ")
-                    .append("total = ?, ")
-//                    .append("subtotal = ?, ")
-//                    .append("promotion_id = ? ")
+                    .append("total = ? ")
                     .append("WHERE order_id = ? AND order_item_id = ?");
 
             String query = queryBuilder.toString();
@@ -153,14 +148,6 @@ public class OrderItemDAO {
                 pst.setInt(1, orderItem.getProductId());
                 pst.setInt(2, orderItem.getQuantity());
                 pst.setDouble(3, orderItem.getTotal());
-//                pst.setDouble(4, orderItem.getSubTotal());
-
-                // Handle promotion ID: set to null if -1
-//                if (orderItem.getPromotionId() < 0) {
-//                    pst.setNull(5, java.sql.Types.INTEGER);
-//                } else {
-//                    pst.setInt(5, orderItem.getPromotionId());
-//                }
 
                 pst.setInt(4, orderItem.getOrderId());
                 pst.setInt(5, orderItem.getOrderItemId());

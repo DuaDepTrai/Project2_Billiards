@@ -1,4 +1,4 @@
-package src.billiardsmanagement.controller.pooltables;
+package src.billiardsmanagement.controller.poolTables;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;

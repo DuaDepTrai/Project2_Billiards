@@ -6,6 +6,8 @@ import java.util.List;
 import src.billiardsmanagement.model.CatePooltable;
 import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.model.PoolTable;
+import src.billiardsmanagement.service.NotificationService;
+import src.billiardsmanagement.model.NotificationStatus;
 
 public class CatePooltableDAO {
     // CRUD operations for cate_pooltables
@@ -18,48 +20,71 @@ public class CatePooltableDAO {
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                int id = rs.getInt("id");
-                String name = rs.getString("name");
-                double price = rs.getDouble("price");
-                categories.add(new CatePooltable(id, name, price));
+                categories.add(new CatePooltable(
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getString("shortName"),
+                    rs.getDouble("price")
+                ));
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            NotificationService.showNotification("Database Error", 
+                "Failed to fetch categories: " + e.getMessage(), 
+                NotificationStatus.Error);
         }
         return categories;
     }
 
     public static int addCategory(CatePooltable category) {
-        String query = "INSERT INTO cate_pooltables (name, price) VALUES (?, ?)";
+        String query = "INSERT INTO cate_pooltables (name, shortName, price) VALUES (?, ?, ?)";
         int generatedId = -1;
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            
             pstmt.setString(1, category.getName());
-            pstmt.setDouble(2, category.getPrice());
-            pstmt.executeUpdate();
+            pstmt.setString(2, category.getShortName());
+            pstmt.setDouble(3, category.getPrice());
+            
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating category failed, no rows affected.");
+            }
 
-            ResultSet generatedKeys = pstmt.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                generatedId = generatedKeys.getInt(1);
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    generatedId = generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Creating category failed, no ID obtained.");
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            NotificationService.showNotification("Database Error", 
+                "Failed to add category: " + e.getMessage(), 
+                NotificationStatus.Error);
         }
         return generatedId;
     }
 
     public static void updateCategory(CatePooltable category) {
-        String query = "UPDATE cate_pooltables SET name = ?, price = ? WHERE id = ?";
+        String query = "UPDATE cate_pooltables SET name = ?, shortName = ?, price = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
+            
             pstmt.setString(1, category.getName());
-            pstmt.setDouble(2, category.getPrice());
-            pstmt.setInt(3, category.getId());
+            pstmt.setString(2, category.getShortName());
+            pstmt.setDouble(3, category.getPrice());
+            pstmt.setInt(4, category.getId());
+            
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            NotificationService.showNotification("Database Error", 
+                "Failed to update category: " + e.getMessage(), 
+                NotificationStatus.Error);
         }
     }
 

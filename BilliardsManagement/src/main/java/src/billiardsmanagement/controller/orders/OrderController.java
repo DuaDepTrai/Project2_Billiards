@@ -36,6 +36,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.CustomerDAO;
 import src.billiardsmanagement.dao.OrderDAO;
+import src.billiardsmanagement.dao.PoolTableDAO;
 import src.billiardsmanagement.model.*;
 import src.billiardsmanagement.service.NotificationService;
 
@@ -52,13 +53,13 @@ public class OrderController implements Initializable {
     @FXML
     private TableColumn<Order, String> phoneCustomerColumn;
     @FXML
-    private TableColumn<Order,String> nameTableColumn;
+    private TableColumn<Order, String> nameTableColumn;
     @FXML
-    private TableColumn<Order, Void> actionColumn;  // Thêm khai báo này
+    private TableColumn<Order, Void> actionColumn; // Thêm khai báo này
     @FXML
-    private TableColumn<Order,Date> dateColumn;
+    private TableColumn<Order, Date> dateColumn;
     @FXML
-    private TableColumn<Order,String>managerColumn;
+    private TableColumn<Order, String> managerColumn;
     @FXML
     private BorderPane mainPane; // Thêm khai báo này
     @FXML
@@ -71,11 +72,14 @@ public class OrderController implements Initializable {
     private Popup popup;
     private ListView<String> listView;
 
+    private int orderID;
+
     private final Connection conn = DatabaseConnection.getConnection();
     private final OrderDAO orderDAO = new OrderDAO();
     private final CustomerDAO customerDAO = new CustomerDAO();
     private final BookingDAO bookingDAO = new BookingDAO();
     private final Map<String, Integer> customerNameToIdMap = new HashMap<>();
+    private final PoolTableDAO poolTableDAO = new PoolTableDAO();
 
     public TableView<Order> getOrderTable() {
         return orderTable;
@@ -104,7 +108,8 @@ public class OrderController implements Initializable {
             System.out.println(orderId);
             loadOrderList();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Order Detail");
@@ -121,7 +126,8 @@ public class OrderController implements Initializable {
             NotificationService.showNotification("Validation Error", e.getMessage(), NotificationStatus.Error);
         } catch (Exception e) {
             e.printStackTrace();
-            NotificationService.showNotification("Error", "An error occurred while saving the order. Please try again.", NotificationStatus.Error);
+            NotificationService.showNotification("Error", "An error occurred while saving the order. Please try again.",
+                    NotificationStatus.Error);
         }
     }
 
@@ -253,8 +259,7 @@ public class OrderController implements Initializable {
             }
         });
 
-
-// Bill No column
+        // Bill No column
         sttColumn.setCellFactory(column -> {
             return new TableCell<Order, Integer>() {
                 @Override
@@ -340,17 +345,22 @@ public class OrderController implements Initializable {
                 printBtn.setOnAction(event -> {
                     Order selectedOrder = getTableView().getItems().get(getIndex());
                     if (selectedOrder == null) {
-                        NotificationService.showNotification("Error", "Please select an order to payment.", NotificationStatus.Error);
+                        NotificationService.showNotification("Error", "Please select an order to payment.",
+                                NotificationStatus.Error);
                         return;
                     }
-                    if (!"Finished".equals(selectedOrder.getOrderStatus()) && !"Paid".equals(selectedOrder.getOrderStatus())) {
-                        NotificationService.showNotification("Access Denied", "Bills can only be accessed when the order is in Finished or Paid status.", NotificationStatus.Error);
+                    if (!"Finished".equals(selectedOrder.getOrderStatus())
+                            && !"Paid".equals(selectedOrder.getOrderStatus())) {
+                        NotificationService.showNotification("Access Denied",
+                                "Bills can only be accessed when the order is in Finished or Paid status.",
+                                NotificationStatus.Error);
                     }
                     int totalRow = orderTable.getItems().size();
                     int selectedIndex = getIndex(); // Lấy chỉ số hàng
                     int billNo = totalRow - selectedIndex;
                     int orderId = selectedOrder.getOrderId();
-                    FXMLLoader paymentLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
+                    FXMLLoader paymentLoader = new FXMLLoader(
+                            getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
                     Parent paymentRoot = null;
                     try {
                         paymentRoot = paymentLoader.load();
@@ -392,7 +402,8 @@ public class OrderController implements Initializable {
 
     private Bill createBill(Order selectedOrder) {
         Order currentOrder = selectedOrder;
-        if (currentOrder == null) return null;
+        if (currentOrder == null)
+            return null;
 
         Bill bill = new Bill();
         bill.setCustomerName(currentOrder.getCustomerName() == null ? "Guest" : currentOrder.getCustomerName());
@@ -400,6 +411,7 @@ public class OrderController implements Initializable {
         bill.setTotalCost(currentOrder.getTotalCost());
         return bill;
     }
+
     public void addCustomer(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/addCustomer.fxml"));
         Parent root = loader.load();
@@ -408,7 +420,6 @@ public class OrderController implements Initializable {
         stage.setScene(new Scene(root));
         stage.show();
     }
-
 
     @FXML
     public void billOrder(ActionEvent event) {
@@ -431,8 +442,7 @@ public class OrderController implements Initializable {
                 NotificationService.showNotification(
                         "No Bills Available",
                         "There are no completed orders to show bills for.",
-                        NotificationStatus.Information
-                );
+                        NotificationStatus.Information);
                 return;
             }
 
@@ -449,7 +459,8 @@ public class OrderController implements Initializable {
                 bill.setTotalCost(order.getTotalCost());
 
                 // Tạo một PaymentController mới cho mỗi bill
-                FXMLLoader billLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
+                FXMLLoader billLoader = new FXMLLoader(
+                        getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
                 Parent billRoot = billLoader.load();
                 PaymentController billController = billLoader.getController();
                 billController.setOrderID(order.getOrderId());
@@ -468,14 +479,15 @@ public class OrderController implements Initializable {
             NotificationService.showNotification(
                     "Error",
                     "An error occurred while loading bills.",
-                    NotificationStatus.Error
-            );
+                    NotificationStatus.Error);
         }
     }
+
     private void showItem(MouseEvent mouseEvent) throws IOException {
         if (mouseEvent.getClickCount() == 2) {
             Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
-            if (selectedOrder == null) return;
+            if (selectedOrder == null)
+                return;
 
             int orderId = selectedOrder.getOrderId();
             int customerId = selectedOrder.getCustomerId();
@@ -483,7 +495,8 @@ public class OrderController implements Initializable {
             int selectedIndex = orderTable.getItems().indexOf(selectedOrder);
             int billNo = totalRow - selectedIndex;
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
             Parent root = null;
             try {
                 root = loader.load();
@@ -503,6 +516,7 @@ public class OrderController implements Initializable {
             stage.show();
         }
     }
+
     @FXML
     public void searchOrder(ActionEvent actionEvent) {
         String phoneNumber = autoCompleteTextField.getText().trim();
@@ -510,7 +524,8 @@ public class OrderController implements Initializable {
         if (phoneNumber.isEmpty()) {
             List<Order> allOrders = orderDAO.getAllOrders();
             orderTable.getItems().setAll(allOrders);
-            NotificationService.showNotification("All Orders", "Showing all orders in the system.", NotificationStatus.Information);
+            NotificationService.showNotification("All Orders", "Showing all orders in the system.",
+                    NotificationStatus.Information);
             return;
         }
 
@@ -518,12 +533,67 @@ public class OrderController implements Initializable {
         List<Order> orders = OrderDAO.getOrdersByPhone(phoneNumber);
 
         if (orders.isEmpty()) {
-            NotificationService.showNotification("No Orders Found", "There are no orders associated with this phone number.", NotificationStatus.Information);
+            NotificationService.showNotification("No Orders Found",
+                    "There are no orders associated with this phone number.", NotificationStatus.Information);
         } else {
             orderTable.getItems().setAll(orders);
-            NotificationService.showNotification("Search Successful", "Found " + orders.size() + " orders.", NotificationStatus.Success);
+            NotificationService.showNotification("Search Successful", "Found " + orders.size() + " orders.",
+                    NotificationStatus.Success);
             autoCompleteTextField.clear(); // Clear the search textfield after successful search
         }
+    }
+
+    @FXML
+    private void addBooking() {
+        // Implementation of addBooking
+    }
+
+    public void addTableToNewOrder(PoolTable table) {
+        // Create a new order
+        addBooking();
+
+        // Add the selected table to the booking
+        if (table != null) {
+            // Update table status to Ordered
+            table.setStatus("Ordered");
+            poolTableDAO.updateTable(table);
+
+            // Add table to the booking list
+            // Note: You'll need to implement the logic to add the table to your booking
+            // list
+            // This depends on your existing booking implementation
+        }
+    }
+
+    public void initializeWithTable(PoolTable table) {
+        try {
+            // Create a new order
+            Order newOrder = new Order();
+            newOrder.setCustomerId(1); // Default customer ID
+            newOrder.setUserId(UserSession.getInstance().getUserId());
+
+            // Add the table to the order
+            if (table != null) {
+                // Update table status
+                table.setStatus("Ordered");
+                poolTableDAO.updateTable(table);
+
+                // Add table to order
+                orderDAO.addOrder(newOrder);
+                Order latestOrder = orderDAO.getLatestOrderByCustomerId(1);
+
+                // Initialize the order with the table
+                setOrderID(latestOrder.getOrderId());
+                loadOrderList();
+            }
+        } catch (Exception e) {
+            NotificationService.showNotification("Error", "Failed to initialize order with table: " + e.getMessage(),
+                    NotificationStatus.Error);
+        }
+    }
+
+    private void setOrderID(int orderId) {
+        this.orderID = orderId;
     }
 
 }

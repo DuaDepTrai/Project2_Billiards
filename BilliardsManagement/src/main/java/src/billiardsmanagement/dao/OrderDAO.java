@@ -317,11 +317,11 @@ public class OrderDAO {
         String query = """
             SELECT COALESCE(SUM(
                 CASE 
-                    WHEN b.net_total IS NOT NULL THEN b.net_total 
+                    WHEN b.total IS NOT NULL THEN b.total 
                     ELSE 0 
                 END +
                 CASE 
-                    WHEN oi.net_total IS NOT NULL THEN oi.net_total
+                    WHEN oi.total IS NOT NULL THEN oi.total
                     ELSE 0 
                 END
             ), 0) as total_cost
@@ -464,7 +464,7 @@ public class OrderDAO {
     }
 
     public List<Map<String, Object>> getRevenueByTableGroup(LocalDate startDate, LocalDate endDate) throws SQLException {
-        String sql = "SELECT ct.name as group_name, SUM(b.net_total) as revenue " +
+        String sql = "SELECT ct.name as group_name, SUM(b.total) as revenue " +
                 "FROM bookings b " +
                 "JOIN pooltables pt ON b.table_id = pt.table_id " +
                 "JOIN cate_pooltables ct ON pt.cate_id = ct.id " +
@@ -494,7 +494,7 @@ public class OrderDAO {
     }
 
     public List<Map<String, Object>> getRevenueByProductCategory(LocalDate startDate, LocalDate endDate) throws SQLException {
-        String sql = "SELECT c.category_name, SUM(oi.net_total) as revenue " +
+        String sql = "SELECT c.category_name, SUM(oi.total) as revenue " +
                 "FROM orders_items oi " +
                 "JOIN products p ON oi.product_id = p.product_id " +
                 "JOIN category c ON p.category_id = c.category_id " +

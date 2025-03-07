@@ -240,7 +240,14 @@ public class MainController {
     public void showStaffPage(ActionEvent actionEvent) {
     }
 
-    public void showCustomerPage(ActionEvent actionEvent) {
+    public void showCustomerPage(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/customer/customer.fxml"));
+        AnchorPane customerPage = loader.load();
+
+        // Get the controller and pass the logged-in user if needed
+        CustomerController customerController = loader.getController();
+        
+        contentArea.getChildren().setAll(customerPage);
     }
 
     public void showStatisticPage(ActionEvent actionEvent) {

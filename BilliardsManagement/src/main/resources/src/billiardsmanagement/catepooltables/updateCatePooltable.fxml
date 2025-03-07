@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<VBox spacing="10" alignment="CENTER" prefWidth="300" prefHeight="180"
-      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="src.billiardsmanagement.controller.pooltables.catepooltables.UpdateCategoryPooltableController">
+<VBox alignment="CENTER" prefHeight="205.0" prefWidth="228.0" spacing="10" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.poolTables.catepooltables.UpdateCategoryPooltableController">
     
     <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
+        <Insets bottom="20" left="20" right="20" top="20" />
     </padding>
 
-    <Label text="Update Pool Table Category" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+    <Label style="-fx-font-size: 16; -fx-font-weight: bold;" text="Update Table Category" />
 
-    <Label text="Price:"/>
-    <TextField fx:id="priceField" promptText="Enter new price"/>
+    <TextField fx:id="cateNameField" promptText="Enter new Category name" />
+    <TextField fx:id="shortNameField" promptText="Enter new Short Name" />
+    <TextField fx:id="priceField" promptText="Enter new Price" />
 
-    <HBox spacing="10" alignment="CENTER">
-        <Button text="Confirm" onAction="#handleConfirm" defaultButton="true"/>
-        <Button text="Close" onAction="#handleClose" cancelButton="true"/>
+    <HBox alignment="CENTER" spacing="10">
+        <Button defaultButton="true" onAction="#handleConfirm" text="Confirm" />
+        <Button cancelButton="true" onAction="#handleClose" text="Close" />
     </HBox>
-
-</VBox> 
+</VBox>

@@ -47,7 +47,7 @@ public class BookingDAO {
                 stmt.executeUpdate();
             }
 
-            // 2. Tính toán subtotal và net_total cho các booking
+            // 2. Tính toán total cho các booking
             String updateBookingCostQuery = """
             UPDATE bookings b 
             JOIN pooltables p ON b.table_id = p.table_id 
@@ -229,7 +229,6 @@ public class BookingDAO {
 
             // Tính toán tổng tiền
             double total = timeplayInHours * price;
-//            double netTotal = subtotal;
 
             // Cập nhật trạng thái booking
             String updateQuery = "UPDATE bookings SET end_time = ?, timeplay = ?, total = ?, booking_status = 'finish' WHERE booking_id = ?";
@@ -237,7 +236,6 @@ public class BookingDAO {
                 updateStmt.setTimestamp(1, currentTime);
                 updateStmt.setDouble(2, timeplayInHours);
                 updateStmt.setDouble(3, total);
-//                updateStmt.setDouble(4, netTotal);
                 updateStmt.setInt(4, bookingId);
                 updateStmt.executeUpdate();
             }
