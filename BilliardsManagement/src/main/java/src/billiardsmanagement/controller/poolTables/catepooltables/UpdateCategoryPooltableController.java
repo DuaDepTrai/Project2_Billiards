@@ -18,6 +18,8 @@ public class UpdateCategoryPooltableController {
 
     public void setCatePooltable(CatePooltable category) {
         this.category = category;
+        cateNameField.setText(category.getName());
+        shortNameField.setText(category.getShortName());
         priceField.setText(String.valueOf(category.getPrice()));
     }
 
