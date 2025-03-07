@@ -16,7 +16,7 @@ public class UserDAO {
     // Phương thức để lấy tất cả users
     public List<User> getAllUsers() throws SQLException {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT u.user_id, u.username, u.password, r.role_id r.role_name, u.fullname, u.phone, u.birthday, u.address, u.hire_date, u.image_path " +
+        String sql = "SELECT u.user_id, u.username, u.password, r.role_id, r.role_name, u.fullname, u.phone, u.birthday, u.address, u.hire_date, u.image_path " +
                 "FROM users u " +
                 "JOIN roles r ON u.role_id = r.role_id";
 
