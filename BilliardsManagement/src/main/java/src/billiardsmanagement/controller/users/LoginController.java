@@ -77,6 +77,9 @@ public class LoginController {
                         user.getRoleName(),   // role
                         user.getFullname()
                 );
+                System.out.println("✅ UserSession đã lưu user: " + UserSession.getInstance().getUsername());
+
+                System.out.println("✅ Đăng nhập thành công! User: " + user.getUsername());
                 openMainWindow(user);
             } else {
                 showAlert("Login Failed", "Invalid username or password!");
@@ -98,7 +101,13 @@ public class LoginController {
 
             // Lấy MainController từ FXMLLoader
             MainController mainController = loader.getController();
-            mainController.setLoggedInUser(user); // Cập nhật username
+            if (mainController == null) {
+                System.out.println("❌ Lỗi: Không thể lấy MainController từ loader!");
+            } else {
+                System.out.println("✅ MainController được load thành công!");
+                mainController.setLoggedInUser(user); // Cập nhật username
+                System.out.println("🔹 Đã truyền user vào MainController: " + user.getUsername());
+            }
             mainController.showProductsPage();
 
             Stage mainStage = new Stage();

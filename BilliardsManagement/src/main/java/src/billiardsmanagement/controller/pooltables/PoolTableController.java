@@ -1,5 +1,4 @@
 package src.billiardsmanagement.controller.pooltables;
-
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
@@ -412,7 +411,7 @@ public class PoolTableController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/pooltables/editPoolTable.fxml"));
             Parent root = loader.load();
 
-            UpdatePoolTableController controller = loader.getController();
+            src.billiardsmanagement.controller.poolTables.UpdatePoolTableController controller = loader.getController();
             controller.setPoolTable(table);
 
             Stage dialog = new Stage();

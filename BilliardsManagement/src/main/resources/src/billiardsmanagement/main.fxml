@@ -12,7 +12,6 @@
             styleClass="main-container"
             fx:id="mainContainer"
 >
-
     <left>
         <VBox fx:id="navbarContainer" styleClass="navbar" spacing="10">
             <Button styleClass="nav-item" onAction="#showPoolTablePage" text="Pool Table">
@@ -45,7 +44,7 @@
                 </graphic>
             </Button>
 
-            <Button styleClass="nav-item" onAction="#showStatisticPage" text="Report">
+            <Button styleClass="nav-item" onAction="#showReportPage" text="Report">
                 <graphic>
                     <FontAwesomeIconView glyphName="BAR_CHART" size="16"/>
                 </graphic>
@@ -78,6 +77,11 @@
                     <VBox>
                         <Label fx:id="usernameLabel" text="Andrew" styleClass="user-name"/>
                         <Label fx:id="roleLabel" text="Admin account" styleClass="user-role"/>
+                        <Label fx:id="logoutLabel" text="Logout"
+                               style="-fx-text-fill: blue; -fx-underline: true; -fx-cursor: hand;"
+                               onMouseEntered="#onLogoutHover"
+                               onMouseExited="#onLogoutExit"
+                               onMouseClicked="#handleLogout"/>
                     </VBox>
                 </HBox>
             </HBox>

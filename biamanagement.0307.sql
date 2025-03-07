@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 06, 2025 at 04:38 AM
+-- Generation Time: Mar 07, 2025 at 10:13 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,7 +43,7 @@ CREATE TABLE `bookings` (
 --
 
 INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end_time`, `timeplay`, `total`, `booking_status`) VALUES
-(1, 1, 1, '2024-12-31 20:00:00', '2024-12-31 22:00:00', 2, 70000, 'Finish'),
+(1, 1, 1, '2024-12-31 20:00:00', '2024-12-31 22:00:00', 3.5, 70000, 'Finish'),
 (2, 2, 2, '2025-01-02 00:00:00', '2025-01-02 02:30:00', 2.5, 187500, 'Finish'),
 (3, 3, 3, '2025-01-03 04:00:00', '2025-01-03 05:30:00', 1.5, 150000, 'Finish'),
 (4, 4, 1, '2025-01-03 19:00:00', '2025-01-03 20:00:00', 1, 35000, 'Finish'),
@@ -68,7 +68,9 @@ INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end
 (39, 33, 4, '2025-02-22 16:22:00', '2025-02-22 16:25:39', 0.05, NULL, 'Finish'),
 (40, 33, 7, '2025-02-22 16:22:00', '2025-02-22 16:25:39', 0.05, NULL, 'Finish'),
 (41, 34, 6, '2025-02-22 16:25:00', '2025-02-22 16:26:15', 0.016666666, 1666.6666, 'Finish'),
-(42, 36, 9, '2025-02-22 16:27:00', '2025-02-22 16:27:45', 0, 0, 'Finish');
+(42, 36, 9, '2025-02-22 16:27:00', '2025-02-22 16:27:45', 0, 0, 'Finish'),
+(43, 39, 5, '2025-03-06 18:44:00', NULL, NULL, NULL, 'Playing'),
+(44, 37, 8, '2025-03-06 19:14:00', '2025-03-06 20:15:22', 1.016666666, 76249.99995000001, 'Finish');
 
 --
 -- Triggers `bookings`
@@ -100,23 +102,23 @@ END
 $$
 DELIMITER ;
 DELIMITER $$
-CREATE TRIGGER `update_total_playtime_and_table_status` AFTER UPDATE ON `bookings` FOR EACH ROW BEGIN
-    -- Kiểm tra nếu giá trị timeplay thay đổi
-    IF OLD.timeplay <> NEW.timeplay THEN
+CREATE TRIGGER `update_total_playtime` AFTER UPDATE ON `bookings` FOR EACH ROW BEGIN
+    -- Kiểm tra nếu giá trị timeplay thay đổi (tránh NULL gây lỗi)
+    IF COALESCE(OLD.timeplay, 0) <> COALESCE(NEW.timeplay, 0) THEN
         UPDATE customers c
-        JOIN orders o ON c.customer_id = o.customer_id
-        JOIN bookings b ON o.order_id = b.order_id
         SET c.total_playtime = (
             SELECT COALESCE(SUM(b.timeplay), 0)
             FROM bookings b
-            JOIN orders o2 ON b.order_id = o2.order_id
-            WHERE o2.customer_id = c.customer_id
+            JOIN orders o ON b.order_id = o.order_id
+            WHERE o.customer_id = c.customer_id
         )
-        WHERE o.customer_id = c.customer_id;
+        WHERE c.customer_id = (
+            SELECT o.customer_id
+            FROM orders o
+            WHERE o.order_id = NEW.order_id
+            LIMIT 1
+        );
     END IF;
-
- 
-   
 END
 $$
 DELIMITER ;
@@ -151,6 +153,7 @@ INSERT INTO `category` (`category_id`, `category_name`) VALUES
 CREATE TABLE `cate_pooltables` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
+  `shortName` varchar(10) NOT NULL,
   `price` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -158,10 +161,10 @@ CREATE TABLE `cate_pooltables` (
 -- Dumping data for table `cate_pooltables`
 --
 
-INSERT INTO `cate_pooltables` (`id`, `name`, `price`) VALUES
-(1, 'Standard Pool', 35000),
-(2, 'Deluxe Pool', 75000),
-(3, 'VIP Pool', 100000);
+INSERT INTO `cate_pooltables` (`id`, `name`, `shortName`, `price`) VALUES
+(1, 'Standard Pool', 'STD', 35000),
+(2, 'Deluxe Pool', 'DLX', 75000),
+(3, 'VIP Pool', 'VIP', 100000);
 
 -- --------------------------------------------------------
 
@@ -186,7 +189,7 @@ INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUE
 (3, 'Tran Minh Tu', '0903456789', 0),
 (4, 'Phan Quoc Toan', '0856789012', 0),
 (5, 'Hoang Minh Thao', '0321234567', 0),
-(6, 'Nguyen Van A\nnh', '0708765432', 0),
+(6, 'Nguyen Van Anh', '0708765432', 0),
 (7, 'Tran Thi Binh', '0562345678', 0),
 (8, 'Le Hoang Nam', '0593987654', 0),
 (9, 'Pham Thanh Tam', '0345678910', 0),
@@ -245,8 +248,10 @@ INSERT INTO `orders` (`order_id`, `customer_id`, `user_id`, `total_cost`, `order
 (35, 5, 2, 0, '2025-02-22', 'Finished'),
 (36, 9, 2, NULL, '2025-02-22', 'Canceled'),
 (37, 11, 2, NULL, '2025-02-22', 'Playing'),
-(38, 1, 1, NULL, '2025-03-01', 'Playing'),
-(39, 1, 1, NULL, '2025-03-01', 'Playing');
+(38, 1, 1, 0, '2025-03-01', 'Finished'),
+(39, 1, 1, 0, '2025-03-01', 'Finished'),
+(40, 13, 2, 0, '2025-03-07', 'Paid'),
+(41, 11, 2, 0, '2025-03-07', 'Paid');
 
 -- --------------------------------------------------------
 
@@ -571,7 +576,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT for table `category`
@@ -595,7 +600,7 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `orders_items`
