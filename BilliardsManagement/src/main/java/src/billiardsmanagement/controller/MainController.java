@@ -25,10 +25,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -175,8 +172,6 @@ public class MainController {
         }
     }
 
-    private List<Button> allMenus = new ArrayList<>();
-
     public void initialize() {
         System.out.println("🔄 MainController đã khởi tạo");
         System.out.println("🔍 Debug: loggedInUser = " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
@@ -184,28 +179,56 @@ public class MainController {
 //        setupMenu();
     }
 
+    private List<Button> allMenus = new ArrayList<>();
+
     private void setupMenu() {
         // Xóa các button cũ (nếu có)
         navbarContainer.getChildren().clear();
 
-        // Tạo danh sách menu
-        Button poolTableButton = createNavButton("Pool Table", "TABLE", "showPoolTablePage");
-        Button ordersButton = createNavButton("Order", "SHOPPING_CART", "showOrdersPage");
-        Button productsButton = createNavButton("Product", "CUBE", "showProductsPage");
-        Button staffButton = createNavButton("Staff", "USERS", "showUsersPage");
-        Button customerButton = createNavButton("Customer", "USER", "showCustomerPage");
-        Button reportButton = createNavButton("Report", "BAR_CHART", "showReportPage");
+        // Tạo danh sách menu với quyền tương ứng
+        Map<String, String> menuPermissions = new HashMap<>();
+        menuPermissions.put("Pool Table", "view_pool");
+        menuPermissions.put("Order", "view_order");
+        menuPermissions.put("Product", "view_product");
+        menuPermissions.put("Staff", "view_user");
+        menuPermissions.put("Role & Permission", "view_role_permission");
+        menuPermissions.put("Customer", "view_customer");
+        menuPermissions.put("Report", "view_report");
 
-        // Lưu tất cả menu vào danh sách để kiểm soát quyền truy cập
-        allMenus.addAll(Arrays.asList(poolTableButton, ordersButton, productsButton, staffButton, customerButton, reportButton));
+        // Tạo danh sách menu button
+        List<Button> menuButtons = Arrays.asList(
+                createNavButton("Pool Table", "TABLE", "showPoolTablePage"),
+                createNavButton("Order", "SHOPPING_CART", "showOrdersPage"),
+                createNavButton("Product", "CUBE", "showProductsPage"),
+                createNavButton("Staff", "USERS", "showUsersPage"),
+                createNavButton("Role & Permission", "USERS", "showRolesPermissionsPage"),
+                createNavButton("Customer", "USER", "showCustomerPage"),
+                createNavButton("Report", "BAR_CHART", "showReportPage")
+        );
 
-        // Kiểm tra quyền user và thêm menu hợp lệ vào VBox
+        // Lưu tất cả vào danh sách để kiểm soát quyền truy cập
+        allMenus.clear();
+        allMenus.addAll(menuButtons);
+
+        // Kiểm tra quyền user và hiển thị menu phù hợp
         for (Button btn : allMenus) {
-            if (isAllowed(btn.getText())) {
-                navbarContainer.getChildren().add(btn); // Chỉ thêm Button nếu có quyền
+            String menuName = btn.getText();
+            String requiredPermission = menuPermissions.get(menuName);
+
+            if (requiredPermission != null && isAllowed(requiredPermission)) {
+                navbarContainer.getChildren().add(btn); // Chỉ thêm button nếu có quyền
             }
         }
     }
+
+    // 🔹 Kiểm tra user có quyền vào menu không
+    private boolean isAllowed(String requiredPermission) {
+        if (loggedInUser == null) return false;
+
+        List<String> userPermissions = loggedInUser.getPermissionsAsString();
+        return userPermissions.contains(requiredPermission);
+    }
+
 
     // Hàm tạo Button cho Navbar
     private Button createNavButton(String text, String icon, String actionMethod) {
@@ -235,29 +258,6 @@ public class MainController {
         }
     }
 
-    // Kiểm tra user có quyền vào menu không
-    private boolean isAllowed(String menuName) {
-        if (loggedInUser == null) return false;
-
-        String userRole = loggedInUser.getRoleName(); // Lấy role của user
-        List<String> allowedMenus = getAllowedMenusForRole(userRole);
-
-        return allowedMenus.contains(menuName);
-    }
-
-    // Hàm trả về danh sách menu mà role này được phép truy cập
-    private List<String> getAllowedMenusForRole(String role) {
-        switch (role) {
-            case "Admin":
-                return Arrays.asList("Pool Table", "Order", "Product", "Staff", "Customer", "Report");
-            case "Manager":
-                return Arrays.asList("Pool Table", "Order", "Product", "Customer", "Report"); // Ẩn Staff
-            case "Receptionist":
-                return Arrays.asList("Pool Table", "Order", "Customer"); // Ẩn Staff, Report, Product
-            default:
-                return Arrays.asList("Pool Table", "Order"); // Chỉ thấy mỗi Customer
-        }
-    }
 
     @FXML
     public void showOrdersPage() throws IOException {
@@ -293,12 +293,22 @@ public class MainController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/users/users.fxml"));
         AnchorPane usersPage = loader.load();
 
+        UserController userController = loader.getController();
+        userController.setCurrentUser(loggedInUser);
+        System.out.println("🔹 Truyền user vào UserController: " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
+
+        if (userController == null) {
+            System.out.println("Lỗi: Không lấy được UserController!");
+        } else {
+            System.out.println("Debug: UserController đã load, truyền user...");
+            userController.setLoggedInUser(loggedInUser); // ✅ Truyền user đúng cách
+        }
         // Hiển thị giao diện Users trong contentArea
         contentArea.getChildren().setAll(usersPage);
 
         // Lấy controller của Users và truyền MainController vào
-        UserController userController = loader.getController();
-        userController.setMainController(this);
+//        UserController userController = loader.getController();
+//        userController.setMainController(this);
     }
 
 
@@ -308,8 +318,19 @@ public class MainController {
         AnchorPane rolesPermissionsPage = loader.load();
 
         // Lấy controller của RolesPermissions và truyền MainController vào
-        RolesPermissionsController rolesPermissionsController = loader.getController();
-        rolesPermissionsController.setMainController(this);
+//        RolesPermissionsController rolesPermissionsController = loader.getController();
+//        rolesPermissionsController.setMainController(this);
+
+        RolesPermissionsController roleperController = loader.getController();
+        roleperController.setCurrentUser(loggedInUser);
+        System.out.println("🔹 Truyền user vào RolesPermissionsController: " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
+
+        if (roleperController == null) {
+            System.out.println("Lỗi: Không lấy được RolesPermissionsController!");
+        } else {
+            System.out.println("Debug: RolesPermissionsController đã load, truyền user...");
+            roleperController.setLoggedInUser(loggedInUser); // ✅ Truyền user đúng cách
+        }
 
         // Hiển thị trang trong contentArea
         contentArea.getChildren().setAll(rolesPermissionsPage);
@@ -321,11 +342,22 @@ public class MainController {
         AnchorPane poolTablePage = loader.load();
 
         // Get the controller and pass the logged-in user if needed
-        src.billiardsmanagement.controller.poolTables.PoolTableController poolTableController = loader.getController();
-        if (poolTableController != null) {
-            // poolTableController.setLoggedInUser(loggedInUser); // Assuming you have a method to set the user
+//        src.billiardsmanagement.controller.poolTables.PoolTableController poolTableController = loader.getController();
+//        if (poolTableController != null) {
+//            // poolTableController.setLoggedInUser(loggedInUser); // Assuming you have a method to set the user
+//        } else {
+//            System.out.println("Error: Unable to retrieve PoolTableController!");
+//        }
+
+        PoolTableController poolController = loader.getController();
+        poolController.setCurrentUser(loggedInUser);
+        System.out.println("🔹 Truyền user vào PoolController: " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
+
+        if (poolController == null) {
+            System.out.println("Lỗi: Không lấy được ProductController!");
         } else {
-            System.out.println("Error: Unable to retrieve PoolTableController!");
+            System.out.println("Debug: PoolController đã load, truyền user...");
+            poolController.setLoggedInUser(loggedInUser); // ✅ Truyền user đúng cách
         }
 
         contentArea.getChildren().setAll(poolTablePage);
@@ -334,9 +366,18 @@ public class MainController {
     public void showCustomerPage(ActionEvent actionEvent) {
     }
 
-    public void showReportPage(ActionEvent actionEvent) throws IOException {
+    public void showReportPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/reports/report.fxml"));
         BorderPane reportPage = loader.load();  // Tải FXML thành AnchorPane
+
         contentArea.getChildren().setAll(reportPage);
     }
+
+    @FXML
+    public void showHomePage() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/home.fxml"));
+        StackPane homePage = loader.load();
+        contentArea.getChildren().setAll(homePage);
+    }
+
 }

@@ -33,6 +33,7 @@ import src.billiardsmanagement.model.User;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -57,6 +58,8 @@ public class ProductController2 {
     @FXML
     public void initialize() throws SQLException {
         List<Category> categories = categoryDAO.getAllCategories();
+        List<String> permissions = getUserPermissions(); // Hàm lấy quyền của user
+
         FontAwesomeIconFactory icons = FontAwesomeIconFactory.get();
 
         // Thêm tìm kiếm sản phẩm
@@ -70,7 +73,7 @@ public class ProductController2 {
 
         for (int i = 0; i < categoryCount; i++) {
             Category category = categories.get(i);
-            VBox categoryBox = createCategoryTable(category);
+            VBox categoryBox = createCategoryTable(category, permissions);
 
             int row = i / 2; // Chia thành 2 cột
             int col = i % 2;
@@ -81,7 +84,7 @@ public class ProductController2 {
 
     }
 
-    private VBox createCategoryTable(Category category) throws SQLException {
+    private VBox createCategoryTable(Category category, List<String> permissions) throws SQLException {
         System.out.println("----- DEBUG: createCategoryTable() -----");
 
         if (category == null) {
@@ -109,16 +112,20 @@ public class ProductController2 {
         addProductButton.setGraphic(addProductIcon);
         addProductButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
         addProductButton.setOnAction(event -> handleAddNewProduct(category));
+        addProductButton.setVisible(permissions.contains("add_product")); // Kiểm tra quyền
+
 
         Button updateCategoryButton = new Button();
         updateCategoryButton.setGraphic(updateCategoryIcon);
         updateCategoryButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
         updateCategoryButton.setOnAction(event -> handleUpdateCategory(category));
+        updateCategoryButton.setVisible(permissions.contains("update_product_category")); // Kiểm tra quyền
 
         Button removeCategoryButton = new Button();
         removeCategoryButton.setGraphic(removeCategoryIcon);
         removeCategoryButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
         removeCategoryButton.setOnAction(event -> handleRemoveCategory(category));
+        removeCategoryButton.setVisible(permissions.contains("remove_product_category")); // Kiểm tra quyền
 
         // Header chứa tiêu đề + nút Add
         HBox headerBox = new HBox();
@@ -155,7 +162,7 @@ public class ProductController2 {
         tableView.getSortOrder().add(quantityColumn);
 
         // Cột hành động (Xóa sản phẩm)
-        actionColumn.setCellFactory(col -> createActionCellFactory(product -> tableView.getItems().remove(product)));
+        actionColumn.setCellFactory(col -> createActionCellFactory(product -> tableView.getItems().remove(product), permissions));
 
         // Gộp các cột vào bảng
         tableView.getColumns().addAll(nameColumn, quantityColumn, priceColumn, unitColumn, actionColumn);
@@ -178,7 +185,7 @@ public class ProductController2 {
         return categoryBox;
     }
 
-    private TableCell<Product, Void> createActionCellFactory(Consumer<Product> onDelete) {
+    private TableCell<Product, Void> createActionCellFactory(Consumer<Product> onDelete, List<String> permissions) {
         return new TableCell<>() {
             private final HBox container = new HBox(10);
             private final Button stockUpButton = new Button();
@@ -218,6 +225,12 @@ public class ProductController2 {
                     Product product = getTableView().getItems().get(getIndex());
                     confirmAndRemoveProduct(product, getTableView());
                 });
+
+                // Kiểm tra quyền và ẩn các nút nếu không có quyền tương ứng
+                stockUpButton.setVisible(permissions.contains("stock_up_product"));
+                editButton.setVisible(permissions.contains("update_product"));
+                deleteButton.setVisible(permissions.contains("remove_product"));
+
             }
 
             @Override
@@ -351,7 +364,7 @@ public class ProductController2 {
                     gridPane.getChildren().clear();
 
                     // Tạo VBox chứa danh mục với TableView chỉ chứa sản phẩm được tìm thấy
-                    VBox categoryBox = createCategoryTable(productCategory);
+                    VBox categoryBox = createCategoryTable(productCategory, getUserPermissions());
                     for (javafx.scene.Node child : categoryBox.getChildren()) {
                         if (child instanceof TableView<?> tableView) {
                             TableView<Product> productTableView = (TableView<Product>) tableView;
@@ -455,6 +468,14 @@ public class ProductController2 {
             PermissionDAO permissionDAO = new PermissionDAO();
             List<String> permissions = permissionDAO.getUserPermissions(currentUser.getId());
             System.out.println("✅ Permissions: " + permissions);
+
+            btnAddNewCategory.setVisible(permissions.contains("add_product"));
+//            addProductButton.setVisible(permissions.contains("add_product"));
+//            editButton.setVisible(permissions.contains("add_product"));
+//            deleteButton.setVisible(permissions.contains("add_product"));
+//            stockUpButton.setVisible(permissions.contains("add_product"));
+//            updateCategoryButton.setVisible(permissions.contains("add_product"));
+//            removeCategoryButton.setVisible(permissions.contains("add_product"));
         } else {
             System.err.println("⚠️ Lỗi: currentUser bị null trong ProductController!");
         }
@@ -479,6 +500,13 @@ public class ProductController2 {
 
     public void setCurrentUser(User user) {
         this.currentUser = user;
+    }
+
+    private List<String> getUserPermissions() {
+        if (currentUser != null) {
+            return currentUser.getPermissions(); // Lấy danh sách quyền từ user đang đăng nhập
+        }
+        return new ArrayList<>();
     }
 
 }
