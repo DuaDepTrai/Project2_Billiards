@@ -32,6 +32,7 @@ import src.billiardsmanagement.dao.OrderDAO;
 import javafx.scene.control.Separator;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +42,7 @@ public class PoolTableController {
     public MFXScrollPane catePooltablesScrollPane;
     public Button addNewTableCategory;
     private User currentUser; // Lưu user đang đăng nhập
-
+    private List<String> userPermissions = new ArrayList<>();
 
     @FXML
     protected FlowPane tablesContainer;
@@ -102,6 +103,19 @@ public class PoolTableController {
 
         // Add handler for add new table button
         addNewButton.setOnAction(e -> showAddDialog());
+    }
+
+    public void setUser(User user) throws SQLException {
+        this.currentUser = user;
+        if (user != null) {
+            System.out.println("🟢 Gọi getUserPermissions() với user: " + user.getUsername());
+            this.userPermissions = user.getPermissionsAsString();
+            System.out.println("🔎 Debug: Quyền của user = " + userPermissions);
+
+            initializeCategoryList();
+        } else {
+            System.err.println("❌ Lỗi: loggedInUser chưa được set trong ProductController2!");
+        }
     }
 
     protected void filterTables(String searchText) {
@@ -390,11 +404,16 @@ public class PoolTableController {
         catePooltablesList.forEach(category -> {
             HBox categoryRow = new HBox(10);
             categoryRow.setAlignment(Pos.CENTER_LEFT);
+            categoryRow.setPrefWidth(catePooltablesScrollPane.getWidth() - 20); // Điều chỉnh chiều rộng
 
             Text categoryText = new Text(String.format("%s - %.0f",
                     category.getShortName(),
                     category.getPrice()));
             categoryText.setStyle("-fx-line-spacing: 5;");
+
+            // Tạo khoảng trống để đẩy nút về bên phải
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
 
             // Create the edit button
             Button editButton = new Button();
@@ -434,8 +453,13 @@ public class PoolTableController {
 
             deleteButton.setOnAction(e -> showDeleteCategoryDialog(category)); // Assuming you have this method
 
-            categoryRow.getChildren().addAll(editButton, deleteButton, categoryText);
+            categoryRow.getChildren().addAll(categoryText, spacer, editButton, deleteButton);
             categoryContent.getChildren().add(categoryRow);
+
+            System.out.println("DEBUG: " + userPermissions);
+            editButton.setVisible(userPermissions.contains("update_pool_category"));
+            deleteButton.setVisible(userPermissions.contains("remove_pool_category"));
+
         });
         catePooltablesScrollPane.setContent(categoryContent);
     }
@@ -598,6 +622,8 @@ public class PoolTableController {
             List<String> permissions = permissionDAO.getUserPermissions(currentUser.getId());
             System.out.println("✅ Permissions: " + permissions);
 
+            addNewButton.setVisible(permissions.contains("add_pool"));
+            addNewTableCategory.setVisible(permissions.contains("add_pool_category"));
 //            addProductButton.setVisible(permissions.contains("add_product"));
 //            editButton.setVisible(permissions.contains("add_product"));
 //            deleteButton.setVisible(permissions.contains("add_product"));

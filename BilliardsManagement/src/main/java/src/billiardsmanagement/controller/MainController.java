@@ -338,7 +338,7 @@ public class MainController {
     }
 
     @FXML
-    public void showPoolTablePage() throws IOException {
+    public void showPoolTablePage() throws IOException, SQLException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/poolTables/poolTable.fxml"));
         AnchorPane poolTablePage = loader.load();
 
@@ -352,6 +352,8 @@ public class MainController {
 
         PoolTableController poolController = loader.getController();
         poolController.setCurrentUser(loggedInUser);
+        poolController.setUser(loggedInUser);
+
         System.out.println("🔹 Truyền user vào PoolController: " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
 
         if (poolController == null) {
