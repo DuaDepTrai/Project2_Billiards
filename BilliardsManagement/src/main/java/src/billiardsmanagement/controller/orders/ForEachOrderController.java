@@ -43,6 +43,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ForEachOrderController {
+
+    @FXML
+    protected Button confirmUpdateDataCustomer;
+    @FXML
+    protected Button confirmSaveCustomer;
+
     // Buttons
     @FXML
     protected Button finishOrderButton;
@@ -498,10 +504,17 @@ public class ForEachOrderController {
         bookingPoolTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         orderItemsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         // Finish Order Button disable / enable
+
         String status = orderStatusText.getText();
         if (status.equalsIgnoreCase("Finished") || status.equalsIgnoreCase("Canceled") || status.equalsIgnoreCase("Paid")) {
             finishOrderButton.setDisable(true);
-        } else finishOrderButton.setDisable(false);
+            confirmUpdateDataCustomer.setDisable(true);
+            confirmSaveCustomer.setDisable(true);
+        } else {
+            finishOrderButton.setDisable(false);
+            confirmUpdateDataCustomer.setDisable(false);
+            confirmSaveCustomer.setDisable(false);
+        }
 
         // Staff Name
         String staffName = OrderDAO.getStaffNameByOrderId(orderID);
@@ -940,6 +953,8 @@ public class ForEachOrderController {
                 finishOrderButton.setDisable(true);
                 addBookingButton.setDisable(true);
                 addOrderItemButton.setDisable(true);
+                confirmUpdateDataCustomer.setDisable(true);
+                confirmSaveCustomer.setDisable(true);
             }
         } catch (Exception e) {
             e.printStackTrace();

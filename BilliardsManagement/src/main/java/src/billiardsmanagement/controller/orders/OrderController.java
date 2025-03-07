@@ -354,6 +354,7 @@ public class OrderController implements Initializable {
                         NotificationService.showNotification("Access Denied",
                                 "Bills can only be accessed when the order is in Finished or Paid status.",
                                 NotificationStatus.Error);
+                        return;
                     }
                     int totalRow = orderTable.getItems().size();
                     int selectedIndex = getIndex(); // Lấy chỉ số hàng
