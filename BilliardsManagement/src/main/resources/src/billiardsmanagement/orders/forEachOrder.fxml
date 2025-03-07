@@ -123,6 +123,6 @@
         </font>
     </Text>
     <Label layoutX="358.0" layoutY="7.0" prefHeight="21.0" prefWidth="77.0" styleClass="section-label" text="Status: " />
-    <Button fx:id="confirmUpdateDataCustomer" layoutX="75.0" layoutY="107.0" mnemonicParsing="false" onAction="#updateOrder" text="Update" />
+    <Button fx:id="confirmUpdateDataCustomer" layoutX="64.0" layoutY="107.0" mnemonicParsing="false" onAction="#updateOrder" prefHeight="25.0" prefWidth="70.0" text="Confirm" />
     <Button fx:id="confirmSaveCustomer" layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" text="Add Customer" />
 </AnchorPane>
