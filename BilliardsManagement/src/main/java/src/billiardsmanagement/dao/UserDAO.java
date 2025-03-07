@@ -16,7 +16,7 @@ public class UserDAO {
     // Phương thức để lấy tất cả users
     public List<User> getAllUsers() throws SQLException {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT u.user_id, u.username, u.password, r.role_name, u.fullname, u.phone, u.birthday, u.address, u.hire_date, u.image_path " +
+        String sql = "SELECT u.user_id, u.username, u.password, r.role_id r.role_name, u.fullname, u.phone, u.birthday, u.address, u.hire_date, u.image_path " +
                 "FROM users u " +
                 "JOIN roles r ON u.role_id = r.role_id";
 
@@ -28,6 +28,7 @@ public class UserDAO {
                 int user_id = resultSet.getInt("user_id");
                 String username = resultSet.getString("username");
                 String password = resultSet.getString("password");
+                Integer roleId = resultSet.getInt("role_id");
                 String role = resultSet.getString("role_name");
                 String fullname = resultSet.getString("fullname");
                 String phone = resultSet.getString("phone");
@@ -36,7 +37,7 @@ public class UserDAO {
                 Date hire_date = resultSet.getDate("hire_date");
                 String image_path = resultSet.getString("image_path");
 
-                users.add(new User(user_id, username, password, role, fullname, phone, birthday, address, hire_date, image_path));
+                users.add(new User(user_id, username, password, roleId, role, fullname, phone, birthday, address, hire_date, image_path));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -113,27 +114,27 @@ public class UserDAO {
                     System.err.println("❌ Lỗi: fullname từ database bị NULL!");
                 }
 
-                User user = new User(
-                        resultSet.getInt("user_id"),
-                        resultSet.getString("username"),
-                        resultSet.getString("password"),
-                        resultSet.getString("role_id"),
-                        fullname,  // Lấy fullname đúng cách
-                        resultSet.getString("phone"),
-                        resultSet.getDate("birthday"),
-                        resultSet.getString("address"),
-                        resultSet.getDate("hire_date"),
-                        resultSet.getString("image_path")
-                );
+//                User user = new User(
+//                        resultSet.getInt("user_id"),
+//                        resultSet.getString("username"),
+//                        resultSet.getString("password"),
+//                        resultSet.getString("role_id"),
+//                        fullname,  // Lấy fullname đúng cách
+//                        resultSet.getString("phone"),
+//                        resultSet.getDate("birthday"),
+//                        resultSet.getString("address"),
+//                        resultSet.getDate("hire_date"),
+//                        resultSet.getString("image_path")
+//                );
 
                 // Debug kiểm tra dữ liệu lấy từ database
-                System.out.println("🔍 Debug: User lấy từ DB:");
-                System.out.println("🆔 ID: " + user.getId());
-                System.out.println("👤 Username: " + user.getUsername());
-                System.out.println("📛 Fullname: " + user.getFullname());
-                System.out.println("📷 Avatar: " + user.getImagePath());
-
-                return user;
+//                System.out.println("🔍 Debug: User lấy từ DB:");
+//                System.out.println("🆔 ID: " + user.getId());
+//                System.out.println("👤 Username: " + user.getUsername());
+//                System.out.println("📛 Fullname: " + user.getFullname());
+//                System.out.println("📷 Avatar: " + user.getImagePath());
+//
+//                return user;
 
             }
         } catch (Exception e) {

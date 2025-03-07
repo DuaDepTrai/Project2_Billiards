@@ -12,6 +12,7 @@ public class User {
     private String password;
     private String plainPassword; // Lưu mật khẩu chưa hash
     private String role;
+    private int roleId;
     private String roleName;
     private String fullname;
     private String phone;
@@ -39,11 +40,12 @@ public class User {
         this.fullname = fullname;
         this.imagePath = imagePath;
     }
-    public User(int id, String username, String password, String role, String fullname,
+    public User(int id, String username, String password, int roleId, String role, String fullname,
                 String phone, Date birthday, String address, Date hireDate, String imagePath) {
         this.id = id;
         this.username = username;
         this.password = password;
+        this.roleId = roleId;
         this.role = role;
         this.fullname = fullname;
         this.phone = phone;
@@ -63,6 +65,8 @@ public class User {
     }
 
     public String getPassword() {return password;}
+
+    public int getRoleId() {return roleId;}
 
     public String getRole() {return role;}
 
