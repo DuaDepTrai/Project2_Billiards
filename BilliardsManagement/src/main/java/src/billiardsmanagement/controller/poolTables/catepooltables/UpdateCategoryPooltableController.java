@@ -18,7 +18,7 @@ public class UpdateCategoryPooltableController {
 
     public void setCatePooltable(CatePooltable category) {
         this.category = category;
-        priceField.setText(String.format("%.2f", category.getPrice()));
+        priceField.setText(String.valueOf(category.getPrice()));
     }
 
     @FXML

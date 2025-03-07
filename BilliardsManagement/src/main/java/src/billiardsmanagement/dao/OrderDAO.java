@@ -182,8 +182,6 @@ public class OrderDAO {
         return orders;
     }
 
-
-
     public void addOrder(Order newOrder) {
         String query = "INSERT INTO orders (customer_id, user_id, order_status, order_date) VALUES (?, ?, 'Playing', CURRENT_TIMESTAMP)";
 

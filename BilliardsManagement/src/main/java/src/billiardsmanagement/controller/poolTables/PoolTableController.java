@@ -352,7 +352,7 @@ public class PoolTableController {
         // Add counts for each table category
         for (CatePooltable category : catePooltablesList) {
             long categoryCount = tableList.stream()
-                    .filter(table -> table.getCatePooltableName().equals(category.getName()))
+                    .filter(table -> table.getCatePooltableName().equals(category.getShortName()))
                     .count();
             
             Label categoryLabel = new Label(String.format("• %s : %d", category.getName(), categoryCount));
@@ -363,7 +363,7 @@ public class PoolTableController {
 
         // Add separator
         Separator separator = new Separator();
-        separator.setPadding(new Insets(5, 0, 5, 0));
+        separator.setPadding(new Insets(3, 0, 3, 0));
         content.getChildren().add(separator);
 
         return content;
@@ -473,6 +473,7 @@ public class PoolTableController {
             catePooltablesList.clear();
             catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
             initializeCategoryList();
+            handleViewAllTables();
         } catch (IOException e) {
             e.printStackTrace();
             NotificationService.showNotification("Error", "Failed to open update category dialog: " + e.getMessage(),
@@ -505,6 +506,7 @@ public class PoolTableController {
                 catePooltablesList.clear();
                 catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
                 initializeCategoryList();
+                handleViewAllTables();
             } catch (Exception e) {
                 e.printStackTrace();
                 NotificationService.showNotification("Error", "Failed to delete category: " + e.getMessage(),
