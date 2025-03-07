@@ -6,7 +6,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="src.billiardsmanagement.controller.users.UserController" prefWidth="1000" prefHeight="750">
     <TableView fx:id="tableUsers" AnchorPane.topAnchor="50.0" AnchorPane.leftAnchor="10.0"
                AnchorPane.rightAnchor="10.0" AnchorPane.bottomAnchor="50.0">
@@ -27,5 +27,5 @@
     <Button fx:id="btnRolesPermissions" text="Roles - Permissions" AnchorPane.bottomAnchor="10.0"
             AnchorPane.rightAnchor="50.0"/>
 
-</BorderPane>
+</AnchorPane>
 
