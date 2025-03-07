@@ -10,11 +10,11 @@
     <center>
         <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE">
             <tabs>
-<!--                <Tab fx:id="customerTab" text="Customers">-->
-<!--                    <content>-->
-<!--                        <fx:include source="customer_stats.fxml"/>-->
-<!--                    </content>-->
-<!--                </Tab>-->
+                <Tab fx:id="customerTab" text="Customers">
+                    <content>
+                        <fx:include source="customer_stats.fxml"/>
+                    </content>
+                </Tab>
                 <Tab fx:id="ordersTab" text="Orders">
                     <content>
                         <fx:include source="orders_stats.fxml"/>
