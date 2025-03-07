@@ -1,0 +1,154 @@
+.table-stack {
+    -fx-cursor: hand;
+}
+
+.table-stack:hover .hover-buttons {
+    -fx-opacity: 1;
+}
+
+.hover-buttons {
+    -fx-opacity: 0;
+    -fx-background-color: rgba(135, 206, 235, 0.8);
+    -fx-border-color: black;
+    -fx-border-width: 1px;
+}
+
+.hover-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.hover-button:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.1);
+}
+
+.divider {
+    -fx-background-color: black;
+}
+
+.add-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.search-button {
+    -fx-background-color: #2196F3;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+.form-container {
+    -fx-background-color: #ffffff;
+    -fx-padding: 20;
+    -fx-spacing: 15;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+
+.update-button {
+    -fx-background-color: #FFA726;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.remove-button {
+    -fx-background-color: #f44336;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.table-view {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header {
+    -fx-background-color: #2196F3;
+    -fx-padding: 5px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #f5f5f5;
+}
+
+.table-row-cell:even {
+    -fx-background-color: white;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #bbdefb;
+}
+
+.text-field {
+    -fx-background-color: white;
+    -fx-border-color: #ddd;
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-padding: 5px;
+}
+
+.search-container {
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+}
+
+.search-field {
+    -fx-pref-width: 200;
+}
+
+.button {
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+    -fx-padding: 8 15;
+}
+
+.add-button:hover {
+    -fx-background-color: #45a049;
+}
+
+.search-button:hover {
+    -fx-background-color: #1976D2;
+}
+
+.update-button:hover {
+    -fx-background-color: #FB8C00;
+}
+
+.remove-button:hover {
+    -fx-background-color: #e53935;
+}
+
+.section-header {
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2196F3;
+}
+
+.field-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #424242;
+}
+
+.form-field {
+    -fx-pref-height: 35;
+    -fx-font-size: 14;
+}
+
+.number-column {
+    -fx-alignment: CENTER-RIGHT;
+}
+
+.text-column {
+    -fx-alignment: CENTER-LEFT;
+}

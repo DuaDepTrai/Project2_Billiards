@@ -1,4 +1,4 @@
-package src.billiardsmanagement.controller.pooltables.catepooltables;
+package src.billiardsmanagement.controller.poolTables.catepooltables;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -9,6 +9,8 @@ import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
 
 public class UpdateCategoryPooltableController {
+    public TextField cateNameField;
+    public TextField shortNameField;
     @FXML
     private TextField priceField;
 
@@ -16,15 +18,19 @@ public class UpdateCategoryPooltableController {
 
     public void setCatePooltable(CatePooltable category) {
         this.category = category;
-        priceField.setText(String.format("%.2f", category.getPrice()));
+        cateNameField.setText(category.getName());
+        shortNameField.setText(category.getShortName());
+        priceField.setText(String.valueOf(category.getPrice()));
     }
 
     @FXML
     private void handleConfirm() {
         try {
             String priceText = priceField.getText();
+            String cateName = cateNameField.getText();
+            String shortName = shortNameField.getText();
 
-            // Validate input
+            // Validate price input
             if (priceText == null || priceText.trim().isEmpty()) {
                 NotificationService.showNotification("Warning", "Please enter a price", NotificationStatus.Warning);
                 return;
@@ -43,8 +49,22 @@ public class UpdateCategoryPooltableController {
                 return;
             }
 
+            // Validate category name input
+            if (cateName == null || cateName.trim().isEmpty()) {
+                NotificationService.showNotification("Warning", "Please enter a category name", NotificationStatus.Warning);
+                return;
+            }
+
+            // Validate short name input
+            if (shortName == null || shortName.trim().isEmpty()) {
+                NotificationService.showNotification("Warning", "Please enter a short name", NotificationStatus.Warning);
+                return;
+            }
+
             // Update category
-            category.setPrice(price);
+            category.setName(cateName);      // Update category name
+            category.setShortName(shortName); // Update short name
+            category.setPrice(price);         // Update category price
             CatePooltableDAO.updateCategory(category);
 
             // Close dialog

@@ -11,6 +11,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import org.controlsfx.control.NotificationPane;
 import src.billiardsmanagement.controller.NotificationController;
 import src.billiardsmanagement.model.NotificationStatus;
 
@@ -29,21 +30,21 @@ public class NotificationService {
 
             String colour;
             switch (status) {
-            case Error:
-                colour = "#FF0000"; // Màu đỏ
-                break;
-            case Success:
-                colour = "#00FF00"; // Màu xanh lục
-                break;
-            case Warning:
-                colour = "#FF9D23"; // Màu cam
-                break;
-            case Information:
-                colour = "#333333"; // Màu xám đậm
-                break;
-            default:
-                colour = "#000000"; // Màu đen mặc định
-                break;
+                case Error:
+                    colour = "#DB2B3D"; // Màu đỏ
+                    break;
+                case Success:
+                    colour = "#28BE8E"; // Màu xanh lục
+                    break;
+                case Warning:
+                    colour = "#FF9D23"; // Màu cam
+                    break;
+                case Information:
+                    colour = "#333333"; // Màu xám đậm
+                    break;
+                default:
+                    colour = "#000000"; // Màu đen mặc định
+                    break;
             }
             controller.setNotificationColour(colour);
 
@@ -68,28 +69,29 @@ public class NotificationService {
             double screenWidth = Screen.getPrimary().getBounds().getWidth();
             double screenHeight = Screen.getPrimary().getBounds().getHeight();
 
-            // Kích thước của thông báo
-//            double notificationWidth = root.prefWidth(-1); // Chiều rộng của thông báo
-//            double notificationHeight = root.prefHeight(-1); // Chiều cao của thông báo
-
-            // Giả sử root là VBox chứa nội dung thông báo
-
-//            double[] notificationSize = new double[2]; // Array to hold width and height
 
             root.layoutBoundsProperty().addListener((obs, oldValue, newValue) -> {
                 double notificationWidth;
                 double notificationHeight;
-                if(newValue==null){
+                if (newValue == null) {
                     notificationWidth = root.prefWidth(-1);
                     notificationHeight = root.prefHeight(-1);
-                }
-                else {
+                } else {
                     notificationWidth = newValue.getWidth();  // Get new width
                     notificationHeight = newValue.getHeight(); // Get new height
                 }
 
-                double xPos = screenWidth - notificationWidth - 10;
-                double yPos = screenHeight - notificationHeight - 55 - 10; // 10px from the bottom edge
+                System.out.println("Updated Size: " + notificationWidth + " x " + notificationHeight);
+                double xPos;
+                double yPos;
+
+                if (status == NotificationStatus.Error) {
+                    xPos = (screenWidth - notificationWidth) / 2; // Center horizontally
+                    yPos = 10; // Top position
+                } else {
+                    xPos = screenWidth - notificationWidth - 10; // Right position
+                    yPos = screenHeight - notificationHeight - 55 - 10; // Bottom position
+                }
 
                 notificationStage.setX(xPos);
                 notificationStage.setY(yPos);
@@ -98,19 +100,24 @@ public class NotificationService {
             // setAlwaysOnTop
             notificationStage.setAlwaysOnTop(true);
 
-            // Hiệu ứng trượt xuống
-//            TranslateTransition slideDown = new TranslateTransition(Duration.millis(350), root);
-//            slideDown.setFromY(-root.prefHeight(-1)); // Bắt đầu ngoài màn hình
-//            slideDown.setToY(0); // Dừng ở vị trí trên cùng
-//            slideDown.setInterpolator(Interpolator.EASE_OUT);
-            double startX = screenWidth;
-//            double endX = screenWidth - notificationWidth - 10;
-            // the d nao endX = 0 lai hoat dong !!?
-            double endX = 0;
-            TranslateTransition slideIn = new TranslateTransition(Duration.millis(350), root);
-            slideIn.setFromX(startX);
-            slideIn.setToX(endX);
-            slideIn.setInterpolator(Interpolator.EASE_OUT);
+            if (status == NotificationStatus.Error) {
+                TranslateTransition slideDown = new TranslateTransition(Duration.millis(350), root);
+                slideDown.setFromY(-150); // Start off-screen
+                slideDown.setToY(0); // Stop at top-center
+                slideDown.setInterpolator(Interpolator.EASE_OUT);
+                slideDown.play();
+            } else {
+                // Slide in from right for other statuses
+                double startX = screenWidth;
+                double endX = 0;
+                System.out.println("startX = " + startX);
+                System.out.println("endX = " + endX);
+                TranslateTransition slideIn = new TranslateTransition(Duration.millis(350), root);
+                slideIn.setFromX(startX);
+                slideIn.setToX(endX);
+                slideIn.setInterpolator(Interpolator.EASE_OUT);
+                slideIn.play();
+            }
 
             // Hiệu ứng mờ dần sau 3 giây
             FadeTransition fadeOut = new FadeTransition(Duration.millis(300), root);
@@ -121,7 +128,6 @@ public class NotificationService {
 
             // Chạy các hiệu ứng
 //            slideDown.play();
-            slideIn.play();
             fadeOut.play();
             notificationStage.show();
         } catch (Exception e) {
@@ -129,6 +135,7 @@ public class NotificationService {
         }
     }
 }
+
 
 //
 //import javafx.animation.FadeTransition;

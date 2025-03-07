@@ -65,10 +65,10 @@ public class ForEachOrderController {
 
     // Actions
     @FXML
-    private TableColumn<Booking,Void> bookingActionColumn;
+    private TableColumn<Booking, Void> bookingActionColumn;
 
     @FXML
-    private TableColumn<OrderItem,Void> orderItemActionColumn;
+    private TableColumn<OrderItem, Void> orderItemActionColumn;
 
     // Tables
     @FXML
@@ -178,7 +178,7 @@ public class ForEachOrderController {
 
     private void loadBookings() {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
-        bookings.sort((b1,b2) -> b2.getBookingId() - b1.getBookingId());
+        bookings.sort((b1, b2) -> b2.getBookingId() - b1.getBookingId());
         bookingList.clear();
         bookingList.addAll(bookings);
         bookingPoolTable.setItems(bookingList);
@@ -187,7 +187,7 @@ public class ForEachOrderController {
     private void loadOrderDetail() {
         orderItemList.clear();
         List<OrderItem> items = OrderItemDAO.getForEachOrderItem(orderID);
-        items.sort((i1,i2) -> i2.getOrderItemId() - i1.getOrderItemId());
+        items.sort((i1, i2) -> i2.getOrderItemId() - i1.getOrderItemId());
         System.out.println(items.isEmpty() ? "Order Item list in ForEachOrderController, loadOrderDetail() don't have any element !" : "");
         orderItemList.addAll(items);
         orderItemsTable.setItems(orderItemList);
@@ -216,7 +216,7 @@ public class ForEachOrderController {
 
         // Check Order Status
         String orderStatus = orderStatusText.getText();
-        if(orderStatus.equals("Finished") || orderStatus.equals("Paid") || orderStatus.equals("Canceled")){
+        if (orderStatus.equals("Finished") || orderStatus.equals("Paid") || orderStatus.equals("Canceled")) {
             addBookingButton.setDisable(true);
         }
 
@@ -237,41 +237,65 @@ public class ForEachOrderController {
 
                 switch (booking.getBookingStatus()) {
                     case "Order":
+                        // Play Icon
                         FontAwesomeIconView playIcon = new FontAwesomeIconView(FontAwesomeIcon.PLAY);
-                        playIcon.getStyleClass().add("action-icon");
-                        playIcon.setOnMouseClicked(e -> {
+                        playIcon.prefWidth(14); // Set icon size
+                        playIcon.prefHeight(14); // Set icon size
+                        Button playButton = new Button();
+                        playButton.setGraphic(playIcon);
+                        playButton.setMinSize(17, 17); // Set button size
+                        playButton.setAlignment(Pos.CENTER); // Center the icon in the button
+                        playButton.setOnMouseClicked(e -> {
                             setCurrentBookingSelected(booking);
                             updateBooking(new ActionEvent());
                         });
 
+                        // Cancel Icon
                         FontAwesomeIconView cancelIcon = new FontAwesomeIconView(FontAwesomeIcon.TIMES);
-                        cancelIcon.getStyleClass().add("action-icon");
-                        cancelIcon.setOnMouseClicked(e -> {
+                        cancelIcon.prefWidth(14);
+                        cancelIcon.prefHeight(14);
+                        Button cancelButton = new Button();
+                        cancelButton.setGraphic(cancelIcon);
+                        cancelButton.setMinSize(17, 17);
+                        cancelButton.setAlignment(Pos.CENTER); // Center the icon in the button
+                        cancelButton.setOnMouseClicked(e -> {
                             setCurrentBookingSelected(booking);
                             cancelBooking(new ActionEvent());
                         });
 
-                        actionBox.getChildren().addAll(playIcon, cancelIcon);
+                        actionBox.getChildren().addAll(playButton, cancelButton);
                         break;
 
                     case "Playing":
-                        FontAwesomeIconView stopIcon = new FontAwesomeIconView(FontAwesomeIcon.PAUSE);
-                        stopIcon.getStyleClass().add("action-icon");
-                        stopIcon.setOnMouseClicked(e -> {
+                        // Stop Icon
+                        FontAwesomeIconView stopIcon = new FontAwesomeIconView(FontAwesomeIcon.STOP);
+                        stopIcon.prefWidth(14);
+                        stopIcon.prefHeight(14);
+                        Button stopButton = new Button();
+                        stopButton.setGraphic(stopIcon);
+                        stopButton.setMinSize(17, 17);
+                        stopButton.setAlignment(Pos.CENTER); // Center the icon in the button
+                        stopButton.setOnMouseClicked(e -> {
                             setCurrentBookingSelected(booking);
                             stopBooking(new ActionEvent());
                         });
-                        actionBox.getChildren().add(stopIcon);
+                        actionBox.getChildren().add(stopButton);
                         break;
 
                     case "Canceled":
+                        // Delete Icon
                         FontAwesomeIconView deleteIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
-                        deleteIcon.getStyleClass().add("action-icon");
-                        deleteIcon.setOnMouseClicked(e -> {
+                        deleteIcon.prefWidth(14);
+                        deleteIcon.prefHeight(14);
+                        Button deleteButton = new Button();
+                        deleteButton.setGraphic(deleteIcon);
+                        deleteButton.setMinSize(17, 17);
+                        deleteButton.setAlignment(Pos.CENTER); // Center the icon in the button
+                        deleteButton.setOnMouseClicked(e -> {
                             setCurrentBookingSelected(booking);
                             deleteBooking(new ActionEvent());
                         });
-                        actionBox.getChildren().add(deleteIcon);
+                        actionBox.getChildren().add(deleteButton);
                         break;
 
                     case "Finish":
@@ -373,7 +397,7 @@ public class ForEachOrderController {
 //        orderItemActionColumn.setGraphic(addOrderItemButton);
 
         String orderStatus = orderStatusText.getText();
-        if(orderStatus.equals("Finished") || orderStatus.equals("Paid") || orderStatus.equals("Canceled")){
+        if (orderStatus.equals("Finished") || orderStatus.equals("Paid") || orderStatus.equals("Canceled")) {
             addOrderItemButton.setDisable(true);
         }
 
@@ -392,20 +416,27 @@ public class ForEachOrderController {
                 actionBox.setAlignment(Pos.CENTER); // Center horizontally
                 actionBox.getStyleClass().add("action-hbox");
 
+                // Edit Icon
                 FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
-                editIcon.getStyleClass().add("action-icon");
-                editIcon.setOnMouseClicked(e -> {
+                editIcon.prefWidth(14); // Set icon size
+                editIcon.prefHeight(14); // Set icon size
+                Button editButton = new Button();
+                editButton.setGraphic(editIcon);
+                editButton.setMinSize(17, 17); // Set button size
+                editButton.setAlignment(Pos.CENTER); // Center the icon in the button
+                editButton.setOnMouseClicked(e -> {
                     setCurrentOrderItemSelected(orderItem);
                     updateOrderItem(new ActionEvent());
                 });
 
-                actionBox.getChildren().add(editIcon);
+                actionBox.getChildren().add(editButton);
 
                 setAlignment(Pos.CENTER); // Center the entire cell content
                 setGraphic(actionBox);
             }
         });
 
+//
         sttOrderItemColumn.setCellValueFactory(this::orderItemCall);
         productNameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
         productNameColumn.setSortType(TableColumn.SortType.ASCENDING);
@@ -468,18 +499,17 @@ public class ForEachOrderController {
         orderItemsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         // Finish Order Button disable / enable
         String status = orderStatusText.getText();
-        if(status.equalsIgnoreCase("Finished") || status.equalsIgnoreCase("Canceled") || status.equalsIgnoreCase("Paid")){
+        if (status.equalsIgnoreCase("Finished") || status.equalsIgnoreCase("Canceled") || status.equalsIgnoreCase("Paid")) {
             finishOrderButton.setDisable(true);
-        }
-        else finishOrderButton.setDisable(false);
+        } else finishOrderButton.setDisable(false);
 
         // Staff Name
         String staffName = OrderDAO.getStaffNameByOrderId(orderID);
 
-        if(staffName.equals("")){
+        if (staffName.isEmpty()) {
             System.out.println("Error : Currently, there is no user logged in !");
             staffNameText.setText("[ No staff logged in ! ]");
-        }else{
+        } else {
             staffNameText.setText(staffName);
         }
         initializeBookingColumn();
@@ -494,6 +524,7 @@ public class ForEachOrderController {
         String currentTimestamp = LocalDateTime.now().format(formatter);
         dateText.setText(currentTimestamp);
     }
+
     private void setupPhoneAutoCompletion() {
         if (phoneAutoCompletion != null) {
             phoneAutoCompletion.dispose();
@@ -551,7 +582,7 @@ public class ForEachOrderController {
             return;
         }
         // Lấy booking được chọn
-        Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
+        Booking selectedBooking = currentBookingSelected;
         // Kiểm tra xem có booking nào được chọn không
         if (selectedBooking == null) {
             NotificationService.showNotification("You haven't choose a Booking.", "Please select a Booking !", NotificationStatus.Warning);
@@ -605,7 +636,7 @@ public class ForEachOrderController {
             NotificationService.showNotification("Error", "Cannot add booking with status 'Paid'.", NotificationStatus.Error);
             return;
         }
-        Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
+        Booking selectedBooking = currentBookingSelected;
 
         if (selectedBooking == null) {
             NotificationService.showNotification("No Selection", "Please select a booking to delete.", NotificationStatus.Error);
@@ -673,7 +704,7 @@ public class ForEachOrderController {
             return;
         }
 
-        OrderItem selectedItem = orderItemsTable.getSelectionModel().getSelectedItem();
+        OrderItem selectedItem = currentOrderItemSelected;
         if (selectedItem == null) {
             NotificationService.showNotification("Error",
                     "You haven't selected any item to edit!",
@@ -773,7 +804,7 @@ public class ForEachOrderController {
             return;
         }
 
-        Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
+        Booking selectedBooking = currentBookingSelected;
         if (selectedBooking == null) {
             NotificationService.showNotification("Warning",
                     "Please select a booking to update.",
@@ -905,6 +936,10 @@ public class ForEachOrderController {
                 } else {
                     NotificationService.showNotification("Error", "Failed to finish all bookings.", NotificationStatus.Error);
                 }
+                loadOrderList();
+                finishOrderButton.setDisable(true);
+                addBookingButton.setDisable(true);
+                addOrderItemButton.setDisable(true);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -940,10 +975,10 @@ public class ForEachOrderController {
                 OrderDAO.updateStatusOrder(orderID, "Order");
                 System.out.println("Da chuyen order thanh order");
 
-            }else if(booking.getBookingStatus().equals("Finish")){
+            } else if (booking.getBookingStatus().equals("Finish")) {
 
                 System.out.println("Da chuyen booking thanh Finish");
-            }else{
+            } else {
                 OrderDAO.updateStatusOrder(orderID, "Canceled");
                 System.out.println("Da chuyen order thanh canceled");
             }
@@ -952,27 +987,39 @@ public class ForEachOrderController {
 
     @FXML
     public void cancelBooking(ActionEvent actionEvent) {
-        Booking selectedBooking = bookingPoolTable.getSelectionModel().getSelectedItem();
+        Booking selectedBooking = currentBookingSelected;
         if (selectedBooking == null) {
             NotificationService.showNotification("Error Cancel Booking", "You haven't choose a booking to cancel !", NotificationStatus.Error);
             return;
         }
 
-        boolean success = BookingDAO.cancelBooking(selectedBooking.getBookingId());
-        if (success){
-            BookingDAO.updateTableStatusAfterBooking(selectedBooking.getBookingId());
-            NotificationService.showNotification("Cancel Booking Success", "Booking in Table : " + selectedBooking.getTableName() + " has been cancelled successfully!", NotificationStatus.Success);
-            loadBookings();
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Cancel Booking Confirmation");
+        confirmAlert.setHeaderText("Are you sure you want to cancel this booking?");
+        confirmAlert.setContentText("This action cannot be undone.");
+
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            boolean success = BookingDAO.cancelBooking(selectedBooking.getBookingId());
+            if (success) {
+                BookingDAO.updateTableStatusAfterBooking(selectedBooking.getBookingId());
+                NotificationService.showNotification("Cancel Booking Success",
+                        "Booking in Table : " + selectedBooking.getTableName() + " has been cancelled successfully!",
+                        NotificationStatus.Success);
+                loadBookings();
+            } else {
+                NotificationService.showNotification("Error Cancel Booking",
+                        "An unexpected error happens when cancelling this booking. Please try again later !",
+                        NotificationStatus.Error);
+            }
         }
-        else
-            NotificationService.showNotification("Error Cancel Booking", "An unexpected error happens when cancelling this booking. Please try again later !", NotificationStatus.Error);
     }
+
     public void setBillNo(int billNo) {
         this.billNo = billNo;
         System.out.println("Bill No: " + billNo);
         billNoText.setText(String.valueOf(billNo));
     }
-
 
     public void saveCustomer(ActionEvent actionEvent) {
         try {
@@ -1035,6 +1082,7 @@ public class ForEachOrderController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
     // Getters and Setters for selected items
     public Booking getCurrentBookingSelected() {
         return currentBookingSelected;
@@ -1056,16 +1104,16 @@ public class ForEachOrderController {
         Booking bookingselected = bookingPoolTable.getSelectionModel().getSelectedItem();
         OrderItem orderItemselected = orderItemsTable.getSelectionModel().getSelectedItem();
 
-        if(bookingselected == null && orderItemselected == null){
+        if (bookingselected == null && orderItemselected == null) {
             try {
                 String phoneNumber = phoneText.getText();
                 if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
                     showAlert(Alert.AlertType.ERROR, "Error", "Phone number is required");
                     return;
                 }
-                int customerID =  CustomerDAO.getCustomerIdByPhone(phoneNumber);
-                boolean success = orderDAO.updateOrder(orderID,customerID);
-                if(success){
+                int customerID = CustomerDAO.getCustomerIdByPhone(phoneNumber);
+                boolean success = orderDAO.updateOrder(orderID, customerID);
+                if (success) {
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Order updated successfully");
                     loadOrderList();
                 }

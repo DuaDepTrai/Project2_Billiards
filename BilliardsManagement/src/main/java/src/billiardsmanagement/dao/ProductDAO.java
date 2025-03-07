@@ -155,70 +155,70 @@ public class ProductDAO {
         return false;
     }
 
-    public static boolean replenishMultipleItems(ObservableList<RentCue> productNameList) {
-        String sql = "UPDATE products SET quantity = quantity + 1 WHERE name = ?";
-        Connection connection = DatabaseConnection.getConnection();
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            // Disable auto-commit to allow batch processing
-            connection.setAutoCommit(false);
-
-            for (RentCue product : productNameList) {
-                statement.setString(1, product.getProductName());
-                statement.addBatch(); // Add each update operation to the batch
-            }
-
-            int[] rowsAffected = statement.executeBatch(); // Execute the batch
-
-            // Check if all updates were successful
-            boolean allSuccessful = true;
-            for (int row : rowsAffected) {
-                if (row <= 0) {
-                    allSuccessful = false;
-                    break;
-                }
-            }
-
-            if (allSuccessful) {
-                System.out.println("Successfully replenished all products.");
-                connection.commit(); // Commit the transaction
-                return true;
-            } else {
-                throw new Exception("Replenishment failed. Not all products were found or updated.");
-            }
-        } catch (SQLException e) {
-            try {
-                if (connection != null) {
-                    connection.rollback(); // Rollback the transaction in case of error
-                }
-                e.printStackTrace();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
-            System.err.println("SQL error during replenishment: " + e.getMessage());
-        } catch (Exception e) {
-            try {
-                if (connection != null) {
-                    connection.rollback(); // Rollback the transaction in case of error
-                }
-                e.printStackTrace();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
-            System.err.println("Unexpected error during replenishment: " + e.getMessage());
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.setAutoCommit(true); // Re-enable auto-commit
-                    connection.close(); // Close the connection
-                }
-            } catch (Exception e) {
-                System.out.println("Error : " + e.getMessage());
-            }
-        }
-
-        return false;
-    }
+//    public static boolean replenishMultipleItems(ObservableList<RentCue> productNameList) {
+//        String sql = "UPDATE products SET quantity = quantity + 1 WHERE name = ?";
+//        Connection connection = DatabaseConnection.getConnection();
+//        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+//
+//            // Disable auto-commit to allow batch processing
+//            connection.setAutoCommit(false);
+//
+//            for (RentCue product : productNameList) {
+//                statement.setString(1, product.getProductName());
+//                statement.addBatch(); // Add each update operation to the batch
+//            }
+//
+//            int[] rowsAffected = statement.executeBatch(); // Execute the batch
+//
+//            // Check if all updates were successful
+//            boolean allSuccessful = true;
+//            for (int row : rowsAffected) {
+//                if (row <= 0) {
+//                    allSuccessful = false;
+//                    break;
+//                }
+//            }
+//
+//            if (allSuccessful) {
+//                System.out.println("Successfully replenished all products.");
+//                connection.commit(); // Commit the transaction
+//                return true;
+//            } else {
+//                throw new Exception("Replenishment failed. Not all products were found or updated.");
+//            }
+//        } catch (SQLException e) {
+//            try {
+//                if (connection != null) {
+//                    connection.rollback(); // Rollback the transaction in case of error
+//                }
+//                e.printStackTrace();
+//            } catch (SQLException ex) {
+//                throw new RuntimeException(ex);
+//            }
+//            System.err.println("SQL error during replenishment: " + e.getMessage());
+//        } catch (Exception e) {
+//            try {
+//                if (connection != null) {
+//                    connection.rollback(); // Rollback the transaction in case of error
+//                }
+//                e.printStackTrace();
+//            } catch (SQLException ex) {
+//                throw new RuntimeException(ex);
+//            }
+//            System.err.println("Unexpected error during replenishment: " + e.getMessage());
+//        } finally {
+//            try {
+//                if (connection != null) {
+//                    connection.setAutoCommit(true); // Re-enable auto-commit
+//                    connection.close(); // Close the connection
+//                }
+//            } catch (Exception e) {
+//                System.out.println("Error : " + e.getMessage());
+//            }
+//        }
+//
+//        return false;
+//    }
 
 
     // Phương thức để stockUp

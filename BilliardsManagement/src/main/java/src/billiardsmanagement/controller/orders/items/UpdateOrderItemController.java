@@ -33,7 +33,7 @@ public class UpdateOrderItemController {
     private int orderId;
     private int orderItemId;
 
-    private List<String> productList;
+    private List<String> productTrimmedList;
     private List<String> currentItemList;
 
 //    protected Map<String, String> productCategoryMap;
@@ -45,23 +45,25 @@ public class UpdateOrderItemController {
 
     public void initializeOrderItem() {
 //        productCategoryMap = CategoryDAO.getProductAndCategoryUnitMap();
-
-        ArrayList<String> list = ProductDAO.getAllProductsName();
-        productList = new ArrayList<>();
-        if (list == null) {
+        productTrimmedList = new ArrayList<>();
+        ArrayList<String> productList = new ArrayList<>();
+        List<Pair<String,Integer>> productQuantityList = ProductDAO.getAllProductNameAndQuantity();
+        if (productQuantityList.isEmpty()) {
             System.out.println("Unexpected error: Product List is null!");
         } else {
-            for (String s : list) {
-                productList.add(s);
-                if (!s.contains(" ") && !currentItemList.contains(s)) {
-                    s = s + " ";
-                    productList.add(s);
+            for (Pair<String,Integer> p : productQuantityList) {
+                String prn = p.getFirstValue();
+                int quant = p.getSecondValue();
+                if (!currentItemList.contains(prn)) {
+                    productTrimmedList.add(prn);
+                    prn += "  / " + quant + " in stock" ;
+                    productList.add(prn);
                 }
             }
 
             AutoCompletionBinding<String> productNameAutoBinding = TextFields
                     .bindAutoCompletion(productNameAutoCompleteText, productList);
-            HandleTextFieldClick(productNameAutoBinding, productList, productNameAutoCompleteText, initialProductName);
+            HandleTextFieldClick(productNameAutoBinding, productTrimmedList, productNameAutoCompleteText, initialProductName);
             productNameAutoBinding.setVisibleRowCount(7);
             productNameAutoBinding.setHideOnEscape(true);
 
@@ -97,6 +99,11 @@ public class UpdateOrderItemController {
 
     public void HandleTextFieldClick(AutoCompletionBinding<String> auto, List<String> list, TextField text,
             String name) {
+        auto.setOnAutoCompleted(autoCompletionEvent -> {
+            String finalText = autoCompletionEvent.getCompletion();
+            text.setText(finalText.trim().split("/")[0].trim());
+        });
+
         text.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 auto.setUserInput(" ");
@@ -110,7 +117,7 @@ public class UpdateOrderItemController {
                     return;
                 }
 
-                boolean check = list.stream().anyMatch(inputText::equals);
+                boolean check = productTrimmedList.stream().anyMatch(inputText::equals);
                 if (check) {
                     text.setText(inputText);
                 } else {
@@ -139,30 +146,40 @@ public class UpdateOrderItemController {
             if (productName == null || productName.trim().isEmpty()) {
                 throw new IllegalArgumentException("Please select a product!");
             }
-            if (!productList.contains(productName)) {
+            
+            if (!productTrimmedList.contains(productName)) {
                 throw new IllegalArgumentException(
                         "The product you provided is not found. Check your input and try again!");
             }
 
             maxQuantity = ProductDAO.getProductQuantityByName(productName);
-            int requestQuantity;
+            int requestQuantity = 0;
 
             try {
                 requestQuantity = Integer.parseInt(quantityTextField.getText().trim());
                 if (requestQuantity == 0) {
                     throw new IllegalArgumentException("Quantity must be greater than 0!");
                 }
-                if (requestQuantity < currentQuantity) {
-                    int replenishAmount = currentQuantity - requestQuantity;
-                    ProductDAO.replenishItem(productName, replenishAmount);
-                } else if (requestQuantity > currentQuantity) {
-                    int quant = requestQuantity - currentQuantity;
-                    if (quant > maxQuantity) {
-                        throw new IllegalArgumentException(
-                                "The quantity you provided exceeds amount in stock. Please reduce the quantity.");
-                    } else {
-                        ProductDAO.dispatchItem(productName, quant);
+
+                // update the old item
+                if(productName.equalsIgnoreCase(initialProductName)){
+                    if (requestQuantity < currentQuantity) {
+                        int replenishAmount = currentQuantity - requestQuantity;
+                        ProductDAO.replenishItem(productName, replenishAmount);
+                    } else if (requestQuantity > currentQuantity) {
+                        int quant = requestQuantity - currentQuantity;
+                        if (quant > maxQuantity) {
+                            throw new IllegalArgumentException(
+                                    "The quantity you provided exceeds amount in stock. Please reduce the quantity.");
+                        } else {
+                            ProductDAO.dispatchItem(productName, quant);
+                        }
                     }
+                }
+                // trying to change item ?
+                else{
+                    ProductDAO.replenishItem(initialProductName, currentQuantity);
+                    ProductDAO.dispatchItem(productName, requestQuantity);
                 }
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Invalid quantity! Please try again.");
