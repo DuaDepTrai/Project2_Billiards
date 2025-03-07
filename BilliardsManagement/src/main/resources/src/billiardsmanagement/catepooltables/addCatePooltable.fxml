@@ -4,9 +4,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="10" alignment="CENTER" prefWidth="300" prefHeight="200"
+<VBox spacing="10" alignment="CENTER" prefWidth="300" prefHeight="250"
       xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="src.billiardsmanagement.controller.pooltables.catepooltables.AddCategoryPooltableController">
+      fx:controller="src.billiardsmanagement.controller.poolTables.catepooltables.AddCategoryPooltableController">
     
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
@@ -17,6 +17,9 @@
     <Label text="Category Name:"/>
     <TextField fx:id="nameField" promptText="Enter category name"/>
 
+    <Label text="Short Name:"/>
+    <TextField fx:id="shortNameField" promptText="Enter short name (max 10 chars)"/>
+
     <Label text="Price:"/>
     <TextField fx:id="priceField" promptText="Enter price"/>
 
@@ -25,4 +28,4 @@
         <Button text="Close" onAction="#handleClose" cancelButton="true"/>
     </HBox>
 
-</VBox> 
+</VBox>

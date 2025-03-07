@@ -6,7 +6,7 @@
 
 <VBox spacing="10" alignment="CENTER" prefWidth="300" prefHeight="250"
       xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="src.billiardsmanagement.controller.pooltables.AddPoolTableController">
+      fx:controller="src.billiardsmanagement.controller.poolTables.AddPoolTableController">
     
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>

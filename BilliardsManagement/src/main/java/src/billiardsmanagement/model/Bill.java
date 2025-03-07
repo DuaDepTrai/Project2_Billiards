@@ -19,7 +19,7 @@ public class Bill {
 
     private List<OrderItem> orderItems;
     private List<Booking> bookings;
-    private List<RentCue> rentCues;
+//    private List<RentCue> rentCues;
 
     private LocalTime billTime;
 
@@ -27,7 +27,7 @@ public class Bill {
     public Bill() {
     }
 
-    public Bill(int billId, int orderId, int customerId, String customerName, double totalCost, String orderStatus, String customerPhone, List<OrderItem> orderItems, LocalTime billTime, List<Booking> bookings, List<RentCue> rentCues) {
+    public Bill(int billId, int orderId, int customerId, String customerName, double totalCost, String orderStatus, String customerPhone, List<OrderItem> orderItems, LocalTime billTime, List<Booking> bookings) {
         this.billId = billId;
         this.orderId = orderId;
         this.customerId = customerId;
@@ -38,12 +38,11 @@ public class Bill {
         this.orderItems = orderItems;
         this.billTime = billTime;
         this.bookings = bookings;
-        this.rentCues = rentCues;
     }
 
     public Bill(int orderId, int customerId, String customerName, String customerPhone, double totalCost,
                 String orderStatus, ArrayList<OrderItem> orderItems,
-                ArrayList<Booking> bookings, ArrayList<RentCue> rentCues, LocalDateTime createdTime) {
+                ArrayList<Booking> bookings, LocalDateTime createdTime) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.customerName = customerName;
@@ -52,7 +51,6 @@ public class Bill {
         this.orderStatus = orderStatus;
         this.orderItems = orderItems != null ? orderItems : new ArrayList<>();
         this.bookings = bookings != null ? bookings : new ArrayList<>();
-        this.rentCues = rentCues != null ? rentCues : new ArrayList<>();
         this.billTime = LocalTime.from(createdTime);
     }
 
@@ -126,14 +124,6 @@ public class Bill {
 
     public void setBookings(List<Booking> bookings) {
         this.bookings = bookings;
-    }
-
-    public List<RentCue> getRentCues() {
-        return rentCues;
-    }
-
-    public void setRentCues(List<RentCue> rentCues) {
-        this.rentCues = rentCues;
     }
 
     public LocalTime getBillTime() {

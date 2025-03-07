@@ -6,12 +6,14 @@ public class Customer {
     private String phone;
     private double totalPlaytime;
 
-    public Customer (String name, String phone){
-        this.name = name;
-        this.phone = phone;
-    }
     // Constructor
     public Customer() {}
+
+    public Customer(String name, String phone) {
+        this.name = name;
+        this.phone = phone;
+        this.totalPlaytime = totalPlaytime;
+    }
 
     public Customer(String name, String phone, double totalPlaytime) {
         this.name = name;
