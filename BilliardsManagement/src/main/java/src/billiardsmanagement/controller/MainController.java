@@ -366,7 +366,11 @@ public class MainController {
         contentArea.getChildren().setAll(poolTablePage);
     }
 
-    public void showCustomerPage(ActionEvent actionEvent) {
+    public void showCustomerPage() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/customer/customer.fxml"));
+        AnchorPane customerPage = loader.load();  // Tải FXML thành AnchorPane
+
+        contentArea.getChildren().setAll(customerPage);
     }
 
     public void showReportPage() throws IOException {
