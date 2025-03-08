@@ -511,6 +511,7 @@ public class OrderController implements Initializable {
             controller.setCustomerID(customerId);
             controller.setOrderTable(orderTable);
             controller.setBillNo(billNo);
+            controller.setInitialPhoneText(selectedOrder.getCustomerPhone());
             controller.initializeAllTables();
 
             Stage stage = new Stage();

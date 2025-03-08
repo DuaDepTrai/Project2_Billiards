@@ -38,6 +38,7 @@ import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -166,6 +167,8 @@ public class ForEachOrderController {
     private Booking currentBookingSelected;
     private OrderItem currentOrderItemSelected;
     private AutoCompletionBinding<String> phoneAutoCompletion;
+
+    private String initialPhoneText;
 
     @FXML private Button confirmUpdateDataCustomer;
     @FXML private Button confirmSaveCustomer;
@@ -571,6 +574,7 @@ public class ForEachOrderController {
                 .collect(Collectors.toList());
 
         phoneAutoCompletion = TextFields.bindAutoCompletion(phoneText, suggestions);
+        HandleTextFieldClick(phoneAutoCompletion, (ArrayList<String>) suggestions, phoneText);
 
         phoneText.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.isEmpty()) {
@@ -584,6 +588,33 @@ public class ForEachOrderController {
             }
         });
     }
+
+    public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text) {
+        auto.setOnAutoCompleted(autoCompletionEvent -> {
+            if(!text.getText().equalsIgnoreCase(initialPhoneText) && customerText.getText()!=null){
+                updateOrder(new ActionEvent());
+            }
+            else{
+                System.out.println("No change in phone number !");
+            }
+        });
+//
+//        text.focusedProperty().addListener((observable, oldValue, newValue) -> {
+//            if (newValue) {
+//                auto.setUserInput(" ");
+//                return;
+//            }
+//            if (!newValue) {
+//                String input = text.getText();
+//                input = input == null ? "" : input.trim();
+//                if (input.isBlank() || !trimmedList.contains(input)) {
+//                    text.setText("");
+//                } else
+//                    text.setText(input);
+//            }
+//        });
+    }
+
 
     public void addBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
@@ -1185,5 +1216,9 @@ public class ForEachOrderController {
     }
     public void setForEachUserID(int userID){
         this.userID = userID;
+    }
+
+    public void setInitialPhoneText(String initialPhoneText) {
+        this.initialPhoneText = initialPhoneText;
     }
 }

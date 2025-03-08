@@ -5,6 +5,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -689,7 +690,8 @@ public class PoolTableController {
         FlowPane.setMargin(tableStack, new Insets(5));
     }
 
-    private void showTableInfo(PoolTable table) {
+    @FXML
+    public void showTableInfo(PoolTable table) {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/src/billiardsmanagement/poolTables/poolTableInfo.fxml"));
@@ -714,5 +716,9 @@ public class PoolTableController {
             NotificationService.showNotification("Error", "Failed to open table information: " + e.getMessage(),
                     NotificationStatus.Error);
         }
+    }
+
+    @FXML
+    public void showTableInfo(ActionEvent actionEvent) {
     }
 }

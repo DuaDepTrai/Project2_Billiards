@@ -3,64 +3,120 @@ package src.billiardsmanagement.controller.poolTables;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.stage.Modality;
+import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
+import javafx.collections.FXCollections;
 import src.billiardsmanagement.dao.PoolTableDAO;
+import src.billiardsmanagement.dao.CatePooltableDAO;
 import src.billiardsmanagement.model.PoolTable;
+import src.billiardsmanagement.model.CatePooltable;
 import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import java.io.IOException;
+import java.util.List;
 
 public class PoolTableInfoController {
     @FXML
     private TextField nameField;
 
     @FXML
-    private TextField categoryField;
+    private ComboBox<CatePooltable> categoryComboBox;
 
     @FXML
-    private Button updateButton;
+    private Button saveButton;
 
     @FXML
     private Button removeButton;
 
     private PoolTable poolTable;
     private PoolTableDAO poolTableDAO = new PoolTableDAO();
+    private List<CatePooltable> categories;
+
+    @FXML
+    public void initialize() {
+        // Load categories for combo box
+        categories = CatePooltableDAO.getAllCategories();
+        categoryComboBox.setItems(FXCollections.observableArrayList(categories));
+
+        // Set custom display for category items
+        categoryComboBox.setCellFactory(param -> new javafx.scene.control.ListCell<CatePooltable>() {
+            @Override
+            protected void updateItem(CatePooltable item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getShortName());
+                }
+            }
+        });
+
+        // Set custom display for selected item
+        categoryComboBox.setButtonCell(new javafx.scene.control.ListCell<CatePooltable>() {
+            @Override
+            protected void updateItem(CatePooltable item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getShortName());
+                }
+            }
+        });
+    }
 
     public void setPoolTable(PoolTable table) {
         this.poolTable = table;
 
-        // Populate fields with read-only information
+        // Populate fields
         nameField.setText(table.getName());
-        categoryField.setText(table.getCatePooltableName());
 
-        // Enable/disable buttons based on table status
+        // Find and select the current category
+        categories.stream()
+                .filter(cat -> cat.getName().equals(table.getCatePooltableName()))
+                .findFirst()
+                .ifPresent(cat -> categoryComboBox.setValue(cat));
+
+        // Enable/disable fields based on table status
         boolean isAvailable = "available".equalsIgnoreCase(table.getStatus());
-        updateButton.setDisable(!isAvailable);
+        nameField.setEditable(isAvailable);
+        categoryComboBox.setDisable(!isAvailable);
+        saveButton.setDisable(!isAvailable);
         removeButton.setDisable(!isAvailable);
 
-        // Make fields read-only
-        nameField.setEditable(false);
-        categoryField.setEditable(false);
+        // Set ComboBox style
+        categoryComboBox.setStyle("-fx-font-size: 14px;");
     }
 
     @FXML
-    private void handleUpdate() {
+    private void handleSave() {
         try {
-            // Since fields are read-only, we'll just show the update dialog
-            Stage currentStage = (Stage) nameField.getScene().getWindow();
-            currentStage.close();
+            String name = nameField.getText().trim();
+            CatePooltable selectedCategory = categoryComboBox.getValue();
 
-            // Show the update dialog
-            showUpdateDialog(poolTable);
+            // Validate input
+            if (name.isEmpty()) {
+                NotificationService.showNotification("Error", "Table name cannot be empty", NotificationStatus.Error);
+                return;
+            }
+            if (selectedCategory == null) {
+                NotificationService.showNotification("Error", "Please select a category", NotificationStatus.Error);
+                return;
+            }
+
+            // Update pool table
+            poolTable.setName(name);
+            poolTable.setCatePooltableId(selectedCategory.getId());
+            poolTable.setCatePooltableName(selectedCategory.getName());
+            poolTableDAO.updateTable(poolTable);
+
+            NotificationService.showNotification("Success", "Pool table updated successfully",
+                    NotificationStatus.Success);
+            closeDialog();
 
         } catch (Exception e) {
-            NotificationService.showNotification("Error", "Failed to open update dialog: " + e.getMessage(),
+            NotificationService.showNotification("Error", "Failed to update pool table: " + e.getMessage(),
                     NotificationStatus.Error);
         }
     }
@@ -82,29 +138,6 @@ public class PoolTableInfoController {
             }
         } catch (Exception e) {
             NotificationService.showNotification("Error", "Failed to remove pool table: " + e.getMessage(),
-                    NotificationStatus.Error);
-        }
-    }
-
-    private void showUpdateDialog(PoolTable table) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/src/billiardsmanagement/pooltables/editPoolTable.fxml"));
-            Parent root = loader.load();
-
-            UpdatePoolTableController controller = loader.getController();
-            controller.setPoolTable(table);
-
-            Stage dialog = new Stage();
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.setTitle("Edit Table");
-
-            Scene scene = new Scene(root);
-            dialog.setScene(scene);
-            dialog.showAndWait();
-
-        } catch (IOException e) {
-            NotificationService.showNotification("Error", "Failed to open update dialog: " + e.getMessage(),
                     NotificationStatus.Error);
         }
     }
