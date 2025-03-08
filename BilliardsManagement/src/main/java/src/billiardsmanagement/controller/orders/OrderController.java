@@ -3,6 +3,7 @@ package src.billiardsmanagement.controller.orders;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -20,6 +22,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import src.billiardsmanagement.dao.BookingDAO;
+import src.billiardsmanagement.dao.CustomerDAO;
+import src.billiardsmanagement.dao.OrderDAO;
+import src.billiardsmanagement.dao.PoolTableDAO;
+import src.billiardsmanagement.model.*;
+import src.billiardsmanagement.service.NotificationService;
 
 import java.io.IOException;
 import java.net.URL;
@@ -30,15 +38,6 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import javafx.collections.FXCollections;
-import javafx.scene.control.cell.PropertyValueFactory;
-import src.billiardsmanagement.dao.BookingDAO;
-import src.billiardsmanagement.dao.CustomerDAO;
-import src.billiardsmanagement.dao.OrderDAO;
-import src.billiardsmanagement.dao.PoolTableDAO;
-import src.billiardsmanagement.model.*;
-import src.billiardsmanagement.service.NotificationService;
 
 public class OrderController implements Initializable {
 
@@ -73,6 +72,7 @@ public class OrderController implements Initializable {
     private ListView<String> listView;
 
     private int orderID;
+    private static int billNumberCount = OrderDAO.getBillNumberCount();
 
     private final Connection conn = DatabaseConnection.getConnection();
     private final OrderDAO orderDAO = new OrderDAO();
@@ -368,6 +368,8 @@ public class OrderController implements Initializable {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
+
+
                     PaymentController paymentController = paymentLoader.getController();
                     paymentController.setOrderID(orderId);
                     paymentController.setBillNo(billNo);
@@ -597,4 +599,11 @@ public class OrderController implements Initializable {
         this.orderID = orderId;
     }
 
+    public static int getBillNumberCount() {
+        return billNumberCount;
+    }
+
+    public static void setBillNumberCount(int newBillNumberCount) {
+        OrderController.billNumberCount = newBillNumberCount;
+    }
 }

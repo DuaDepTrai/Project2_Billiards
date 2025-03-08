@@ -10,6 +10,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookingDAO {
+
+    public static int getTheLatestOrderByTableId(int tableId) {
+        String query = "SELECT * FROM bookings WHERE table_id = ? ORDER BY start_time DESC LIMIT 1";
+        try {
+            Connection con = DatabaseConnection.getConnection();
+            PreparedStatement pr = con.prepareStatement(query);
+            pr.setInt(1, tableId);
+            ResultSet rs = pr.executeQuery();
+            if (!rs.next()) {
+                throw new Exception("No orderID found for this tableId = " + tableId + ". This table might haven't been booked by any order.");
+            }
+            System.out.println("Got Order ID = "+rs.getInt("order_id"));
+            return rs.getInt("order_id");
+        } catch (Exception e) {
+            System.out.println("Ah shit, error happens in getTheLatestOrderByTableId() in BookingDAO !");
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     public static void updateBookingStatus(int bookingId) {
         String query = "UPDATE bookings SET booking_status = 'canceled' WHERE booking_id= ?";
 
@@ -28,6 +48,7 @@ public class BookingDAO {
             e.printStackTrace();
         }
     }
+
     public static boolean finishOrder(int orderId) {
         Connection conn = DatabaseConnection.getConnection();
         if (conn == null) return false;
@@ -37,11 +58,11 @@ public class BookingDAO {
 
             // 1. Cập nhật tất cả các bookings: đặt end_time = NOW(), đổi booking_status thành 'Finish', tính timeplay
             String updateBookingsQuery = """
-            UPDATE bookings 
-            SET end_time = NOW(), 
-                booking_status = 'Finish', 
-                timeplay = TIMESTAMPDIFF(MINUTE, start_time, NOW()) / 60.0
-            WHERE order_id = ?""";
+                    UPDATE bookings 
+                    SET end_time = NOW(), 
+                        booking_status = 'Finish', 
+                        timeplay = TIMESTAMPDIFF(MINUTE, start_time, NOW()) / 60.0
+                    WHERE order_id = ?""";
             try (PreparedStatement stmt = conn.prepareStatement(updateBookingsQuery)) {
                 stmt.setInt(1, orderId);
                 stmt.executeUpdate();
@@ -49,11 +70,11 @@ public class BookingDAO {
 
             // 2. Tính toán total cho các booking
             String updateBookingCostQuery = """
-            UPDATE bookings b 
-            JOIN pooltables p ON b.table_id = p.table_id 
-            JOIN cate_pooltables c ON p.cate_id = c.id
-            SET b.total = (TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time) / 60.0) * c.price
-            WHERE b.order_id = ?""";
+                    UPDATE bookings b 
+                    JOIN pooltables p ON b.table_id = p.table_id 
+                    JOIN cate_pooltables c ON p.cate_id = c.id
+                    SET b.total = (TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time) / 60.0) * c.price
+                    WHERE b.order_id = ?""";
             try (PreparedStatement stmt = conn.prepareStatement(updateBookingCostQuery)) {
                 stmt.setInt(1, orderId);
                 stmt.executeUpdate();
@@ -61,11 +82,11 @@ public class BookingDAO {
 
             // 3. Cập nhật trạng thái pooltables thành 'available' cho các booking thuộc orderId này
             String updatePooltablesQuery = """
-            UPDATE pooltables 
-            SET status = 'available'
-            WHERE table_id IN (
-                SELECT table_id FROM bookings WHERE order_id = ?
-            )""";
+                    UPDATE pooltables 
+                    SET status = 'available'
+                    WHERE table_id IN (
+                        SELECT table_id FROM bookings WHERE order_id = ?
+                    )""";
             try (PreparedStatement stmt = conn.prepareStatement(updatePooltablesQuery)) {
                 stmt.setInt(1, orderId);
                 stmt.executeUpdate();
@@ -247,6 +268,7 @@ public class BookingDAO {
             throw e;
         }
     }
+
     public static boolean cancelBooking(int bookingId) {
         String updateBookingQuery = "UPDATE bookings SET booking_status = 'Canceled' WHERE booking_id = ?";
 
@@ -263,6 +285,128 @@ public class BookingDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static boolean handleFinishBooking(int bookingId, int tableId) {
+        System.out.println("Booking ID : " + bookingId + " Table ID : " + tableId);
+        String updateBookingQuery = """
+            UPDATE bookings
+            SET end_time = NOW(),
+                booking_status = 'Finish',
+                timeplay = TIMESTAMPDIFF(MINUTE, start_time, NOW()) / 60.0
+            WHERE booking_id = ?""";
+
+        String updateBookingTotalQuery = """
+            UPDATE bookings b
+            JOIN pooltables p ON b.table_id = p.table_id
+            JOIN cate_pooltables c ON p.cate_id = c.id
+            SET b.total = (TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time) / 60.0) * c.price
+            WHERE b.booking_id = ?""";
+
+        String updateTableQuery = "UPDATE pooltables SET status = 'Available' WHERE table_id = ?";
+
+        Connection conn = DatabaseConnection.getConnection();
+
+        try (
+             PreparedStatement stmtBooking = conn.prepareStatement(updateBookingQuery);
+             PreparedStatement stmtTable = conn.prepareStatement(updateTableQuery);
+             PreparedStatement stmtTotal = conn.prepareStatement(updateBookingTotalQuery)) {
+
+            conn.setAutoCommit(false);
+
+            // Update Booking status + timeplay + end time
+            System.out.println("Booking ID passed = "+bookingId);
+            stmtBooking.setInt(1, bookingId);
+            int rowsUpdatedBooking = stmtBooking.executeUpdate();
+
+            // Update table status to 'Available'
+            stmtTable.setInt(1, tableId);
+            int rowsUpdatedTable = stmtTable.executeUpdate();
+
+            // Commit transaction if both updates are successful
+            if (rowsUpdatedBooking > 0 && rowsUpdatedTable > 0) {
+                // Update Booking total cost
+                stmtTotal.setInt(1, bookingId);
+                int rowsUpdatedTotal = stmtTotal.executeUpdate(); // Fixed this line
+
+                if (rowsUpdatedTotal > 0) {
+                    conn.commit();
+                    return true;
+                } else {
+                    conn.rollback();
+                    throw new SQLException("Failed to update booking total.");
+                }
+            } else {
+                conn.rollback();
+                throw new SQLException("Failed to update booking or table status.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            try {
+                // Rollback in case of exception
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    public static boolean handleCancelBooking(int bookingId, int tableId){
+        String updateBookingQuery = "UPDATE bookings SET booking_status = 'Canceled' WHERE booking_id = ?";
+        String updateTableQuery = "UPDATE pooltables SET status = 'Available' WHERE table_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmtBooking = conn.prepareStatement(updateBookingQuery);
+             PreparedStatement stmtTable = conn.prepareStatement(updateTableQuery)) {
+
+            conn.setAutoCommit(false);
+
+            // Update Booking status
+            stmtBooking.setInt(1, bookingId);
+            int rowsUpdatedBooking = stmtBooking.executeUpdate();
+
+            // Update Table status
+            stmtTable.setInt(1, tableId);
+            int rowsUpdatedTable = stmtTable.executeUpdate();
+
+            // Commit transaction if both updates are successful
+            if (rowsUpdatedBooking > 0 && rowsUpdatedTable > 0) {
+                conn.commit();
+                return true;
+            } else {
+                conn.rollback();
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static int getBookingIdByOrderIdAndTableId(int orderId, int tableId) {
+        int bookingId = -1; // Default value if no booking is found
+
+        // SQL query to fetch the booking_id based on order_id and table_id
+        String sql = "SELECT booking_id FROM bookings WHERE order_id = ? AND table_id = ?";
+
+        try (Connection connection = DatabaseConnection.getConnection(); // Replace with your method to get a DB connection
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, orderId);
+            preparedStatement.setInt(2, tableId);
+
+            // Execute the query
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            // If a result is found, retrieve the booking_id
+            if (resultSet.next()) {
+                bookingId = resultSet.getInt("booking_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle exceptions appropriately
+        }
+        System.out.println("Booking ID: " + bookingId);
+        return bookingId; // Return the found booking_id or -1 if not found
     }
 
 
@@ -292,6 +436,58 @@ public class BookingDAO {
         }
     }
 
+    public static void handleAddBooking(Booking newBooking) {
+        String query = "INSERT INTO bookings (order_id, table_id, start_time, booking_status) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            // Set values into PreparedStatement
+            stmt.setObject(1, newBooking.getOrderId());      // order_id (allows null)
+            stmt.setObject(2, newBooking.getTableId());      // table_id (allows null)
+            stmt.setTimestamp(3, newBooking.getStartTime()); // start_time
+            stmt.setString(4, newBooking.getBookingStatus()); // booking_status
+
+            // Execute INSERT statement
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Booking added successfully!");
+            } else {
+                System.out.println("Failed to add booking.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean addBookingToExistedOrder(int orderId, int tableId, String status) {
+        String query = "INSERT INTO bookings (order_id, table_id, start_time, booking_status) VALUES (?, ?, NOW(), ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, orderId);
+            stmt.setInt(2, tableId);
+            stmt.setString(3, status);
+
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Booking added successfully!");
+                return true;
+            } else {
+                System.out.println("Failed to add booking.");
+                return false;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public boolean deleteBooking(int bookingId) {
         String deleteQuery = "DELETE FROM bookings WHERE booking_id = ?"; // Adjust table and column names if needed
 
@@ -310,15 +506,16 @@ public class BookingDAO {
             return false;
         }
     }
+
     public static void updateTableStatusAfterBooking(int bookingId) {
         String query = """
-        UPDATE pooltables 
-        SET status = 'available' 
-        WHERE table_id = (
-            SELECT table_id FROM bookings WHERE booking_id = ? 
-            AND booking_status IN ('Finish', 'Canceled')
-        )
-    """;
+                    UPDATE pooltables 
+                    SET status = 'available' 
+                    WHERE table_id = (
+                        SELECT table_id FROM bookings WHERE booking_id = ? 
+                        AND booking_status IN ('Finish', 'Canceled')
+                    )
+                """;
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {

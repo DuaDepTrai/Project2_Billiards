@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+
+<VBox spacing="10" styleClass="pool-info-dialog" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.poolTables.PoolTableInfoController">
+    <padding>
+        <Insets bottom="20" left="20" right="20" top="20" />
+    </padding>
+
+    <Label text="Pool Table Information" styleClass="dialog-title"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Name:" />
+        <TextField fx:id="nameField" prefWidth="200" />
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Category:" />
+        <TextField fx:id="categoryField" prefWidth="200" />
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="updateButton" text="Update" onAction="#handleUpdate" styleClass="update-button" />
+        <Button fx:id="removeButton" text="Remove" onAction="#handleRemove" styleClass="remove-button" />
+    </HBox>
+</VBox>

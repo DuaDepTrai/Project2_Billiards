@@ -43,12 +43,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ForEachOrderController {
-
-    @FXML
-    protected Button confirmUpdateDataCustomer;
-    @FXML
-    protected Button confirmSaveCustomer;
-
     // Buttons
     @FXML
     protected Button finishOrderButton;
@@ -146,8 +140,8 @@ public class ForEachOrderController {
     @FXML
     private TableColumn<OrderItem, Double> totalOrderItemColumn;
 
-//    @FXML
-//    private TableColumn<OrderItem, Double> subTotalOrderItemColumn;
+    // @FXML
+    // private TableColumn<OrderItem, Double> subTotalOrderItemColumn;
 
     // @FXML
     // private TableColumn<OrderItem, String> promotionOrderItem;
@@ -165,6 +159,7 @@ public class ForEachOrderController {
     private Connection conn = DatabaseConnection.getConnection();
 
     private int orderID;
+    private int userID;
     private int customerID;
     private int billNo;
 
@@ -172,18 +167,30 @@ public class ForEachOrderController {
     private OrderItem currentOrderItemSelected;
     private AutoCompletionBinding<String> phoneAutoCompletion;
 
+    @FXML private Button confirmUpdateDataCustomer;
+    @FXML private Button confirmSaveCustomer;
+
+    private PoolTable selectedTable;
+
     public void setOrderID(int orderID) {
         this.orderID = orderID;
         if (orderID > 0) {
             loadBookings();
             loadOrderDetail();
         } else {
-            NotificationService.showNotification("Invalid Order ID", "The provided Order ID is invalid.", NotificationStatus.Error);
+            NotificationService.showNotification("Invalid Order ID", "The provided Order ID is invalid.",
+                    NotificationStatus.Error);
         }
     }
 
     private void loadBookings() {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
+        // Filter bookings to only show the selected table's bookings
+        if (selectedTable != null) {
+            bookings = bookings.stream()
+                    .filter(booking -> booking.getTableId() == selectedTable.getTableId())
+                    .collect(Collectors.toList());
+        }
         bookings.sort((b1, b2) -> b2.getBookingId() - b1.getBookingId());
         bookingList.clear();
         bookingList.addAll(bookings);
@@ -194,31 +201,33 @@ public class ForEachOrderController {
         orderItemList.clear();
         List<OrderItem> items = OrderItemDAO.getForEachOrderItem(orderID);
         items.sort((i1, i2) -> i2.getOrderItemId() - i1.getOrderItemId());
-        System.out.println(items.isEmpty() ? "Order Item list in ForEachOrderController, loadOrderDetail() don't have any element !" : "");
+        System.out.println(items.isEmpty()
+                ? "Order Item list in ForEachOrderController, loadOrderDetail() don't have any element !"
+                : "");
         orderItemList.addAll(items);
         orderItemsTable.setItems(orderItemList);
         // Promotion-related code commented out
         /*
-        promotionOrderItem.setCellValueFactory(cellData -> {
-            OrderItem orderItem = cellData.getValue();
-            String promotionName = orderItem.getPromotionName();
-            return new SimpleStringProperty(promotionName != null ? promotionName : "");
-        });
-        promotionDiscountOrderItem.setCellValueFactory(cellData -> {
-            OrderItem orderItem = cellData.getValue();
-            Double discount = orderItem.getPromotionDiscount();
-            return new SimpleObjectProperty<>(discount != null ? discount : 0.0);
-        });
-        */
+         * promotionOrderItem.setCellValueFactory(cellData -> {
+         * OrderItem orderItem = cellData.getValue();
+         * String promotionName = orderItem.getPromotionName();
+         * return new SimpleStringProperty(promotionName != null ? promotionName : "");
+         * });
+         * promotionDiscountOrderItem.setCellValueFactory(cellData -> {
+         * OrderItem orderItem = cellData.getValue();
+         * Double discount = orderItem.getPromotionDiscount();
+         * return new SimpleObjectProperty<>(discount != null ? discount : 0.0);
+         * });
+         */
     }
 
     private void initializeBookingColumn() {
         // Add New button in header
-//        Button addBookingButton = new Button("Add New");
-//        addBookingButton.getStyleClass().add("header-button");
-//        addBookingButton.setPrefWidth(bookingActionColumn.getPrefWidth());
-//        addBookingButton.setOnAction(event -> addBooking(event));
-//        bookingActionColumn.setGraphic(addBookingButton);
+        // Button addBookingButton = new Button("Add New");
+        // addBookingButton.getStyleClass().add("header-button");
+        // addBookingButton.setPrefWidth(bookingActionColumn.getPrefWidth());
+        // addBookingButton.setOnAction(event -> addBooking(event));
+        // bookingActionColumn.setGraphic(addBookingButton);
 
         // Check Order Status
         String orderStatus = orderStatusText.getText();
@@ -353,16 +362,15 @@ public class ForEachOrderController {
             };
         });
 
-//        subTotalColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
-//        subTotalColumn.setCellFactory(column -> new TableCell<>() {
-//            private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
-//
-//            @Override
-//            protected void updateItem(Double item, boolean empty) {
-//                super.updateItem(item, empty);
-//                setText((empty || item == null) ? null : decimalFormat.format(item));
-//            }
-//        });
+        // subTotalColumn.setCellFactory(column -> new TableCell<>() {
+        // private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
+        //
+        // @Override
+        // protected void updateItem(Double item, boolean empty) {
+        // super.updateItem(item, empty);
+        // setText((empty || item == null) ? null : decimalFormat.format(item));
+        // }
+        // });
 
         costColumn.setCellValueFactory(new PropertyValueFactory<>("total"));
         costColumn.setCellFactory(column -> new TableCell<>() {
@@ -396,11 +404,11 @@ public class ForEachOrderController {
 
     private void initializeOrderDetailColumn() {
         // Add New button in header
-//        Button addOrderItemButton = new Button("Add New");
-//        addOrderItemButton.getStyleClass().add("header-button");
-//        addOrderItemButton.setPrefWidth(orderItemActionColumn.getPrefWidth());
-//        addOrderItemButton.setOnAction(event -> addOrderItem(event));
-//        orderItemActionColumn.setGraphic(addOrderItemButton);
+        // Button addOrderItemButton = new Button("Add New");
+        // addOrderItemButton.getStyleClass().add("header-button");
+        // addOrderItemButton.setPrefWidth(orderItemActionColumn.getPrefWidth());
+        // addOrderItemButton.setOnAction(event -> addOrderItem(event));
+        // orderItemActionColumn.setGraphic(addOrderItemButton);
 
         String orderStatus = orderStatusText.getText();
         if (orderStatus.equals("Finished") || orderStatus.equals("Paid") || orderStatus.equals("Canceled")) {
@@ -442,7 +450,7 @@ public class ForEachOrderController {
             }
         });
 
-//
+        //
         sttOrderItemColumn.setCellValueFactory(this::orderItemCall);
         productNameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
         productNameColumn.setSortType(TableColumn.SortType.ASCENDING);
@@ -479,24 +487,24 @@ public class ForEachOrderController {
             }
         });
 
-//        subTotalOrderItemColumn.setCellValueFactory(new PropertyValueFactory<>("subTotal"));
-//        subTotalOrderItemColumn.setSortType(TableColumn.SortType.ASCENDING);
-//        // Initialize OrderItem Promotion Columns
-//        subTotalOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem, Double>() {
-//            @Override
-//            protected void updateItem(Double item, boolean empty) {
-//                super.updateItem(item, empty);
-//                if (empty || item == null) {
-//                    setText("");
-//                } else {
-//                    setText(String.format("%,d", Math.round(item)));
-//                }
-//            }
-//        });
+        // subTotalOrderItemColumn.setCellFactory(column -> new TableCell<OrderItem,
+        // Double>() {
+        // @Override
+        // protected void updateItem(Double item, boolean empty) {
+        // super.updateItem(item, empty);
+        // if (empty || item == null) {
+        // setText("");
+        // } else {
+        // setText(String.format("%,d", Math.round(item)));
+        // }
+        // }
+        // });
 
         // Remove or comment out these lines
-        // promotionOrderItem.setCellValueFactory(new PropertyValueFactory<>("promotionName"));
-        // promotionDiscountOrderItem.setCellValueFactory(new PropertyValueFactory<>("promotionDiscount"));
+        // promotionOrderItem.setCellValueFactory(new
+        // PropertyValueFactory<>("promotionName"));
+        // promotionDiscountOrderItem.setCellValueFactory(new
+        // PropertyValueFactory<>("promotionDiscount"));
     }
 
     // Remove implement Initializable to take control over code flow
@@ -504,22 +512,20 @@ public class ForEachOrderController {
         bookingPoolTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         orderItemsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         // Finish Order Button disable / enable
-
         String status = orderStatusText.getText();
-        if (status.equalsIgnoreCase("Finished") || status.equalsIgnoreCase("Canceled") || status.equalsIgnoreCase("Paid")) {
+        if (status.equalsIgnoreCase("Finished") || status.equalsIgnoreCase("Canceled")
+                || status.equalsIgnoreCase("Paid")) {
             finishOrderButton.setDisable(true);
-            confirmUpdateDataCustomer.setDisable(true);
-            confirmSaveCustomer.setDisable(true);
-        } else {
+        } else
             finishOrderButton.setDisable(false);
-            confirmUpdateDataCustomer.setDisable(false);
-            confirmSaveCustomer.setDisable(false);
-        }
 
         // Staff Name
         String staffName = OrderDAO.getStaffNameByOrderId(orderID);
-
-        if (staffName.isEmpty()) {
+        if(staffName==null){
+            System.out.println("Error : Currently, there is no user logged in !");
+            staffNameText.setText("[ No staff logged in ! ]");
+        }
+        else if (staffName.isEmpty()) {
             System.out.println("Error : Currently, there is no user logged in !");
             staffNameText.setText("[ No staff logged in ! ]");
         } else {
@@ -536,6 +542,21 @@ public class ForEachOrderController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH'h'mm '|' dd:MM:yyyy");
         String currentTimestamp = LocalDateTime.now().format(formatter);
         dateText.setText(currentTimestamp);
+
+        // If we have a selected table, create a booking for it
+        if (selectedTable != null) {
+            Booking newBooking = new Booking();
+            newBooking.setOrderId(orderID);
+            newBooking.setTableId(selectedTable.getTableId());
+            newBooking.setTableName(selectedTable.getName());
+            newBooking.setStartTime(LocalDateTime.now());
+            newBooking.setBookingStatus("Playing");
+            newBooking.setPriceTable(selectedTable.getPrice());
+
+            // Add the booking
+            bookingDAO.addBooking(newBooking);
+            loadBookings(); // Refresh the bookings list
+        }
     }
 
     private void setupPhoneAutoCompletion() {
@@ -564,10 +585,17 @@ public class ForEachOrderController {
         });
     }
 
-
     public void addBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            NotificationService.showNotification("Error!", "Cannot add booking with status Paid", NotificationStatus.Error);
+            NotificationService.showNotification("Error!", "Cannot add booking with status Paid",
+                    NotificationStatus.Error);
+            return;
+        }
+        // Don't allow adding other tables if we have a selected table
+        if (selectedTable != null) {
+            NotificationService.showNotification("Error!",
+                    "Cannot add other tables to this order. Please create a new order for other tables.",
+                    NotificationStatus.Error);
             return;
         }
         try {
@@ -591,14 +619,16 @@ public class ForEachOrderController {
 
     public void updateBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            NotificationService.showNotification("Error!", "Cannot add booking with status Paid", NotificationStatus.Error);
+            NotificationService.showNotification("Error!", "Cannot add booking with status Paid",
+                    NotificationStatus.Error);
             return;
         }
         // Lấy booking được chọn
         Booking selectedBooking = currentBookingSelected;
         // Kiểm tra xem có booking nào được chọn không
         if (selectedBooking == null) {
-            NotificationService.showNotification("You haven't choose a Booking.", "Please select a Booking !", NotificationStatus.Warning);
+            NotificationService.showNotification("You haven't choose a Booking.", "Please select a Booking !",
+                    NotificationStatus.Warning);
             return;
         }
 
@@ -646,22 +676,26 @@ public class ForEachOrderController {
 
     public void deleteBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            NotificationService.showNotification("Error", "Cannot add booking with status 'Paid'.", NotificationStatus.Error);
+            NotificationService.showNotification("Error", "Cannot add booking with status 'Paid'.",
+                    NotificationStatus.Error);
             return;
         }
         Booking selectedBooking = currentBookingSelected;
 
         if (selectedBooking == null) {
-            NotificationService.showNotification("No Selection", "Please select a booking to delete.", NotificationStatus.Error);
+            NotificationService.showNotification("No Selection", "Please select a booking to delete.",
+                    NotificationStatus.Error);
             return;
         }
         if (selectedBooking.getBookingStatus().equals("Finish")) {
-            NotificationService.showNotification("Can't Delete", "Bookings marked as 'finish' cannot be deleted", NotificationStatus.Error);
+            NotificationService.showNotification("Can't Delete", "Bookings marked as 'finish' cannot be deleted",
+                    NotificationStatus.Error);
             return;
         }
 
         if (selectedBooking.getBookingStatus().equals("Playing")) {
-            NotificationService.showNotification("Can't Delete", "Bookings marked as 'playing' cannot be deleted.", NotificationStatus.Error);
+            NotificationService.showNotification("Can't Delete", "Bookings marked as 'playing' cannot be deleted.",
+                    NotificationStatus.Error);
             return;
         }
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -675,10 +709,12 @@ public class ForEachOrderController {
             boolean success = bookingDAO.deleteBooking(selectedBooking.getBookingId());
 
             if (success) {
-                NotificationService.showNotification("Success", "Booking deleted successfully.", NotificationStatus.Success);
+                NotificationService.showNotification("Success", "Booking deleted successfully.",
+                        NotificationStatus.Success);
                 loadBookings();
             } else {
-                NotificationService.showNotification("Error", "Failed to delete the booking.", NotificationStatus.Error);
+                NotificationService.showNotification("Error", "Failed to delete the booking.",
+                        NotificationStatus.Error);
             }
         }
     }
@@ -733,7 +769,8 @@ public class ForEachOrderController {
             UpdateOrderItemController updateOrderItemController = loader.getController();
             updateOrderItemController.setOrderId(orderID);
             updateOrderItemController.setOrderItemDetails(selectedItem);
-            updateOrderItemController.setOrderItemList(orderItemsTable.getItems().stream().map(OrderItem::getProductName).toList());
+            updateOrderItemController
+                    .setOrderItemList(orderItemsTable.getItems().stream().map(OrderItem::getProductName).toList());
             updateOrderItemController.initializeOrderItem();
 
             Stage stage = new Stage();
@@ -750,7 +787,6 @@ public class ForEachOrderController {
                     NotificationStatus.Error);
         }
     }
-
 
     public void deleteOrderItem() {
         if (orderStatusText.getText().equals("Paid")) {
@@ -944,21 +980,22 @@ public class ForEachOrderController {
                         loadOrderDetail();
                         loadInfo();
                     } else {
-                        NotificationService.showNotification("Error", "Failed to update order status.", NotificationStatus.Error);
+                        NotificationService.showNotification("Error", "Failed to update order status.",
+                                NotificationStatus.Error);
                     }
                 } else {
-                    NotificationService.showNotification("Error", "Failed to finish all bookings.", NotificationStatus.Error);
+                    NotificationService.showNotification("Error", "Failed to finish all bookings.",
+                            NotificationStatus.Error);
                 }
                 loadOrderList();
                 finishOrderButton.setDisable(true);
                 addBookingButton.setDisable(true);
                 addOrderItemButton.setDisable(true);
-                confirmUpdateDataCustomer.setDisable(true);
-                confirmSaveCustomer.setDisable(true);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            NotificationService.showNotification("Error", "Failed to finish order: " + e.getMessage(), NotificationStatus.Error);
+            NotificationService.showNotification("Error", "Failed to finish order: " + e.getMessage(),
+                    NotificationStatus.Error);
         }
     }
 
@@ -1004,7 +1041,8 @@ public class ForEachOrderController {
     public void cancelBooking(ActionEvent actionEvent) {
         Booking selectedBooking = currentBookingSelected;
         if (selectedBooking == null) {
-            NotificationService.showNotification("Error Cancel Booking", "You haven't choose a booking to cancel !", NotificationStatus.Error);
+            NotificationService.showNotification("Error Cancel Booking", "You haven't choose a booking to cancel !",
+                    NotificationStatus.Error);
             return;
         }
 
@@ -1036,6 +1074,7 @@ public class ForEachOrderController {
         billNoText.setText(String.valueOf(billNo));
     }
 
+    @FXML
     public void saveCustomer(ActionEvent actionEvent) {
         try {
             CustomerDAO customerDAO = new CustomerDAO();
@@ -1078,7 +1117,6 @@ public class ForEachOrderController {
             // Show success message (optional)
             showAlert(Alert.AlertType.INFORMATION, "Success", "Customer added successfully!");
 
-
         } catch (IllegalArgumentException e) {
             // Show validation error
             showAlert(Alert.AlertType.ERROR, "Error", e.getMessage());
@@ -1088,7 +1126,6 @@ public class ForEachOrderController {
             showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while saving the order. Please try again.");
         }
     }
-
 
     private void showAlert(Alert.AlertType alertType, String title, String content) {
         Alert alert = new Alert(alertType);
@@ -1137,5 +1174,16 @@ public class ForEachOrderController {
                 showAlert(Alert.AlertType.ERROR, "Error", "Failed to update order");
             }
         }
+    }
+
+    public void setSelectedTable(PoolTable table) {
+        this.selectedTable = table;
+    }
+
+    public int getForEachUserID(){
+        return this.userID;
+    }
+    public void setForEachUserID(int userID){
+        this.userID = userID;
     }
 }

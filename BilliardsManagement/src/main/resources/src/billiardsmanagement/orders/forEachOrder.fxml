@@ -14,7 +14,6 @@
 <AnchorPane fx:id="totalBooking" prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/forEachOrderStyle.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
 
     <!-- Top Information Section -->
-
     <!-- Booking Pane -->
     <AnchorPane fx:id="bookingPane" layoutX="20.0" layoutY="162.0" prefHeight="258.0" prefWidth="1010.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="2.400000000000091" AnchorPane.topAnchor="162.0">
         <TableView fx:id="bookingPoolTable" layoutX="-9.0" layoutY="35.0" prefHeight="132.0" prefWidth="1011.0">

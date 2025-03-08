@@ -1,13 +1,18 @@
 package src.billiardsmanagement.controller;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.poolTables.PoolTableController;
@@ -17,20 +22,13 @@ import src.billiardsmanagement.controller.users.UserController;
 import src.billiardsmanagement.model.TestDBConnection;
 import src.billiardsmanagement.model.User;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
-
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
-
-import java.io.IOException;
 
 
 public class MainController {
@@ -243,7 +241,7 @@ public class MainController {
     public void showStaffPage(ActionEvent actionEvent) {
     }
 
-    public void showCustomerPage(ActionEvent actionEvent) throws IOException {
+    public void showCustomerPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/customer/customer.fxml"));
         AnchorPane customerPage = loader.load();
 

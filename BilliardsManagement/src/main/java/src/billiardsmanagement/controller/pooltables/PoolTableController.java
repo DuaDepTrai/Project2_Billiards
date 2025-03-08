@@ -5,7 +5,6 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -15,23 +14,21 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import src.billiardsmanagement.dao.CatePooltableDAO;
-import src.billiardsmanagement.dao.PoolTableDAO;
-import src.billiardsmanagement.model.CatePooltable;
-import src.billiardsmanagement.model.PoolTable;
-import src.billiardsmanagement.service.NotificationService;
-import src.billiardsmanagement.model.NotificationStatus;
-import src.billiardsmanagement.controller.poolTables.catepooltables.UpdateCategoryPooltableController;
-import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
-import src.billiardsmanagement.model.Order;
+import src.billiardsmanagement.controller.poolTables.catepooltables.UpdateCategoryPooltableController;
+import src.billiardsmanagement.dao.BookingDAO;
+import src.billiardsmanagement.dao.CatePooltableDAO;
 import src.billiardsmanagement.dao.OrderDAO;
-import javafx.scene.control.Separator;
+import src.billiardsmanagement.dao.PoolTableDAO;
+import src.billiardsmanagement.model.*;
+import src.billiardsmanagement.service.NotificationService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -116,62 +113,73 @@ public class PoolTableController {
 
     protected void createTableUI(PoolTable table) {
         StackPane tableStack = new StackPane();
-        tableStack.setPrefSize(90, 125);
+        tableStack.setPrefSize(100, 135);
         tableStack.getStyleClass().add("table-stack");
 
         // Background image
         ImageView bgImage = new ImageView(
                 new Image(getClass().getResourceAsStream("/src/billiardsmanagement/images/pooltables/Background.png")));
-        bgImage.setFitHeight(125);
-        bgImage.setFitWidth(90);
+        bgImage.setFitHeight(135);
+        bgImage.setFitWidth(100);
 
         // Create VBox for text elements
         VBox textContainer = new VBox(5);
         textContainer.setAlignment(Pos.CENTER);
 
-        // Table name text
-        Text nameText = new Text(table.getName());
-        nameText.setStyle("-fx-font-weight: bold;");
-        nameText.setUnderline(true);
-        nameText.setFill(Color.valueOf("#c21e00"));
+        String tableNumberText = table.getName().replaceAll("\\D+", ""); // Extracts the digits
 
-        // Status text
-        Text statusText = new Text(table.getStatus());
-        statusText.setStyle("-fx-font-weight: bold;");
-        statusText.setUnderline(true);
+        Label tableShortNameLabel = new Label(table.getPoolTableShortName());
+        tableShortNameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
+        Label tableNumberLabel = new Label(tableNumberText);
+        tableNumberLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 30;");
 
-        // Set status color
+        Label statusLabel = new Label(table.getStatus());
+        statusLabel.setStyle("-fx-font-weight: bold; -fx-underline: true;"); // Set bold and underline
+
+        // Set status color based on the table's status
         switch (table.getStatus()) {
             case "Available":
-                statusText.setFill(Color.valueOf("#04ff00"));
+                statusLabel.setStyle(statusLabel.getStyle() + "-fx-text-fill: #04ff00; -fx-font-size: 16"); // Green for
+                // Available
                 break;
             case "Ordered":
+                statusLabel.setStyle(statusLabel.getStyle() + "-fx-text-fill: #FFA500; -fx-font-size: 16"); // Orange
+                // for
+                // Ordered
+                break;
             case "Playing":
-                statusText.setFill(Color.valueOf("#c21e00"));
+                statusLabel.setStyle(statusLabel.getStyle() + "-fx-text-fill: #C21E00; -fx-font-size: 16"); // Red for
+                // Playing
                 break;
         }
 
-        textContainer.getChildren().addAll(nameText, statusText);
+        // Add the label to the container
+        textContainer.getChildren().addAll(tableShortNameLabel, tableNumberLabel, statusLabel);
 
         // Create hover buttons container
         VBox hoverButtons = new VBox();
         hoverButtons.getStyleClass().add("hover-buttons");
-        hoverButtons.setPrefSize(90, 125);
+        hoverButtons.setPrefSize(100, 135);
         hoverButtons.setAlignment(Pos.CENTER);
         hoverButtons.setSpacing(2);
 
         // Create Order button
-        Button createOrderButton = new Button("Create Order");
+        Button createOrderButton = new Button("Order Info");
         createOrderButton.getStyleClass().add("hover-button");
         createOrderButton.setMaxWidth(Double.MAX_VALUE);
         createOrderButton.setPrefHeight(60);
-        createOrderButton.setOnAction(e -> createOrderForTable(table));
+        createOrderButton.setWrapText(true);
+        createOrderButton.setStyle("-fx-font-size: 12px;");
+        // createOrderButton.setOnAction(e -> createOrderForTable(table));
+        createOrderButton.setOnAction(e -> showPoolTableOrderInformation(table));
 
         // Order button
-        Button orderButton = new Button("Order");
+        Button orderButton = new Button("Pool Info");
         orderButton.getStyleClass().add("hover-button");
         orderButton.setMaxWidth(Double.MAX_VALUE);
         orderButton.setPrefHeight(60);
+        orderButton.setWrapText(true);
+        orderButton.setStyle("-fx-font-size: 12px;");
         orderButton.setOnAction(e -> showOrderDialog(table));
 
         hoverButtons.getChildren().addAll(createOrderButton, orderButton);
@@ -186,6 +194,7 @@ public class PoolTableController {
 
     protected void createOrderForTable(PoolTable table) {
         try {
+
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
             Parent root = loader.load();
@@ -194,20 +203,26 @@ public class PoolTableController {
             ForEachOrderController controller = loader.getController();
 
             // Create a new order first
+            UserSession currentStaff = UserSession.getInstance();
             Order newOrder = new Order();
             newOrder.setCustomerId(1); // Default customer ID
+            newOrder.setUserId(currentStaff.getUserId());
+            newOrder.setOrderStatus("Playing");
             orderDAO.addOrder(newOrder);
 
-            // Get the latest order
-            Order latestOrder = orderDAO.getLatestOrderByCustomerId(1);
-
-            // Update table status
-            table.setStatus("Ordered");
+            // Table to Playing
+            table.setStatus("Playing");
             poolTableDAO.updateTable(table);
+            System.out.println("Table = " + table.getName() + ", infor : " + table);
 
-            // Initialize the controller with order details
+            // Get the newest Order
+            Order latestOrder = OrderDAO.getTheLatestOrderCreated();
+
+            // Initialize the controller with order details and selected table
             controller.setOrderID(latestOrder.getOrderId());
-            controller.setCustomerID(1);
+            controller.setCustomerID(latestOrder.getCustomerId());
+            controller.setForEachUserID(latestOrder.getUserId());
+            controller.setSelectedTable(table);
             controller.initializeAllTables();
 
             Stage stage = new Stage();
@@ -231,18 +246,22 @@ public class PoolTableController {
                     getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
             Parent root = loader.load();
 
+            // Firstly, find [orderID]
+            int orderId = BookingDAO.getTheLatestOrderByTableId(table.getTableId());
+            if (orderId == -1)
+                throw new Exception(
+                        "This Table has not been booked yet, so that there's no Order associated with this table.");
+            // Secondly, use the orderId found above to find [userId] associate with this
+            // [Order]
+            Pair<Integer, Integer> pair = OrderDAO.getUserIdByOrderId(orderId);
+            if (pair.getFirstValue() == null || pair.getSecondValue() == null)
+                throw new Exception(
+                        "No User / Staff found for this Order. There might be an unexpected error. Please try again.");
+
             ForEachOrderController controller = loader.getController();
-
-            // Initialize the controller with existing order for this table
-            // You'll need to implement the logic to find the existing order for this table
-            // For now, we'll create a new order
-            Order newOrder = new Order();
-            newOrder.setCustomerId(1);
-            orderDAO.addOrder(newOrder);
-
-            Order latestOrder = orderDAO.getLatestOrderByCustomerId(1);
-            controller.setOrderID(latestOrder.getOrderId());
-            controller.setCustomerID(1);
+            controller.setOrderID(orderId);
+            controller.setForEachUserID(pair.getFirstValue());
+            controller.setCustomerID(pair.getSecondValue());
             controller.initializeAllTables();
 
             Stage stage = new Stage();
@@ -253,7 +272,7 @@ public class PoolTableController {
 
             // Refresh tables after order creation
             handleViewAllTables();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             NotificationService.showNotification("Error", "Failed to open order dialog: " + e.getMessage(),
                     NotificationStatus.Error);
@@ -341,11 +360,19 @@ public class PoolTableController {
     private VBox createStatusSection(String title, ObservableList<PoolTable> tableList, String textColor) {
         VBox content = new VBox(5);
         content.setPadding(new Insets(5));
-        content.setStyle("-fx-background-color: #f5f5f5; -fx-background-radius: 5;"); // Light gray background with rounded corners
+        content.setStyle("-fx-background-color: #f5f5f5; -fx-background-radius: 5;");
 
-        // Create header with total count
+        // Create header with total count and apply status-specific colors
         Label headerLabel = new Label(title + " : " + tableList.size());
-        headerLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14;" + textColor);
+        String statusColor;
+        if (title.contains("Available")) {
+            statusColor = "-fx-text-fill: #00c853;"; // Green for available
+        } else if (title.contains("Ordered")) {
+            statusColor = "-fx-text-fill: #ff9800;"; // Orange for order
+        } else {
+            statusColor = "-fx-text-fill: #ff0000;"; // Red for playing
+        }
+        headerLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14;" + statusColor);
         headerLabel.setPadding(new Insets(0, 0, 5, 5));
         content.getChildren().add(headerLabel);
 
@@ -574,6 +601,117 @@ public class PoolTableController {
         } catch (IOException e) {
             e.printStackTrace();
             NotificationService.showNotification("Error", "Failed to open update dialog: " + e.getMessage(),
+                    NotificationStatus.Error);
+        }
+    }
+
+    private void showPoolTableOrderInformation(PoolTable table) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/src/billiardsmanagement/pooltables/poolTableOrderInformation.fxml"));
+            Parent root = loader.load();
+
+            PoolTableOrderInformationController controller = loader.getController();
+            controller.setPoolTable(table);
+            controller.initializeView();
+
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.setTitle("Table Order Information");
+
+            Scene scene = new Scene(root);
+            dialog.setScene(scene);
+            dialog.showAndWait();
+
+            // Refresh the table list after dialog closes
+            handleViewAllTables();
+        } catch (IOException e) {
+            e.printStackTrace();
+            NotificationService.showNotification("Error",
+                    "Failed to open order information dialog: " + e.getMessage(),
+                    NotificationStatus.Error);
+        }
+    }
+
+    private void createTableCard(PoolTable table, FlowPane tablesContainer) {
+        StackPane tableStack = new StackPane();
+        tableStack.getStyleClass().add("table-card");
+        tableStack.setPrefSize(150, 150);
+
+        // Background image
+        ImageView bgImage = new ImageView(
+                new Image(getClass().getResourceAsStream("/src/billiardsmanagement/images/pool_table.png")));
+        bgImage.setFitWidth(150);
+        bgImage.setFitHeight(150);
+
+        // Text container
+        VBox textContainer = new VBox(5);
+        textContainer.setAlignment(Pos.CENTER);
+        Label nameLabel = new Label(table.getName());
+        Label statusLabel = new Label(table.getStatus());
+        textContainer.getChildren().addAll(nameLabel, statusLabel);
+
+        // Hover buttons container
+        VBox hoverButtons = new VBox(5);
+        hoverButtons.setAlignment(Pos.CENTER);
+        hoverButtons.getStyleClass().add("hover-buttons");
+        hoverButtons.setVisible(false);
+
+        // Create Order button
+        Button createOrderButton = new Button("Create Order");
+        createOrderButton.getStyleClass().add("hover-button");
+        createOrderButton.setMaxWidth(Double.MAX_VALUE);
+        createOrderButton.setPrefHeight(60);
+        createOrderButton.setWrapText(true);
+        createOrderButton.setStyle("-fx-font-size: 12px;");
+        createOrderButton.setOnAction(e -> createOrderForTable(table));
+
+        // Info button
+        Button infoButton = new Button("Info");
+        infoButton.getStyleClass().add("hover-button");
+        infoButton.setMaxWidth(Double.MAX_VALUE);
+        infoButton.setPrefHeight(60);
+        infoButton.setWrapText(true);
+        infoButton.setStyle("-fx-font-size: 12px;");
+        infoButton.setOnAction(e -> showTableInfo(table));
+
+        hoverButtons.getChildren().addAll(createOrderButton, infoButton);
+
+        // Mouse hover effect
+        tableStack.setOnMouseEntered(e -> hoverButtons.setVisible(true));
+        tableStack.setOnMouseExited(e -> hoverButtons.setVisible(false));
+
+        // Add elements to stack
+        tableStack.getChildren().addAll(bgImage, textContainer, hoverButtons);
+
+        // Add to container with reduced margin
+        tablesContainer.getChildren().add(tableStack);
+        FlowPane.setMargin(tableStack, new Insets(5));
+    }
+
+    private void showTableInfo(PoolTable table) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/src/billiardsmanagement/poolTables/poolTableInfo.fxml"));
+            Parent root = loader.load();
+
+            PoolTableInfoController controller = loader.getController();
+            controller.setPoolTable(table);
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Pool Table Information");
+            stage.setScene(new Scene(root));
+
+            // Add event handler for when dialog closes
+            stage.setOnHidden(e -> {
+                // Refresh the pool tables view
+                handleViewAllTables();
+            });
+
+            stage.showAndWait();
+        } catch (IOException e) {
+            NotificationService.showNotification("Error", "Failed to open table information: " + e.getMessage(),
                     NotificationStatus.Error);
         }
     }

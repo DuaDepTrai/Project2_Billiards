@@ -1,6 +1,7 @@
 package src.billiardsmanagement.model;
 
 public class PoolTable {
+    private String poolTableShortName;
     private int tableId; // ID của bàn
     private String name; // Tên bàn
     private String status; // Trạng thái bàn
@@ -8,6 +9,16 @@ public class PoolTable {
     private int catePooltableId;
     private String catePooltableName;
     private double price; // Giá thuê bàn
+
+    public PoolTable(int tableId, String name, String status, int catePooltableId, String catePooltableName, String poolTableShortName, double price) {
+        this.tableId = tableId;
+        this.name = name;
+        setStatus(status);
+        this.catePooltableId = catePooltableId;
+        this.catePooltableName = catePooltableName;
+        this.poolTableShortName = poolTableShortName;
+        setPrice(price);
+    }
 
     // Constructor
     public PoolTable(int tableId, String name, String status, int catePooltableId, String catePooltableName, double price) {
@@ -27,10 +38,41 @@ public class PoolTable {
         this.catePooltableName = categoryName;
     }
 
-    // Getters
+    // Table's User Id
+//    public int getTableUserId() {
+//        return this.userId;
+//    }
+//    public void setTableUserId(int userId) {
+//        this.userId = userId;
+//    }
+
+    // Table Id
+    public void setTableId(int tableId) {
+        this.tableId = tableId;
+    }
     public int getTableId() {
         return tableId;
     }
+
+    // Table's Customer Id
+//    public int getTableCustomerId() {
+//        return this.customerId;
+//    }
+//
+//    public void setTableCustomerId(int customerId) {
+//        this.customerId = customerId;
+//    }
+
+    // Short Name
+    public String getPoolTableShortName(){
+        return this.poolTableShortName;
+    }
+
+    public void setPoolTableShortName(String poolTableShortName) {
+        this.poolTableShortName = poolTableShortName;
+    }
+
+    // Getters
 
     public String getName() {
         return name;
@@ -52,10 +94,6 @@ public class PoolTable {
         return price;
     }
 
-    // Setters
-    public void setTableId(int tableId) {
-        this.tableId = tableId;
-    }
 
     public void setName(String name) {
         this.name = name;

@@ -10,14 +10,14 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/customer.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.CustomerController">
+<AnchorPane prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/customer.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.customer.CustomerController">
     <children>
-        <!-- Search and Add Section -->
+        <!-- Search Section -->
         <HBox prefHeight="33.0" prefWidth="348.0" spacing="10" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
             <TextField fx:id="searchField" prefHeight="62.0" prefWidth="240.0" promptText="Search by name...">
-            <HBox.margin>
-               <Insets right="5.0" />
-            </HBox.margin></TextField>
+                <HBox.margin>
+                    <Insets right="5.0" />
+                </HBox.margin></TextField>
             <Button fx:id="searchBtn" mnemonicParsing="false" onAction="#handleSearchCustomer" prefHeight="26.0" prefWidth="80.0" styleClass="search-button" text="Search" textAlignment="CENTER" />
         </HBox>
 
@@ -27,11 +27,22 @@
             </font>
         </Button>
 
-        <!-- Customer Form -->
-        <VBox layoutX="777.0" layoutY="63.0" prefHeight="531.0" prefWidth="240.0" spacing="10" styleClass="form-container">
+        <!-- Customer Form - Hidden by default -->
+        <VBox fx:id="customerForm" layoutX="777.0" layoutY="63.0" prefHeight="531.0" prefWidth="240.0" spacing="10" styleClass="form-container" visible="false">
             <TextField fx:id="nameField" prefWidth="200.0" promptText="Customer Name" />
             <TextField fx:id="phoneField" prefWidth="200.0" promptText="Phone Number" />
             <TextField fx:id="playtimeField" prefWidth="200.0" promptText="Total Playtime" />
+            <HBox spacing="10">
+<!--                <Button fx:id="saveCustomerBtn" mnemonicParsing="false" onAction="#handleSaveCustomer" prefWidth="95.0" styleClass="save-button" text="Save" />-->
+<!--                <Button fx:id="cancelBtn" mnemonicParsing="false" onAction="#handleCancelAdd" prefWidth="95.0" styleClass="cancel-button" text="Cancel" />-->
+            </HBox>
+        </VBox>
+
+        <!-- Update/Remove Form - Hidden by default -->
+        <VBox fx:id="updateForm" layoutX="777.0" layoutY="63.0" prefHeight="531.0" prefWidth="240.0" spacing="10" styleClass="form-container" visible="false">
+            <TextField fx:id="updateNameField" prefWidth="200.0" promptText="Customer Name" />
+            <TextField fx:id="updatePhoneField" prefWidth="200.0" promptText="Phone Number" />
+            <TextField fx:id="updatePlaytimeField" prefWidth="200.0" promptText="Total Playtime" />
             <HBox spacing="10">
                 <Button fx:id="updateCustomerBtn" mnemonicParsing="false" onAction="#handleUpdateCustomer" prefWidth="95.0" styleClass="update-button" text="Update" />
                 <Button fx:id="removeCustomerBtn" mnemonicParsing="false" onAction="#handleRemoveCustomer" prefWidth="95.0" styleClass="remove-button" text="Remove" />

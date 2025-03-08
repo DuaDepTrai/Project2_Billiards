@@ -1,9 +1,10 @@
 package src.billiardsmanagement.dao;
 
+import src.billiardsmanagement.model.PoolTable;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import src.billiardsmanagement.model.PoolTable;
 
 public class PoolTableDAO {
     private Connection getConnection() throws SQLException {
@@ -16,9 +17,9 @@ public class PoolTableDAO {
     public List<PoolTable> getAllTables() {
         List<PoolTable> tables = new ArrayList<>();
         String query = "SELECT p.table_id, p.name, p.status, p.cate_id, " +
-                      "c.name as cate_name, c.price " +
-                      "FROM pooltables p " +
-                      "JOIN cate_pooltables c ON p.cate_id = c.id";
+                "c.name as cate_name, c.price, c.shortName " +
+                "FROM pooltables p " +
+                "JOIN cate_pooltables c ON p.cate_id = c.id";
 
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
@@ -30,8 +31,9 @@ public class PoolTableDAO {
                 String status = rs.getString("status");
                 int cateId = rs.getInt("cate_id");
                 String cateName = rs.getString("cate_name");
+                String shortName = rs.getString("shortName");
                 double price = rs.getDouble("price");
-                PoolTable newTable = new PoolTable(tableId, name, status, cateId, cateName, price);
+                PoolTable newTable = new PoolTable(tableId, name, status, cateId, cateName, shortName, price);
                 tables.add(newTable);
             }
         } catch (SQLException e) {
@@ -91,10 +93,10 @@ public class PoolTableDAO {
     public PoolTable getTableById(int tableId) {
         PoolTable table = null;
         String query = "SELECT p.table_id, p.name, p.status, p.cate_id, " +
-                      "c.name as cate_name, c.price " +
-                      "FROM pooltables p " +
-                      "JOIN cate_pooltables c ON p.cate_id = c.id " +
-                      "WHERE p.table_id = ?";
+                "c.name as cate_name, c.price " +
+                "FROM pooltables p " +
+                "JOIN cate_pooltables c ON p.cate_id = c.id " +
+                "WHERE p.table_id = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -107,7 +109,7 @@ public class PoolTableDAO {
                 int cateId = rs.getInt("cate_id");
                 String cateName = rs.getString("cate_name");
                 double price = rs.getDouble("price");
-                
+
                 table = new PoolTable(tableId, name, status, cateId, cateName, price);
             }
         } catch (SQLException e) {

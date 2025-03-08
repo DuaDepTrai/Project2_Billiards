@@ -41,4 +41,9 @@ module src.billiardsmanagement {
 
     exports src.billiardsmanagement.controller.poolTables.catepooltables;
     opens src.billiardsmanagement.controller.poolTables.catepooltables to javafx.fxml;
+
+    exports src.billiardsmanagement.controller.customer;
+    opens src.billiardsmanagement.controller.customer to javafx.fxml;
+
+
 }
