@@ -1,51 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/customer.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.CustomerController">
+<AnchorPane prefHeight="700.0" prefWidth="1000.0" stylesheets="@../css/customer.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.CustomerController">
     <children>
-        <!-- Search and Add Section -->
-        <HBox prefHeight="33.0" prefWidth="348.0" spacing="10" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
-            <TextField fx:id="searchField" prefHeight="62.0" prefWidth="240.0" promptText="Search by name...">
-            <HBox.margin>
-               <Insets right="5.0" />
-            </HBox.margin></TextField>
-            <Button fx:id="searchBtn" mnemonicParsing="false" onAction="#handleSearchCustomer" prefHeight="26.0" prefWidth="80.0" styleClass="search-button" text="Search" textAlignment="CENTER" />
-        </HBox>
+        <!-- Header Section -->
+        <VBox spacing="20" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+            <Label text="Customer Management" styleClass="section-header">
+                <font>
+                    <Font size="24.0" />
+                </font>
+            </Label>
 
-        <Button fx:id="addCustomerBtn" layoutX="777.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleAddCustomer" prefHeight="35.0" prefWidth="240.0" styleClass="add-button" text="Add New Customer" textAlignment="CENTER" textFill="WHITE">
-            <font>
-                <Font size="13.0" />
-            </font>
-        </Button>
+            <!-- Search and Add Section -->
+            <HBox spacing="20" alignment="CENTER_LEFT">
+                <HBox spacing="10" styleClass="search-container" HBox.hgrow="ALWAYS">
+                    <TextField fx:id="searchField" promptText="Search by name or phone..." styleClass="search-field" />
+                    <Button fx:id="searchBtn" mnemonicParsing="false" onAction="#handleSearchCustomer" styleClass="search-button" text="Search" />
+                </HBox>
 
-        <!-- Customer Form -->
-        <VBox layoutX="777.0" layoutY="63.0" prefHeight="531.0" prefWidth="240.0" spacing="10" styleClass="form-container">
-            <TextField fx:id="nameField" prefWidth="200.0" promptText="Customer Name" />
-            <TextField fx:id="phoneField" prefWidth="200.0" promptText="Phone Number" />
-            <TextField fx:id="playtimeField" prefWidth="200.0" promptText="Total Playtime" />
-            <HBox spacing="10">
-                <Button fx:id="updateCustomerBtn" mnemonicParsing="false" onAction="#handleUpdateCustomer" prefWidth="95.0" styleClass="update-button" text="Update" />
-                <Button fx:id="removeCustomerBtn" mnemonicParsing="false" onAction="#handleRemoveCustomer" prefWidth="95.0" styleClass="remove-button" text="Remove" />
+                <Button fx:id="addCustomerBtn" mnemonicParsing="false" onAction="#handleAddCustomer" styleClass="add-button" text="Add New Customer">
+                    <font>
+                        <Font size="13.0" />
+                    </font>
+                </Button>
             </HBox>
+
+            <!-- Customer Form -->
+            <VBox styleClass="form-container" spacing="15">
+                <Label text="Customer Information" styleClass="section-header">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+
+                <GridPane hgap="20" vgap="15">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+
+                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <Label text="Customer Name" styleClass="field-label" />
+                        <TextField fx:id="nameField" promptText="Enter customer name" styleClass="form-field" />
+                    </VBox>
+
+                    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label text="Phone Number" styleClass="field-label" />
+                        <TextField fx:id="phoneField" promptText="Enter phone number" styleClass="form-field" />
+                    </VBox>
+
+                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <Label text="Total Playtime (hours)" styleClass="field-label" />
+                        <TextField fx:id="playtimeField" promptText="Enter total playtime" styleClass="form-field" />
+                    </VBox>
+                </GridPane>
+
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button fx:id="updateCustomerBtn" mnemonicParsing="false" onAction="#handleUpdateCustomer" styleClass="update-button" text="Update" />
+                    <Button fx:id="removeCustomerBtn" mnemonicParsing="false" onAction="#handleRemoveCustomer" styleClass="remove-button" text="Remove" />
+                </HBox>
+            </VBox>
         </VBox>
 
         <!-- Customer Table -->
-        <TableView fx:id="customerTableView" layoutX="14.0" layoutY="63.0" prefHeight="531.0" prefWidth="749.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="269.0">
+        <TableView fx:id="customerTableView" styleClass="customer-table" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="350.0" AnchorPane.bottomAnchor="20.0">
             <columns>
-                <TableColumn fx:id="customerIdCol" prefWidth="77.0" text="ID" />
-                <TableColumn fx:id="nameCol" prefWidth="247.0" text="Customer Name" />
-                <TableColumn fx:id="phoneCol" prefWidth="231.0" text="Phone Number" />
-                <TableColumn fx:id="totalPlaytimeCol" prefWidth="195.0" text="Total Playtime" />
+                <TableColumn fx:id="customerIdCol" prefWidth="80.0" text="ID" styleClass="number-column" />
+                <TableColumn fx:id="nameCol" prefWidth="300.0" text="Customer Name" styleClass="text-column" />
+                <TableColumn fx:id="phoneCol" prefWidth="200.0" text="Phone Number" styleClass="text-column" />
+                <TableColumn fx:id="totalPlaytimeCol" prefWidth="150.0" text="Total Playtime" styleClass="number-column" />
             </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
         </TableView>
     </children>
 </AnchorPane>
