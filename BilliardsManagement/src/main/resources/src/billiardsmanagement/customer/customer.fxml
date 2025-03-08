@@ -67,7 +67,7 @@
         </VBox>
 
         <!-- Customer Table -->
-        <TableView fx:id="customerTableView" styleClass="customer-table" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="350.0" AnchorPane.bottomAnchor="20.0">
+        <TableView fx:id="customerTableView" styleClass="customer-table" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="400.0" AnchorPane.bottomAnchor="20.0">
             <columns>
                 <TableColumn fx:id="customerIdCol" prefWidth="80.0" text="ID" styleClass="number-column" />
                 <TableColumn fx:id="nameCol" prefWidth="300.0" text="Customer Name" styleClass="text-column" />
