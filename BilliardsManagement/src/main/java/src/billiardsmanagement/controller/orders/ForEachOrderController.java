@@ -524,7 +524,8 @@ public class ForEachOrderController {
         loadBookings();
         loadOrderDetail();
         setupPhoneAutoCompletion();
-
+        checkBookingStatus();
+        checkOrderStatus();
         // Set current timestamp in dateText
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH'h'mm '|' dd:MM:yyyy");
         String currentTimestamp = LocalDateTime.now().format(formatter);
@@ -959,6 +960,7 @@ public class ForEachOrderController {
                         loadBookings();
                         loadOrderDetail();
                         loadInfo();
+                        loadOrderList();
                     } else {
                         NotificationService.showNotification("Error", "Failed to update order status.",
                                 NotificationStatus.Error);
