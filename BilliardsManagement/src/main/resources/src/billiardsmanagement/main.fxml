@@ -94,7 +94,7 @@
                     <ImageView fx:id="avatarImageView" fitHeight="40" fitWidth="40" styleClass="profile-image"/>
                     <VBox>
                         <Label fx:id="usernameLabel" text="Andrew" styleClass="user-name"/>
-                        <Label fx:id="roleLabel" text="Admin account" styleClass="user-role"/>
+                        <Label fx:id="roleLabel" text="admin" styleClass="user-role"/>
                         <Label fx:id="logoutLabel" text="Logout"
                                style="-fx-text-fill: blue; -fx-underline: true; -fx-cursor: hand;"
                                onMouseEntered="#onLogoutHover"

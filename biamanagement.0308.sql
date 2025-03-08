@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 07, 2025 at 10:13 AM
+-- Generation Time: Mar 08, 2025 at 06:06 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -70,7 +70,16 @@ INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end
 (41, 34, 6, '2025-02-22 16:25:00', '2025-02-22 16:26:15', 0.016666666, 1666.6666, 'Finish'),
 (42, 36, 9, '2025-02-22 16:27:00', '2025-02-22 16:27:45', 0, 0, 'Finish'),
 (43, 39, 5, '2025-03-06 18:44:00', NULL, NULL, NULL, 'Playing'),
-(44, 37, 8, '2025-03-06 19:14:00', '2025-03-06 20:15:22', 1.016666666, 76249.99995000001, 'Finish');
+(44, 37, 8, '2025-03-06 19:14:00', '2025-03-06 20:15:22', 1.016666666, 76249.99995000001, 'Finish'),
+(45, 42, 1, '2025-03-07 19:51:46', NULL, NULL, NULL, 'Playing'),
+(46, 42, 7, '2025-03-07 19:51:53', NULL, NULL, NULL, 'Playing'),
+(47, 42, 10, '2025-03-07 19:51:57', NULL, NULL, NULL, 'Playing'),
+(48, 42, 10, '2025-03-07 19:53:54', NULL, NULL, NULL, 'Playing'),
+(49, 42, 4, '2025-03-07 19:53:58', NULL, NULL, NULL, 'Playing'),
+(50, 42, 4, '2025-03-07 19:54:35', NULL, NULL, NULL, 'Playing'),
+(51, 42, 15, '2025-03-07 19:57:16', NULL, NULL, NULL, 'Playing'),
+(52, 65, 22, '2025-03-08 16:51:00', NULL, NULL, NULL, 'Playing'),
+(53, 66, 21, '2025-03-08 16:59:00', NULL, NULL, NULL, 'Playing');
 
 --
 -- Triggers `bookings`
@@ -218,7 +227,7 @@ CREATE TABLE `orders` (
   `customer_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `total_cost` double DEFAULT NULL,
-  `order_date` date NOT NULL,
+  `order_date` datetime NOT NULL,
   `order_status` enum('Order','Playing','Finished','Paid','Canceled') NOT NULL DEFAULT 'Playing'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -227,31 +236,35 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`order_id`, `customer_id`, `user_id`, `total_cost`, `order_date`, `order_status`) VALUES
-(1, 1, 2, 1345000, '2025-01-01', 'Finished'),
-(2, 2, 2, 1647500, '2025-01-02', 'Paid'),
-(3, 3, 2, 3280000, '2025-01-03', 'Finished'),
-(4, 4, 2, 695000, '2025-01-04', 'Finished'),
-(5, 5, 2, 1513750, '2025-01-05', 'Finished'),
-(6, 1, 2, 300000, '2025-01-06', 'Finished'),
-(7, 2, 2, 202500, '2025-01-07', 'Finished'),
-(8, 3, 2, 225000, '2025-01-08', 'Paid'),
-(9, 4, 2, 0, '2025-01-09', 'Canceled'),
-(26, 4, 2, NULL, '2025-02-14', 'Finished'),
-(27, 2, 2, 320000, '2025-02-22', 'Finished'),
-(28, 1, 2, 611750, '2025-02-22', 'Finished'),
-(29, 21, 2, 467000, '2025-02-21', 'Canceled'),
-(30, 1, 2, NULL, '2025-02-22', 'Canceled'),
-(31, 3, 2, NULL, '2025-02-22', 'Canceled'),
-(32, 5, 2, NULL, '2025-02-22', 'Canceled'),
-(33, 2, 2, 215000, '2025-02-22', 'Finished'),
-(34, 5, 2, 1666.6666, '2025-02-22', 'Canceled'),
-(35, 5, 2, 0, '2025-02-22', 'Finished'),
-(36, 9, 2, NULL, '2025-02-22', 'Canceled'),
-(37, 11, 2, NULL, '2025-02-22', 'Playing'),
-(38, 1, 1, 0, '2025-03-01', 'Finished'),
-(39, 1, 1, 0, '2025-03-01', 'Finished'),
-(40, 13, 2, 0, '2025-03-07', 'Paid'),
-(41, 11, 2, 0, '2025-03-07', 'Paid');
+(1, 1, 2, 1345000, '2025-01-01 00:00:00', 'Finished'),
+(2, 2, 2, 1647500, '2025-01-02 00:00:00', 'Paid'),
+(3, 3, 2, 3280000, '2025-01-03 00:00:00', 'Finished'),
+(4, 4, 2, 695000, '2025-01-04 00:00:00', 'Finished'),
+(5, 5, 2, 1513750, '2025-01-05 00:00:00', 'Finished'),
+(6, 1, 2, 300000, '2025-01-06 00:00:00', 'Finished'),
+(7, 2, 2, 202500, '2025-01-07 00:00:00', 'Finished'),
+(8, 3, 2, 225000, '2025-01-08 00:00:00', 'Paid'),
+(9, 4, 2, 0, '2025-01-09 00:00:00', 'Canceled'),
+(26, 4, 2, NULL, '2025-02-14 00:00:00', 'Finished'),
+(27, 2, 2, 320000, '2025-02-22 00:00:00', 'Finished'),
+(28, 1, 2, 611750, '2025-02-22 00:00:00', 'Finished'),
+(29, 21, 2, 467000, '2025-02-21 00:00:00', 'Canceled'),
+(30, 1, 2, NULL, '2025-02-22 00:00:00', 'Canceled'),
+(31, 3, 2, NULL, '2025-02-22 00:00:00', 'Canceled'),
+(32, 5, 2, NULL, '2025-02-22 00:00:00', 'Canceled'),
+(33, 2, 2, 215000, '2025-02-22 00:00:00', 'Finished'),
+(34, 5, 2, 1666.6666, '2025-02-22 00:00:00', 'Canceled'),
+(35, 5, 2, 0, '2025-02-22 00:00:00', 'Finished'),
+(36, 9, 2, NULL, '2025-02-22 00:00:00', 'Canceled'),
+(37, 11, 2, NULL, '2025-02-22 00:00:00', 'Playing'),
+(38, 1, 1, 0, '2025-03-01 00:00:00', 'Finished'),
+(39, 1, 1, 0, '2025-03-01 00:00:00', 'Finished'),
+(40, 13, 2, 0, '2025-03-07 00:00:00', 'Paid'),
+(41, 11, 2, 0, '2025-03-07 00:00:00', 'Paid'),
+(42, 1, 1, NULL, '2025-03-07 00:00:00', 'Playing'),
+(64, 22, 1, NULL, '2025-03-08 00:00:00', 'Playing'),
+(65, 1, 1, NULL, '2025-03-08 00:00:00', 'Playing'),
+(66, 1, 1, NULL, '2025-03-08 23:59:35', 'Playing');
 
 -- --------------------------------------------------------
 
@@ -313,10 +326,24 @@ INSERT INTO `permissions` (`permission_id`, `permission_name`, `description`) VA
 (3, 'update_product', 'Update product'),
 (4, 'remove_product', 'Remove product'),
 (5, 'stock_up_product', 'Stock up product'),
-(6, 'view_user', 'View users'),
-(7, 'add_user', 'Add user'),
-(8, 'edit_user', 'Edit user'),
-(9, 'delete_user', 'Remove user');
+(6, 'add_product_category', 'Add product category'),
+(7, 'update_product_category', 'Update product category'),
+(8, 'remove_product_category', 'Remove product category'),
+(9, 'view_user', 'View users'),
+(10, 'add_user', 'Add user'),
+(11, 'edit_user', 'Update user'),
+(12, 'delete_user', 'Remove user'),
+(13, 'view_order', 'View orders'),
+(14, 'view_customer', 'View customers'),
+(15, 'view_pool', 'View pools'),
+(16, 'add_pool', 'Add pool table'),
+(17, 'update_pool', 'Update pool table'),
+(18, 'remove_pool', 'Remove pool table'),
+(19, 'add_pool_category', 'Add pool category'),
+(20, 'update_pool_category', 'Update pool category'),
+(21, 'remove_pool_category', 'Remove pool category'),
+(22, 'view_report', 'View report'),
+(23, 'view_role_permission', 'View roles & permissions');
 
 -- --------------------------------------------------------
 
@@ -344,7 +371,28 @@ INSERT INTO `pooltables` (`cate_id`, `table_id`, `name`, `status`) VALUES
 (3, 6, 'VIP 2', 'Playing'),
 (1, 7, 'Standard 3', 'Playing'),
 (2, 8, 'Deluxe 3', 'Available'),
-(3, 9, 'VIP 3', 'Playing');
+(3, 9, 'VIP 3', 'Playing'),
+(1, 10, 'Standard 4', 'Playing'),
+(2, 11, 'Deluxe 4', 'Available'),
+(3, 12, 'VIP 4', 'Available'),
+(1, 13, 'Standard 5', 'Available'),
+(2, 14, 'Deluxe 5', 'Available'),
+(3, 15, 'VIP 5', 'Playing'),
+(1, 16, 'Standard 6', 'Available'),
+(2, 17, 'Deluxe 6', 'Available'),
+(3, 18, 'VIP 6', 'Available'),
+(1, 19, 'Standard 7', 'Available'),
+(2, 20, 'Deluxe 7', 'Available'),
+(3, 21, 'VIP 7', 'Playing'),
+(1, 22, 'Standard 8', 'Playing'),
+(2, 23, 'Deluxe 8', 'Available'),
+(3, 24, 'VIP 8', 'Available'),
+(1, 25, 'Standard 9', 'Available'),
+(2, 26, 'Deluxe 9', 'Available'),
+(3, 27, 'VIP 9', 'Available'),
+(1, 28, 'Standard 10', 'Available'),
+(2, 29, 'Deluxe 10', 'Available'),
+(3, 30, 'VIP 10', 'Available');
 
 -- --------------------------------------------------------
 
@@ -432,17 +480,43 @@ INSERT INTO `role_permission` (`role_id`, `permission_id`) VALUES
 (1, 7),
 (1, 8),
 (1, 9),
+(1, 10),
+(1, 11),
+(1, 12),
+(1, 13),
+(1, 14),
+(1, 15),
+(1, 16),
+(1, 17),
+(1, 18),
+(1, 19),
+(1, 20),
+(1, 21),
+(1, 22),
+(1, 23),
 (2, 1),
 (2, 2),
 (2, 3),
 (2, 4),
 (2, 5),
+(2, 6),
+(2, 7),
+(2, 8),
+(2, 13),
+(2, 14),
+(2, 15),
+(2, 16),
+(2, 17),
+(2, 18),
+(2, 19),
+(2, 20),
+(2, 21),
+(2, 22),
 (3, 1),
-(3, 2),
-(3, 3),
+(3, 13),
+(3, 14),
+(3, 15),
 (4, 1),
-(4, 2),
-(4, 3),
 (4, 5);
 
 -- --------------------------------------------------------
@@ -469,7 +543,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `username`, `password`, `fullname`, `phone`, `address`, `hire_date`, `birthday`, `role_id`, `image_path`) VALUES
-(1, 'admin', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Admin', '0961886965', 'Hà Nội', '2025-01-01', '1992-01-01', 1, 'manager.png'),
+(1, 'admin', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Administrator', '0961886965', 'Hà Nội', '2025-01-01', '1992-01-01', 1, 'manager.png'),
 (2, 'hieu', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyễn Văn Hiếu', '0961886965', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'manager.png'),
 (3, 'quan', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Lưu Minh Quân', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'manager.png'),
 (4, 'manh', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyễn Đức Mạnh', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'trancung.jpg'),
@@ -576,7 +650,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `category`
@@ -600,7 +674,7 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
 
 --
 -- AUTO_INCREMENT for table `orders_items`
@@ -612,13 +686,13 @@ ALTER TABLE `orders_items`
 -- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `permission_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `permission_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `pooltables`
 --
 ALTER TABLE `pooltables`
-  MODIFY `table_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `table_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `products`

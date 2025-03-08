@@ -38,6 +38,7 @@
             </children>
         </HBox>
         <HBox alignment="CENTER_LEFT" layoutX="843.0" layoutY="70.0" prefHeight="20.0" prefWidth="175.0" />
+
         <MFXScrollPane fx:id="availableTableScrollPane" layoutX="800.0" layoutY="36.0" prefHeight="331.0" prefWidth="205.0" />
         <MFXScrollPane fx:id="catePooltablesScrollPane" layoutX="800.0" layoutY="406.0" prefHeight="150.0" prefWidth="205.0" />
         <HBox alignment="CENTER" layoutX="800.0" layoutY="385.0" prefHeight="20.0" prefWidth="205.0">
