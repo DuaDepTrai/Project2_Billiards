@@ -13,15 +13,18 @@ import javafx.scene.control.Button;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import src.billiardsmanagement.controller.MainController;
+import src.billiardsmanagement.dao.PermissionDAO;
 import src.billiardsmanagement.dao.RolesPermissionsDAO;
 import src.billiardsmanagement.model.Product;
 import src.billiardsmanagement.model.Role;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.scene.layout.HBox;
 import javafx.geometry.Pos;
+import src.billiardsmanagement.model.User;
 
 public class RolesPermissionsController {
     @FXML
@@ -44,6 +47,7 @@ public class RolesPermissionsController {
 
     private ObservableList<Role> roleList = FXCollections.observableArrayList();
     private RolesPermissionsDAO rolesPermissionsDAO = new RolesPermissionsDAO();
+    private User currentUser; // Lưu user đang đăng nhập
 
     private MainController mainController; // Biến để lưu MainController
     public void setMainController(MainController mainController) {
@@ -70,7 +74,7 @@ public class RolesPermissionsController {
 
 
         btnAddNewRole.setOnAction(event -> handleAddNewRole());
-        btnBack.setOnAction(event -> handleBackAction());
+//        btnBack.setOnAction(event -> handleBackAction());
 
     }
 
@@ -228,5 +232,44 @@ public class RolesPermissionsController {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void applyPermissions() {
+        if (currentUser != null) {
+            PermissionDAO permissionDAO = new PermissionDAO();
+            List<String> permissions = permissionDAO.getUserPermissions(currentUser.getId());
+            System.out.println("✅ Permissions: " + permissions);
+
+//            addProductButton.setVisible(permissions.contains("add_product"));
+//            editButton.setVisible(permissions.contains("add_product"));
+//            deleteButton.setVisible(permissions.contains("add_product"));
+//            stockUpButton.setVisible(permissions.contains("add_product"));
+//            btnAddNewCategory.setVisible(permissions.contains("add_product"));
+//            updateCategoryButton.setVisible(permissions.contains("add_product"));
+//            removeCategoryButton.setVisible(permissions.contains("add_product"));
+        } else {
+            System.err.println("⚠️ Lỗi: currentUser bị null trong ProductController!");
+        }
+    }
+
+    private User loggedInUser;
+
+    public void setLoggedInUser(User user) {
+        System.out.println("🟢 Gọi setCurrentUser() với user: " + (user != null ? user.getUsername() : "null"));
+
+        this.loggedInUser = user;
+        if (user != null) {
+            System.out.println("🟢 Gọi setCurrentUser() với user: " + user.getUsername());
+            System.out.println("🎯 Kiểm tra quyền sau khi truyền user...");
+            List<String> permissions = user.getPermissionsAsString();
+            System.out.println("🔎 Debug: Quyền sau khi truyền user = " + permissions);
+            applyPermissions();
+        } else {
+            System.err.println("❌ Lỗi: currentUser vẫn null sau khi set!");
+        }
+    }
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
     }
 }

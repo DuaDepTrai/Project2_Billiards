@@ -108,7 +108,7 @@ public class LoginController {
                 mainController.setLoggedInUser(user); // Cập nhật username
                 System.out.println("🔹 Đã truyền user vào MainController: " + user.getUsername());
             }
-            mainController.showProductsPage();
+            mainController.showHomePage();
 
             Stage mainStage = new Stage();
             mainStage.setScene(scene);

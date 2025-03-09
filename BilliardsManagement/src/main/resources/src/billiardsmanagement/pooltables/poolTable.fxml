@@ -19,7 +19,7 @@
             <Button fx:id="searchButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" styleClass="search-button" />
         </HBox>
 
-        <Button fx:id="addNewButton" layoutX="628.0" layoutY="13.0" mnemonicParsing="false" prefWidth="153.0" styleClass="add-button" text="Add new Pool Table" textAlignment="CENTER" textFill="WHITE" onAction="#showAddDialog">
+        <Button fx:id="addNewButton" layoutX="628.0" layoutY="13.0" mnemonicParsing="false" prefWidth="153.0" styleClass="add-button" text="Add new Pool Table" textAlignment="CENTER" textFill="WHITE" onAction="#showAddDialog" AnchorPane.rightAnchor="310.0" >
             <font>
                 <Font size="13.0" />
             </font>
@@ -29,7 +29,7 @@
         <VirtualTable layoutX="140.0" layoutY="255.0" prefHeight="258.0" prefWidth="257.0" />
 
         <!-- Tables Container -->
-        <FlowPane fx:id="tablesContainer" hgap="10" vgap="10" layoutX="14.0" layoutY="50.0" prefHeight="540.0" prefWidth="777.0">
+        <FlowPane fx:id="tablesContainer" alignment="CENTER" hgap="10" vgap="10" layoutX="14.0" layoutY="50.0" prefHeight="540.0" prefWidth="1300.0" >
             <!-- Pool table items will be added here dynamically -->
             <!-- Each pool table item will have this structure: -->
             <fx:define>
@@ -43,7 +43,7 @@
         </FlowPane>
 
         <!-- Right Side Panel -->
-        <VBox layoutX="800.0" layoutY="13.0" spacing="10" prefWidth="205.0">
+        <VBox layoutX="800.0" layoutY="13.0" spacing="10" prefWidth="250.0" AnchorPane.rightAnchor="20.0" >
             <!-- Pool Tables Header -->
             <HBox alignment="CENTER" prefHeight="20.0">
                 <Text styleClass="poolReportHeader" text="Pool Tables">
@@ -69,7 +69,7 @@
             <MFXScrollPane fx:id="catePooltablesScrollPane" prefHeight="150.0" prefWidth="205.0" />
 
             <!-- Add Category Button -->
-            <Button fx:id="addNewTableCategory" prefHeight="25.0" prefWidth="205.0"
+            <Button fx:id="addNewTableCategory" prefHeight="25.0" prefWidth="250.0"
                     styleClass="add-cate-pooltable-button" text="New Table Category"
                     textAlignment="CENTER" textFill="WHITE" />
         </VBox>

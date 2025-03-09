@@ -8,6 +8,11 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="src.billiardsmanagement.controller.users.UserController" prefWidth="1000" prefHeight="750">
+    <Button fx:id="btnAddNewUser" text="Add New User" AnchorPane.topAnchor="10.0"
+            AnchorPane.leftAnchor="10.0"/>
+    <!--    <Button fx:id="btnRolesPermissions" text="Roles - Permissions" AnchorPane.bottomAnchor="10.0"-->
+    <!--            AnchorPane.rightAnchor="50.0"/>-->
+
     <TableView fx:id="tableUsers" AnchorPane.topAnchor="50.0" AnchorPane.leftAnchor="10.0"
                AnchorPane.rightAnchor="10.0" AnchorPane.bottomAnchor="50.0">
         <columns>
@@ -22,9 +27,5 @@
             <TableColumn fx:id="columnAction" prefWidth="100.0" style="-fx-alignment: CENTER;" text="Action" />
         </columns>
     </TableView>
-    <Button fx:id="btnAddNewUser" text="Add New User" AnchorPane.bottomAnchor="10.0"
-            AnchorPane.rightAnchor="200.0"/>
-    <Button fx:id="btnRolesPermissions" text="Roles - Permissions" AnchorPane.bottomAnchor="10.0"
-            AnchorPane.rightAnchor="50.0"/>
 
 </AnchorPane>

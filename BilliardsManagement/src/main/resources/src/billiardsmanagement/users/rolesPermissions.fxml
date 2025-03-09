@@ -4,10 +4,10 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="src.billiardsmanagement.controller.users.RolesPermissionsController">
-    <Button fx:id="btnBack" text="Back"
-            AnchorPane.topAnchor="10.0" AnchorPane.leftAnchor="10.0"/>
+<!--    <Button fx:id="btnBack" text="Back"-->
+<!--            AnchorPane.topAnchor="10.0" AnchorPane.leftAnchor="10.0"/>-->
 
-    <VBox spacing="10" alignment="TOP_CENTER" AnchorPane.topAnchor="50" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10">
+    <VBox spacing="10" alignment="TOP_CENTER" AnchorPane.topAnchor="10" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10">
         <HBox spacing="5" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" HBox.hgrow="ALWAYS">
             <!-- TableView hiển thị danh sách Role -->
             <TableView fx:id="roleTable" HBox.hgrow="ALWAYS">

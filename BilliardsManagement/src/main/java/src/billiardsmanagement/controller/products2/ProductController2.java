@@ -25,6 +25,7 @@ import src.billiardsmanagement.controller.products2.StockUpController2;
 import src.billiardsmanagement.controller.products2.UpdateProductController2;
 import src.billiardsmanagement.controller.category.CategoryController;
 import src.billiardsmanagement.dao.PermissionDAO;
+import src.billiardsmanagement.dao.RolesPermissionsDAO;
 import src.billiardsmanagement.model.Category;
 import src.billiardsmanagement.model.Product;
 import src.billiardsmanagement.dao.CategoryDAO;
@@ -33,9 +34,11 @@ import src.billiardsmanagement.model.User;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class ProductController2 {
     @FXML
@@ -52,33 +55,44 @@ public class ProductController2 {
 
     private final CategoryDAO categoryDAO = new CategoryDAO();
     private final ProductDAO productDAO = new ProductDAO();
-    private User currentUser; // Lưu user đang đăng nhập
+    private User loggedInUser; // Lưu user đang đăng nhập
+    private List<String> userPermissions = new ArrayList<>();
+
 
     @FXML
     public void initialize() throws SQLException {
+        System.out.println("DEBUG: ProductController2 initialized.");
+        setupSearchField(); // Thiết lập tìm kiếm sản phẩm
+    }
+
+    public void setUser(User user) throws SQLException {
+        this.loggedInUser = user;
+        if (user != null) {
+            System.out.println("🟢 Gọi getUserPermissions() với user: " + user.getUsername());
+            this.userPermissions = user.getPermissionsAsString();
+            System.out.println("🔎 Debug: Quyền của user = " + userPermissions);
+            loadCategories(); // Gọi phương thức để cập nhật UI
+        } else {
+            System.err.println("❌ Lỗi: loggedInUser chưa được set trong ProductController2!");
+        }
+    }
+
+    private void loadCategories() throws SQLException {
         List<Category> categories = categoryDAO.getAllCategories();
-        FontAwesomeIconFactory icons = FontAwesomeIconFactory.get();
-
-        // Thêm tìm kiếm sản phẩm
-        setupSearchField();
-
-        int categoryCount = categories.size();
-
         gridPane.getChildren().clear(); // Xóa bảng cũ trước khi load mới
 
-        int rowCount = (int) Math.ceil(categoryCount / 2.0); // Tính số hàng cần thiết
+        int categoryCount = categories.size();
+        int rowCount = (int) Math.ceil(categoryCount / 2.0);
 
         for (int i = 0; i < categoryCount; i++) {
             Category category = categories.get(i);
             VBox categoryBox = createCategoryTable(category);
-
-            int row = i / 2; // Chia thành 2 cột
+            int row = i / 2;
             int col = i % 2;
             gridPane.add(categoryBox, col, row);
         }
 
         btnAddNewCategory.setOnAction(event -> handleAddNewCategory());
-
     }
 
     private VBox createCategoryTable(Category category) throws SQLException {
@@ -86,16 +100,16 @@ public class ProductController2 {
 
         if (category == null) {
             System.out.println("Category is NULL! Không thể tạo bảng.");
-            return new VBox(); // Trả về VBox rỗng để tránh lỗi
+            return new VBox();
         } else {
             System.out.println("Category name: " + category.getName());
         }
 
-        // Tiêu đề danh mục
+        System.out.println("Danh sách quyền hiện tại: " + userPermissions);
+
         Label categoryLabel = new Label(category.getName());
         categoryLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 5px;");
 
-        // Nút Add Product
         FontAwesomeIconView addProductIcon = new FontAwesomeIconView(FontAwesomeIcon.PLUS_CIRCLE);
         addProductIcon.setGlyphSize(18);
 
@@ -109,68 +123,54 @@ public class ProductController2 {
         addProductButton.setGraphic(addProductIcon);
         addProductButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
         addProductButton.setOnAction(event -> handleAddNewProduct(category));
+        addProductButton.setVisible(userPermissions.contains("add_product"));
 
         Button updateCategoryButton = new Button();
         updateCategoryButton.setGraphic(updateCategoryIcon);
         updateCategoryButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
         updateCategoryButton.setOnAction(event -> handleUpdateCategory(category));
+        updateCategoryButton.setVisible(userPermissions.contains("update_product_category"));
 
         Button removeCategoryButton = new Button();
         removeCategoryButton.setGraphic(removeCategoryIcon);
         removeCategoryButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
         removeCategoryButton.setOnAction(event -> handleRemoveCategory(category));
+        removeCategoryButton.setVisible(userPermissions.contains("remove_product_category"));
 
-        // Header chứa tiêu đề + nút Add
         HBox headerBox = new HBox();
         headerBox.setSpacing(10);
         headerBox.setAlignment(Pos.CENTER_LEFT);
-
-// Tạo một Region để đẩy các nút về bên phải
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-
         headerBox.getChildren().addAll(categoryLabel, spacer, addProductButton, updateCategoryButton, removeCategoryButton);
 
-        // Tạo TableView
         TableView<Product> tableView = new TableView<>();
-//        tableView.setPrefHeight(200); // Hiển thị tối đa 5 sản phẩm (~40px mỗi dòng)
         tableView.setPrefSize(750, 300);
-//        tableView.setMaxHeight(300);
 
-        // Định nghĩa các cột
         TableColumn<Product, String> nameColumn = new TableColumn<>("Product Name");
         TableColumn<Product, Integer> quantityColumn = new TableColumn<>("Quantity");
         TableColumn<Product, Double> priceColumn = new TableColumn<>("Price");
         TableColumn<Product, String> unitColumn = new TableColumn<>("Unit");
         TableColumn<Product, Void> actionColumn = new TableColumn<>("Action");
 
-        // Gán giá trị cho cột
         nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
         quantityColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getQuantity()).asObject());
         priceColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getPrice()).asObject());
         unitColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUnit()));
 
-        // Sắp xếp theo số lượng giảm dần
         quantityColumn.setSortType(TableColumn.SortType.DESCENDING);
         tableView.getSortOrder().add(quantityColumn);
+        actionColumn.setCellFactory(col -> createActionCellFactory(product -> tableView.getItems().remove(product), userPermissions));
 
-        // Cột hành động (Xóa sản phẩm)
-        actionColumn.setCellFactory(col -> createActionCellFactory(product -> tableView.getItems().remove(product)));
-
-        // Gộp các cột vào bảng
         tableView.getColumns().addAll(nameColumn, quantityColumn, priceColumn, unitColumn, actionColumn);
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        // Hiển thị thông báo nếu danh mục không có sản phẩm
         tableView.setPlaceholder(new Label("No products available in this category."));
 
-        // Load dữ liệu từ database
         List<Product> products = productDAO.getProductsByCategory(category.getId());
         System.out.println("Lấy sản phẩm cho danh mục: " + category.getName() + " (ID: " + category.getId() + ")");
         tableView.getItems().addAll(products);
         tableView.sort();
 
-        // Tạo VBox chứa bảng
         VBox categoryBox = new VBox(headerBox, tableView);
         categoryBox.setSpacing(5);
         categoryBox.setStyle("-fx-border-color: #ccc; -fx-padding: 10px;");
@@ -178,7 +178,7 @@ public class ProductController2 {
         return categoryBox;
     }
 
-    private TableCell<Product, Void> createActionCellFactory(Consumer<Product> onDelete) {
+    private TableCell<Product, Void> createActionCellFactory(Consumer<Product> onDelete, List<String> permissions) {
         return new TableCell<>() {
             private final HBox container = new HBox(10);
             private final Button stockUpButton = new Button();
@@ -218,6 +218,12 @@ public class ProductController2 {
                     Product product = getTableView().getItems().get(getIndex());
                     confirmAndRemoveProduct(product, getTableView());
                 });
+
+                // Kiểm tra quyền và ẩn các nút nếu không có quyền tương ứng
+                stockUpButton.setVisible(permissions.contains("stock_up_product"));
+                editButton.setVisible(permissions.contains("update_product"));
+                deleteButton.setVisible(permissions.contains("remove_product"));
+
             }
 
             @Override
@@ -451,34 +457,54 @@ public class ProductController2 {
     }
 
     private void applyPermissions() {
-        if (currentUser != null) {
+        if (loggedInUser != null) {
             PermissionDAO permissionDAO = new PermissionDAO();
-            List<String> permissions = permissionDAO.getUserPermissions(currentUser.getId());
-            System.out.println("✅ Permissions: " + permissions);
+            List<String> permissions = permissionDAO.getUserPermissions(loggedInUser.getId());
+//            System.out.println("✅ Permissions: " + permissions);
+
+            btnAddNewCategory.setVisible(permissions.contains("add_product"));
+//            addProductButton.setVisible(permissions.contains("add_product"));
+//            editButton.setVisible(permissions.contains("add_product"));
+//            deleteButton.setVisible(permissions.contains("add_product"));
+//            stockUpButton.setVisible(permissions.contains("add_product"));
+//            updateCategoryButton.setVisible(permissions.contains("add_product"));
+//            removeCategoryButton.setVisible(permissions.contains("add_product"));
         } else {
             System.err.println("⚠️ Lỗi: currentUser bị null trong ProductController!");
         }
     }
 
-    private User loggedInUser;
+//    private User loggedInUser;
 
+//    public void setCurrentUser(User user) {
+//        this.currentUser = user;
+//    }
     public void setLoggedInUser(User user) {
-        System.out.println("🟢 Gọi setCurrentUser() với user: " + (user != null ? user.getUsername() : "null"));
+//        System.out.println("🟢 Gọi setCurrentUser() với user: " + (user != null ? user.getUsername() : "null"));
 
         this.loggedInUser = user;
         if (user != null) {
-            System.out.println("🟢 Gọi setCurrentUser() với user: " + user.getUsername());
-            System.out.println("🎯 Kiểm tra quyền sau khi truyền user...");
+//            System.out.println("🟢 Gọi setCurrentUser() với user: " + user.getUsername());
+//            System.out.println("🎯 Kiểm tra quyền sau khi truyền user...");
             List<String> permissions = user.getPermissionsAsString();
-            System.out.println("🔎 Debug: Quyền sau khi truyền user = " + permissions);
+//            System.out.println("🔎 Debug: Quyền sau khi truyền user = " + permissions);
             applyPermissions();
         } else {
             System.err.println("❌ Lỗi: currentUser vẫn null sau khi set!");
         }
     }
 
-    public void setCurrentUser(User user) {
-        this.currentUser = user;
-    }
-
+//    public List<String> setUserPermissions(User user) {
+//        this.loggedInUser = user;
+//
+//        if (user != null) {
+//            System.out.println("🟢 Gọi getUserPermissions() với user: " + loggedInUser.getUsername());
+//            List<String> permissions = user.getPermissionsAsString();
+//            System.out.println("🔎 Debug: Quyền của user = " + permissions);
+//            return permissions;
+//        } else {
+//            System.err.println("❌ Lỗi: loggedInUser chưa được set trong ProductController2!");
+//            return new ArrayList<>();
+//        }
+//    }
 }
