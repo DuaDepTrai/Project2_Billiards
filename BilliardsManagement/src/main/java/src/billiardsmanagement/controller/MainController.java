@@ -12,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.controller.poolTables.*;
 import src.billiardsmanagement.controller.products2.ProductController2;
 import src.billiardsmanagement.controller.users.RolesPermissionsController;
@@ -264,6 +265,9 @@ public class MainController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/order.fxml"));
         BorderPane orderPage = loader.load();  // Tải FXML thành AnchorPane
         contentArea.getChildren().setAll(orderPage);
+        OrderController orderController = loader.getController();
+        orderController.setMainController(this); // Truyền MainController vào OrderController
+        contentArea.getChildren().setAll(orderPage); // Hiển thị trang order
     }
 
     @FXML
@@ -385,6 +389,11 @@ public class MainController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/home.fxml"));
         StackPane homePage = loader.load();
         contentArea.getChildren().setAll(homePage);
+    }
+
+    // Phương thức để lấy contentArea
+    public StackPane getContentArea() {
+        return contentArea;
     }
 
 }

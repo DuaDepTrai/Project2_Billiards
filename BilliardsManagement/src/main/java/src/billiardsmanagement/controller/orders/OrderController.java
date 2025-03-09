@@ -15,13 +15,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.CustomerDAO;
 import src.billiardsmanagement.dao.OrderDAO;
@@ -80,6 +78,10 @@ public class OrderController implements Initializable {
     private final BookingDAO bookingDAO = new BookingDAO();
     private final Map<String, Integer> customerNameToIdMap = new HashMap<>();
     private final PoolTableDAO poolTableDAO = new PoolTableDAO();
+    private MainController mainController;
+    public void setMainController(MainController mainController){
+        this.mainController = mainController;;
+    }
 
     public TableView<Order> getOrderTable() {
         return orderTable;
@@ -111,6 +113,8 @@ public class OrderController implements Initializable {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
             Parent root = loader.load();
+            StackPane contentArea = mainController.getContentArea();
+
             Stage stage = new Stage();
             stage.setTitle("Order Detail");
             stage.setScene(new Scene(root));
@@ -395,11 +399,7 @@ public class OrderController implements Initializable {
         });
 
         orderTable.setOnMouseClicked(event -> {
-            try {
-                showItem(event);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            showItem(event);
         });
     }
 
@@ -486,38 +486,68 @@ public class OrderController implements Initializable {
         }
     }
 
-    private void showItem(MouseEvent mouseEvent) throws IOException {
+//    private void showItem(MouseEvent mouseEvent) throws IOException {
+//        if (mouseEvent.getClickCount() == 2) {
+//            Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
+//            if (selectedOrder == null)
+//                return;
+//
+//            int orderId = selectedOrder.getOrderId();
+//            int customerId = selectedOrder.getCustomerId();
+//            int totalRow = orderTable.getItems().size();
+//            int selectedIndex = orderTable.getItems().indexOf(selectedOrder);
+//            int billNo = totalRow - selectedIndex;
+//
+//            FXMLLoader loader = new FXMLLoader(
+//                    getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+//            Parent root = null;
+//            try {
+//                root = loader.load();
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//            ForEachOrderController controller = loader.getController();
+//            controller.setOrderID(orderId);
+//            controller.setCustomerID(customerId);
+//            controller.setOrderTable(orderTable);
+//            controller.setBillNo(billNo);
+//            controller.setInitialPhoneText(selectedOrder.getCustomerPhone());
+//            controller.initializeAllTables();
+//
+//            Stage stage = new Stage();
+//            stage.setTitle("Order Details");
+//            stage.setScene(new Scene(root));
+//            stage.show();
+//        }
+//    }
+
+    private void showItem(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() == 2) {
             Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
-            if (selectedOrder == null)
+            if (selectedOrder == null) {
                 return;
-
-            int orderId = selectedOrder.getOrderId();
-            int customerId = selectedOrder.getCustomerId();
-            int totalRow = orderTable.getItems().size();
-            int selectedIndex = orderTable.getItems().indexOf(selectedOrder);
-            int billNo = totalRow - selectedIndex;
-
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
-            Parent root = null;
-            try {
-                root = loader.load();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
-            ForEachOrderController controller = loader.getController();
-            controller.setOrderID(orderId);
-            controller.setCustomerID(customerId);
-            controller.setOrderTable(orderTable);
-            controller.setBillNo(billNo);
-            controller.setInitialPhoneText(selectedOrder.getCustomerPhone());
-            controller.initializeAllTables();
 
-            Stage stage = new Stage();
-            stage.setTitle("Order Details");
-            stage.setScene(new Scene(root));
-            stage.show();
+            // Tải trang forEachOrder.fxml
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+                Parent forEachOrderPage = loader.load();
+
+                // Lấy controller của ForEachOrderController
+                ForEachOrderController forEachOrderController = loader.getController();
+                forEachOrderController.setOrderID(selectedOrder.getOrderId());
+                forEachOrderController.setCustomerID(selectedOrder.getCustomerId());
+                forEachOrderController.setMainController(mainController);
+                // Cập nhật nội dung của contentArea trong MainController
+                if (mainController != null) {
+                    StackPane contentArea = mainController.getContentArea(); // Phương thức lấy contentArea
+                    contentArea.getChildren().setAll(forEachOrderPage); // Xóa nội dung cũ và thêm trang mới
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                NotificationService.showNotification("Error", "Failed to load order details.", NotificationStatus.Error);
+            }
         }
     }
 
