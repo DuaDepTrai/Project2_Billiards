@@ -1,22 +1,18 @@
 package src.billiardsmanagement.controller.poolTables;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ComboBox;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
-import javafx.collections.FXCollections;
 import src.billiardsmanagement.dao.PoolTableDAO;
 import src.billiardsmanagement.dao.CatePooltableDAO;
 import src.billiardsmanagement.model.PoolTable;
 import src.billiardsmanagement.model.CatePooltable;
 import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import java.util.List;
 
 public class PoolTableInfoController {
+
     @FXML
     private TextField nameField;
 
@@ -24,95 +20,119 @@ public class PoolTableInfoController {
     private ComboBox<CatePooltable> categoryComboBox;
 
     @FXML
-    private Button saveButton;
+    private Button updateButton;
 
     @FXML
     private Button removeButton;
 
-    private PoolTable poolTable;
-    private PoolTableDAO poolTableDAO = new PoolTableDAO();
-    private List<CatePooltable> categories;
+    private PoolTable currentTable;
+    private PoolTableDAO poolTableDAO;
+    private CatePooltableDAO catePooltableDAO;
+    private PoolTableController mainController;
 
-    @FXML
     public void initialize() {
-        // Load categories for combo box
-        categories = CatePooltableDAO.getAllCategories();
-        categoryComboBox.setItems(FXCollections.observableArrayList(categories));
+        poolTableDAO = new PoolTableDAO();
+        catePooltableDAO = new CatePooltableDAO();
+        setupCategoryComboBox();
+    }
 
-        // Set custom display for category items
-        categoryComboBox.setCellFactory(param -> new javafx.scene.control.ListCell<CatePooltable>() {
-            @Override
-            protected void updateItem(CatePooltable item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item.getShortName());
-                }
-            }
-        });
+    public void setMainController(PoolTableController controller) {
+        this.mainController = controller;
+    }
 
-        // Set custom display for selected item
-        categoryComboBox.setButtonCell(new javafx.scene.control.ListCell<CatePooltable>() {
-            @Override
-            protected void updateItem(CatePooltable item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item.getShortName());
+    private void setupCategoryComboBox() {
+        try {
+            // Load categories
+            List<CatePooltable> categories = CatePooltableDAO.getAllCategories();
+            categoryComboBox.getItems().addAll(categories);
+
+            // Set cell factory to display only short names
+            categoryComboBox.setCellFactory(lv -> new ListCell<CatePooltable>() {
+                @Override
+                protected void updateItem(CatePooltable item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        setText(item.getShortName());
+                    }
                 }
-            }
-        });
+            });
+
+            // Set button cell to display only short names
+            categoryComboBox.setButtonCell(new ListCell<CatePooltable>() {
+                @Override
+                protected void updateItem(CatePooltable item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        setText(item.getShortName());
+                    }
+                }
+            });
+
+            categoryComboBox.setStyle("-fx-font-size: 14px;");
+        } catch (Exception e) {
+            NotificationService.showNotification("Error", "Failed to load categories: " + e.getMessage(),
+                    NotificationStatus.Error);
+        }
     }
 
     public void setPoolTable(PoolTable table) {
-        this.poolTable = table;
-
-        // Populate fields
+        this.currentTable = table;
         nameField.setText(table.getName());
 
-        // Find and select the current category
-        categories.stream()
-                .filter(cat -> cat.getName().equals(table.getCatePooltableName()))
-                .findFirst()
-                .ifPresent(cat -> categoryComboBox.setValue(cat));
+        try {
+            // Find and select the current category
+            categoryComboBox.getItems().stream()
+                    .filter(cat -> cat.getId() == table.getCatePooltableId())
+                    .findFirst()
+                    .ifPresent(cat -> categoryComboBox.setValue(cat));
 
-        // Enable/disable fields based on table status
-        boolean isAvailable = "available".equalsIgnoreCase(table.getStatus());
-        nameField.setEditable(isAvailable);
-        categoryComboBox.setDisable(!isAvailable);
-        saveButton.setDisable(!isAvailable);
-        removeButton.setDisable(!isAvailable);
+            // Enable/disable buttons based on table availability
+            boolean isAvailable = "Available".equals(table.getStatus());
+            updateButton.setDisable(!isAvailable);
+            removeButton.setDisable(!isAvailable);
 
-        // Set ComboBox style
-        categoryComboBox.setStyle("-fx-font-size: 14px;");
+            // Make fields read-only if table is not available
+            nameField.setEditable(isAvailable);
+            categoryComboBox.setDisable(!isAvailable);
+        } catch (Exception e) {
+            NotificationService.showNotification("Error", "Failed to load table information: " + e.getMessage(),
+                    NotificationStatus.Error);
+        }
     }
 
     @FXML
-    private void handleSave() {
+    private void handleUpdate() {
         try {
             String name = nameField.getText().trim();
-            CatePooltable selectedCategory = categoryComboBox.getValue();
+            CatePooltable category = categoryComboBox.getValue();
 
             // Validate input
             if (name.isEmpty()) {
                 NotificationService.showNotification("Error", "Table name cannot be empty", NotificationStatus.Error);
                 return;
             }
-            if (selectedCategory == null) {
+
+            if (category == null) {
                 NotificationService.showNotification("Error", "Please select a category", NotificationStatus.Error);
                 return;
             }
 
-            // Update pool table
-            poolTable.setName(name);
-            poolTable.setCatePooltableId(selectedCategory.getId());
-            poolTable.setCatePooltableName(selectedCategory.getName());
-            poolTableDAO.updateTable(poolTable);
+            // Update table
+            currentTable.setName(name);
+            currentTable.setCatePooltableId(category.getId());
+            currentTable.setCatePooltableName(category.getName());
 
+            poolTableDAO.updateTable(currentTable);
             NotificationService.showNotification("Success", "Pool table updated successfully",
                     NotificationStatus.Success);
+
+            if (mainController != null) {
+                mainController.handleViewAllTables();
+            }
             closeDialog();
 
         } catch (Exception e) {
@@ -123,22 +143,24 @@ public class PoolTableInfoController {
 
     @FXML
     private void handleRemove() {
-        try {
-            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmation.setTitle("Confirm Deletion");
-            confirmation.setHeaderText("Delete Pool Table");
-            confirmation
-                    .setContentText("Are you sure you want to delete this pool table: " + poolTable.getName() + "?");
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Confirm Deletion");
+        confirmation.setHeaderText("Delete Pool Table");
+        confirmation.setContentText("Are you sure you want to delete this pool table?");
 
-            if (confirmation.showAndWait().get() == ButtonType.OK) {
-                poolTableDAO.removeTable(poolTable.getTableId());
+        if (confirmation.showAndWait().get() == ButtonType.OK) {
+            try {
+                poolTableDAO.removeTable(currentTable.getTableId());
                 NotificationService.showNotification("Success", "Pool table removed successfully",
                         NotificationStatus.Success);
+                if (mainController != null) {
+                    mainController.handleViewAllTables();
+                }
                 closeDialog();
+            } catch (Exception e) {
+                NotificationService.showNotification("Error", "Failed to remove pool table: " + e.getMessage(),
+                        NotificationStatus.Error);
             }
-        } catch (Exception e) {
-            NotificationService.showNotification("Error", "Failed to remove pool table: " + e.getMessage(),
-                    NotificationStatus.Error);
         }
     }
 

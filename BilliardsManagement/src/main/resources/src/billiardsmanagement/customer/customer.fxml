@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/customer.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.CustomerController">
+<AnchorPane prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/customer.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.customer.CustomerController">
     <children>
         <!-- Search Section -->
         <HBox prefHeight="33.0" prefWidth="348.0" spacing="10" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
