@@ -78,6 +78,7 @@ public class OrderController implements Initializable {
     private final BookingDAO bookingDAO = new BookingDAO();
     private final Map<String, Integer> customerNameToIdMap = new HashMap<>();
     private final PoolTableDAO poolTableDAO = new PoolTableDAO();
+    private MainController mainController;
 
     public TableView<Order> getOrderTable() {
         return orderTable;
@@ -475,7 +476,6 @@ public class OrderController implements Initializable {
         }
     }
 
-    private MainController mainController;
 
     public void setMainController(MainController mainController){
         this.mainController = mainController;;
@@ -497,7 +497,7 @@ public class OrderController implements Initializable {
                 ForEachOrderController forEachOrderController = loader.getController();
                 forEachOrderController.setOrderID(selectedOrder.getOrderId());
                 forEachOrderController.setCustomerID(selectedOrder.getCustomerId());
-
+                forEachOrderController.setMainController(mainController);
                 // Cập nhật nội dung của contentArea trong MainController
                 if (mainController != null) {
                     StackPane contentArea = mainController.getContentArea(); // Phương thức lấy contentArea

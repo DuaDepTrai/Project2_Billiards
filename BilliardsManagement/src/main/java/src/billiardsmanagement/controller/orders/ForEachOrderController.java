@@ -14,10 +14,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
+import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.controller.orders.bookings.AddBookingController;
 import src.billiardsmanagement.controller.orders.items.AddOrderItemController;
 import src.billiardsmanagement.controller.orders.items.UpdateOrderItemController;
@@ -62,6 +64,8 @@ public class ForEachOrderController {
     protected Button addBookingButton;
     @FXML
     protected Button cancelBookingButton;
+    @FXML
+    private Button btnBack;
 
     // Actions
     @FXML
@@ -139,6 +143,12 @@ public class ForEachOrderController {
 
     @FXML
     private TableColumn<OrderItem, Double> totalOrderItemColumn;
+
+    private MainController mainController; // Biến để lưu MainController
+
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+    }
 
     // @FXML
     // private TableColumn<OrderItem, Double> subTotalOrderItemColumn;
@@ -544,6 +554,22 @@ public class ForEachOrderController {
             // Add the booking
             bookingDAO.addBooking(newBooking);
             loadBookings(); // Refresh the bookings list
+        }
+
+        btnBack.setOnAction(event -> handleBackAction());
+
+    }
+
+    @FXML
+    private void handleBackAction() {
+        if (mainController != null) {
+            try {
+                mainController.showOrdersPage();
+                loadOrderList();
+                loadOrderDetail();// Gọi phương thức showUsersPage() trong MainController
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -1159,5 +1185,19 @@ public class ForEachOrderController {
 
     public void setSelectedTable(PoolTable table) {
         this.selectedTable = table;
+    }
+
+    @FXML
+    public void goBack(ActionEvent actionEvent) {
+        try {
+            if (mainController != null) {
+                mainController.showOrdersPage();
+            } else {
+                NotificationService.showNotification("Error", "MainController is not set.", NotificationStatus.Error);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            NotificationService.showNotification("Error", "Failed to navigate back.", NotificationStatus.Error);
+        }
     }
 }
