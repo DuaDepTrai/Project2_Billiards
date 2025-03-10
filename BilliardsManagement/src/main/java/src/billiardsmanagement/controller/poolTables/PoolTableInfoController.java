@@ -44,6 +44,7 @@ public class PoolTableInfoController {
         try {
             // Load categories
             List<CatePooltable> categories = CatePooltableDAO.getAllCategories();
+            categoryComboBox.getItems().clear(); // Clear existing items first
             categoryComboBox.getItems().addAll(categories);
 
             // Set cell factory to display only short names
@@ -85,10 +86,12 @@ public class PoolTableInfoController {
 
         try {
             // Find and select the current category
-            categoryComboBox.getItems().stream()
-                    .filter(cat -> cat.getId() == table.getCatePooltableId())
-                    .findFirst()
-                    .ifPresent(cat -> categoryComboBox.setValue(cat));
+            for (CatePooltable category : categoryComboBox.getItems()) {
+                if (category.getId() == table.getCatePooltableId()) {
+                    categoryComboBox.setValue(category);
+                    break;
+                }
+            }
 
             // Enable/disable buttons based on table availability
             boolean isAvailable = "Available".equals(table.getStatus());
@@ -108,7 +111,7 @@ public class PoolTableInfoController {
     private void handleUpdate() {
         try {
             String name = nameField.getText().trim();
-            CatePooltable category = categoryComboBox.getValue();
+            CatePooltable selectedCategory = categoryComboBox.getValue();
 
             // Validate input
             if (name.isEmpty()) {
@@ -116,16 +119,18 @@ public class PoolTableInfoController {
                 return;
             }
 
-            if (category == null) {
+            if (selectedCategory == null) {
                 NotificationService.showNotification("Error", "Please select a category", NotificationStatus.Error);
                 return;
             }
 
-            // Update table
+            // Update table properties
             currentTable.setName(name);
-            currentTable.setCatePooltableId(category.getId());
-            currentTable.setCatePooltableName(category.getName());
+            currentTable.setCatePooltableId(selectedCategory.getId());
+            currentTable.setCatePooltableName(selectedCategory.getName());
+            currentTable.setPrice(selectedCategory.getPrice()); // Also update the price based on the new category
 
+            // Update in database
             poolTableDAO.updateTable(currentTable);
             NotificationService.showNotification("Success", "Pool table updated successfully",
                     NotificationStatus.Success);

@@ -2,12 +2,13 @@ package src.billiardsmanagement.controller.orders;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.CustomerDAO;
 import src.billiardsmanagement.model.Customer;
+import src.billiardsmanagement.model.NotificationStatus;
+import src.billiardsmanagement.service.NotificationService;
 
 public class AddCustomerController {
     @FXML
@@ -34,7 +35,7 @@ public class AddCustomerController {
 
             // Validate phone number format (10 digits)
             if (!customerPhone.matches("^0(3[2-9]|5[2689]|7[0-9]|8[1-9]|9[0-9])\\d{7}")) {
-                throw new IllegalArgumentException("Phone number must be 10 digits.");
+                throw new IllegalArgumentException("Phone number must follow the correct format (e.g., 0987654321).");
             }
 
             // Check if the phone number already exists in the database
@@ -56,29 +57,20 @@ public class AddCustomerController {
                 throw new IllegalStateException("Failed to retrieve the customer ID after adding.");
             }
 
-            // Show success message (optional)
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Customer added successfully!");
+            // Show success notification
+            NotificationService.showNotification("Success", "Customer added successfully!", NotificationStatus.Success);
 
             // Close the window after saving
             Stage stage = (Stage) nameField.getScene().getWindow();
             stage.close();
 
         } catch (IllegalArgumentException e) {
-            // Show validation error
-            showAlert(Alert.AlertType.ERROR, "Error", e.getMessage());
+            // Show validation error notification
+            NotificationService.showNotification("Error", e.getMessage(), NotificationStatus.Error);
         } catch (Exception e) {
             e.printStackTrace();
-            // Show unexpected error message
-            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while saving the order. Please try again.");
+            // Show unexpected error notification
+            NotificationService.showNotification("Error", "An error occurred while saving the order. Please try again.", NotificationStatus.Error);
         }
-    }
-
-
-    private void showAlert(Alert.AlertType alertType, String title, String content) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
     }
 }

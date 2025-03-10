@@ -7,23 +7,20 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.OrderDAO;
-import src.billiardsmanagement.dao.PoolTableDAO;
 import src.billiardsmanagement.model.Booking;
 import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.model.Order;
-import src.billiardsmanagement.model.UserSession;
 
 import java.net.URL;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class AddBookingController implements Initializable {
 
@@ -59,52 +56,61 @@ public class AddBookingController implements Initializable {
     Connection conn = DatabaseConnection.getConnection();
     private final Map<String, Integer> getTableNameToIdMap = new HashMap<>();
     private final OrderDAO orderDAO = new OrderDAO();
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loadTableNameToIdMap();
-        popup = new Popup();
-        listView = new ListView<>();
-        popup.getContent().add(listView);
+//        popup = new Popup();
+//        listView = new ListView<>();
+//        popup.getContent().add(listView);
 
-        tableNameColumn.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.isEmpty()) {
-                List<String> filteredCustomers = fetchTableByName(newValue);
+        if(!getTableNameToIdMap.isEmpty()){
+            ArrayList<String> tableNames = new ArrayList<>(getTableNameToIdMap.keySet());
+            AutoCompletionBinding<String> tableNameCompletion = TextFields.bindAutoCompletion(tableNameColumn, tableNames);
+            tableNameCompletion.setVisibleRowCount(7);
+            tableNameCompletion.setHideOnEscape(true);
+            tableNameCompletion.setUserInput(" ");
+        }
 
-                System.out.println("List view: " + filteredCustomers);
-                listView.getItems().setAll(filteredCustomers);
+//        tableNameColumn.textProperty().addListener((observable, oldValue, newValue) -> {
+//            if (!newValue.isEmpty()) {
+//                List<String> filteredCustomers = fetchTableByName(newValue);
+//
+//                System.out.println("List view: " + filteredCustomers);
+//                listView.getItems().setAll(filteredCustomers);
+//
+//                if (!filteredCustomers.isEmpty() && !popup.isShowing()) {
+//                    popup.show(tableNameColumn,
+//                            tableNameColumn.localToScreen(tableNameColumn.getBoundsInLocal()).getMinX(),
+//                            tableNameColumn.localToScreen(tableNameColumn.getBoundsInLocal()).getMaxY());
+//                }
+//            } else {
+//                popup.hide();
+//            }
+//        });
+//
+//        listView.setOnMouseClicked(event -> {
+//            if (!listView.getSelectionModel().isEmpty()) {
+//                tableNameColumn.setText(listView.getSelectionModel().getSelectedItem());
+//                popup.hide();
+//            }
+//        });
 
-                if (!filteredCustomers.isEmpty() && !popup.isShowing()) {
-                    popup.show(tableNameColumn,
-                            tableNameColumn.localToScreen(tableNameColumn.getBoundsInLocal()).getMinX(),
-                            tableNameColumn.localToScreen(tableNameColumn.getBoundsInLocal()).getMaxY());
-                }
-            } else {
-                popup.hide();
-            }
-        });
-
-        listView.setOnMouseClicked(event -> {
-            if (!listView.getSelectionModel().isEmpty()) {
-                tableNameColumn.setText(listView.getSelectionModel().getSelectedItem());
-                popup.hide();
-            }
-        });
-
-        tableNameColumn.setOnKeyPressed(event -> {
-            switch (event.getCode()) {
-                case ENTER:
-                    if (!listView.getSelectionModel().isEmpty()) {
-                        tableNameColumn.setText(listView.getSelectionModel().getSelectedItem());
-                        popup.hide();
-                    }
-                    break;
-                case ESCAPE:
-                    popup.hide();
-                    break;
-                default:
-                    break;
-            }
-        });
+//        tableNameColumn.setOnKeyPressed(event -> {
+//            switch (event.getCode()) {
+//                case ENTER:
+//                    if (!listView.getSelectionModel().isEmpty()) {
+//                        tableNameColumn.setText(listView.getSelectionModel().getSelectedItem());
+//                        popup.hide();
+//                    }
+//                    break;
+//                case ESCAPE:
+//                    popup.hide();
+//                    break;
+//                default:
+//                    break;
+//            }
+//        });
         LocalTime now = LocalTime.now();
         int currentHour = now.getHour();
         int currentMinute = now.getMinute();
@@ -189,7 +195,6 @@ public class AddBookingController implements Initializable {
             BookingDAO bookingDAO = new BookingDAO();
             bookingDAO.addBooking(newBooking);
 
-            loadOrderList();
 
             // Navigate back to the previous scene
             Stage currentStage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -275,10 +280,6 @@ public class AddBookingController implements Initializable {
     }
 
 
-    private void loadOrderList() {
-        List<Order> orders = orderDAO.getAllOrders();
-        orderTable.setItems(FXCollections.observableArrayList(orders));
-    }
 
 
 

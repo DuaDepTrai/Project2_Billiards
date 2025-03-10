@@ -1,5 +1,6 @@
 package src.billiardsmanagement.dao;
 
+import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.model.PoolTable;
 
 import java.sql.*;
@@ -12,6 +13,34 @@ public class PoolTableDAO {
         String user = "root";
         String password = "";
         return DriverManager.getConnection(url, user, password);
+    }
+
+    public static PoolTable getSpecificTable(int tableId) {
+        PoolTable table = null; // Initialize as null
+        String query = "SELECT * FROM pool_tables WHERE table_id = ?"; // Adjust table name as needed
+
+        try {
+            Connection con = DatabaseConnection.getConnection();
+            PreparedStatement pr = con.prepareStatement(query);
+            pr.setInt(1, tableId);
+            ResultSet rs = pr.executeQuery();
+
+            if (rs.next()) {
+                // Create a PoolTable object using the retrieved data
+                table = new PoolTable(
+                        rs.getInt("table_id"),
+                        rs.getString("name"),
+                        rs.getString("status"),
+                        rs.getInt("cate_id")
+                );
+            } else {
+                throw new Exception("No table found with tableId = " + tableId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Handle exceptions appropriately
+        }
+
+        return table; // Return the retrieved PoolTable object or null
     }
 
     public List<PoolTable> getAllTables() {
@@ -65,13 +94,14 @@ public class PoolTableDAO {
     }
 
     public void updateTable(PoolTable table) {
-        String query = "UPDATE pooltables SET name = ?, status = ? WHERE table_id = ?";
+        String query = "UPDATE pooltables SET name = ?, status = ?, cate_id = ? WHERE table_id = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, table.getName());
             pstmt.setString(2, table.getStatus());
-            pstmt.setInt(3, table.getTableId());
+            pstmt.setInt(3, table.getCatePooltableId());
+            pstmt.setInt(4, table.getTableId());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -14,7 +14,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
@@ -40,6 +39,7 @@ import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -144,12 +144,6 @@ public class ForEachOrderController {
     @FXML
     private TableColumn<OrderItem, Double> totalOrderItemColumn;
 
-    private MainController mainController; // Biến để lưu MainController
-
-    public void setMainController(MainController mainController) {
-        this.mainController = mainController;
-    }
-
     // @FXML
     // private TableColumn<OrderItem, Double> subTotalOrderItemColumn;
 
@@ -158,6 +152,12 @@ public class ForEachOrderController {
 
     // @FXML
     // private TableColumn<OrderItem, Double> promotionDiscountOrderItem;
+
+    private MainController mainController; // Biến để lưu MainController
+
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+    }
 
     private final ObservableList<Booking> bookingList = FXCollections.observableArrayList();
     private final ObservableList<OrderItem> orderItemList = FXCollections.observableArrayList();
@@ -169,12 +169,18 @@ public class ForEachOrderController {
     private Connection conn = DatabaseConnection.getConnection();
 
     private int orderID;
+    private int userID;
     private int customerID;
     private int billNo;
 
     private Booking currentBookingSelected;
     private OrderItem currentOrderItemSelected;
     private AutoCompletionBinding<String> phoneAutoCompletion;
+
+    private String initialPhoneText;
+
+    @FXML private Button confirmUpdateDataCustomer;
+    @FXML private Button confirmSaveCustomer;
 
     private PoolTable selectedTable;
 
@@ -191,6 +197,12 @@ public class ForEachOrderController {
 
     private void loadBookings() {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
+        // Filter bookings to only show the selected table's bookings
+        if (selectedTable != null) {
+            bookings = bookings.stream()
+                    .filter(booking -> booking.getTableId() == selectedTable.getTableId())
+                    .collect(Collectors.toList());
+        }
         bookings.sort((b1, b2) -> b2.getBookingId() - b1.getBookingId());
         bookingList.clear();
         bookingList.addAll(bookings);
@@ -521,8 +533,11 @@ public class ForEachOrderController {
 
         // Staff Name
         String staffName = OrderDAO.getStaffNameByOrderId(orderID);
-
-        if (staffName.isEmpty()) {
+        if(staffName==null){
+            System.out.println("Error : Currently, there is no user logged in !");
+            staffNameText.setText("[ No staff logged in ! ]");
+        }
+        else if (staffName.isEmpty()) {
             System.out.println("Error : Currently, there is no user logged in !");
             staffNameText.setText("[ No staff logged in ! ]");
         } else {
@@ -536,6 +551,8 @@ public class ForEachOrderController {
         setupPhoneAutoCompletion();
         checkBookingStatus();
         checkOrderStatus();
+
+
         // Set current timestamp in dateText
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH'h'mm '|' dd:MM:yyyy");
         String currentTimestamp = LocalDateTime.now().format(formatter);
@@ -555,22 +572,6 @@ public class ForEachOrderController {
             bookingDAO.addBooking(newBooking);
             loadBookings(); // Refresh the bookings list
         }
-
-        btnBack.setOnAction(event -> handleBackAction());
-
-    }
-
-    @FXML
-    private void handleBackAction() {
-        if (mainController != null) {
-            try {
-                mainController.showOrdersPage();
-                loadOrderList();
-                loadOrderDetail();// Gọi phương thức showUsersPage() trong MainController
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     private void setupPhoneAutoCompletion() {
@@ -585,6 +586,7 @@ public class ForEachOrderController {
                 .collect(Collectors.toList());
 
         phoneAutoCompletion = TextFields.bindAutoCompletion(phoneText, suggestions);
+        HandleTextFieldClick(phoneAutoCompletion, (ArrayList<String>) suggestions, phoneText);
 
         phoneText.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.isEmpty()) {
@@ -598,6 +600,65 @@ public class ForEachOrderController {
             }
         });
     }
+
+    public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text) {
+        auto.setOnAutoCompleted(autoCompletionEvent -> {
+            if(!text.getText().equalsIgnoreCase(initialPhoneText) && customerText.getText()!=null){
+                updateOrder(new ActionEvent());
+            }
+            else{
+                System.out.println("No change in phone number !");
+            }
+        });
+//
+//        text.focusedProperty().addListener((observable, oldValue, newValue) -> {
+//            if (newValue) {
+//                auto.setUserInput(" ");
+//                return;
+//            }
+//            if (!newValue) {
+//                String input = text.getText();
+//                input = input == null ? "" : input.trim();
+//                if (input.isBlank() || !trimmedList.contains(input)) {
+//                    text.setText("");
+//                } else
+//                    text.setText(input);
+//            }
+//        });
+    }
+
+
+//    public void addBooking(ActionEvent event) {
+//        if (orderStatusText.getText().equals("Paid")) {
+//            NotificationService.showNotification("Error!", "Cannot add booking with status Paid",
+//                    NotificationStatus.Error);
+//            return;
+//        }
+//        // Don't allow adding other tables if we have a selected table
+//        if (selectedTable != null) {
+//            NotificationService.showNotification("Error!",
+//                    "Cannot add other tables to this order. Please create a new order for other tables.",
+//                    NotificationStatus.Error);
+//            return;
+//        }
+//        try {
+//            FXMLLoader loader = new FXMLLoader(
+//                    getClass().getResource("/src/billiardsmanagement/orders/bookings/addBooking.fxml"));
+//            Parent root = loader.load();
+//
+//            AddBookingController addBookingController = loader.getController();
+//            addBookingController.setOrderId(orderID);
+//            addBookingController.setOrderTable(orderTable);
+//            Stage stage = new Stage();
+//            stage.setTitle("Add Booking");
+//            stage.setScene(new Scene(root));
+//            stage.showAndWait();
+//
+//            loadBookings();
+//        } catch (IOException e) {
+//            NotificationService.showNotification("Error!", "Cannot add Load Booking form !", NotificationStatus.Error);
+//        }
+//    }
 
     public void addBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
@@ -986,7 +1047,6 @@ public class ForEachOrderController {
                         loadBookings();
                         loadOrderDetail();
                         loadInfo();
-                        loadOrderList();
                     } else {
                         NotificationService.showNotification("Error", "Failed to update order status.",
                                 NotificationStatus.Error);
@@ -995,7 +1055,6 @@ public class ForEachOrderController {
                     NotificationService.showNotification("Error", "Failed to finish all bookings.",
                             NotificationStatus.Error);
                 }
-                loadOrderList();
                 finishOrderButton.setDisable(true);
                 addBookingButton.setDisable(true);
                 addOrderItemButton.setDisable(true);
@@ -1013,11 +1072,7 @@ public class ForEachOrderController {
         this.orderTable = orderTable;
     }
 
-    private void loadOrderList() {
 
-        List<Order> orders = orderDAO.getAllOrders();
-        orderTable.setItems(FXCollections.observableArrayList(orders));
-    }
 
     private ObservableValue<Integer> orderItemCall(TableColumn.CellDataFeatures<OrderItem, Integer> cellData) {
         // Lấy vị trí (index) của dòng hiện tại trong danh sách
@@ -1082,6 +1137,7 @@ public class ForEachOrderController {
         billNoText.setText(String.valueOf(billNo));
     }
 
+    @FXML
     public void saveCustomer(ActionEvent actionEvent) {
         try {
             CustomerDAO customerDAO = new CustomerDAO();
@@ -1121,26 +1177,19 @@ public class ForEachOrderController {
                 throw new IllegalStateException("Failed to retrieve the customer ID after adding.");
             }
 
-            // Show success message (optional)
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Customer added successfully!");
+            // Show success notification
+            NotificationService.showNotification("Success", "Customer added successfully!", NotificationStatus.Success);
 
         } catch (IllegalArgumentException e) {
-            // Show validation error
-            showAlert(Alert.AlertType.ERROR, "Error", e.getMessage());
+            // Show validation error notification
+            NotificationService.showNotification("Error", e.getMessage(), NotificationStatus.Error);
         } catch (Exception e) {
             e.printStackTrace();
-            // Show unexpected error message
-            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while saving the order. Please try again.");
+            // Show unexpected error notification
+            NotificationService.showNotification("Error", "An error occurred while saving the order. Please try again.", NotificationStatus.Error);
         }
     }
 
-    private void showAlert(Alert.AlertType alertType, String title, String content) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
 
     // Getters and Setters for selected items
     public Booking getCurrentBookingSelected() {
@@ -1160,31 +1209,41 @@ public class ForEachOrderController {
     }
 
     public void updateOrder(ActionEvent actionEvent) {
-        Booking bookingselected = bookingPoolTable.getSelectionModel().getSelectedItem();
-        OrderItem orderItemselected = orderItemsTable.getSelectionModel().getSelectedItem();
+        try {
+            Booking bookingselected = bookingPoolTable.getSelectionModel().getSelectedItem();
+            OrderItem orderItemselected = orderItemsTable.getSelectionModel().getSelectedItem();
 
-        if (bookingselected == null && orderItemselected == null) {
-            try {
+            if (bookingselected == null && orderItemselected == null) {
                 String phoneNumber = phoneText.getText();
                 if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-                    showAlert(Alert.AlertType.ERROR, "Error", "Phone number is required");
+                    NotificationService.showNotification("Error", "Phone number is required", NotificationStatus.Error);
                     return;
                 }
                 int customerID = CustomerDAO.getCustomerIdByPhone(phoneNumber);
                 boolean success = orderDAO.updateOrder(orderID, customerID);
                 if (success) {
-                    showAlert(Alert.AlertType.INFORMATION, "Success", "Order updated successfully");
-                    loadOrderList();
+                    NotificationService.showNotification("Success", "Order updated successfully", NotificationStatus.Success);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                showAlert(Alert.AlertType.ERROR, "Error", "Failed to update order");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            NotificationService.showNotification("Error", "Failed to update order", NotificationStatus.Error);
         }
     }
 
     public void setSelectedTable(PoolTable table) {
         this.selectedTable = table;
+    }
+
+    public int getForEachUserID(){
+        return this.userID;
+    }
+    public void setForEachUserID(int userID){
+        this.userID = userID;
+    }
+
+    public void setInitialPhoneText(String initialPhoneText) {
+        this.initialPhoneText = initialPhoneText;
     }
 
     @FXML
