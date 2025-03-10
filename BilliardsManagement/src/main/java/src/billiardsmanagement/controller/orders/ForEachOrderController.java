@@ -552,7 +552,6 @@ public class ForEachOrderController {
         checkBookingStatus();
         checkOrderStatus();
 
-
         // Set current timestamp in dateText
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH'h'mm '|' dd:MM:yyyy");
         String currentTimestamp = LocalDateTime.now().format(formatter);
