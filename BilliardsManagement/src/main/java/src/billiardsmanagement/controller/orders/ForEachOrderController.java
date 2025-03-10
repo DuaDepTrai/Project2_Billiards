@@ -198,11 +198,11 @@ public class ForEachOrderController {
     private void loadBookings() {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
         // Filter bookings to only show the selected table's bookings
-        if (selectedTable != null) {
-            bookings = bookings.stream()
-                    .filter(booking -> booking.getTableId() == selectedTable.getTableId())
-                    .collect(Collectors.toList());
-        }
+//        if (selectedTable != null) {
+//            bookings = bookings.stream()
+//                    .filter(booking -> booking.getTableId() == selectedTable.getTableId())
+//                    .collect(Collectors.toList());
+//        }
         bookings.sort((b1, b2) -> b2.getBookingId() - b1.getBookingId());
         bookingList.clear();
         bookingList.addAll(bookings);

@@ -37,20 +37,20 @@
         <Button fx:id="createOrderBtn" onAction="#handleCreateOrder" text="Create new Order with this Table" />
         <Button fx:id="addToOrderBtn" onAction="#handleAddToOrder" text="Add this table to Order" />
     </HBox>
-   <HBox alignment="CENTER" prefHeight="25.0" prefWidth="383.0" spacing="5.0">
-      <children>
-           <Button fx:id="finishBtn" text="Finish this Table">
-            <HBox.margin>
-               <Insets right="5.0" />
-            </HBox.margin>
-         </Button>
-           <Button fx:id="playBtn" text="Start Playing this Booking">
-            <HBox.margin>
-               <Insets right="5.0" />
-            </HBox.margin>
-         </Button>
-           <Button fx:id="cancelBtn" text="Cancel Booking" />
-      </children>
-   </HBox>
+<!--   <HBox alignment="CENTER" prefHeight="25.0" prefWidth="383.0" spacing="5.0">-->
+<!--      <children>-->
+<!--           <Button fx:id="finishBtn" text="Finish this Table">-->
+<!--            <HBox.margin>-->
+<!--               <Insets right="5.0" />-->
+<!--            </HBox.margin>-->
+<!--         </Button>-->
+<!--           <Button fx:id="playBtn" text="Start Playing this Booking">-->
+<!--            <HBox.margin>-->
+<!--               <Insets right="5.0" />-->
+<!--            </HBox.margin>-->
+<!--         </Button>-->
+<!--           <Button fx:id="cancelBtn" text="Cancel Booking" />-->
+<!--      </children>-->
+<!--   </HBox>-->
 
 </VBox>

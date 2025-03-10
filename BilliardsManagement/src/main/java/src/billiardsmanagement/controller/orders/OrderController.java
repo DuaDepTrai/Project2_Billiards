@@ -537,6 +537,7 @@ public class OrderController implements Initializable {
                 ForEachOrderController forEachOrderController = loader.getController();
                 forEachOrderController.setOrderID(selectedOrder.getOrderId());
                 forEachOrderController.setCustomerID(selectedOrder.getCustomerId());
+                forEachOrderController.setOrderTable(orderTable);
                 forEachOrderController.setMainController(mainController);
                 // Cập nhật nội dung của contentArea trong MainController
                 if (mainController != null) {
