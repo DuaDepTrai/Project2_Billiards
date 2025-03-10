@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="10" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.BookingController">
+<VBox spacing="10" stylesheets="/src/billiardsmanagement/css/billStyle.css" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.BookingController">
     <Label text="Hóa Đơn Thanh Toán" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
 
     <!-- Thông tin khách hàng -->

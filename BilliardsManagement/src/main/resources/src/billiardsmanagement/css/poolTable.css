@@ -8,9 +8,11 @@
 
 .hover-buttons {
     -fx-opacity: 0;
-    -fx-background-color: rgba(135, 206, 235, 0.6);
+    -fx-background-color: rgba(4, 52, 73, 0.6);
     -fx-border-color: transparent;
     -fx-border-width: 0;
+    -fx-border-radius: 10; /* Set border radius */
+    -fx-transition: opacity 0.3s ease, background-color 0.3s ease;
 }
 
 .hover-button {
@@ -21,12 +23,13 @@
     -fx-cursor: hand;
     -fx-padding: 10px;
     -fx-border-width: 0;
+    -fx-border-radius: 10; /* Set border radius */
 }
 
 .hover-button:hover {
     -fx-background-color: rgba(0, 0, 0, 0.2);
+    -fx-transition: background-color 0.3s ease; /* This line is not necessary as transitions are handled globally */
 }
-
 .divider {
     -fx-background-color: black;
 }

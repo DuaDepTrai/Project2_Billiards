@@ -12,7 +12,8 @@ public class Pair<T, U> {
     }
 
     public Pair() {
-
+        this.t = null;
+        this.u = null;
     }
 
     public T getFirstValue() {

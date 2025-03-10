@@ -1,7 +1,9 @@
 package src.billiardsmanagement.dao;
 
+import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.model.Order;
 import src.billiardsmanagement.model.DatabaseConnection;
+import src.billiardsmanagement.model.Pair;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -11,6 +13,49 @@ import java.util.List;
 import java.util.Map;
 
 public class OrderDAO {
+    public static Order getTheLatestOrderCreated() {
+        String query = "SELECT * FROM orders ORDER BY order_id DESC LIMIT 1";
+        Order latestOrder = new Order();
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet rs = statement.executeQuery()) {
+            if (!rs.next()) throw new SQLException();
+
+            latestOrder.setOrderId(rs.getInt("order_id"));
+            latestOrder.setCustomerId(rs.getInt("customer_id"));
+            latestOrder.setUserId(rs.getInt("user_id"));
+            latestOrder.setOrderDate(rs.getDate("order_date"));
+            latestOrder.setOrderStatus(rs.getString("order_status"));
+
+            return latestOrder;
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle exceptions appropriately
+        }
+
+        return latestOrder;
+    }
+
+    public static Pair<Integer, Integer> getUserIdByOrderId(int orderId) {
+        String query = "SELECT user_id, customer_id FROM orders WHERE order_id = ?";
+        try {
+            Connection con = DatabaseConnection.getConnection();
+            PreparedStatement pr = con.prepareStatement(query);
+            pr.setInt(1, orderId);
+            ResultSet rs = pr.executeQuery();
+            if (!rs.next()) {
+                throw new Exception("No user_id found for order with ID = " + orderId + ". This Order ID might not exist.");
+            }
+
+            Pair<Integer, Integer> resultPair = new Pair<>();
+            resultPair.setFirstValue(rs.getInt("user_id"));
+            resultPair.setSecondValue(rs.getInt("customer_id"));
+            return resultPair;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new Pair<>();
+    }
 
     // Update status + total price
     public static boolean updateOrderStatus(int orderId, double totalCost) {
@@ -19,10 +64,10 @@ public class OrderDAO {
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setDouble(1, totalCost);
-            stmt.setInt(2,orderId);
+            stmt.setInt(2, orderId);
 
             int rowsAffected = stmt.executeUpdate();
-            if(rowsAffected > 0) return true;
+            if (rowsAffected > 0) return true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -88,13 +133,13 @@ public class OrderDAO {
         boolean isPhoneNumber = possiblePhone.matches("\\d{6,}"); // Chứa ít nhất 6 chữ số
 
         String query = """
-        SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
-               o.total_cost, o.order_status
-        FROM orders o
-        JOIN customers c ON o.customer_id = c.customer_id
-        WHERE c.phone LIKE ? OR c.name LIKE ?
-        ORDER BY o.order_id DESC
-    """;
+                    SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
+                           o.total_cost, o.order_status
+                    FROM orders o
+                    JOIN customers c ON o.customer_id = c.customer_id
+                    WHERE c.phone LIKE ? OR c.name LIKE ?
+                    ORDER BY o.order_id DESC
+                """;
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -126,35 +171,50 @@ public class OrderDAO {
         return orders;
     }
 
+    public static int getBillNumberCount() {
+        String query = "SELECT COUNT(*) as total FROM orders";
+        int total = 0;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            if (!rs.next()) throw new SQLException();
+            total = rs.getInt("total");
+            return total;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
 
 
     // Không cần khai báo URL, USER, PASSWORD nữa, vì đã có trong DatabaseConnection
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
         String query = """
-        SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone,
-               o.user_id, u.fullname AS user_name, r.role_name, o.order_date,
-               o.total_cost, o.order_status,
-               GROUP_CONCAT(
-                   CONCAT(
-                       CASE 
-                           WHEN p.name LIKE 'Standard %' THEN 'STD' 
-                           WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
-                           WHEN p.name LIKE 'VIP %' THEN 'VIP' 
-                           ELSE p.name 
-                       END, 
-                       SUBSTRING_INDEX(p.name, ' ', -1)
-                   ) SEPARATOR ', '
-               ) AS currentTableName
-        FROM orders o
-        JOIN customers c ON o.customer_id = c.customer_id
-        JOIN users u ON o.user_id = u.user_id
-        JOIN roles r ON u.role_id = r.role_id
-        LEFT JOIN bookings b ON o.order_id = b.order_id
-        LEFT JOIN pooltables p ON b.table_id = p.table_id
-        GROUP BY o.order_id
-        ORDER BY o.order_id DESC
-    """;
+                    SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone,
+                           o.user_id, u.fullname AS user_name, r.role_name, o.order_date,
+                           o.total_cost, o.order_status,
+                           GROUP_CONCAT(
+                               CONCAT(
+                                   CASE 
+                                       WHEN p.name LIKE 'Standard %' THEN 'STD' 
+                                       WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
+                                       WHEN p.name LIKE 'VIP %' THEN 'VIP' 
+                                       ELSE p.name 
+                                   END, 
+                                   SUBSTRING_INDEX(p.name, ' ', -1)
+                               ) SEPARATOR ', '
+                           ) AS currentTableName
+                    FROM orders o
+                    JOIN customers c ON o.customer_id = c.customer_id
+                    JOIN users u ON o.user_id = u.user_id
+                    JOIN roles r ON u.role_id = r.role_id
+                    LEFT JOIN bookings b ON o.order_id = b.order_id
+                    LEFT JOIN pooltables p ON b.table_id = p.table_id
+                    GROUP BY o.order_id
+                    ORDER BY o.order_id DESC
+                """;
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -191,12 +251,13 @@ public class OrderDAO {
             // Set các giá trị vào PreparedStatement
             stmt.setInt(1, newOrder.getCustomerId()); // customer_id
             stmt.setInt(2, newOrder.getUserId()); // user_id
-            
+
             // Thực thi câu lệnh INSERT
             int rowsAffected = stmt.executeUpdate();
 
             if (rowsAffected > 0) {
                 System.out.println("Order added successfully!");
+                OrderController.setBillNumberCount(OrderController.getBillNumberCount()+1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -222,7 +283,7 @@ public class OrderDAO {
 
     public static Order getOrderById(int orderId) {
         // Truy vấn từ database và kiểm tra dữ liệu trả về
-        String query = "SELECT o.order_id, o.total_cost, o.order_status, c.name AS customer_name, c.phone AS customer_phone "
+        String query = "SELECT o.order_id, o.customer_id, o.user_id, o.total_cost, o.order_status, c.name AS customer_name, c.phone AS customer_phone "
                 +
                 "FROM orders o " +
                 "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
@@ -236,6 +297,8 @@ public class OrderDAO {
                 // Tạo đối tượng Order từ dữ liệu trả về
                 Order order = new Order();
                 order.setOrderId(rs.getInt("order_id")); // Kiểm tra xem dữ liệu có đúng không
+                order.setCustomerId(rs.getInt("customer_id"));
+                order.setUserId(rs.getInt("user_id"));
                 order.setTotalCost(rs.getDouble("total_cost"));
                 order.setOrderStatus(rs.getString("order_status"));
                 order.setCustomerName(rs.getString("customer_name"));
@@ -313,21 +376,21 @@ public class OrderDAO {
     public static double calculateOrderTotal(int orderId) {
         double total = 0;
         String query = """
-            SELECT COALESCE(SUM(
-                CASE 
-                    WHEN b.total IS NOT NULL THEN b.total 
-                    ELSE 0 
-                END +
-                CASE 
-                    WHEN oi.total IS NOT NULL THEN oi.total
-                    ELSE 0 
-                END
-            ), 0) as total_cost
-            FROM orders o
-            LEFT JOIN bookings b ON o.order_id = b.order_id
-            LEFT JOIN orders_items oi ON o.order_id = oi.order_id
-            WHERE o.order_id = ?
-        """;
+                    SELECT COALESCE(SUM(
+                        CASE 
+                            WHEN b.total IS NOT NULL THEN b.total 
+                            ELSE 0 
+                        END +
+                        CASE 
+                            WHEN oi.total IS NOT NULL THEN oi.total
+                            ELSE 0 
+                        END
+                    ), 0) as total_cost
+                    FROM orders o
+                    LEFT JOIN bookings b ON o.order_id = b.order_id
+                    LEFT JOIN orders_items oi ON o.order_id = oi.order_id
+                    WHERE o.order_id = ?
+                """;
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -398,6 +461,7 @@ public class OrderDAO {
 
         return staffName;
     }
+
     public Map<String, Double> getTotalOrdersAndRevenue(LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = "SELECT COUNT(*) as total_orders, SUM(total_cost) as total_revenue FROM orders WHERE order_date BETWEEN ? AND ?";
         Map<String, Double> result = new HashMap<>();
@@ -419,7 +483,8 @@ public class OrderDAO {
         return result;
     }
 
-    public List<Map<String, Object>> getRevenueByPeriod(String period, LocalDate startDate, LocalDate endDate) throws SQLException {
+    public List<Map<String, Object>> getRevenueByPeriod(String period, LocalDate startDate, LocalDate endDate) throws
+            SQLException {
         String sql;
         String dateFormat;
 
@@ -461,7 +526,8 @@ public class OrderDAO {
         return result;
     }
 
-    public List<Map<String, Object>> getRevenueByTableGroup(LocalDate startDate, LocalDate endDate) throws SQLException {
+    public List<Map<String, Object>> getRevenueByTableGroup(LocalDate startDate, LocalDate endDate) throws
+            SQLException {
         String sql = "SELECT ct.name as group_name, SUM(b.total) as revenue " +
                 "FROM bookings b " +
                 "JOIN pooltables pt ON b.table_id = pt.table_id " +
@@ -491,7 +557,8 @@ public class OrderDAO {
         return result;
     }
 
-    public List<Map<String, Object>> getRevenueByProductCategory(LocalDate startDate, LocalDate endDate) throws SQLException {
+    public List<Map<String, Object>> getRevenueByProductCategory(LocalDate startDate, LocalDate endDate) throws
+            SQLException {
         String sql = "SELECT c.category_name, SUM(oi.total) as revenue " +
                 "FROM orders_items oi " +
                 "JOIN products p ON oi.product_id = p.product_id " +

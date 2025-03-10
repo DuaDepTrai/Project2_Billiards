@@ -14,9 +14,8 @@
 <AnchorPane fx:id="totalBooking" prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/forEachOrderStyle.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
 
     <!-- Top Information Section -->
-
     <!-- Booking Pane -->
-    <AnchorPane fx:id="bookingPane" layoutX="20.0" layoutY="162.0" prefHeight="258.0" prefWidth="1010.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="2.400000000000091" AnchorPane.topAnchor="200.0">
+    <AnchorPane fx:id="bookingPane" layoutX="20.0" layoutY="162.0" prefHeight="258.0" prefWidth="1010.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="2.400000000000091" AnchorPane.topAnchor="162.0">
         <TableView fx:id="bookingPoolTable" layoutX="-9.0" layoutY="35.0" prefHeight="132.0" prefWidth="1011.0">
             <columns>
                 <TableColumn fx:id="sttColumn" prefWidth="42.0" styleClass="number-aligned" text="STT" />
@@ -123,10 +122,15 @@
         </font>
     </Text>
     <Label layoutX="358.0" layoutY="7.0" prefHeight="21.0" prefWidth="77.0" styleClass="section-label" text="Status: " />
+<<<<<<< HEAD
     <Button layoutX="75.0" layoutY="107.0" mnemonicParsing="false" onAction="#updateOrder" text="Update" />
     <Button layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" text="Add Customer" />
 <!--   <Button layoutX="853.0" layoutY="95.0" mnemonicParsing="false" onAction="#goBack" text="Back" />-->
     <Button fx:id="btnBack" text="Back"
             AnchorPane.topAnchor="10.0" AnchorPane.leftAnchor="10.0" onAction="#goBack"/>
 
+=======
+    <Button fx:id="confirmUpdateDataCustomer" layoutX="64.0" layoutY="107.0" mnemonicParsing="false" onAction="#updateOrder" prefHeight="25.0" prefWidth="70.0" text="Confirm" />
+    <Button fx:id="confirmSaveCustomer" layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" text="Add Customer" />
+>>>>>>> 48615f9e929c60efff6674b201929b498519dd02
 </AnchorPane>

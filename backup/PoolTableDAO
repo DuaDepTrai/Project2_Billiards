@@ -17,9 +17,9 @@ public class PoolTableDAO {
     public List<PoolTable> getAllTables() {
         List<PoolTable> tables = new ArrayList<>();
         String query = "SELECT p.table_id, p.name, p.status, p.cate_id, " +
-                "c.name as cate_name, c.price, c.shortName " +
-                "FROM pooltables p " +
-                "JOIN cate_pooltables c ON p.cate_id = c.id";
+                      "c.name as cate_name, c.price, c.shortName " +
+                      "FROM pooltables p " +
+                      "JOIN cate_pooltables c ON p.cate_id = c.id";
 
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
@@ -93,10 +93,10 @@ public class PoolTableDAO {
     public PoolTable getTableById(int tableId) {
         PoolTable table = null;
         String query = "SELECT p.table_id, p.name, p.status, p.cate_id, " +
-                "c.name as cate_name, c.price " +
-                "FROM pooltables p " +
-                "JOIN cate_pooltables c ON p.cate_id = c.id " +
-                "WHERE p.table_id = ?";
+                      "c.name as cate_name, c.price " +
+                      "FROM pooltables p " +
+                      "JOIN cate_pooltables c ON p.cate_id = c.id " +
+                      "WHERE p.table_id = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
