@@ -533,10 +533,12 @@ public class ForEachOrderController {
             finishOrderButton.setDisable(true);
             customerText.setDisable(true);
             phoneText.setDisable(true);
+            confirmSaveCustomer.setDisable(true);
         } else {
             finishOrderButton.setDisable(false);
             customerText.setDisable(false);
             phoneText.setDisable(false);
+            confirmSaveCustomer.setDisable(false);
         }
 
         // Staff Name
@@ -614,7 +616,7 @@ public class ForEachOrderController {
                 updateCustomerInformation(new ActionEvent());
             }
             else{
-                NotificationService.showNotification("No Changes", "No changes made in customer information.",
+                NotificationService.showNotification("No Changes", "No changes were made in the customer information field.",
                         NotificationStatus.Warning);
             }
         });
@@ -1233,6 +1235,10 @@ public class ForEachOrderController {
     public void updateCustomerInformation(ActionEvent actionEvent) {
         try {
             String phoneNumber = phoneText.getText();
+            if(initialPhoneText.equalsIgnoreCase(phoneNumber)){
+                NotificationService.showNotification("No Changes", "No changes were made in the customer information field.",
+                        NotificationStatus.Warning);
+            }
             if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
                 NotificationService.showNotification("Error", "Phone number is required", NotificationStatus.Error);
                 return;

@@ -114,6 +114,9 @@ public class PoolTableOrderInformationController {
             forEachOrderController.setOrderID(order.getOrderId());
             forEachOrderController.setCustomerID(order.getCustomerId());
             forEachOrderController.setForEachUserID(order.getUserId());
+            if(order.getCustomerPhone()!=null){
+                forEachOrderController.setInitialPhoneText(order.getCustomerPhone());
+            }
             forEachOrderController.setBillNo(OrderController.getBillNumberCount());
             forEachOrderController.initializeAllTables();
 
@@ -213,7 +216,6 @@ public class PoolTableOrderInformationController {
             if (newOrder.getOrderId() > 0) {
                 // Create a dialog to ask user's choice
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("Choose Action");
                 alert.setHeaderText("Order created successfully!");
                 alert.setContentText("Do you want to play on the table or just order?");
 
@@ -235,6 +237,7 @@ public class PoolTableOrderInformationController {
                     BookingDAO.handleAddBooking(newBooking);
 
                     showForEachOrderView(newOrder);
+
                     NotificationService.showNotification("Success",
                             "You are now playing on the table!",
                             NotificationStatus.Success);

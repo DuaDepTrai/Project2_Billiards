@@ -208,6 +208,9 @@ public class AddTableToOrderController implements Initializable {
             forEachOrderController.setCustomerID(order.getCustomerId());
             forEachOrderController.setForEachUserID(order.getUserId());
             forEachOrderController.setBillNo(OrderController.getBillNumberCount());
+            if(order.getCustomerPhone()!=null){
+                forEachOrderController.setInitialPhoneText(order.getCustomerPhone());
+            }
             forEachOrderController.initializeAllTables();
 
             Stage stage = new Stage();

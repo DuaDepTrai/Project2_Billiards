@@ -14,13 +14,16 @@ import java.util.Map;
 
 public class OrderDAO {
     public static Order getTheLatestOrderCreated() {
-        String query = "SELECT * FROM orders ORDER BY order_id DESC LIMIT 1";
+        String query = "SELECT o.*, c.name AS customer_name, c.phone AS customer_phone " +
+                "FROM orders o " +
+                "JOIN customers c ON o.customer_id = c.customer_id " +
+                "ORDER BY o.order_id DESC LIMIT 1";
         Order latestOrder = new Order();
 
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(query);
              ResultSet rs = statement.executeQuery()) {
-            if (!rs.next()) throw new SQLException();
+            if (!rs.next()) throw new SQLException("No orders found.");
 
             latestOrder.setOrderId(rs.getInt("order_id"));
             latestOrder.setCustomerId(rs.getInt("customer_id"));
@@ -28,12 +31,16 @@ public class OrderDAO {
             latestOrder.setOrderDate(rs.getDate("order_date"));
             latestOrder.setOrderStatus(rs.getString("order_status"));
 
+            // Assuming you have methods to set customer name and phone in Order
+            latestOrder.setCustomerName(rs.getString("customer_name"));
+            latestOrder.setCustomerPhone(rs.getString("customer_phone"));
+
             return latestOrder;
         } catch (SQLException e) {
             e.printStackTrace(); // Handle exceptions appropriately
         }
 
-        return latestOrder;
+        return latestOrder; // Consider returning null or an Optional<Order> if not found
     }
 
     public static Pair<Integer, Integer> getUserIdByOrderId(int orderId) {
