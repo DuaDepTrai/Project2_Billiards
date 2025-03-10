@@ -110,8 +110,9 @@ public class Booking {
         return startTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
+    public Booking setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
+        return this;
     }
 
     public LocalDateTime getEndTime() {
@@ -185,4 +186,8 @@ public class Booking {
     }
 
 
+    public Booking setTotal(double total) {
+        this.total = total;
+        return this;
+    }
 }
