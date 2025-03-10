@@ -1,30 +1,29 @@
 package src.billiardsmanagement.controller.users;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.dao.PermissionDAO;
 import src.billiardsmanagement.dao.RolesPermissionsDAO;
-import src.billiardsmanagement.model.Product;
 import src.billiardsmanagement.model.Role;
+import src.billiardsmanagement.model.User;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.scene.layout.HBox;
-import javafx.geometry.Pos;
-import src.billiardsmanagement.model.User;
 
 public class RolesPermissionsController {
     @FXML
@@ -193,8 +192,8 @@ public class RolesPermissionsController {
         }
     }
 
-    private void handleEditSelectedRole( Role role) {
-        Role selectedRole = roleTable.getSelectionModel().getSelectedItem();
+    private void handleEditSelectedRole(Role role) {
+        Role selectedRole = role;
         if (selectedRole == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("No Selection");

@@ -44,10 +44,6 @@ public class OrderItem {
         this.productPrice = productPrice;
     }
 
-    @Override
-    public String toString() {
-        return orderItemId + " " + orderId + " " + productId + " " + productName;
-    }
 
     public int getOrderItemId() {
         return orderItemId;
@@ -101,6 +97,19 @@ public class OrderItem {
     public OrderItem setTotal(double total) {
         this.total = total;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderItem{" +
+                "orderItemId=" + orderItemId +
+                ", orderId=" + orderId +
+                ", productId=" + productId +
+                ", productName='" + productName + '\'' +
+                ", productPrice=" + productPrice +
+                ", quantity=" + quantity +
+                ", total=" + total +
+                '}';
     }
 
 //    public double getSubTotal() {

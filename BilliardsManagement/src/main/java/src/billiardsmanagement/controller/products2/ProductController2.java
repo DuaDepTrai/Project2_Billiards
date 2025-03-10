@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -319,65 +320,50 @@ public class ProductController2 {
             e.printStackTrace();
         }
     }
-
-    private void setupSearchField() throws SQLException {
-        List<Product> allProducts = productDAO.getAllProducts(); // Lấy toàn bộ sản phẩm từ DB
-        List<String> productNames = allProducts.stream()
-                .map(Product::getName)
-                .toList(); // Lấy danh sách tên sản phẩm
-
-        // AutoComplete sử dụng ControlsFX
-        TextFields.bindAutoCompletion(searchField, productNames);
-
-        searchButton.setOnAction(event -> {
-            String searchText = searchField.getText().trim();
-            if (!searchText.isEmpty()) {
-                filterByProductName(searchText);
+    private void setupSearchField() {
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null || newValue.isEmpty()) {
+                refreshTable();// Load lại toàn bộ danh mục sản phẩm nếu ô tìm kiếm rỗng
             } else {
-                try {
-                    initialize(); // Load lại danh mục nếu tìm kiếm rỗng
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                filterByProductName(newValue.toLowerCase());
             }
         });
     }
 
-    private void filterByProductName(String productName) {
+    private void filterByProductName(String searchText) {
         try {
-            // Tìm sản phẩm theo tên
-            Product foundProduct = productDAO.getProductByName(productName);
+            List<Product> allProducts = productDAO.getAllProducts(); // Lấy toàn bộ sản phẩm từ DB
+            List<Product> filteredList = allProducts.stream()
+                    .filter(product -> product.getName().toLowerCase().contains(searchText))
+                    .toList(); // Lọc danh sách sản phẩm theo tên
 
-            if (foundProduct != null) {
-                // Lấy danh mục của sản phẩm
-                Category productCategory = categoryDAO.getCategoryById(foundProduct.getCategoryId());
+            if (!filteredList.isEmpty()) {
+                gridPane.getChildren().clear(); // Xóa danh mục cũ
 
-                if (productCategory != null) {
-                    // Xóa tất cả danh mục hiện có trong gridPane
-                    gridPane.getChildren().clear();
+                // Lấy danh mục của các sản phẩm tìm thấy
+                Map<Integer, List<Product>> categoryMap = filteredList.stream()
+                        .collect(Collectors.groupingBy(Product::getCategoryId));
 
-                    // Tạo VBox chứa danh mục với TableView chỉ chứa sản phẩm được tìm thấy
-                    VBox categoryBox = createCategoryTable(productCategory);
-                    for (javafx.scene.Node child : categoryBox.getChildren()) {
-                        if (child instanceof TableView<?> tableView) {
-                            TableView<Product> productTableView = (TableView<Product>) tableView;
+                // Hiển thị từng danh mục trong gridPane
+                int rowIndex = 0;
+                for (Map.Entry<Integer, List<Product>> entry : categoryMap.entrySet()) {
+                    Category productCategory = categoryDAO.getCategoryById(entry.getKey());
+                    if (productCategory != null) {
+                        VBox categoryBox = createCategoryTable(productCategory);
 
-                            // Xóa danh sách sản phẩm cũ và chỉ hiển thị sản phẩm được tìm thấy
-                            productTableView.getItems().clear();
-                            productTableView.getItems().add(foundProduct);
+                        for (javafx.scene.Node child : categoryBox.getChildren()) {
+                            if (child instanceof TableView<?> tableView) {
+                                TableView<Product> productTableView = (TableView<Product>) tableView;
+                                productTableView.getItems().clear();
+                                productTableView.getItems().addAll(entry.getValue()); // Chỉ hiển thị sản phẩm tìm thấy
+                            }
                         }
-                    }
 
-                    // Thêm danh mục vào gridPane
-                    gridPane.add(categoryBox, 0, 0);
+                        gridPane.add(categoryBox, 0, rowIndex++);
+                    }
                 }
             } else {
-                // Hiển thị thông báo nếu không tìm thấy sản phẩm
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Not Found");
-                alert.setHeaderText(null);
-                alert.setContentText("No products found with name: " + productName);
-                alert.showAndWait();
+                gridPane.getChildren().clear(); // Nếu không có kết quả, xóa danh mục
             }
         } catch (SQLException e) {
             e.printStackTrace();

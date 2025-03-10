@@ -36,6 +36,7 @@ public class PoolTableController {
     public MFXScrollPane availableTableScrollPane;
     public MFXScrollPane catePooltablesScrollPane;
     public Button addNewTableCategory;
+    public ScrollPane poolTableScrollPane;
     private User currentUser; // Lưu user đang đăng nhập
     private List<String> userPermissions = new ArrayList<>();
 
@@ -231,6 +232,9 @@ public class PoolTableController {
             forEachOrderController.setCustomerID(order.getCustomerId());
             forEachOrderController.setForEachUserID(order.getUserId());
             forEachOrderController.setBillNo(OrderController.getBillNumberCount());
+            if(order.getCustomerPhone()!=null){
+                forEachOrderController.setInitialPhoneText(order.getCustomerPhone());
+            }
             forEachOrderController.initializeAllTables();
 
             Stage stage = new Stage();
@@ -614,6 +618,9 @@ public class PoolTableController {
         // Clear and rebuild UI
         tablesContainer.getChildren().clear();
         tableList.forEach(this::createTableUI);
+
+        poolTableScrollPane.setContent(tablesContainer);
+        poolTableScrollPane.setFitToWidth(true);
 
         // Update status lists
         updateStatusLists();

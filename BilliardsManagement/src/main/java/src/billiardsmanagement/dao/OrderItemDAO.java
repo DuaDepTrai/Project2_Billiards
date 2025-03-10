@@ -1,11 +1,10 @@
 package src.billiardsmanagement.dao;
 
-import src.billiardsmanagement.model.OrderItem;
 import src.billiardsmanagement.model.DatabaseConnection;
+import src.billiardsmanagement.model.OrderItem;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class OrderItemDAO {
     // ANSI color codes for console output

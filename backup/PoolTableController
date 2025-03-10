@@ -633,7 +633,6 @@ public class PoolTableController {
                     NotificationStatus.Error);
         }
     }
-
     private void createTableCard(PoolTable table, FlowPane tablesContainer) {
         StackPane tableStack = new StackPane();
         tableStack.getStyleClass().add("table-card");

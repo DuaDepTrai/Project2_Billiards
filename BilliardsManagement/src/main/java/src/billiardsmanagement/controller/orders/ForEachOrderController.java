@@ -100,7 +100,7 @@ public class ForEachOrderController {
     private Text dateText;
 
     @FXML
-    private TextField staffNameText;
+    private Text staffNameText;
 
     @FXML
     private TableColumn<Booking, Integer> sttColumn;
@@ -179,7 +179,7 @@ public class ForEachOrderController {
 
     private String initialPhoneText;
 
-    @FXML private Button confirmUpdateDataCustomer;
+//    @FXML private Button confirmUpdateDataCustomer;
     @FXML private Button confirmSaveCustomer;
 
     private PoolTable selectedTable;
@@ -198,11 +198,11 @@ public class ForEachOrderController {
     private void loadBookings() {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
         // Filter bookings to only show the selected table's bookings
-        if (selectedTable != null) {
-            bookings = bookings.stream()
-                    .filter(booking -> booking.getTableId() == selectedTable.getTableId())
-                    .collect(Collectors.toList());
-        }
+//        if (selectedTable != null) {
+//            bookings = bookings.stream()
+//                    .filter(booking -> booking.getTableId() == selectedTable.getTableId())
+//                    .collect(Collectors.toList());
+//        }
         bookings.sort((b1, b2) -> b2.getBookingId() - b1.getBookingId());
         bookingList.clear();
         bookingList.addAll(bookings);
@@ -217,7 +217,10 @@ public class ForEachOrderController {
                 ? "Order Item list in ForEachOrderController, loadOrderDetail() don't have any element !"
                 : "");
         orderItemList.addAll(items);
-        orderItemsTable.setItems(orderItemList);
+
+        orderItemsTable.getItems().clear();
+        orderItemsTable.getItems().addAll(items);
+
         // Promotion-related code commented out
         /*
          * promotionOrderItem.setCellValueFactory(cellData -> {
@@ -528,8 +531,15 @@ public class ForEachOrderController {
         if (status.equalsIgnoreCase("Finished") || status.equalsIgnoreCase("Canceled")
                 || status.equalsIgnoreCase("Paid")) {
             finishOrderButton.setDisable(true);
-        } else
+            customerText.setDisable(true);
+            phoneText.setDisable(true);
+            confirmSaveCustomer.setDisable(true);
+        } else {
             finishOrderButton.setDisable(false);
+            customerText.setDisable(false);
+            phoneText.setDisable(false);
+            confirmSaveCustomer.setDisable(false);
+        }
 
         // Staff Name
         String staffName = OrderDAO.getStaffNameByOrderId(orderID);
@@ -551,7 +561,6 @@ public class ForEachOrderController {
         setupPhoneAutoCompletion();
         checkBookingStatus();
         checkOrderStatus();
-
 
         // Set current timestamp in dateText
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH'h'mm '|' dd:MM:yyyy");
@@ -604,10 +613,11 @@ public class ForEachOrderController {
     public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text) {
         auto.setOnAutoCompleted(autoCompletionEvent -> {
             if(!text.getText().equalsIgnoreCase(initialPhoneText) && customerText.getText()!=null){
-                updateOrder(new ActionEvent());
+                updateCustomerInformation(new ActionEvent());
             }
             else{
-                System.out.println("No change in phone number !");
+                NotificationService.showNotification("No Changes", "No changes were made in the customer information field.",
+                        NotificationStatus.Warning);
             }
         });
 //
@@ -1055,6 +1065,7 @@ public class ForEachOrderController {
                     NotificationService.showNotification("Error", "Failed to finish all bookings.",
                             NotificationStatus.Error);
                 }
+                loadOrderList();
                 finishOrderButton.setDisable(true);
                 addBookingButton.setDisable(true);
                 addOrderItemButton.setDisable(true);
@@ -1072,7 +1083,12 @@ public class ForEachOrderController {
         this.orderTable = orderTable;
     }
 
-
+    private void loadOrderList() {
+        if(orderTable!=null){
+            List<Order> orders = orderDAO.getAllOrders();
+            orderTable.setItems(FXCollections.observableArrayList(orders));
+        }
+    }
 
     private ObservableValue<Integer> orderItemCall(TableColumn.CellDataFeatures<OrderItem, Integer> cellData) {
         // Lấy vị trí (index) của dòng hiện tại trong danh sách
@@ -1177,19 +1193,26 @@ public class ForEachOrderController {
                 throw new IllegalStateException("Failed to retrieve the customer ID after adding.");
             }
 
-            // Show success notification
+            // Show success message
             NotificationService.showNotification("Success", "Customer added successfully!", NotificationStatus.Success);
-
+            updateCustomerInformation(new ActionEvent());
         } catch (IllegalArgumentException e) {
-            // Show validation error notification
+            // Show validation error
             NotificationService.showNotification("Error", e.getMessage(), NotificationStatus.Error);
         } catch (Exception e) {
             e.printStackTrace();
-            // Show unexpected error notification
-            NotificationService.showNotification("Error", "An error occurred while saving the order. Please try again.", NotificationStatus.Error);
+            // Show unexpected error message
+            NotificationService.showNotification("Error", "An error occurred while saving the customer. Please try again.", NotificationStatus.Error);
         }
     }
 
+    private void showAlert(Alert.AlertType alertType, String title, String content) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
 
     // Getters and Setters for selected items
     public Booking getCurrentBookingSelected() {
@@ -1208,28 +1231,60 @@ public class ForEachOrderController {
         this.currentOrderItemSelected = orderItem;
     }
 
-    public void updateOrder(ActionEvent actionEvent) {
+    // Confirm Customer Phone + Name change
+    public void updateCustomerInformation(ActionEvent actionEvent) {
         try {
-            Booking bookingselected = bookingPoolTable.getSelectionModel().getSelectedItem();
-            OrderItem orderItemselected = orderItemsTable.getSelectionModel().getSelectedItem();
+            String phoneNumber = phoneText.getText();
+            if(initialPhoneText.equalsIgnoreCase(phoneNumber)){
+                NotificationService.showNotification("No Changes", "No changes were made in the customer information field.",
+                        NotificationStatus.Warning);
+            }
+            if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+                NotificationService.showNotification("Error", "Phone number is required", NotificationStatus.Error);
+                return;
+            }
 
-            if (bookingselected == null && orderItemselected == null) {
-                String phoneNumber = phoneText.getText();
-                if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-                    NotificationService.showNotification("Error", "Phone number is required", NotificationStatus.Error);
-                    return;
-                }
-                int customerID = CustomerDAO.getCustomerIdByPhone(phoneNumber);
-                boolean success = orderDAO.updateOrder(orderID, customerID);
-                if (success) {
-                    NotificationService.showNotification("Success", "Order updated successfully", NotificationStatus.Success);
-                }
+            Integer customerID = CustomerDAO.getCustomerIdByPhone(phoneNumber);
+            if (customerID == null) {
+                NotificationService.showNotification("Error", "Customer not found for the provided phone number", NotificationStatus.Error);
+                return;
+            }
+
+            boolean success = orderDAO.updateOrder(orderID, customerID);
+            if (success) {
+                NotificationService.showNotification("Success", "Order updated successfully", NotificationStatus.Success);
+                loadOrderList();
+            } else {
+                NotificationService.showNotification("Error", "Failed to update order", NotificationStatus.Error);
             }
         } catch (Exception e) {
             e.printStackTrace();
             NotificationService.showNotification("Error", "Failed to update order", NotificationStatus.Error);
         }
     }
+//    public void ActionEvent actionEvent) {
+//        Booking bookingselected = bookingPoolTable.getSelectionModel().getSelectedItem();
+//        OrderItem orderItemselected = orderItemsTable.getSelectionModel().getSelectedItem();
+//
+//        if (bookingselected == null && orderItemselected == null) {
+//            try {
+//                String phoneNumber = phoneText.getText();
+//                if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+//                    showAlert(Alert.AlertType.ERROR, "Error", "Phone number is required");
+//                    return;
+//                }
+//                int customerID = CustomerDAO.getCustomerIdByPhone(phoneNumber);
+//                boolean success = orderDAO.orderID, customerID);
+//                if (success) {
+//                    showAlert(Alert.AlertType.INFORMATION, "Success", "Order updated successfully");
+//                    loadOrderList();
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                showAlert(Alert.AlertType.ERROR, "Error", "Failed to update order");
+//            }
+//        }
+//    }
 
     public void setSelectedTable(PoolTable table) {
         this.selectedTable = table;
