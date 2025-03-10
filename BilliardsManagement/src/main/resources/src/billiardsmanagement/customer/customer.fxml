@@ -15,21 +15,23 @@
     <children>
         <!-- Search Section -->
         <HBox prefHeight="33.0" prefWidth="348.0" spacing="10" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
-            <TextField fx:id="searchField" prefHeight="62.0" prefWidth="240.0" promptText="Search by name...">
+            <TextField fx:id="searchField" prefHeight="62.0" prefWidth="240.0" promptText="Search by name/phone...">
                 <HBox.margin>
                     <Insets right="5.0" />
                 </HBox.margin></TextField>
             <Button fx:id="searchBtn" mnemonicParsing="false" onAction="#handleSearchCustomer" prefHeight="26.0" prefWidth="80.0" styleClass="search-button" text="Search" textAlignment="CENTER" />
         </HBox>
 
-        <Button fx:id="addCustomerBtn" layoutX="777.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleAddCustomer" prefHeight="35.0" prefWidth="240.0" styleClass="add-button" text="Add New Customer" textAlignment="CENTER" textFill="WHITE">
+        <Button fx:id="addCustomerBtn" mnemonicParsing="false" onAction="#handleAddCustomer" prefHeight="35.0" prefWidth="240.0" styleClass="add-button" text="Add New Customer" textAlignment="CENTER" textFill="WHITE" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="25.0">
             <font>
                 <Font size="13.0" />
             </font>
         </Button>
 
         <!-- Customer Form - Hidden by default -->
-        <VBox fx:id="customerForm" layoutX="777.0" layoutY="63.0" prefHeight="531.0" prefWidth="240.0" spacing="10" styleClass="form-container" visible="false">
+        <VBox fx:id="customerForm" prefWidth="240.0" prefHeight="531.0" spacing="10"
+              styleClass="form-container" visible="false"
+              AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="63.0">
             <TextField fx:id="nameField" prefWidth="200.0" promptText="Customer Name" />
             <TextField fx:id="phoneField" prefWidth="200.0" promptText="Phone Number" />
             <Label fx:id="playtimeLabel" prefWidth="200.0" text="0.00" styleClass="playtime-label" />
@@ -40,7 +42,9 @@
         </VBox>
 
         <!-- Update/Remove Form - Hidden by default -->
-        <VBox fx:id="updateForm" layoutX="777.0" layoutY="63.0" prefHeight="531.0" prefWidth="240.0" spacing="10" styleClass="form-container" visible="false">
+        <VBox fx:id="updateForm" prefWidth="240.0" prefHeight="531.0" spacing="10"
+              styleClass="form-container" visible="false"
+              AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="63.0">
             <TextField fx:id="updateNameField" prefWidth="200.0" promptText="Customer Name" />
             <TextField fx:id="updatePhoneField" prefWidth="200.0" promptText="Phone Number" />
             <Label fx:id="updatePlaytimeLabel" prefWidth="200.0" styleClass="playtime-label" />
@@ -51,7 +55,9 @@
         </VBox>
 
         <!-- Customer Table -->
-        <TableView fx:id="customerTableView" layoutX="14.0" layoutY="63.0" prefHeight="531.0" prefWidth="749.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="269.0">
+        <TableView fx:id="customerTableView" prefHeight="531.0" prefWidth="700.0"
+                   AnchorPane.topAnchor="60.0" AnchorPane.bottomAnchor="15.0"
+                   AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="270.0">
             <columns>
                 <TableColumn fx:id="customerIdCol" prefWidth="77.0" text="ID" />
                 <TableColumn fx:id="nameCol" prefWidth="247.0" text="Customer Name" />

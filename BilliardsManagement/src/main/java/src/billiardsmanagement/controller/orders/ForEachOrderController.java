@@ -18,6 +18,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
+import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.controller.orders.bookings.AddBookingController;
 import src.billiardsmanagement.controller.orders.items.AddOrderItemController;
 import src.billiardsmanagement.controller.orders.items.UpdateOrderItemController;
@@ -63,6 +64,8 @@ public class ForEachOrderController {
     protected Button addBookingButton;
     @FXML
     protected Button cancelBookingButton;
+    @FXML
+    private Button btnBack;
 
     // Actions
     @FXML
@@ -149,6 +152,12 @@ public class ForEachOrderController {
 
     // @FXML
     // private TableColumn<OrderItem, Double> promotionDiscountOrderItem;
+
+    private MainController mainController; // Biến để lưu MainController
+
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+    }
 
     private final ObservableList<Booking> bookingList = FXCollections.observableArrayList();
     private final ObservableList<OrderItem> orderItemList = FXCollections.observableArrayList();
@@ -540,6 +549,9 @@ public class ForEachOrderController {
         loadBookings();
         loadOrderDetail();
         setupPhoneAutoCompletion();
+        checkBookingStatus();
+        checkOrderStatus();
+
 
         // Set current timestamp in dateText
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH'h'mm '|' dd:MM:yyyy");
@@ -616,16 +628,41 @@ public class ForEachOrderController {
     }
 
 
+//    public void addBooking(ActionEvent event) {
+//        if (orderStatusText.getText().equals("Paid")) {
+//            NotificationService.showNotification("Error!", "Cannot add booking with status Paid",
+//                    NotificationStatus.Error);
+//            return;
+//        }
+//        // Don't allow adding other tables if we have a selected table
+//        if (selectedTable != null) {
+//            NotificationService.showNotification("Error!",
+//                    "Cannot add other tables to this order. Please create a new order for other tables.",
+//                    NotificationStatus.Error);
+//            return;
+//        }
+//        try {
+//            FXMLLoader loader = new FXMLLoader(
+//                    getClass().getResource("/src/billiardsmanagement/orders/bookings/addBooking.fxml"));
+//            Parent root = loader.load();
+//
+//            AddBookingController addBookingController = loader.getController();
+//            addBookingController.setOrderId(orderID);
+//            addBookingController.setOrderTable(orderTable);
+//            Stage stage = new Stage();
+//            stage.setTitle("Add Booking");
+//            stage.setScene(new Scene(root));
+//            stage.showAndWait();
+//
+//            loadBookings();
+//        } catch (IOException e) {
+//            NotificationService.showNotification("Error!", "Cannot add Load Booking form !", NotificationStatus.Error);
+//        }
+//    }
+
     public void addBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
             NotificationService.showNotification("Error!", "Cannot add booking with status Paid",
-                    NotificationStatus.Error);
-            return;
-        }
-        // Don't allow adding other tables if we have a selected table
-        if (selectedTable != null) {
-            NotificationService.showNotification("Error!",
-                    "Cannot add other tables to this order. Please create a new order for other tables.",
                     NotificationStatus.Error);
             return;
         }
@@ -1220,5 +1257,19 @@ public class ForEachOrderController {
 
     public void setInitialPhoneText(String initialPhoneText) {
         this.initialPhoneText = initialPhoneText;
+    }
+
+    @FXML
+    public void goBack(ActionEvent actionEvent) {
+        try {
+            if (mainController != null) {
+                mainController.showOrdersPage();
+            } else {
+                NotificationService.showNotification("Error", "MainController is not set.", NotificationStatus.Error);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            NotificationService.showNotification("Error", "Failed to navigate back.", NotificationStatus.Error);
+        }
     }
 }

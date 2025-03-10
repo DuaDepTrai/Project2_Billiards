@@ -15,31 +15,30 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
 import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.controller.poolTables.catepooltables.UpdateCategoryPooltableController;
-import src.billiardsmanagement.dao.BookingDAO;
-import src.billiardsmanagement.dao.CatePooltableDAO;
-import src.billiardsmanagement.dao.OrderDAO;
-import src.billiardsmanagement.dao.PoolTableDAO;
+import src.billiardsmanagement.dao.*;
 import src.billiardsmanagement.model.*;
 import src.billiardsmanagement.service.NotificationService;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class PoolTableController {
     public MFXScrollPane availableTableScrollPane;
     public MFXScrollPane catePooltablesScrollPane;
     public Button addNewTableCategory;
+    private User currentUser; // Lưu user đang đăng nhập
+    private List<String> userPermissions = new ArrayList<>();
+
 
     @FXML
     protected FlowPane tablesContainer;
@@ -100,6 +99,19 @@ public class PoolTableController {
 
         // Add handler for add new table button
         addNewButton.setOnAction(e -> showAddDialog());
+    }
+
+    public void setUser(User user) throws SQLException {
+        this.currentUser = user;
+        if (user != null) {
+            System.out.println("🟢 Gọi getUserPermissions() với user: " + user.getUsername());
+            this.userPermissions = user.getPermissionsAsString();
+            System.out.println("🔎 Debug: Quyền của user = " + userPermissions);
+
+            initializeCategoryList();
+        } else {
+            System.err.println("❌ Lỗi: loggedInUser chưa được set trong ProductController2!");
+        }
     }
 
     protected void filterTables(String searchText) {
@@ -453,6 +465,10 @@ public class PoolTableController {
                     category.getPrice()));
             categoryText.setStyle("-fx-line-spacing: 5;");
 
+            // Tạo khoảng trống để đẩy nút về bên phải
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
             // Create the edit button
             Button editButton = new Button();
             editButton.getStyleClass().add("edit-button");
@@ -491,8 +507,12 @@ public class PoolTableController {
 
             deleteButton.setOnAction(e -> showDeleteCategoryDialog(category)); // Assuming you have this method
 
-            categoryRow.getChildren().addAll(editButton, deleteButton, categoryText);
+            categoryRow.getChildren().addAll(categoryText, spacer, editButton, deleteButton);
             categoryContent.getChildren().add(categoryRow);
+
+            System.out.println("DEBUG: " + userPermissions);
+            editButton.setVisible(userPermissions.contains("update_pool_category"));
+            deleteButton.setVisible(userPermissions.contains("remove_pool_category"));
         });
         catePooltablesScrollPane.setContent(categoryContent);
     }
@@ -815,4 +835,47 @@ public class PoolTableController {
         PoolTable table = (PoolTable) button.getUserData();
         openTableInfoDialog(table);
     }
+
+    private void applyPermissions() {
+        if (currentUser != null) {
+            PermissionDAO permissionDAO = new PermissionDAO();
+            List<String> permissions = permissionDAO.getUserPermissions(currentUser.getId());
+            System.out.println("✅ Permissions: " + permissions);
+
+            addNewButton.setVisible(permissions.contains("add_pool"));
+            addNewTableCategory.setVisible(permissions.contains("add_pool_category"));
+//            addProductButton.setVisible(permissions.contains("add_product"));
+//            editButton.setVisible(permissions.contains("add_product"));
+//            deleteButton.setVisible(permissions.contains("add_product"));
+//            stockUpButton.setVisible(permissions.contains("add_product"));
+//            btnAddNewCategory.setVisible(permissions.contains("add_product"));
+//            updateCategoryButton.setVisible(permissions.contains("add_product"));
+//            removeCategoryButton.setVisible(permissions.contains("add_product"));
+        } else {
+            System.err.println("⚠️ Lỗi: currentUser bị null trong ProductController!");
+        }
+    }
+
+    private User loggedInUser;
+
+    public void setLoggedInUser(User user) {
+        System.out.println("🟢 Gọi setCurrentUser() với user: " + (user != null ? user.getUsername() : "null"));
+
+        this.loggedInUser = user;
+        if (user != null) {
+            System.out.println("🟢 Gọi setCurrentUser() với user: " + user.getUsername());
+            System.out.println("🎯 Kiểm tra quyền sau khi truyền user...");
+            List<String> permissions = user.getPermissionsAsString();
+            System.out.println("🔎 Debug: Quyền sau khi truyền user = " + permissions);
+            applyPermissions();
+        } else {
+            System.err.println("❌ Lỗi: currentUser vẫn null sau khi set!");
+        }
+    }
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+    }
+
+
 }
