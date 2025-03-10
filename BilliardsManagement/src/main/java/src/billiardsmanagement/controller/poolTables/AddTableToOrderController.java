@@ -3,13 +3,19 @@ package src.billiardsmanagement.controller.poolTables;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import src.billiardsmanagement.controller.orders.ForEachOrderController;
+import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.model.NotificationStatus;
@@ -175,7 +181,7 @@ public class AddTableToOrderController implements Initializable {
                         "Table added to order successfully!",
                         NotificationStatus.Success
                 );
-                closeWindow();
+                showForEachOrderView(order);
             } else {
                 NotificationService.showNotification(
                         "Error",
@@ -191,6 +197,32 @@ public class AddTableToOrderController implements Initializable {
             );
         }
     }
+
+    private void showForEachOrderView(Order order) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+            Parent root = loader.load();
+
+            ForEachOrderController forEachOrderController = loader.getController();
+            forEachOrderController.setOrderID(order.getOrderId());
+            forEachOrderController.setCustomerID(order.getCustomerId());
+            forEachOrderController.setForEachUserID(order.getUserId());
+            forEachOrderController.setBillNo(OrderController.getBillNumberCount());
+            forEachOrderController.initializeAllTables();
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Order Information");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            NotificationService.showNotification("Error",
+                    "Failed to open order information: " + e.getMessage(),
+                    NotificationStatus.Error);
+        }
+    }
+
 
     private void loadOrderList() {
         List<Order> orders = orderDAO.getAllOrders();

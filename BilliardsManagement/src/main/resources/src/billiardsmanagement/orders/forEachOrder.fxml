@@ -29,7 +29,7 @@
                 <TableColumn fx:id="bookingActionColumn" prefWidth="127.2000732421875" styleClass="number-aligned" text="Action" />
             </columns>
         </TableView>
-        <Button fx:id="addOrderItemButton" layoutX="832.0" layoutY="195.0" mnemonicParsing="false" onAction="#addOrderItem" prefHeight="16.0" prefWidth="168.0" styleClass="finish-button" text="Add New Order" textAlignment="CENTER" textFill="WHITE">
+        <Button fx:id="addOrderItemButton" layoutX="832.0" layoutY="195.0" mnemonicParsing="false" onAction="#addOrderItem" prefHeight="16.0" prefWidth="168.0" styleClass="finish-button" text="Add New Item" textAlignment="CENTER" textFill="WHITE">
             <font>
                 <Font size="11.0" />
             </font>
@@ -97,11 +97,11 @@
             <Font name="FontAwesome" size="16.0" />
         </font>
     </Text>
-    <TextField fx:id="staffNameText" layoutX="141.0" layoutY="74.0" prefHeight="27.0" prefWidth="167.0">
+    <Text fx:id="staffNameText" layoutX="141.0" layoutY="92.0" wrappingWidth="167.0">
         <font>
             <Font name="Arial" size="15.0" />
         </font>
-    </TextField>
+    </Text>
     <Label layoutX="581.0" layoutY="34.0" prefHeight="21.0" prefWidth="86.0" styleClass="section-label" text="Date:" />
     <Label layoutX="11.0" layoutY="77.0" prefHeight="21.0" prefWidth="149.0" styleClass="section-label" text="Staff Name:" />
     <Label layoutX="358.0" layoutY="34.0" prefHeight="21.0" prefWidth="77.0" styleClass="section-label" text="Bill No:" />
@@ -122,13 +122,8 @@
         </font>
     </Text>
     <Label layoutX="358.0" layoutY="7.0" prefHeight="21.0" prefWidth="77.0" styleClass="section-label" text="Status: " />
-
-    <Button layoutX="75.0" layoutY="107.0" mnemonicParsing="false" onAction="#updateOrder" text="Update" />
     <Button layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" text="Add Customer" />
     <!--   <Button layoutX="853.0" layoutY="95.0" mnemonicParsing="false" onAction="#goBack" text="Back" />-->
-    <Button fx:id="btnBack" text="Back"
-            AnchorPane.topAnchor="10.0" AnchorPane.leftAnchor="10.0" onAction="#goBack"/>
-
-    <Button fx:id="confirmUpdateDataCustomer" layoutX="64.0" layoutY="107.0" mnemonicParsing="false" onAction="#updateOrder" prefHeight="25.0" prefWidth="70.0" text="Confirm" />
-    <Button fx:id="confirmSaveCustomer" layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" text="Add Customer" />
+    <Button fx:id="btnBack" onAction="#goBack" text="Back" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
+    <Button fx:id="confirmSaveCustomer" layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" prefHeight="25.0" prefWidth="167.0" text="Add New Customer" />
 </AnchorPane>

@@ -539,6 +539,7 @@ public class OrderController implements Initializable {
                 forEachOrderController.setCustomerID(selectedOrder.getCustomerId());
                 forEachOrderController.setOrderTable(orderTable);
                 forEachOrderController.setMainController(mainController);
+                forEachOrderController.initializeAllTables();
                 // Cập nhật nội dung của contentArea trong MainController
                 if (mainController != null) {
                     StackPane contentArea = mainController.getContentArea(); // Phương thức lấy contentArea

@@ -26,9 +26,9 @@ public class PoolTableOrderInformationController {
     @FXML private Button showOrderButton;
     @FXML private Button createOrderBtn;
     @FXML private Button addToOrderBtn;
-    @FXML private Button finishBtn;
-    @FXML private Button playBtn;
-    @FXML private Button cancelBtn;
+//    @FXML private Button finishBtn;
+//    @FXML private Button playBtn;
+//    @FXML private Button cancelBtn;
 
     private PoolTable currentTable;
     private Order currentOrder;
@@ -49,9 +49,9 @@ public class PoolTableOrderInformationController {
             if(currentTable.getStatus().equalsIgnoreCase("Available")){
                 createOrderBtn.setDisable(false);
                 addToOrderBtn.setDisable(false);
-                finishBtn.setDisable(true);
-                playBtn.setDisable(true);
-                cancelBtn.setDisable(true);
+//                finishBtn.setDisable(true);
+//                playBtn.setDisable(true);
+//                cancelBtn.setDisable(true);
 
                 statusText.setStyle("fx-font-weight: bold; -fx-text-fill: "+greenColor);
                 noOrderText.setVisible(true);
@@ -63,9 +63,9 @@ public class PoolTableOrderInformationController {
             else if(currentTable.getStatus().equalsIgnoreCase("Ordered")){
                 createOrderBtn.setDisable(true);
                 addToOrderBtn.setDisable(true);
-                finishBtn.setDisable(true);
-                playBtn.setDisable(false);
-                cancelBtn.setDisable(false);
+//                finishBtn.setDisable(true);
+//                playBtn.setDisable(false);
+//                cancelBtn.setDisable(false);
 
                 statusText.setStyle("fx-font-weight: bold; -fx-text-fill: "+orangeColor);
                 noOrderText.setVisible(false);
@@ -75,15 +75,15 @@ public class PoolTableOrderInformationController {
                 currentOrder = OrderDAO.getOrderById(orderId);
 
                 showOrderButton.setOnAction(e -> showForEachOrderView(currentOrder));
-                playBtn.setOnAction(e -> handlePlay(orderId, currentTable.getTableId()));
-                cancelBtn.setOnAction(e -> handleCancel(orderId, currentTable.getTableId()));
+//                playBtn.setOnAction(e -> handlePlay(orderId, currentTable.getTableId()));
+//                cancelBtn.setOnAction(e -> handleCancel(orderId, currentTable.getTableId()));
             }
             else if(currentTable.getStatus().equalsIgnoreCase("Playing")){
                 createOrderBtn.setDisable(true);
                 addToOrderBtn.setDisable(true);
-                finishBtn.setDisable(false);
-                playBtn.setDisable(true);
-                cancelBtn.setDisable(true);
+//                finishBtn.setDisable(false);
+//                playBtn.setDisable(true);
+//                cancelBtn.setDisable(true);
 
                 statusText.setStyle("fx-font-weight: bold; -fx-text-fill: "+redColor);
                 noOrderText.setVisible(false);
@@ -94,7 +94,7 @@ public class PoolTableOrderInformationController {
 
                 showOrderButton.setOnAction(e -> showForEachOrderView(currentOrder));
                 System.out.println("Order ID: "+orderId + " Table ID: "+currentTable.getTableId());
-                finishBtn.setOnAction(e -> handleFinish(orderId, currentTable.getTableId()));
+//                finishBtn.setOnAction(e -> handleFinish(orderId, currentTable.getTableId()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -170,32 +170,32 @@ public class PoolTableOrderInformationController {
         if(noOrderText.isVisible()){
             createOrderBtn.setDisable(false);
             addToOrderBtn.setDisable(false);
-            finishBtn.setDisable(true);
-            playBtn.setDisable(true);
-            cancelBtn.setDisable(true);
+//            finishBtn.setDisable(true);
+//            playBtn.setDisable(true);
+//            cancelBtn.setDisable(true);
             return;
         }
         switch (status) {
             case "Available":
                 createOrderBtn.setDisable(false);
                 addToOrderBtn.setDisable(false);
-                finishBtn.setDisable(true);
-                playBtn.setDisable(true);
-                cancelBtn.setDisable(true);
+//                finishBtn.setDisable(true);
+//                playBtn.setDisable(true);
+//                cancelBtn.setDisable(true);
                 break;
             case "Ordered":
                 createOrderBtn.setDisable(true);
                 addToOrderBtn.setDisable(true);
-                finishBtn.setDisable(true);
-                playBtn.setDisable(false);
-                cancelBtn.setDisable(false);
+//                finishBtn.setDisable(true);
+//                playBtn.setDisable(false);
+//                cancelBtn.setDisable(false);
                 break;
             case "Playing":
                 createOrderBtn.setDisable(true);
                 addToOrderBtn.setDisable(true);
-                finishBtn.setDisable(false);
-                playBtn.setDisable(true);
-                cancelBtn.setDisable(true);
+//                finishBtn.setDisable(false);
+//                playBtn.setDisable(true);
+//                cancelBtn.setDisable(true);
                 break;
         }
     }
