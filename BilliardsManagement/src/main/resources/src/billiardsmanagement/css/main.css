@@ -4,14 +4,6 @@
     -fx-padding: 0; /* Remove any padding from main container */
 }
 
-/* Sidebar Styles */
-.sidebar {
-    -fx-background-color: white;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 0);
-    -fx-padding: 0; /* Remove padding from sidebar */
-    -fx-start-margin: 0; /* Ensure no margin on the left */
-}
-
 /* Top Bar Styles */
 .top-bar {
     -fx-background-color: white;
@@ -45,43 +37,10 @@
     -fx-text-fill: #666666;
 }
 
-.nav-menu {
-    -fx-padding: 10 0;
-}
-
-.nav-item {
-    -fx-background-color: transparent;
-    -fx-padding: 10 15;
-    -fx-alignment: CENTER_LEFT;
-    -fx-spacing: 10;
-    -fx-cursor: hand;
-    -fx-font-size: 14px;
-    -fx-text-fill: #333333;
-    -fx-border-width: 0;
-    -fx-min-width: 250;
-}
-
-.nav-item:hover {
-    -fx-background-color: #f5f5f5;
-}
-
-.nav-item .glyph-icon {
-    -fx-fill: #666666;
-}
-
-.nav-item:selected {
-    -fx-background-color: #e3f2fd;
-    -fx-text-fill: #2196f3;
-}
-
-.nav-item:selected .glyph-icon {
-    -fx-fill: #2196f3;
-}
-
 /* Top Bar Styles */
 .top-bar {
-    -fx-background-color: white;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 1, 0, 0, 1);
+    -fx-background-image: url("top_bar.jpg");
+    -fx-background-size: cover;
     -fx-min-height: 60;
 }
 
@@ -110,9 +69,67 @@
 .user-name {
     -fx-font-size: 14px;
     -fx-font-weight: bold;
+    -fx-text-fill: white;
 }
 
 .user-role {
     -fx-font-size: 12px;
-    -fx-text-fill: #666666;
+    -fx-text-fill: white;
+}
+
+.user-logout {
+    -fx-text-fill: white; /* Màu chữ mặc định */
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
+.user-logout:hover {
+    -fx-text-fill: #4572ef; /* Màu xanh đậm khi hover */
+}
+
+
+/* Sidebar styles */
+.sidebar {
+    -fx-background-image: url("bg_navbar.jpg");
+    -fx-background-size: cover;
+    -fx-padding: 0 10;
+    -fx-spacing: 15;
+    /*-fx-alignment: CENTER_LEFT;*/
+}
+
+
+/* Navigation Items */
+.nav-item {
+    -fx-background-color: #064c5a;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-pref-width: 200px;
+    -fx-padding: 8 0 8 20;
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 15;
+    -fx-content-display: LEFT;
+    -fx-background-radius: 0 20 20 0; /* Bo tròn đầu bên phải */
+    -fx-transition: all 0.3s ease-in-out; /* Hiệu ứng mượt */
+
+    /*-fx-font-size: 16px; !* Tăng kích thước chữ *!*/
+    /*-fx-font-family: "Arial"; !* Dùng font phổ biến *!*/
+
+}
+
+.nav-item:hover, .nav-item:focused, .nav-item.active {
+    -fx-background-color: white; /* Màu nền khi hover */
+    -fx-text-fill: #111827; /* Màu chữ đậm khi hover */
+    -fx-pref-width: 220px; /* Tăng độ rộng khi hover */
+    -fx-font-weight: bold; /* Chữ đậm */
+    -fx-background-radius: 0 20 20 0; /* Bo tròn đầu bên phải */
+
+}
+
+.nav-item FontAwesomeIconView {
+    -fx-fill: white;
+}
+
+/* Khi hover button, đổi icon thành màu đen */
+.nav-item:hover FontAwesomeIconView, .nav-item:focused FontAwesomeIconView, .nav-item.active FontAwesomeIconView {
+    -fx-fill: black;
 }

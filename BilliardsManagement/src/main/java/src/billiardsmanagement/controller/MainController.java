@@ -2,6 +2,7 @@ package src.billiardsmanagement.controller;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -20,6 +21,7 @@ import src.billiardsmanagement.controller.users.UserController;
 import src.billiardsmanagement.model.TestDBConnection;
 import src.billiardsmanagement.model.User;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.sql.Connection;
@@ -45,15 +47,15 @@ public class MainController {
     private Label roleLabel;
     @FXML
     private Label logoutLabel;
-    @FXML
-    private void onLogoutHover() {
-        logoutLabel.setStyle("-fx-text-fill: darkblue; -fx-underline: true; -fx-cursor: hand;");
-    }
-
-    @FXML
-    private void onLogoutExit() {
-        logoutLabel.setStyle("-fx-text-fill: blue; -fx-underline: true; -fx-cursor: hand;");
-    }
+//    @FXML
+//    private void onLogoutHover() {
+//        logoutLabel.setStyle("-fx-text-fill: darkblue; -fx-underline: true; -fx-cursor: hand;");
+//    }
+//
+//    @FXML
+//    private void onLogoutExit() {
+//        logoutLabel.setStyle("-fx-text-fill: white; -fx-underline: true; -fx-cursor: hand;");
+//    }
 
     @FXML
     private ImageView avatarImageView;
@@ -196,14 +198,16 @@ public class MainController {
         menuPermissions.put("Customer", "view_customer");
         menuPermissions.put("Report", "view_report");
 
+        FontAwesomeIconView iconView = new FontAwesomeIconView();
+
         // Tạo danh sách menu button
         List<Button> menuButtons = Arrays.asList(
                 createNavButton("Pool Table", "TABLE", "showPoolTablePage"),
-                createNavButton("Order", "SHOPPING_CART", "showOrdersPage"),
+                createNavButton("Order", "LIST", "showOrdersPage"),
                 createNavButton("Product", "CUBE", "showProductsPage"),
-                createNavButton("Staff", "USERS", "showUsersPage"),
-                createNavButton("Role & Permission", "USERS", "showRolesPermissionsPage"),
-                createNavButton("Customer", "USER", "showCustomerPage"),
+                createNavButton("Staff", "USER", "showUsersPage"),
+                createNavButton("Role & Permission", "LOCK", "showRolesPermissionsPage"),
+                createNavButton("Customer", "USERS", "showCustomerPage"),
                 createNavButton("Report", "BAR_CHART", "showReportPage")
         );
 
@@ -220,6 +224,10 @@ public class MainController {
                 navbarContainer.getChildren().add(btn); // Chỉ thêm button nếu có quyền
             }
         }
+
+        File file = new File("src/main/resources/src/billiardsmanagement/images/bg_navbar.jpg");
+        System.out.println("File exists: " + file.exists());
+
     }
 
     // 🔹 Kiểm tra user có quyền vào menu không
@@ -395,5 +403,6 @@ public class MainController {
     public StackPane getContentArea() {
         return contentArea;
     }
+
 
 }

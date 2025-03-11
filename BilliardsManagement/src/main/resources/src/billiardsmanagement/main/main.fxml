@@ -9,7 +9,7 @@
 <BorderPane xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="src.billiardsmanagement.controller.MainController"
-            styleClass="main-container"
+            stylesheets="@../css/poolTable.css"
             fx:id="mainContainer"
 >
     <left>
@@ -19,15 +19,11 @@
                 <padding>
                     <Insets top="20" right="15" bottom="20" left="20"/>
                 </padding>
-                <ImageView fitHeight="50" fitWidth="200" styleClass="logo-image">
+                <ImageView fitHeight="60" fitWidth="200" styleClass="logo-image">
                     <image>
-                        <Image url="@images/logo.jpg"/>
+                        <Image url="@../images/logo.png"/>
                     </image>
                 </ImageView>
-<!--                <VBox>-->
-<!--                    <Label text="BILLIARDS" styleClass="app-name"/>-->
-<!--                    <Label text="MANAGEMENT" styleClass="app-subtitle"/>-->
-<!--                </VBox>-->
             </HBox>
 
             <VBox fx:id="navbarContainer" styleClass="navbar" spacing="10">
@@ -78,27 +74,24 @@
                     <Insets top="10" right="20" bottom="10" left="20"/>
                 </padding>
 
-                <Button styleClass="notification-button">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="ENVELOPE" size="16"/>
-                    </graphic>
-                </Button>
+<!--                <Button styleClass="notification-button">-->
+<!--                    <graphic>-->
+<!--                        <FontAwesomeIconView glyphName="ENVELOPE" size="16"/>-->
+<!--                    </graphic>-->
+<!--                </Button>-->
 
-                <Button styleClass="notification-button">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="BELL" size="16"/>
-                    </graphic>
-                </Button>
+<!--                <Button styleClass="notification-button">-->
+<!--                    <graphic>-->
+<!--                        <FontAwesomeIconView glyphName="BELL" size="16"/>-->
+<!--                    </graphic>-->
+<!--                </Button>-->
 
                 <HBox styleClass="user-profile" alignment="CENTER" spacing="10">
                     <ImageView fx:id="avatarImageView" fitHeight="40" fitWidth="40" styleClass="profile-image"/>
                     <VBox>
                         <Label fx:id="usernameLabel" text="Andrew" styleClass="user-name"/>
                         <Label fx:id="roleLabel" text="admin" styleClass="user-role"/>
-                        <Label fx:id="logoutLabel" text="Logout"
-                               style="-fx-text-fill: blue; -fx-underline: true; -fx-cursor: hand;"
-                               onMouseEntered="#onLogoutHover"
-                               onMouseExited="#onLogoutExit"
+                        <Label fx:id="logoutLabel" text="Logout" styleClass="user-logout"
                                onMouseClicked="#handleLogout"/>
                     </VBox>
                 </HBox>

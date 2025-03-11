@@ -5,8 +5,10 @@
 
 <?import javafx.scene.text.Font?>
 <?import javafx.geometry.Insets?>
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="src.billiardsmanagement.controller.products2.ProductController2"
-            prefHeight="609.0" prefWidth="1001.0" stylesheets="@../css/poolTable.css">
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="src.billiardsmanagement.controller.products2.ProductController2"
+            prefHeight="609.0" prefWidth="1001.0"
+            stylesheets="@../css/poolTable.css">
     <center>
         <VBox spacing="10" alignment="CENTER">
             <HBox spacing="10">

@@ -3,28 +3,21 @@ package src.billiardsmanagement.controller.users;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.MainController;
-import src.billiardsmanagement.controller.products.ProductController;
-import src.billiardsmanagement.controller.products2.ProductController2;
 import src.billiardsmanagement.dao.PermissionDAO;
 import src.billiardsmanagement.dao.UserDAO;
-import src.billiardsmanagement.model.Permission;
 import src.billiardsmanagement.model.User;
 import src.billiardsmanagement.model.UserSession;
-import src.billiardsmanagement.view.Main;
 
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 public class LoginController {
     @FXML
@@ -92,7 +85,7 @@ public class LoginController {
 
     private void openMainWindow(User user) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/main.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/main/main.fxml"));
             BorderPane root = loader.load();
 
             Scene scene = new Scene(root, 800, 600);

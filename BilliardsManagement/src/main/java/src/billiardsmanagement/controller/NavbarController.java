@@ -3,8 +3,6 @@ package src.billiardsmanagement.controller;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -140,7 +138,7 @@ public class NavbarController {
             contentArea.getChildren().setAll(page); // Sửa lỗi: Thay vì `setCenter()`, dùng `getChildren().setAll()`
             FXMLLoader users = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/users/users.fxml"));
             UserController userController = users.getController();
-            FXMLLoader main =  new FXMLLoader(getClass().getResource("/src/billiardsmanagement/main.fxml"));
+            FXMLLoader main =  new FXMLLoader(getClass().getResource("/src/billiardsmanagement/main/main.fxml"));
             MainController mainController = main.getController();
             users.setController(mainController);
 
