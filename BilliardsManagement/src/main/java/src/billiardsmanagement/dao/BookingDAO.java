@@ -2,14 +2,56 @@ package src.billiardsmanagement.dao;
 
 import src.billiardsmanagement.model.Booking;
 import src.billiardsmanagement.model.DatabaseConnection;
-import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
+import src.billiardsmanagement.service.NotificationService;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BookingDAO {
+
+    public static Booking getBookingByTableIdAndOrderId(int orderId, int tableId) {
+        String query = "SELECT * FROM bookings WHERE order_id = ? AND table_id = ? ORDER BY start_time DESC LIMIT 1";
+        Booking booking = new Booking(); // Create an empty Booking object
+        try {
+            Connection con = DatabaseConnection.getConnection();
+            PreparedStatement pr = con.prepareStatement(query);
+            pr.setInt(1, orderId);
+            pr.setInt(2, tableId);
+            ResultSet rs = pr.executeQuery();
+
+            if (!rs.next()) {
+                throw new Exception("No booking found for this orderId = " + orderId + " and tableId = " + tableId);
+            }
+
+            // Set properties using setter methods
+            booking.setBookingId(rs.getInt("booking_id"))
+                    .setOrderId(rs.getInt("order_id"))
+                    .setTableId(rs.getInt("table_id"))
+                    .setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
+
+            // Check for null before setting values
+            if (rs.getTimestamp("end_time") != null) {
+                booking.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+            }
+
+            if (rs.getDouble("timeplay") != 0) { // Assuming 0 means not set
+                booking.setTimeplay(rs.getDouble("timeplay"));
+            }
+
+            if (rs.getDouble("total") != 0) { // Assuming 0 means not set
+                booking.setTotal(rs.getDouble("total"));
+            }
+
+            booking.setBookingStatus(rs.getString("booking_status"));
+
+            return booking;
+        } catch (Exception e) {
+            e.printStackTrace(); // Print the stack trace for debugging
+            return new Booking();
+        }
+    }
 
     public static int getTheLatestOrderByTableId(int tableId) {
         String query = "SELECT * FROM bookings WHERE table_id = ? ORDER BY start_time DESC LIMIT 1";

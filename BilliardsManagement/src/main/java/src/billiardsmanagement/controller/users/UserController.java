@@ -1,5 +1,6 @@
 package src.billiardsmanagement.controller.users;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -37,6 +38,8 @@ import java.text.SimpleDateFormat;
 
 public class UserController {
     @FXML
+    private TableColumn<User,Integer> sttColumn;
+    @FXML
     private TableView<User> tableUsers;
     @FXML
     private TableColumn<User, ImageView> columnAvatar;
@@ -60,7 +63,8 @@ public class UserController {
     private Button btnAddNewUser;
     @FXML
     private Button btnRolesPermissions;
-
+    @FXML
+    private TextField searchText;
     private ObservableList<User> userList = FXCollections.observableArrayList();
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     private User currentUser; // Lưu user đang đăng nhập
@@ -69,6 +73,11 @@ public class UserController {
     private UserDAO userDAO = new UserDAO();
 
     public void initialize() {
+        setUpSearchField();
+        sttColumn.setCellValueFactory(cellData ->
+                new ReadOnlyObjectWrapper<>(tableUsers.getItems().indexOf(cellData.getValue()) + 1)
+        );
+        sttColumn.setPrefWidth(50);
         columnAvatar.setCellFactory(createAvatarCellFactory());
         columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         columnRole.setCellValueFactory(new PropertyValueFactory<>("role"));
@@ -359,6 +368,30 @@ public class UserController {
         } else {
             System.err.println("❌ Lỗi: currentUser vẫn null sau khi set!");
         }
+    }
+
+    private void filterUsers(String searchItem) throws SQLException {
+        ObservableList<User> filteredList = FXCollections.observableArrayList();
+        for (User user : userDAO.getAllUsers()) {
+            if (user.getFullname().toLowerCase().contains(searchItem) ||
+                   user.getPhone().contains(searchItem)) {
+                filteredList.add(user);
+            }
+        }
+       tableUsers.setItems(filteredList);
+    }
+    private void setUpSearchField(){
+        searchText.textProperty().addListener((observable, oldValue, newValue) -> {
+           if(newValue == null || newValue.isEmpty()){
+               loadUsers();
+           }else{
+               try {
+                   filterUsers(newValue);
+               } catch (SQLException e) {
+                   throw new RuntimeException(e);
+               }
+           }
+        });
     }
 
     public void setCurrentUser(User user) {

@@ -4,6 +4,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,6 +21,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import src.billiardsmanagement.controller.MainController;
+import src.billiardsmanagement.controller.orders.bookings.AddBookingController;
 import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.CustomerDAO;
 import src.billiardsmanagement.dao.OrderDAO;
@@ -162,6 +164,7 @@ public class OrderController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loadCustomerNameToIdMap();
+        setUpSearchField();
         loadOrderList();
         orderTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         VBox.setVgrow(orderTable, Priority.ALWAYS);
@@ -216,50 +219,6 @@ public class OrderController implements Initializable {
             protected void updateItem(Double item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty ? null : df.format(item));
-            }
-        });
-
-        popup = new Popup();
-        listView = new ListView<>();
-        popup.getContent().add(listView);
-
-        autoCompleteTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.isEmpty()) {
-                List<String> filteredCustomers = CustomerDAO.fetchCustomersByPhone(newValue);
-                listView.getItems().setAll(filteredCustomers);
-
-                if (!filteredCustomers.isEmpty() && !popup.isShowing()) {
-                    popup.show(autoCompleteTextField,
-                            autoCompleteTextField.localToScreen(autoCompleteTextField.getBoundsInLocal()).getMinX(),
-                            autoCompleteTextField.localToScreen(autoCompleteTextField.getBoundsInLocal()).getMaxY());
-                }
-            } else {
-                popup.hide();
-            }
-        });
-
-        listView.setOnMouseClicked(event -> {
-            if (!listView.getSelectionModel().isEmpty()) {
-                String selected = listView.getSelectionModel().getSelectedItem();
-                autoCompleteTextField.setText(selected);
-                popup.hide();
-            }
-        });
-
-        autoCompleteTextField.setOnKeyPressed(event -> {
-            switch (event.getCode()) {
-                case ENTER:
-                    if (!listView.getSelectionModel().isEmpty()) {
-                        String selected = listView.getSelectionModel().getSelectedItem();
-                        autoCompleteTextField.setText(selected);
-                        popup.hide();
-                    }
-                    break;
-                case ESCAPE:
-                    popup.hide();
-                    break;
-                default:
-                    break;
             }
         });
 
@@ -538,12 +497,16 @@ public class OrderController implements Initializable {
                 forEachOrderController.setOrderID(selectedOrder.getOrderId());
                 forEachOrderController.setCustomerID(selectedOrder.getCustomerId());
                 forEachOrderController.setMainController(mainController);
+                forEachOrderController.initializeAllTables();
                 // Cập nhật nội dung của contentArea trong MainController
                 if (mainController != null) {
                     StackPane contentArea = mainController.getContentArea(); // Phương thức lấy contentArea
                     contentArea.getChildren().setAll(forEachOrderPage); // Xóa nội dung cũ và thêm trang mới
                 }
-
+                FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bookings/addBooking.fxml"));
+                Parent addBookingPage = loader1.load();
+                AddBookingController addBookingController = loader1.getController();
+                addBookingController.setOrderTable(orderTable);
             } catch (IOException e) {
                 e.printStackTrace();
                 NotificationService.showNotification("Error", "Failed to load order details.", NotificationStatus.Error);
@@ -553,28 +516,30 @@ public class OrderController implements Initializable {
 
     @FXML
     public void searchOrder(ActionEvent actionEvent) {
-        String phoneNumber = autoCompleteTextField.getText().trim();
-        System.out.println(phoneNumber);
-        if (phoneNumber.isEmpty()) {
-            List<Order> allOrders = orderDAO.getAllOrders();
-            orderTable.getItems().setAll(allOrders);
-            NotificationService.showNotification("All Orders", "Showing all orders in the system.",
-                    NotificationStatus.Information);
-            return;
-        }
-
-        // Fetch orders by phone number
-        List<Order> orders = OrderDAO.getOrdersByPhone(phoneNumber);
-
-        if (orders.isEmpty()) {
-            NotificationService.showNotification("No Orders Found",
-                    "There are no orders associated with this phone number.", NotificationStatus.Information);
-        } else {
-            orderTable.getItems().setAll(orders);
-            NotificationService.showNotification("Search Successful", "Found " + orders.size() + " orders.",
-                    NotificationStatus.Success);
-            autoCompleteTextField.clear(); // Clear the search textfield after successful search
-        }
+//        String phoneNumber = autoCompleteTextField.getText().trim();
+//        System.out.println(phoneNumber);
+//        if (phoneNumber.isEmpty()) {
+//            List<Order> allOrders = orderDAO.getAllOrders();
+//            orderTable.getItems().setAll(allOrders);
+//            NotificationService.showNotification("All Orders", "Showing all orders in the system.",
+//                    NotificationStatus.Information);
+//            return;
+//        }
+//
+//        // Fetch orders by phone number
+//        List<Order> orders = OrderDAO.getOrdersByPhone(phoneNumber);
+//
+//        if (orders.isEmpty()) {
+//            NotificationService.showNotification("No Orders Found",
+//                    "There are no orders associated with this phone number.", NotificationStatus.Information);
+//        } else {
+//            orderTable.getItems().setAll(orders);
+//            NotificationService.showNotification("Search Successful", "Found " + orders.size() + " orders.",
+//                    NotificationStatus.Success);
+//            autoCompleteTextField.clear(); // Clear the search textfield after successful search
+//        }
+        String searchItem = autoCompleteTextField.getText().trim().toLowerCase();
+        filteredOrders(searchItem);
     }
 
     @FXML
@@ -625,7 +590,26 @@ public class OrderController implements Initializable {
                     NotificationStatus.Error);
         }
     }
+    private void filteredOrders(String searchItem){
+        ObservableList<Order> filteredList = FXCollections.observableArrayList();
+        for (Order order : orderDAO.getAllOrders()) {
+            if (order.getCustomerName().toLowerCase().contains(searchItem) ||
+                    order.getCustomerPhone().contains(searchItem)) {
+                filteredList.add(order);
+            }
+        }
+        orderTable.setItems(filteredList);
+    }
 
+    private void setUpSearchField(){
+        autoCompleteTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue == null || newValue.isEmpty()){
+                loadOrderList();
+            }else{
+                filteredOrders(newValue);
+            }
+        });
+    }
     private void setOrderID(int orderId) {
         this.orderID = orderId;
     }

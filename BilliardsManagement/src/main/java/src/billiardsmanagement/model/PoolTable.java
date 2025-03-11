@@ -38,6 +38,13 @@ public class PoolTable {
         this.catePooltableName = categoryName;
     }
 
+    public PoolTable(int tableId, String name, String status, int cateId) {
+        this.tableId = tableId;
+        this.name = name;
+        setStatus(status);
+        this.catePooltableId = cateId;
+    }
+
     // Table's User Id
 //    public int getTableUserId() {
 //        return this.userId;

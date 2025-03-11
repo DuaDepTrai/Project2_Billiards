@@ -4,6 +4,7 @@
 <?import io.github.palexdev.mfxcore.controls.Text?>
 <?import io.github.palexdev.virtualizedfx.table.VirtualTable?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.FlowPane?>
@@ -19,7 +20,7 @@
             <Button fx:id="searchButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" styleClass="search-button" />
         </HBox>
 
-        <Button fx:id="addNewButton" layoutX="628.0" layoutY="13.0" mnemonicParsing="false" prefWidth="153.0" styleClass="add-button" text="Add new Pool Table" textAlignment="CENTER" textFill="WHITE" onAction="#showAddDialog" AnchorPane.rightAnchor="310.0" >
+        <Button fx:id="addNewButton" layoutX="628.0" layoutY="13.0" mnemonicParsing="false" onAction="#showAddDialog" prefWidth="153.0" styleClass="add-button" text="Add new Pool Table" textAlignment="CENTER" textFill="WHITE" AnchorPane.rightAnchor="310.0">
             <font>
                 <Font size="13.0" />
             </font>
@@ -29,21 +30,21 @@
         <VirtualTable layoutX="140.0" layoutY="255.0" prefHeight="258.0" prefWidth="257.0" />
 
         <!-- Tables Container -->
-        <FlowPane fx:id="tablesContainer" alignment="CENTER" hgap="10" vgap="10" layoutX="14.0" layoutY="50.0" prefHeight="540.0" prefWidth="1300.0" >
+        <FlowPane fx:id="tablesContainer" alignment="CENTER" hgap="10" layoutX="14.0" layoutY="50.0" vgap="10" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="350" AnchorPane.topAnchor="50.0">
             <!-- Pool table items will be added here dynamically -->
             <!-- Each pool table item will have this structure: -->
             <fx:define>
-                <VBox fx:id="poolTableItemTemplate" styleClass="pool-table-item" spacing="5" visible="false">
-                    <HBox spacing="5" alignment="CENTER">
-                        <Button fx:id="orderButton" text="Order" styleClass="order-button" />
-                        <Button fx:id="infoButton" text="Info" styleClass="info-button" onAction="#showTableInfo" />
+                <VBox fx:id="poolTableItemTemplate" spacing="5" styleClass="pool-table-item" visible="false">
+                    <HBox alignment="CENTER" spacing="5">
+                        <Button fx:id="orderButton" styleClass="order-button" text="Order" />
+                        <Button fx:id="infoButton" onAction="#showTableInfo" styleClass="info-button" text="Info" />
                     </HBox>
                 </VBox>
             </fx:define>
         </FlowPane>
 
         <!-- Right Side Panel -->
-        <VBox layoutX="800.0" layoutY="13.0" spacing="10" prefWidth="250.0" AnchorPane.rightAnchor="20.0" >
+        <VBox layoutX="800.0" layoutY="13.0" prefWidth="250.0" spacing="10" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="50.0">
             <!-- Pool Tables Header -->
             <HBox alignment="CENTER" prefHeight="20.0">
                 <Text styleClass="poolReportHeader" text="Pool Tables">
@@ -69,9 +70,8 @@
             <MFXScrollPane fx:id="catePooltablesScrollPane" prefHeight="150.0" prefWidth="205.0" />
 
             <!-- Add Category Button -->
-            <Button fx:id="addNewTableCategory" prefHeight="25.0" prefWidth="250.0"
-                    styleClass="add-cate-pooltable-button" text="New Table Category"
-                    textAlignment="CENTER" textFill="WHITE" />
+            <Button fx:id="addNewTableCategory" prefHeight="25.0" prefWidth="250.0" styleClass="add-cate-pooltable-button" text="New Table Category" textAlignment="CENTER" textFill="WHITE" />
         </VBox>
+      <ScrollPane fx:id="poolTableScrollPane" layoutX="15.0" layoutY="57.0" prefHeight="582.0" prefWidth="702.0" />
     </children>
 </AnchorPane>
