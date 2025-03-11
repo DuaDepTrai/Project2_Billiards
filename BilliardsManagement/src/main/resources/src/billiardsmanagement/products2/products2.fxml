@@ -3,7 +3,8 @@
 <?import javafx.scene.layout.*?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="src.billiardsmanagement.controller.products2.ProductController2">
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="src.billiardsmanagement.controller.products2.ProductController2"
+            prefHeight="609.0" prefWidth="1001.0" stylesheets="@../css/poolTable.css">
     <center>
         <VBox spacing="10" alignment="CENTER">
             <!-- Thanh tìm kiếm -->
