@@ -3,22 +3,21 @@
 <?import javafx.scene.layout.*?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 
+<?import javafx.scene.text.Font?>
+<?import javafx.geometry.Insets?>
 <BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="src.billiardsmanagement.controller.products2.ProductController2"
             prefHeight="609.0" prefWidth="1001.0" stylesheets="@../css/poolTable.css">
     <center>
         <VBox spacing="10" alignment="CENTER">
-            <!-- Thanh tìm kiếm -->
-            <HBox spacing="10" alignment="TOP_LEFT">
-                <TextField fx:id="searchField" promptText="Search product..." />
-                <Button fx:id="searchButton">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="SEARCH" size="16"/>
-                    </graphic>
+            <HBox spacing="10">
+                <TextField fx:id="searchField" prefHeight="26.0" prefWidth="200.0" promptText="Search product..." />
+                <Region HBox.hgrow="ALWAYS"/> <!-- Đẩy btnAddNewCategory về bên phải -->
+                <Button fx:id="btnAddNewCategory" mnemonicParsing="false" prefHeight="26.0" prefWidth="153.0"
+                        styleClass="add-button" text="Add Category" textAlignment="CENTER" textFill="WHITE">
+                    <font>
+                        <Font size="13.0" />
+                    </font>
                 </Button>
-            </HBox>
-            <HBox>
-                <Button fx:id="btnAddNewCategory" text="Add Category" AnchorPane.bottomAnchor="20.0"
-                        AnchorPane.rightAnchor="350.0"/>
             </HBox>
 
             <!-- Khu vực GridPane -->
