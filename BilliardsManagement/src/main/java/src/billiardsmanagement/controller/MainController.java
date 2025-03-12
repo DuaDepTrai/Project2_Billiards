@@ -119,6 +119,8 @@ public class MainController {
                 URL defaultImageUrl = getClass().getResource("/src/billiardsmanagement/images/avatars/user.png");
                 if (defaultImageUrl != null) {
                     avatarImageView.setImage(new Image(defaultImageUrl.toExternalForm()));
+//                    avatarImageView.getStyleClass().add("avatar-image"); // Áp dụng CSS
+
                 } else {
                     System.err.println("❌ Không tìm thấy ảnh mặc định!");
                 }

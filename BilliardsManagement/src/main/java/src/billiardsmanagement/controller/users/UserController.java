@@ -208,6 +208,8 @@ public class UserController {
                     avatarView.setFitWidth(40);
                     avatarView.setFitHeight(40);
                     avatarView.setPreserveRatio(true);
+                    avatarView.getStyleClass().add("avatar-image"); // Áp dụng CSS
+
 
                     // Đường dẫn trong resources (KHÔNG có "/src/")
                     String avatarPath = "/src/billiardsmanagement/images/avatars/" + user.getImagePath();
