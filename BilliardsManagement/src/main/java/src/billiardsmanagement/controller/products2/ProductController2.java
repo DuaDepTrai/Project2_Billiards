@@ -332,20 +332,19 @@ public class ProductController2 {
 
     private void filterByProductName(String searchText) {
         try {
-            List<Product> allProducts = productDAO.getAllProducts(); // Lấy toàn bộ sản phẩm từ DB
+            List<Product> allProducts = productDAO.getAllProducts();
             List<Product> filteredList = allProducts.stream()
                     .filter(product -> product.getName().toLowerCase().contains(searchText))
-                    .toList(); // Lọc danh sách sản phẩm theo tên
+                    .toList();
+
+            gridPane.getChildren().clear(); // Xóa danh mục cũ
 
             if (!filteredList.isEmpty()) {
-                gridPane.getChildren().clear(); // Xóa danh mục cũ
-
-                // Lấy danh mục của các sản phẩm tìm thấy
                 Map<Integer, List<Product>> categoryMap = filteredList.stream()
                         .collect(Collectors.groupingBy(Product::getCategoryId));
 
-                // Hiển thị từng danh mục trong gridPane
-                int rowIndex = 0;
+                int index = 0;
+                int columns = 2; // Mỗi hàng có 2 danh mục
                 for (Map.Entry<Integer, List<Product>> entry : categoryMap.entrySet()) {
                     Category productCategory = categoryDAO.getCategoryById(entry.getKey());
                     if (productCategory != null) {
@@ -355,20 +354,22 @@ public class ProductController2 {
                             if (child instanceof TableView<?> tableView) {
                                 TableView<Product> productTableView = (TableView<Product>) tableView;
                                 productTableView.getItems().clear();
-                                productTableView.getItems().addAll(entry.getValue()); // Chỉ hiển thị sản phẩm tìm thấy
+                                productTableView.getItems().addAll(entry.getValue());
                             }
                         }
 
-                        gridPane.add(categoryBox, 0, rowIndex++);
+                        int row = index / columns;
+                        int col = index % columns;
+                        gridPane.add(categoryBox, col, row);
+                        index++;
                     }
                 }
-            } else {
-                gridPane.getChildren().clear(); // Nếu không có kết quả, xóa danh mục
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 
     @FXML
     private void handleAddNewCategory() {
@@ -428,11 +429,23 @@ public class ProductController2 {
 
     private void refreshTable() {
         try {
-            initialize(); // Gọi lại initialize() để load lại sản phẩm
+            List<Category> categories = categoryDAO.getAllCategories();
+            gridPane.getChildren().clear(); // Xóa danh mục cũ
+
+            int index = 0;
+            int columns = 2; // 2 danh mục mỗi hàng
+            for (Category category : categories) {
+                VBox categoryBox = createCategoryTable(category);
+                int row = index / columns;
+                int col = index % columns;
+                gridPane.add(categoryBox, col, row);
+                index++;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
