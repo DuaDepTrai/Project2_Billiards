@@ -57,7 +57,7 @@
                     </graphic>
                 </Button>
 
-                <Button styleClass="nav-item" onAction="#showReportPage" text="Report">
+                <Button styleClass="nav-item" onAction="#showReportPage" text="Reports">
                     <graphic>
                         <FontAwesomeIconView glyphName="BAR_CHART" size="16"/>
                     </graphic>

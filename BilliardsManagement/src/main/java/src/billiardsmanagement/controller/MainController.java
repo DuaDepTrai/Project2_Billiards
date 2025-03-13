@@ -192,25 +192,25 @@ public class MainController {
 
         // Tạo danh sách menu với quyền tương ứng
         Map<String, String> menuPermissions = new HashMap<>();
-        menuPermissions.put("Pool Table", "view_pool");
-        menuPermissions.put("Order", "view_order");
-        menuPermissions.put("Product", "view_product");
-        menuPermissions.put("Staff", "view_user");
-        menuPermissions.put("Role & Permission", "view_role_permission");
-        menuPermissions.put("Customer", "view_customer");
-        menuPermissions.put("Report", "view_report");
+        menuPermissions.put("Pool Tables", "view_pool");
+        menuPermissions.put("Orders", "view_order");
+        menuPermissions.put("Products", "view_product");
+        menuPermissions.put("Staffs", "view_user");
+        menuPermissions.put("Roles & Permissions", "view_role_permission");
+        menuPermissions.put("Customers", "view_customer");
+        menuPermissions.put("Reports", "view_report");
 
         FontAwesomeIconView iconView = new FontAwesomeIconView();
 
         // Tạo danh sách menu button
         List<Button> menuButtons = Arrays.asList(
-                createNavButton("Pool Table", "TABLE", "showPoolTablePage"),
-                createNavButton("Order", "LIST", "showOrdersPage"),
-                createNavButton("Product", "CUBE", "showProductsPage"),
-                createNavButton("Staff", "USER", "showUsersPage"),
-                createNavButton("Role & Permission", "LOCK", "showRolesPermissionsPage"),
-                createNavButton("Customer", "USERS", "showCustomerPage"),
-                createNavButton("Report", "BAR_CHART", "showReportPage")
+                createNavButton("Pool Tables", "TABLE", "showPoolTablePage"),
+                createNavButton("Orders", "LIST", "showOrdersPage"),
+                createNavButton("Products", "CUBE", "showProductsPage"),
+                createNavButton("Staffs", "USER", "showUsersPage"),
+                createNavButton("Roles & Permissions", "LOCK", "showRolesPermissionsPage"),
+                createNavButton("Customers", "USERS", "showCustomerPage"),
+                createNavButton("Reports", "BAR_CHART", "showReportPage")
         );
 
         // Lưu tất cả vào danh sách để kiểm soát quyền truy cập
