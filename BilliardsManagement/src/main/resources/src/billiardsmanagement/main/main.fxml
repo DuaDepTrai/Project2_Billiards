@@ -87,7 +87,7 @@
 <!--                </Button>-->
 
                 <HBox styleClass="user-profile" alignment="CENTER" spacing="10">
-                    <ImageView fx:id="avatarImageView" fitHeight="40" fitWidth="40" styleClass="profile-image"/>
+                    <ImageView fx:id="avatarImageView" fitHeight="40" fitWidth="40" styleClass="avatar-image"/>
                     <VBox>
                         <Label fx:id="usernameLabel" text="Andrew" styleClass="user-name"/>
                         <Label fx:id="roleLabel" text="admin" styleClass="user-role"/>
