@@ -7,12 +7,32 @@ import src.billiardsmanagement.model.Pair;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class OrderDAO {
+    public static int getOrderBillNo(int orderId) {
+        String query = "SELECT COUNT(*) + 1 AS position FROM orders WHERE order_id < ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, orderId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("position");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // Return -1 if not found
+    }
+
     public static Order getTheLatestOrderCreated() {
         String query = "SELECT o.*, c.name AS customer_name, c.phone AS customer_phone " +
                 "FROM orders o " +
@@ -250,7 +270,7 @@ public class OrderDAO {
     }
 
     public void addOrder(Order newOrder) {
-        String query = "INSERT INTO orders (customer_id, user_id, order_status, order_date) VALUES (?, ?, 'Playing', CURRENT_TIMESTAMP)";
+        String query = "INSERT INTO orders (customer_id, user_id, order_status, order_date) VALUES (?, ?, 'Playing', ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -258,6 +278,10 @@ public class OrderDAO {
             // Set các giá trị vào PreparedStatement
             stmt.setInt(1, newOrder.getCustomerId()); // customer_id
             stmt.setInt(2, newOrder.getUserId()); // user_id
+            if(newOrder.getOrderDate() != null) {
+                stmt.setTimestamp(3,Timestamp.valueOf(newOrder.getOrderDate())); // order_date
+            }
+            else stmt.setTimestamp(3,Timestamp.valueOf(LocalDateTime.now()));
 
             // Thực thi câu lệnh INSERT
             int rowsAffected = stmt.executeUpdate();
@@ -290,7 +314,7 @@ public class OrderDAO {
 
     public static Order getOrderById(int orderId) {
         // Truy vấn từ database và kiểm tra dữ liệu trả về
-        String query = "SELECT o.order_id, o.customer_id, o.user_id, o.total_cost, o.order_status, c.name AS customer_name, c.phone AS customer_phone "
+        String query = "SELECT o.order_id, o.customer_id, o.user_id, o.total_cost, o.order_date, o.order_status, c.name AS customer_name, c.phone AS customer_phone "
                 +
                 "FROM orders o " +
                 "LEFT JOIN customers c ON o.customer_id = c.customer_id " +
@@ -307,6 +331,7 @@ public class OrderDAO {
                 order.setCustomerId(rs.getInt("customer_id"));
                 order.setUserId(rs.getInt("user_id"));
                 order.setTotalCost(rs.getDouble("total_cost"));
+                order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
                 order.setOrderStatus(rs.getString("order_status"));
                 order.setCustomerName(rs.getString("customer_name"));
                 order.setCustomerPhone(rs.getString("customer_phone"));
@@ -413,25 +438,63 @@ public class OrderDAO {
     }
 
     public Order getLatestOrderByCustomerId(int customerId) {
-        String query = "SELECT * FROM orders WHERE customer_id = ? ORDER BY order_id DESC LIMIT 1";
-        Order order = null;
+        final String query =
+                "SELECT o.order_id, o.customer_id, o.user_id, o.order_date, o.order_status, " +
+                        "c.name AS customer_name, c.phone AS customer_phone " +
+                        "FROM orders o " +
+                        "JOIN customers c ON o.customer_id = c.customer_id " +
+                        "WHERE o.customer_id = ? " +
+                        "ORDER BY o.order_id DESC " +
+                        "LIMIT 1";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, customerId);
-            ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()) { // Lấy order mới nhất
-                order = new Order();
-                order.setOrderId(rs.getInt("order_id"));
-                order.setCustomerId(rs.getInt("customer_id"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Order(
+                            rs.getInt("order_id"),
+                            rs.getInt("customer_id"),
+                            rs.getInt("user_id"),
+                            rs.getTimestamp("order_date").toLocalDateTime(),
+                            rs.getString("order_status"),
+                            rs.getString("customer_name"),
+                            rs.getString("customer_phone")
+                    );
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Consider proper logging
         }
-        return order;
+        return null;
     }
+
+
+//    public Order getLatestOrderByCustomerId(int customerId) {
+//        String query = "SELECT * FROM orders WHERE customer_id = ? ORDER BY order_id DESC LIMIT 1";
+//        Order order = null;
+//
+//        try (Connection conn = DatabaseConnection.getConnection();
+//             PreparedStatement stmt = conn.prepareStatement(query)) {
+//
+//            stmt.setInt(1, customerId);
+//            ResultSet rs = stmt.executeQuery();
+//
+//            if (rs.next()) { // Lấy order mới nhất
+//                order = new Order();
+//                order.setOrderId(rs.getInt("order_id"));
+//                order.setCustomerId(rs.getInt("customer_id"));
+//                order.setUserId(rs.getInt("user_id"));
+//                order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
+//                order.setOrderStatus(rs.getString("order_status"));
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return order;
+//    }
 
     public static boolean updateOrderStaff(int userId, int orderId) {
         String query = "UPDATE orders SET user_id = ? WHERE order_id = ?"; // Assuming you have staff_id and staff_name columns

@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import src.billiardsmanagement.controller.orders.ForEachOrderController;
 import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.controller.poolTables.*;
 import src.billiardsmanagement.controller.products2.ProductController2;
@@ -66,6 +67,14 @@ public class MainController {
     @FXML
     private StackPane contentArea;
 
+    private OrderController orderController;
+    private PoolTableController poolTableController;
+
+    private FXMLLoader orderLoader;
+    private BorderPane orderPane;
+
+    private FXMLLoader poolTableLoader;
+    private AnchorPane poolTablePane;
 
     //
 //    private void loadNavbar() {
@@ -177,6 +186,20 @@ public class MainController {
         }
     }
 
+    public void initializeAllControllers() {
+        try {
+            orderLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/order.fxml"));
+            orderPane = orderLoader.load();
+            orderController = orderLoader.getController();
+
+            poolTableLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/poolTables/poolTable.fxml"));
+            poolTablePane = poolTableLoader.load();
+            poolTableController = poolTableLoader.getController();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void initialize() {
         System.out.println("🔄 MainController đã khởi tạo");
         System.out.println("🔍 Debug: loggedInUser = " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
@@ -269,15 +292,13 @@ public class MainController {
         }
     }
 
-
     @FXML
     public void showOrdersPage() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/order.fxml"));
-        BorderPane orderPage = loader.load();  // Tải FXML thành AnchorPane
-        contentArea.getChildren().setAll(orderPage);
-        OrderController orderController = loader.getController();
-        orderController.setMainController(this); // Truyền MainController vào OrderController
-        contentArea.getChildren().setAll(orderPage); // Hiển thị trang order
+        if (orderLoader != null && orderPane != null && orderController != null) {
+            orderController.setMainController(this); // Truyền MainController vào OrderController
+            contentArea.getChildren().setAll(orderPane); // Hiển thị trang order
+            orderController.initializeOrderController();
+        }
     }
 
     @FXML
@@ -353,8 +374,6 @@ public class MainController {
 
     @FXML
     public void showPoolTablePage() throws IOException, SQLException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/poolTables/poolTable.fxml"));
-        AnchorPane poolTablePage = loader.load();
 
         // Get the controller and pass the logged-in user if needed
 //        src.billiardsmanagement.controller.poolTables.PoolTableController poolTableController = loader.getController();
@@ -364,20 +383,23 @@ public class MainController {
 //            System.out.println("Error: Unable to retrieve PoolTableController!");
 //        }
 
-        PoolTableController poolController = loader.getController();
-        poolController.setCurrentUser(loggedInUser);
-        poolController.setUser(loggedInUser);
+        if (poolTableLoader != null && poolTablePane != null && poolTableController != null) {
+            poolTableController.setCurrentUser(loggedInUser);
+            poolTableController.setUser(loggedInUser);
+            poolTableController.setOrderController(orderController);
 
-        System.out.println("🔹 Truyền user vào PoolController: " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
+            System.out.println("🔹 Truyền user vào poolTableController: " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
 
-        if (poolController == null) {
-            System.out.println("Lỗi: Không lấy được ProductController!");
-        } else {
-            System.out.println("Debug: PoolController đã load, truyền user...");
-            poolController.setLoggedInUser(loggedInUser); // ✅ Truyền user đúng cách
+            if (poolTableController == null) {
+                System.out.println("Lỗi: Không lấy được ProductController!");
+            } else {
+                System.out.println("Debug: poolTableController đã load, truyền user...");
+                poolTableController.setLoggedInUser(loggedInUser); // ✅ Truyền user đúng cách
+            }
+
+            contentArea.getChildren().setAll(poolTablePane);
+            poolTableController.initializePoolTableController();
         }
-
-        contentArea.getChildren().setAll(poolTablePage);
     }
 
     public void showCustomerPage() throws IOException {

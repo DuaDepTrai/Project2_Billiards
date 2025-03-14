@@ -67,6 +67,7 @@ public class PoolTableOrderInformationController {
     private StackPane tablesContainer;
     private Popup chooseOrderTimePopup;
     private Popup choosePlayOrderPopup;
+    private OrderController orderController;
 
     public void initializeView() {
         orderInformationTitle.setText("Table " + currentTable.getName() + "'s Order Information");
@@ -141,6 +142,10 @@ public class PoolTableOrderInformationController {
             forEachOrderController.setOrderID(order.getOrderId());
             forEachOrderController.setCustomerID(order.getCustomerId());
             forEachOrderController.setForEachUserID(order.getUserId());
+            forEachOrderController.setOrderDate(order.getOrderDate());
+            forEachOrderController.setOrderController(this.orderController);
+            int billNo = OrderDAO.getOrderBillNo(order.getOrderId());
+            if(billNo!=-1) forEachOrderController.setBillNo(billNo);
             forEachOrderController.setPoolTableController(this.poolTableController);
             if (order.getCustomerPhone() != null) {
                 forEachOrderController.setInitialPhoneText(order.getCustomerPhone());
@@ -240,9 +245,8 @@ public class PoolTableOrderInformationController {
             Order order = new Order();
             order.setUserId(UserSession.getInstance().getUserId());
             order.setCustomerId(1);
-//            orderDAO.addOrder(order);
+            order.setOrderDate(LocalDateTime.now());
 
-//            Order newOrder = OrderDAO.getTheLatestOrderCreated();
             if (true) {
                 // Create a StackPane to hold the custom dialog
                 StackPane stackPane = new StackPane();
@@ -506,5 +510,9 @@ public class PoolTableOrderInformationController {
 
     public void setTablesContainer(StackPane tablesContainer) {
         this.tablesContainer = tablesContainer;
+    }
+
+    public void setOrderController(OrderController orderController) {
+        this.orderController = orderController;
     }
 }

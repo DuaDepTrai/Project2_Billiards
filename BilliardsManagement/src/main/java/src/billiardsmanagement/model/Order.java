@@ -23,6 +23,16 @@ public class Order {
         this.roleName = roleName;
     }
 
+    public Order(int orderId, int customerId, int userId, LocalDateTime orderDate, String orderStatus, String customerName, String customerPhone) {
+        this.orderId = orderId;
+        this.customerId = customerId;
+        this.userId = userId;
+        this.orderDate = orderDate;
+        this.orderStatus = orderStatus;
+        this.customerName = customerName;
+        this.customerPhone = customerPhone;
+    }
+
     public Order(int orderId, int customerId, String customerName, String customerPhone, int userId, String userName, String roleName, LocalDateTime orderDate, double totalCost, String orderStatus, String currentTableName) {
         this.orderId = orderId;
         this.customerId = customerId;

@@ -103,6 +103,8 @@ public class LoginController {
             }
             mainController.showHomePage();
 
+            mainController.initializeAllControllers();
+
             Stage mainStage = new Stage();
             mainStage.setScene(scene);
             mainStage.setTitle("BILLIARDS MANAGEMENT");

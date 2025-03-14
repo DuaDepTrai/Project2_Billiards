@@ -165,18 +165,20 @@ public class AddTableToOrderController implements Initializable {
                     double yPos = bounds.getMaxY(); // Position below the button
 
                     showChooseOrderTimePopup(xPos, yPos, (selectedDate, selectedTime) -> {
-                        // Format the selected date and time into a string
-                        String st = selectedDate + " " + selectedTime.format(DateTimeFormatter.ofPattern("HH:mm"));
-                        System.out.println("Selected Order Time: " + st);
+                        // Combine date and time correctly
+                        LocalDateTime startTime = LocalDateTime.of(selectedDate, selectedTime);
 
-                        // Convert to LocalDateTime
+                        // Format the LocalDateTime correctly
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                        LocalDateTime startTime = LocalDateTime.parse(selectedDate + " " + selectedTime.format(formatter), formatter);
+                        String formattedDateTime = startTime.format(formatter);
+
+                        System.out.println("Selected Order Time: " + formattedDateTime);
 
                         // Store the selected time in a variable or use it
                         addToOrder(order, "Order", startTime);
                     });
                 });
+
 
                 // HBox to hold buttons
                 HBox actionBox = new HBox(15, playButton, orderButton);
@@ -227,10 +229,9 @@ public class AddTableToOrderController implements Initializable {
     private void addToOrder(Order order, String bookingStatus, LocalDateTime orderStartTime) {
         if (currentTableId != -1) {
             boolean success = false;
-            if(orderStartTime==null){
+            if (orderStartTime == null) {
                 success = BookingDAO.addBookingToExistedOrder(order.getOrderId(), currentTableId, bookingStatus);
-            }
-            else{
+            } else {
                 success = BookingDAO.addOrderedBookingToExistedOrder(order.getOrderId(), currentTableId, bookingStatus, orderStartTime);
             }
 
@@ -266,9 +267,12 @@ public class AddTableToOrderController implements Initializable {
             forEachOrderController.setOrderID(order.getOrderId());
             forEachOrderController.setCustomerID(order.getCustomerId());
             forEachOrderController.setForEachUserID(order.getUserId());
-            forEachOrderController.setBillNo(OrderController.getBillNumberCount());
+            forEachOrderController.setOrderDate(order.getOrderDate());
+
+            int billNo = OrderDAO.getOrderBillNo(order.getOrderId());
+            if (billNo != -1) forEachOrderController.setBillNo(billNo);
             forEachOrderController.setPoolTableController(this.poolTableController);
-            if(order.getCustomerPhone()!=null){
+            if (order.getCustomerPhone() != null) {
                 forEachOrderController.setInitialPhoneText(order.getCustomerPhone());
             }
             forEachOrderController.initializeAllTables();
@@ -299,11 +303,11 @@ public class AddTableToOrderController implements Initializable {
         this.currentTableId = tableId;
     }
 
-    public void setTableContainer(StackPane tableContainer){
+    public void setTableContainer(StackPane tableContainer) {
         this.tableContainer = tableContainer;
     }
 
-    public StackPane getTableContainer(){
+    public StackPane getTableContainer() {
         return this.tableContainer;
     }
 

@@ -55,23 +55,28 @@ public class BookingDAO {
     }
 
     public static int getTheLatestOrderByTableId(int tableId) {
-        String query = "SELECT * FROM bookings WHERE table_id = ? ORDER BY start_time DESC LIMIT 1";
-        try {
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement pr = con.prepareStatement(query);
+        String query = "SELECT * FROM bookings WHERE table_id = ? AND booking_status IN ('Playing', 'Order') ORDER BY start_time DESC LIMIT 1";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pr = con.prepareStatement(query)) {
+
             pr.setInt(1, tableId);
             ResultSet rs = pr.executeQuery();
+
             if (!rs.next()) {
-                throw new Exception("No orderID found for this tableId = " + tableId + ". This table might haven't been booked by any order.");
+                throw new Exception("No active order found for tableId = " + tableId + ". This table might not be in use.");
             }
-            System.out.println("Got Order ID = "+rs.getInt("order_id"));
-            return rs.getInt("order_id");
+
+            int orderId = rs.getInt("order_id");
+            System.out.println("Got Order ID = " + orderId);
+            return orderId;
+
         } catch (Exception e) {
-            System.out.println("Ah shit, error happens in getTheLatestOrderByTableId() in BookingDAO !");
+            System.out.println("Ah shit, error happens in getTheLatestOrderByTableId() in BookingDAO!");
             e.printStackTrace();
         }
         return -1;
     }
+
 
     public static void updateBookingStatus(int bookingId) {
         String query = "UPDATE bookings SET booking_status = 'canceled' WHERE booking_id= ?";
@@ -314,7 +319,7 @@ public class BookingDAO {
 
     public static boolean cancelBooking(int bookingId) {
         String updateBookingQuery = "UPDATE bookings SET booking_status = 'Canceled' WHERE booking_id = ?";
-        String updateTableStatusQuery = "UPDATE pooltable SET table_status = 'available' WHERE table_id = (SELECT table_id FROM bookings WHERE booking_id = ?)";
+        String updateTableStatusQuery = "UPDATE pooltables SET status = 'Available' WHERE table_id = (SELECT table_id FROM bookings WHERE booking_id = ?)";
 
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false); // Bắt đầu transaction

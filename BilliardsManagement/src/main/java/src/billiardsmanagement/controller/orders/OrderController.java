@@ -3,6 +3,7 @@ package src.billiardsmanagement.controller.orders;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -36,6 +37,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,7 +60,7 @@ public class OrderController implements Initializable {
     @FXML
     private TableColumn<Order, Void> actionColumn; // Thêm khai báo này
     @FXML
-    private TableColumn<Order, Date> dateColumn;
+    private TableColumn<Order, String> dateColumn;
     @FXML
     private TableColumn<Order, String> managerColumn;
     @FXML
@@ -127,7 +131,11 @@ public class OrderController implements Initializable {
             controller.setCustomerID(1);
             controller.setOrderTable(orderTable);
             controller.setBillNo(billNo);
+            controller.setOrderDate(orderLatest.getOrderDate());
+            controller.setInitialPhoneText(orderLatest.getCustomerPhone());
+            controller.setInitialPhoneText(orderLatest.getCustomerPhone());
             controller.initializeAllTables();
+
         } catch (IllegalArgumentException e) {
             NotificationService.showNotification("Validation Error", e.getMessage(), NotificationStatus.Error);
         } catch (Exception e) {
@@ -137,9 +145,9 @@ public class OrderController implements Initializable {
         }
     }
 
-    private void loadOrderList() {
-
+    public void loadOrderList() {
         List<Order> orders = orderDAO.getAllOrders();
+        orderTable.getItems().clear();
         orderTable.setItems(FXCollections.observableArrayList(orders));
     }
 
@@ -163,6 +171,214 @@ public class OrderController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        loadCustomerNameToIdMap();
+        setUpSearchField();
+        loadOrderList();
+        orderTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        VBox.setVgrow(orderTable, Priority.ALWAYS);
+
+        // Add scene size listener after scene is created
+        mainPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.windowProperty().addListener((obs2, oldWindow, newWindow) -> {
+                    if (newWindow != null) {
+                        mainPane.prefWidthProperty().bind(newScene.widthProperty());
+                        mainPane.prefHeightProperty().bind(newScene.heightProperty());
+                    }
+                });
+            }
+        });
+
+        totalCostColumn.setCellValueFactory(new PropertyValueFactory<>("totalCost"));
+        sttColumn.setCellValueFactory(param -> {
+            TableView<?> tableView = sttColumn.getTableView();
+            int totalRows = tableView.getItems().size();
+            int index = tableView.getItems().indexOf(param.getValue());
+            return new SimpleIntegerProperty(totalRows - index).asObject();
+        });
+        customerNameColumn.setCellValueFactory(new PropertyValueFactory<>("customerName"));
+        orderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("orderStatus"));
+        phoneCustomerColumn.setCellValueFactory(new PropertyValueFactory<>("customerPhone"));
+        nameTableColumn.setCellValueFactory(new PropertyValueFactory<>("currentTableName"));
+        nameTableColumn.setCellFactory(column -> new TableCell<Order, String>() {
+            private final Text text = new Text();
+
+            {
+                text.wrappingWidthProperty().bind(nameTableColumn.widthProperty());
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    text.setText(item);
+                    setGraphic(text);
+                }
+            }
+        });
+
+        totalCostColumn.setCellFactory(param -> new TableCell<Order, Double>() {
+            private final DecimalFormat df = new DecimalFormat("#,###");
+
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? null : df.format(item));
+            }
+        });
+
+        // Bill No column
+        sttColumn.setCellFactory(column -> {
+            return new TableCell<Order, Integer>() {
+                @Override
+                protected void updateItem(Integer item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText(null);
+                    } else {
+                        setText(String.valueOf(item));
+                        getStyleClass().add("bill-number");
+                    }
+                }
+            };
+        });
+
+        // Table Name column
+        nameTableColumn.setCellFactory(column -> {
+            return new TableCell<Order, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText(null);
+                    } else {
+                        setText(item);
+                        getStyleClass().add("table-name-cell");
+                    }
+                }
+            };
+        });
+
+        // Status column
+//        orderStatusColumn.setCellFactory(column -> {
+//            return new TableCell<Order, String>() {
+//                @Override
+//                protected void updateItem(String item, boolean empty) {
+//                    super.updateItem(item, empty);
+//                    if (item == null || empty) {
+//                        setText(null);
+//                    } else {
+//                        setText(item);
+//                        if (item.equals("Playing")) {
+//                            getStyleClass().add("status-playing");
+//                        }
+//                    }
+//                }
+//            };
+//        });
+
+        // Cost column formatting
+        totalCostColumn.setCellFactory(column -> {
+            return new TableCell<Order, Double>() {
+                @Override
+                protected void updateItem(Double item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText(null);
+                    } else {
+                        setText(String.format("%,.0f", item));
+                    }
+                }
+            };
+        });
+
+
+        dateColumn.setCellValueFactory(cellData -> {
+            LocalDateTime startTime = cellData.getValue().getOrderDate();
+            return new SimpleStringProperty(
+                    startTime != null ? startTime.format(DateTimeFormatter.ofPattern("HH'h'mm | dd-MM-yyyy")) : "");
+        });
+
+
+        managerColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
+        actionColumn.setCellFactory(column -> new TableCell<>() {
+            private final HBox container = new HBox(10); // spacing = 10
+
+            private final Button printBtn = new Button();
+
+            {
+                // View button với icon EYE
+                // Print button với icon PRINT
+                FontAwesomeIconView printIcon = new FontAwesomeIconView(FontAwesomeIcon.PRINT);
+                printIcon.setSize("16");
+                printBtn.setGraphic(printIcon);
+                printBtn.getStyleClass().add("action-button");
+                // Delete button với icon TRASH
+                // Add buttons to container
+                container.setAlignment(Pos.CENTER);
+                container.getChildren().addAll(printBtn);
+                // Add button actions
+                printBtn.setOnAction(event -> {
+                    Order selectedOrder = getTableView().getItems().get(getIndex());
+                    if (selectedOrder == null) {
+                        NotificationService.showNotification("Error", "Please select an order to payment.",
+                                NotificationStatus.Error);
+                        return;
+                    }
+                    if (!"Finished".equals(selectedOrder.getOrderStatus())
+                            && !"Paid".equals(selectedOrder.getOrderStatus())) {
+                        NotificationService.showNotification("Access Denied",
+                                "Bills can only be accessed when the order is in Finished or Paid status.",
+                                NotificationStatus.Error);
+                        return;
+                    }
+                    int totalRow = orderTable.getItems().size();
+                    int selectedIndex = getIndex(); // Lấy chỉ số hàng
+                    int billNo = totalRow - selectedIndex;
+                    int orderId = selectedOrder.getOrderId();
+                    FXMLLoader paymentLoader = new FXMLLoader(
+                            getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
+                    Parent paymentRoot = null;
+                    try {
+                        paymentRoot = paymentLoader.load();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+
+                    PaymentController paymentController = paymentLoader.getController();
+                    paymentController.setOrderID(orderId);
+                    paymentController.setBillNo(billNo);
+                    paymentController.setBill(createBill(selectedOrder));
+
+                    Stage stage = new Stage();
+                    stage.setTitle("Payment Details");
+                    stage.setScene(new Scene(paymentRoot));
+                    stage.setOnHidden(e -> loadOrderList());
+                    stage.show();
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(container);
+                }
+            }
+        });
+
+        orderTable.setOnMouseClicked(event -> {
+            showItem(event);
+        });
+    }
+
+    public void initializeOrderController(){
         loadCustomerNameToIdMap();
         setUpSearchField();
         loadOrderList();
@@ -286,7 +502,15 @@ public class OrderController implements Initializable {
                 }
             };
         });
-        dateColumn.setCellValueFactory(new PropertyValueFactory<>("orderDate"));
+
+
+        dateColumn.setCellValueFactory(cellData -> {
+            LocalDateTime startTime = cellData.getValue().getOrderDate();
+            return new SimpleStringProperty(
+                    startTime != null ? startTime.format(DateTimeFormatter.ofPattern("HH'h'mm | dd-MM-yyyy")) : "");
+        });
+
+
         managerColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
         actionColumn.setCellFactory(column -> new TableCell<>() {
             private final HBox container = new HBox(10); // spacing = 10
@@ -360,6 +584,8 @@ public class OrderController implements Initializable {
         orderTable.setOnMouseClicked(event -> {
             showItem(event);
         });
+
+        System.out.println("✅ From OrderController : initializeOrderController() method called");
     }
 
     private Bill createBill(Order selectedOrder) {
@@ -503,8 +729,10 @@ public class OrderController implements Initializable {
                 forEachOrderController.setMainController(mainController);
                 forEachOrderController.setBillNo(billNo);
                 forEachOrderController.setOrderDate(selectedOrder.getOrderDate());
-
+                forEachOrderController.setCurrentOrder(selectedOrder);
+                forEachOrderController.setOrderController(this);
                 forEachOrderController.initializeAllTables();
+
                 // Cập nhật nội dung của contentArea trong MainController
                 if (mainController != null) {
                     StackPane contentArea = mainController.getContentArea(); // Phương thức lấy contentArea

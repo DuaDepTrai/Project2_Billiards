@@ -180,12 +180,15 @@ public class ForEachOrderController {
 
     private String initialPhoneText;
     private LocalDateTime orderDate;
+    private Order currentOrder;
 
-//    @FXML private Button confirmUpdateDataCustomer;
-    @FXML private Button confirmSaveCustomer;
+    //    @FXML private Button confirmUpdateDataCustomer;
+    @FXML
+    private Button confirmSaveCustomer;
 
     private PoolTable selectedTable;
     private PoolTableController poolTableController;
+    private OrderController orderController;
 
     public void setOrderID(int orderID) {
         this.orderID = orderID;
@@ -530,7 +533,7 @@ public class ForEachOrderController {
         bookingPoolTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         orderItemsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         // Finish Order Button disable / enable
-        String status = orderStatusText.getText();
+        String status = currentOrder != null ? currentOrder.getOrderStatus() : orderStatusText.getText();
         if (status.equalsIgnoreCase("Finished") || status.equalsIgnoreCase("Canceled")
                 || status.equalsIgnoreCase("Paid")) {
             finishOrderButton.setDisable(true);
@@ -546,11 +549,10 @@ public class ForEachOrderController {
 
         // Staff Name
         String staffName = OrderDAO.getStaffNameByOrderId(orderID);
-        if(staffName==null){
+        if (staffName == null) {
             System.out.println("Error : Currently, there is no user logged in !");
             staffNameText.setText("[ No staff logged in ! ]");
-        }
-        else if (staffName.isEmpty()) {
+        } else if (staffName.isEmpty()) {
             System.out.println("Error : Currently, there is no user logged in !");
             staffNameText.setText("[ No staff logged in ! ]");
         } else {
@@ -566,7 +568,7 @@ public class ForEachOrderController {
         checkOrderStatus();
 
         // Set current timestamp in dateText
-        if(orderDate!=null){
+        if (orderDate != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH'h'mm | dd-MM-yyyy");
             String formattedDateTime = orderDate.format(formatter);
             dateText.setText(formattedDateTime);
@@ -617,10 +619,9 @@ public class ForEachOrderController {
 
     public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text) {
         auto.setOnAutoCompleted(autoCompletionEvent -> {
-            if(!text.getText().equalsIgnoreCase(initialPhoneText) && customerText.getText()!=null){
+            if (!text.getText().equalsIgnoreCase(initialPhoneText) && customerText.getText() != null) {
                 updateCustomerInformation(new ActionEvent());
-            }
-            else{
+            } else {
                 NotificationService.showNotification("No Changes", "No changes were made in the customer information field.",
                         NotificationStatus.Warning);
             }
@@ -749,7 +750,7 @@ public class ForEachOrderController {
                         "Start playing on this table successfully.", NotificationStatus.Success);
                 loadBookings(); // Tải lại danh sách booking sau khi cập nhật
                 checkOrderStatus();
-                if(poolTableController!=null) poolTableController.handleViewAllTables();
+                if (poolTableController != null) poolTableController.handleViewAllTables();
             } else {
                 NotificationService.showNotification("Update Failed",
                         "Failed to update the booking status. Please try again.", NotificationStatus.Error);
@@ -795,7 +796,7 @@ public class ForEachOrderController {
                 NotificationService.showNotification("Success", "Booking deleted successfully.",
                         NotificationStatus.Success);
                 loadBookings();
-                if(poolTableController!=null) poolTableController.handleViewAllTables();
+                if (poolTableController != null) poolTableController.handleViewAllTables();
             } else {
                 NotificationService.showNotification("Error", "Failed to delete the booking.",
                         NotificationStatus.Error);
@@ -1064,7 +1065,7 @@ public class ForEachOrderController {
                         loadOrderDetail();
                         loadInfo();
 
-                        if(poolTableController!=null) poolTableController.handleViewAllTables();
+                        if (poolTableController != null) poolTableController.handleViewAllTables();
                     } else {
                         NotificationService.showNotification("Error", "Failed to update order status.",
                                 NotificationStatus.Error);
@@ -1091,8 +1092,8 @@ public class ForEachOrderController {
         this.orderTable = orderTable;
     }
 
-    private void loadOrderList() {
-        if(orderTable!=null){
+    public void loadOrderList() {
+        if (orderTable != null) {
             List<Order> orders = orderDAO.getAllOrders();
             orderTable.setItems(FXCollections.observableArrayList(orders));
         }
@@ -1106,6 +1107,12 @@ public class ForEachOrderController {
 
     public void checkOrderStatus() {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
+        if (bookings.size() == 1 && "Canceled".equalsIgnoreCase(bookings.get(0).getBookingStatus())) {
+            OrderDAO.updateStatusOrder(orderID, "Canceled");
+            System.out.println("✅ From ForEachOrder : Order updated to Canceled ; only 1 booking found.");
+            return;
+        }
+
         for (Booking booking : bookings) {
             if (booking.getBookingStatus().equals("Playing")) {
                 OrderDAO.updateStatusOrder(orderID, "Playing");
@@ -1117,10 +1124,11 @@ public class ForEachOrderController {
             } else if (booking.getBookingStatus().equals("Finish")) {
 
                 System.out.println("Da chuyen booking thanh Finish");
-            } else {
-                OrderDAO.updateStatusOrder(orderID, "Canceled");
-                System.out.println("Da chuyen order thanh canceled");
             }
+//            else {
+//                OrderDAO.updateStatusOrder(orderID, "Canceled");
+//                System.out.println("Da chuyen order thanh canceled");
+//            }
         }
     }
 
@@ -1140,14 +1148,22 @@ public class ForEachOrderController {
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
+            System.out.println("From ForEachOrderController : Cancel Booking Called");
             boolean success = BookingDAO.cancelBooking(selectedBooking.getBookingId());
             if (success) {
-                BookingDAO.updateTableStatusAfterBooking(selectedBooking.getBookingId());
+//                BookingDAO.updateTableStatusAfterBooking(selectedBooking.getBookingId());
                 NotificationService.showNotification("Cancel Booking Success",
                         "Booking in Table : " + selectedBooking.getTableName() + " has been cancelled successfully!",
                         NotificationStatus.Success);
                 loadBookings();
-                if(poolTableController!=null) poolTableController.handleViewAllTables();
+                if (poolTableController != null) poolTableController.handleViewAllTables();
+                if (orderController == null) System.out.println("❌ From ForEachOrderController : orderController is null. Cannot call loadOrderList()");
+                    else {
+                        orderController.loadOrderList();
+                        checkOrderStatus();
+                    System.out.println("✅ From ForEachOrderController, cancelBooking() : loadOrderList() called from orderController non-null");
+                    System.out.println("✅ From ForEachOrderController, cancelBooking() : checkOrderStatus() called");
+                }
             } else {
                 NotificationService.showNotification("Error Cancel Booking",
                         "An unexpected error happens when cancelling this booking. Please try again later !",
@@ -1244,7 +1260,7 @@ public class ForEachOrderController {
     public void updateCustomerInformation(ActionEvent actionEvent) {
         try {
             String phoneNumber = phoneText.getText();
-            if(initialPhoneText.equalsIgnoreCase(phoneNumber)){
+            if (initialPhoneText != null && initialPhoneText.equalsIgnoreCase(phoneNumber)) {
                 NotificationService.showNotification("No Changes", "No changes were made in the customer information field.",
                         NotificationStatus.Warning);
             }
@@ -1262,6 +1278,7 @@ public class ForEachOrderController {
             boolean success = orderDAO.updateOrder(orderID, customerID);
             if (success) {
                 NotificationService.showNotification("Success", "Order updated successfully", NotificationStatus.Success);
+                initialPhoneText = phoneNumber;
                 loadOrderList();
             } else {
                 NotificationService.showNotification("Error", "Failed to update order", NotificationStatus.Error);
@@ -1299,15 +1316,24 @@ public class ForEachOrderController {
         this.selectedTable = table;
     }
 
-    public int getForEachUserID(){
+    public int getForEachUserID() {
         return this.userID;
     }
-    public void setForEachUserID(int userID){
+
+    public void setForEachUserID(int userID) {
         this.userID = userID;
     }
 
     public void setInitialPhoneText(String initialPhoneText) {
         this.initialPhoneText = initialPhoneText;
+    }
+
+    public void setCurrentOrder(Order order) {
+        this.currentOrder = order;
+    }
+
+    public Order getCurrentOrder() {
+        return this.currentOrder;
     }
 
     @FXML
@@ -1338,5 +1364,13 @@ public class ForEachOrderController {
 
     public PoolTableController getPoolTableController() {
         return this.poolTableController;
+    }
+
+    public void setOrderController(OrderController orderController) {
+        this.orderController = orderController;
+    }
+
+    public OrderController getOrderController() {
+        return this.orderController;
     }
 }

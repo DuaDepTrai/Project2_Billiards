@@ -8,6 +8,7 @@ import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -83,10 +84,41 @@ public class PoolTableController {
     private Popup poolPopup;
     private Popup oldPopup;
     private boolean isPoolPopupShowing = false;
-
+    private OrderController orderController;
 
     @FXML
     public void initialize() {
+        System.out.println("Pool Table Controller's Initialize() method is called!");
+        catePooltablesList = new ArrayList<>();
+        catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
+
+        // Set search icon
+        ImageView searchIcon = new ImageView(
+                new Image(getClass().getResourceAsStream("/src/billiardsmanagement/images/pooltables/searchIcon.png")));
+        searchIcon.setFitHeight(16);
+        searchIcon.setFitWidth(16);
+        searchButton.setGraphic(searchIcon);
+
+        // Load all tables
+        handleViewAllTables();
+
+        // Add search functionality
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterTables(newValue);
+        });
+
+        // Initialize category list
+        initializeCategoryList();
+
+        // Add handler for new category button
+        addNewTableCategory.setOnAction(e -> showAddCategoryDialog());
+
+        // Add handler for add new table button
+        addNewButton.setOnAction(e -> showAddDialog());
+    }
+
+    public void initializePoolTableController(){
+        System.out.println("Pool Table Controller's Initialize() method is called!");
         catePooltablesList = new ArrayList<>();
         catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
 
@@ -209,6 +241,7 @@ public class PoolTableController {
                     controller.setPoolTable(table);
                     controller.setPoolTableController(this);
                     controller.setTablesContainer(tableStack);
+                    controller.setOrderController(this.orderController);
                     controller.initializeView();
 
                     showPoolPopup(tableStack, root);
@@ -218,6 +251,9 @@ public class PoolTableController {
             } else {
                 int orderId = BookingDAO.getTheLatestOrderByTableId(table.getTableId());
                 Booking latestBooking = BookingDAO.getBookingByTableIdAndOrderId(orderId, table.getTableId());
+                System.out.println("Latest Booking : "+latestBooking);
+                System.out.println("Order ID = "+orderId);
+                System.out.println("Status : "+latestBooking.getBookingStatus());
                 if (latestBooking.getBookingStatus() != null && (latestBooking.getBookingStatus().equalsIgnoreCase("Playing") || latestBooking.getBookingStatus().equalsIgnoreCase("Order"))) {
                     Order currentOrder = OrderDAO.getOrderById(orderId);
                     showForEachOrderView(currentOrder, table);
@@ -331,7 +367,10 @@ public class PoolTableController {
             forEachOrderController.setOrderID(order.getOrderId());
             forEachOrderController.setCustomerID(order.getCustomerId());
             forEachOrderController.setForEachUserID(order.getUserId());
-            forEachOrderController.setBillNo(OrderController.getBillNumberCount());
+            forEachOrderController.setOrderDate(order.getOrderDate());
+            forEachOrderController.setOrderController(this.orderController);
+            int billNo = OrderDAO.getOrderBillNo(order.getOrderId());
+            if(billNo!=-1) forEachOrderController.setBillNo(billNo);
             forEachOrderController.setPoolTableController(this);
             if (order.getCustomerPhone() != null) {
                 forEachOrderController.setInitialPhoneText(order.getCustomerPhone());
@@ -713,10 +752,35 @@ public class PoolTableController {
 
     @FXML
     public void handleViewAllTables() {
-        tableList.clear();
-        tableList.addAll(poolTableDAO.getAllTables());
+        // Create a task for fetching tables
+        Task<List<PoolTable>> fetchTablesTask = new Task<>() {
+            @Override
+            protected List<PoolTable> call() throws Exception {
+                // Simulate time-consuming data fetching operation
+                return poolTableDAO.getAllTables(); // Fetch tables from DAO
+            }
 
-        // Clear and rebuild UI
+            @Override
+            protected void succeeded() {
+                // This method runs on the JavaFX Application Thread
+                List<PoolTable> tableList = getValue(); // Get the result from call()
+                updateUIWithTables(tableList);
+            }
+
+            @Override
+            protected void failed() {
+                // Handle any exceptions that occurred during the task
+                Throwable exception = getException();
+                exception.printStackTrace();
+                NotificationService.showNotification("Error", "Failed to load tables.", NotificationStatus.Error);
+            }
+        };
+
+        // Run the task in a new thread
+        new Thread(fetchTablesTask).start();
+    }
+
+    private void updateUIWithTables(List<PoolTable> tableList) {
         tablesContainer.getChildren().clear();
         tableList.forEach(this::createTableUI);
 
@@ -997,6 +1061,14 @@ public class PoolTableController {
 
     public boolean isPoolPopupShowing() {
         return this.isPoolPopupShowing;
+    }
+
+    public void setOrderController(OrderController orderController) {
+        this.orderController = orderController;
+    }
+
+    public OrderController getOrderController() {
+        return this.orderController;
     }
 
 }
