@@ -1,13 +1,17 @@
 package src.billiardsmanagement.controller.poolTables;
 
+import com.itextpdf.io.font.otf.FontReadingException;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
+import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -15,10 +19,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+import javafx.util.Duration;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
 import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.controller.poolTables.catepooltables.UpdateCategoryPooltableController;
@@ -39,7 +48,6 @@ public class PoolTableController {
     public ScrollPane poolTableScrollPane;
     private User currentUser; // Lưu user đang đăng nhập
     private List<String> userPermissions = new ArrayList<>();
-
 
     @FXML
     protected FlowPane tablesContainer;
@@ -71,6 +79,11 @@ public class PoolTableController {
     protected PoolTableDAO poolTableDAO = new PoolTableDAO();
     protected ArrayList<CatePooltable> catePooltablesList;
     protected OrderDAO orderDAO = new OrderDAO();
+
+    private Popup poolPopup;
+    private Popup oldPopup;
+    private boolean isPoolPopupShowing = false;
+
 
     @FXML
     public void initialize() {
@@ -186,16 +199,29 @@ public class PoolTableController {
         createOrderButton.setWrapText(true);
         createOrderButton.setStyle("-fx-font-size: 12px;");
         createOrderButton.setOnAction(e -> {
-            if(table.getStatus().equalsIgnoreCase("Available")) {
-                showPoolTableOrderInformation(table);
+            if (table.getStatus().equalsIgnoreCase("Available")) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(
+                            getClass().getResource("/src/billiardsmanagement/pooltables/poolTableOrderInformation.fxml"));
+                    Parent root = loader.load();
+
+                    PoolTableOrderInformationController controller = loader.getController();
+                    controller.setPoolTable(table);
+                    controller.setPoolTableController(this);
+                    controller.setTablesContainer(tableStack);
+                    controller.initializeView();
+
+                    showPoolPopup(tableStack, root);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             } else {
                 int orderId = BookingDAO.getTheLatestOrderByTableId(table.getTableId());
                 Booking latestBooking = BookingDAO.getBookingByTableIdAndOrderId(orderId, table.getTableId());
-                if(latestBooking.getBookingStatus()!=null && (latestBooking.getBookingStatus().equalsIgnoreCase("Playing") || latestBooking.getBookingStatus().equalsIgnoreCase("Order"))) {
+                if (latestBooking.getBookingStatus() != null && (latestBooking.getBookingStatus().equalsIgnoreCase("Playing") || latestBooking.getBookingStatus().equalsIgnoreCase("Order"))) {
                     Order currentOrder = OrderDAO.getOrderById(orderId);
                     showForEachOrderView(currentOrder, table);
-                }
-                else{
+                } else {
                     NotificationService.showNotification("Error",
                             "This table is not booked yet, so that there's no Order associated with this table.",
                             NotificationStatus.Error);
@@ -210,7 +236,23 @@ public class PoolTableController {
         infoButton.setPrefHeight(60);
         infoButton.setWrapText(true);
         infoButton.setStyle("-fx-font-size: 12px;");
-        infoButton.setOnAction(e -> openTableInfoDialog(table));
+//        infoButton.setOnAction(e -> openTableInfoDialog(table));
+        infoButton.setOnAction(e -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/src/billiardsmanagement/pooltables/poolTableInfo.fxml"));
+                Parent root = loader.load();
+
+                // Get the controller and set up the table info
+                PoolTableInfoController controller = loader.getController();
+                controller.setMainController(this);
+                controller.setPoolTable(table);
+
+                showPoolPopup(tableStack, root);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
 
         hoverButtons.getChildren().addAll(createOrderButton, infoButton);
 
@@ -220,6 +262,64 @@ public class PoolTableController {
         // Add to container with reduced margin
         tablesContainer.getChildren().add(tableStack);
         FlowPane.setMargin(tableStack, new Insets(5));
+    }
+
+    public void showPoolPopup(StackPane stackPane, Parent content) {
+        Platform.runLater(() -> {
+            this.poolPopup = new Popup();
+            StackPane contentPane = new StackPane();
+            contentPane.setStyle("-fx-background-color: white; -fx-padding: 10;");
+
+            contentPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, null)));
+            contentPane.getChildren().add(content);
+
+            poolPopup.getContent().add(contentPane);
+
+            double xPos = stackPane.localToScene(0, 0).getX();
+            double yPos = stackPane.localToScene(0, 0).getY();
+
+            poolPopup.setX(xPos);
+            poolPopup.setY(yPos);
+
+            FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.12), contentPane);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+
+            poolPopup.setAutoHide(true);
+            poolPopup.setAutoFix(true);
+            poolPopup.show(tablesContainer.getScene().getWindow());
+
+            fadeIn.play();
+        });
+    }
+
+    public void hidePoolPopup() {
+        if(poolPopup!=null && poolPopup.isShowing()) {
+            poolPopup.hide();
+        }
+//        if (poolPopup != null && poolPopup.isShowing()) {
+//            oldPopup = poolPopup; // Keep reference to the current popup
+//
+//            if (!oldPopup.getContent().isEmpty()) { // Ensure it has content
+//                Node popupContent = oldPopup.getContent().get(0);
+//
+//                // Apply fade-out effect on the popup content
+//                FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.07), popupContent);
+//                fadeOut.setFromValue(1.0);
+//                fadeOut.setToValue(0.0);
+//                poolPopup.hide();
+//                fadeOut.setOnFinished(event -> {
+//                    oldPopup.hide(); // Hide popup after fading out
+//                    System.out.println("Popup Hidden with Fade Out!");
+//                });
+//
+//                fadeOut.play();
+//            } else {
+//                oldPopup.hide(); // Directly hide if no content
+//            }
+//        } else {
+//            System.out.println("poolPopup is null, not showing, or not initialized.");
+//        }
     }
 
     private void showForEachOrderView(Order order, PoolTable currentTable) {
@@ -232,7 +332,8 @@ public class PoolTableController {
             forEachOrderController.setCustomerID(order.getCustomerId());
             forEachOrderController.setForEachUserID(order.getUserId());
             forEachOrderController.setBillNo(OrderController.getBillNumberCount());
-            if(order.getCustomerPhone()!=null){
+            forEachOrderController.setPoolTableController(this);
+            if (order.getCustomerPhone() != null) {
                 forEachOrderController.setInitialPhoneText(order.getCustomerPhone());
             }
             forEachOrderController.initializeAllTables();
@@ -611,7 +712,7 @@ public class PoolTableController {
     }
 
     @FXML
-    protected void handleViewAllTables() {
+    public void handleViewAllTables() {
         tableList.clear();
         tableList.addAll(poolTableDAO.getAllTables());
 
@@ -703,6 +804,7 @@ public class PoolTableController {
 
             PoolTableOrderInformationController controller = loader.getController();
             controller.setPoolTable(table);
+            controller.setPoolTableController(this);
             controller.initializeView();
 
             Stage dialog = new Stage();
@@ -791,6 +893,7 @@ public class PoolTableController {
             Parent root = loader.load();
 
             PoolTableInfoController controller = loader.getController();
+            controller.setPoolTableController(this);
             controller.setPoolTable(table);
 
             Stage stage = new Stage();
@@ -884,5 +987,16 @@ public class PoolTableController {
         this.currentUser = user;
     }
 
+    public Popup getCurrentPoolPopup() {
+        return poolPopup;
+    }
+
+    public void setPoolPopupShowing(boolean isPoolPopupShowing) {
+        this.isPoolPopupShowing = isPoolPopupShowing;
+    }
+
+    public boolean isPoolPopupShowing() {
+        return this.isPoolPopupShowing;
+    }
 
 }

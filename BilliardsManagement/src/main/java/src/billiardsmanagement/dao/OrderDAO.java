@@ -28,7 +28,7 @@ public class OrderDAO {
             latestOrder.setOrderId(rs.getInt("order_id"));
             latestOrder.setCustomerId(rs.getInt("customer_id"));
             latestOrder.setUserId(rs.getInt("user_id"));
-            latestOrder.setOrderDate(rs.getDate("order_date"));
+            latestOrder.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
             latestOrder.setOrderStatus(rs.getString("order_status"));
 
             // Assuming you have methods to set customer name and phone in Order
@@ -236,7 +236,7 @@ public class OrderDAO {
                         rs.getInt("user_id"),
                         rs.getString("user_name"),
                         rs.getString("role_name"),
-                        rs.getDate("order_date"),
+                        rs.getTimestamp("order_date").toLocalDateTime(),
                         rs.getDouble("total_cost"),
                         rs.getString("order_status"),
                         rs.getString("currentTableName")

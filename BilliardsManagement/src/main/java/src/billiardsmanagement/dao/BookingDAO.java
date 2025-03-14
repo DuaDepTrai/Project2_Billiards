@@ -6,6 +6,7 @@ import src.billiardsmanagement.model.NotificationStatus;
 import src.billiardsmanagement.service.NotificationService;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -313,16 +314,30 @@ public class BookingDAO {
 
     public static boolean cancelBooking(int bookingId) {
         String updateBookingQuery = "UPDATE bookings SET booking_status = 'Canceled' WHERE booking_id = ?";
+        String updateTableStatusQuery = "UPDATE pooltable SET table_status = 'available' WHERE table_id = (SELECT table_id FROM bookings WHERE booking_id = ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(updateBookingQuery)) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false); // Bắt đầu transaction
 
             // Cập nhật trạng thái booking thành 'Canceled'
-            stmt.setInt(1, bookingId);
-            int rowsUpdated = stmt.executeUpdate();
+            try (PreparedStatement stmt1 = conn.prepareStatement(updateBookingQuery)) {
+                stmt1.setInt(1, bookingId);
+                int rowsUpdated = stmt1.executeUpdate();
 
-            // Trả về true nếu có ít nhất 1 dòng được cập nhật
-            return rowsUpdated > 0;
+                if (rowsUpdated == 0) {
+                    conn.rollback(); // Không có booking nào được cập nhật
+                    return false;
+                }
+            }
+
+            // Cập nhật trạng thái bàn thành 'available'
+            try (PreparedStatement stmt2 = conn.prepareStatement(updateTableStatusQuery)) {
+                stmt2.setInt(1, bookingId);
+                stmt2.executeUpdate();
+            }
+
+            conn.commit(); // Xác nhận thay đổi
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -513,6 +528,33 @@ public class BookingDAO {
             stmt.setInt(1, orderId);
             stmt.setInt(2, tableId);
             stmt.setString(3, status);
+
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Booking added successfully!");
+                return true;
+            } else {
+                System.out.println("Failed to add booking.");
+                return false;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean addOrderedBookingToExistedOrder(int orderId, int tableId, String status, LocalDateTime startTime) {
+        String query = "INSERT INTO bookings (order_id, table_id, start_time, booking_status) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, orderId);
+            stmt.setInt(2, tableId);
+            stmt.setTimestamp(3, Timestamp.valueOf(startTime));
+            stmt.setString(4, status);
 
             int rowsAffected = stmt.executeUpdate();
 

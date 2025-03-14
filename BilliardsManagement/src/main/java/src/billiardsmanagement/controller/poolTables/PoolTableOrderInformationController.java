@@ -1,31 +1,55 @@
 package src.billiardsmanagement.controller.poolTables;
 
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
 import src.billiardsmanagement.controller.orders.OrderController;
+import src.billiardsmanagement.controller.poolTables.ChooseOrderTimeController;
 import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.dao.PoolTableDAO;
 import src.billiardsmanagement.model.*;
 import src.billiardsmanagement.service.NotificationService;
 
+import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.function.BiConsumer;
 
 public class PoolTableOrderInformationController {
-    @FXML private Label orderInformationTitle;
-    @FXML private Label statusText;
-    @FXML private Text noOrderText;
-    @FXML private Button showOrderButton;
-    @FXML private Button createOrderBtn;
-    @FXML private Button addToOrderBtn;
+    @FXML
+    private Label orderInformationTitle;
+    @FXML
+    private Label statusText;
+    @FXML
+    private Text noOrderText;
+    @FXML
+    private Button showOrderButton;
+    @FXML
+    private Button createOrderBtn;
+    @FXML
+    private Button addToOrderBtn;
 //    @FXML private Button finishBtn;
 //    @FXML private Button playBtn;
 //    @FXML private Button cancelBtn;
@@ -39,61 +63,64 @@ public class PoolTableOrderInformationController {
     private String redColor = "#C21E00";
     private String orangeColor = "#FFA500";
 
+    private PoolTableController poolTableController;
+    private StackPane tablesContainer;
+    private Popup chooseOrderTimePopup;
+    private Popup choosePlayOrderPopup;
+
     public void initializeView() {
-        orderInformationTitle.setText("Table "+currentTable.getName()+"'s Order Information");
+        orderInformationTitle.setText("Table " + currentTable.getName() + "'s Order Information");
 
         if (currentTable == null) return;
 
         statusText.setText(currentTable.getStatus());
         try {
-            if(currentTable.getStatus().equalsIgnoreCase("Available")){
+            if (currentTable.getStatus().equalsIgnoreCase("Available")) {
                 createOrderBtn.setDisable(false);
                 addToOrderBtn.setDisable(false);
 //                finishBtn.setDisable(true);
 //                playBtn.setDisable(true);
 //                cancelBtn.setDisable(true);
 
-                statusText.setStyle("fx-font-weight: bold; -fx-text-fill: "+greenColor);
+                statusText.setStyle("fx-font-weight: bold; -fx-text-fill: " + greenColor);
                 noOrderText.setVisible(true);
                 showOrderButton.setVisible(false);
 
-                createOrderBtn.setOnAction(e -> handleCreateOrder());
-                addToOrderBtn.setOnAction(e -> handleAddToOrder());
-            }
-            else if(currentTable.getStatus().equalsIgnoreCase("Ordered")){
+//                createOrderBtn.setOnAction(e -> handleCreateOrder());
+//                addToOrderBtn.setOnAction(e -> handleAddToOrder());
+            } else if (currentTable.getStatus().equalsIgnoreCase("Ordered")) {
                 createOrderBtn.setDisable(true);
                 addToOrderBtn.setDisable(true);
 //                finishBtn.setDisable(true);
 //                playBtn.setDisable(false);
 //                cancelBtn.setDisable(false);
 
-                statusText.setStyle("fx-font-weight: bold; -fx-text-fill: "+orangeColor);
+                statusText.setStyle("fx-font-weight: bold; -fx-text-fill: " + orangeColor);
                 noOrderText.setVisible(false);
                 showOrderButton.setVisible(true);
 
                 int orderId = BookingDAO.getTheLatestOrderByTableId(currentTable.getTableId());
                 currentOrder = OrderDAO.getOrderById(orderId);
 
-                showOrderButton.setOnAction(e -> showForEachOrderView(currentOrder));
+//                showOrderButton.setOnAction(e -> showForEachOrderView(currentOrder));
 //                playBtn.setOnAction(e -> handlePlay(orderId, currentTable.getTableId()));
 //                cancelBtn.setOnAction(e -> handleCancel(orderId, currentTable.getTableId()));
-            }
-            else if(currentTable.getStatus().equalsIgnoreCase("Playing")){
+            } else if (currentTable.getStatus().equalsIgnoreCase("Playing")) {
                 createOrderBtn.setDisable(true);
                 addToOrderBtn.setDisable(true);
 //                finishBtn.setDisable(false);
 //                playBtn.setDisable(true);
 //                cancelBtn.setDisable(true);
 
-                statusText.setStyle("fx-font-weight: bold; -fx-text-fill: "+redColor);
+                statusText.setStyle("fx-font-weight: bold; -fx-text-fill: " + redColor);
                 noOrderText.setVisible(false);
                 showOrderButton.setVisible(true);
 
                 int orderId = BookingDAO.getTheLatestOrderByTableId(currentTable.getTableId());
                 currentOrder = OrderDAO.getOrderById(orderId);
 
-                showOrderButton.setOnAction(e -> showForEachOrderView(currentOrder));
-                System.out.println("Order ID: "+orderId + " Table ID: "+currentTable.getTableId());
+//                showOrderButton.setOnAction(e -> showForEachOrderView(currentOrder));
+                System.out.println("Order ID: " + orderId + " Table ID: " + currentTable.getTableId());
 //                finishBtn.setOnAction(e -> handleFinish(orderId, currentTable.getTableId()));
             }
         } catch (Exception e) {
@@ -114,9 +141,12 @@ public class PoolTableOrderInformationController {
             forEachOrderController.setOrderID(order.getOrderId());
             forEachOrderController.setCustomerID(order.getCustomerId());
             forEachOrderController.setForEachUserID(order.getUserId());
-            if(order.getCustomerPhone()!=null){
+            forEachOrderController.setPoolTableController(this.poolTableController);
+            if (order.getCustomerPhone() != null) {
                 forEachOrderController.setInitialPhoneText(order.getCustomerPhone());
             }
+
+            poolTableController.handleViewAllTables();
             forEachOrderController.setBillNo(OrderController.getBillNumberCount());
             forEachOrderController.initializeAllTables();
 
@@ -170,7 +200,7 @@ public class PoolTableOrderInformationController {
 
     private void updateButtonStates() {
         String status = currentTable.getStatus();
-        if(noOrderText.isVisible()){
+        if (noOrderText.isVisible()) {
             createOrderBtn.setDisable(false);
             addToOrderBtn.setDisable(false);
 //            finishBtn.setDisable(true);
@@ -210,24 +240,32 @@ public class PoolTableOrderInformationController {
             Order order = new Order();
             order.setUserId(UserSession.getInstance().getUserId());
             order.setCustomerId(1);
-            orderDAO.addOrder(order);
+//            orderDAO.addOrder(order);
 
-            Order newOrder = OrderDAO.getTheLatestOrderCreated();
-            if (newOrder.getOrderId() > 0) {
-                // Create a dialog to ask user's choice
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setHeaderText("Order created successfully!");
-                alert.setContentText("Do you want to play on the table or just order?");
+//            Order newOrder = OrderDAO.getTheLatestOrderCreated();
+            if (true) {
+                // Create a StackPane to hold the custom dialog
+                StackPane stackPane = new StackPane();
+                stackPane.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-border-color: gray; -fx-border-width: 1;");
 
-                ButtonType playButton = new ButtonType("Play on Table");
-                ButtonType orderButton = new ButtonType("Order on Table");
-                ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+                Label header = new Label("Choose Play or Order on this table.");
+                Label content = new Label("Do you want to play on the table or just order?");
 
-                alert.getButtonTypes().setAll(playButton, orderButton, cancelButton);
+                Button playButtonNode = new Button("Play on Table");
+                Button orderButtonNode = new Button("Order on Table");
+                Button cancelButtonNode = new Button("Cancel");
 
-                Optional<ButtonType> result = alert.showAndWait();
-                if (result.isPresent() && result.get() == playButton) {
-                    // User chose to play
+                VBox dialogContent = new VBox(10, header, content, playButtonNode, orderButtonNode, cancelButtonNode);
+                dialogContent.setAlignment(Pos.CENTER);
+                stackPane.getChildren().add(dialogContent);
+
+                poolTableController.showPoolPopup(tablesContainer, stackPane);
+
+                // Handle button clicks manually
+                playButtonNode.setOnAction(event -> {
+                    orderDAO.addOrder(order);
+                    Order newOrder = OrderDAO.getTheLatestOrderCreated();
+
                     Booking newBooking = new Booking();
                     newBooking.setOrderId(newOrder.getOrderId());
                     newBooking.setTableId(currentTable.getTableId());
@@ -235,45 +273,123 @@ public class PoolTableOrderInformationController {
                     newBooking.setBookingStatus("Playing");
 
                     BookingDAO.handleAddBooking(newBooking);
+                    NotificationService.showNotification("Success", "You are now playing on the table!", NotificationStatus.Success);
 
                     showForEachOrderView(newOrder);
 
-                    NotificationService.showNotification("Success",
-                            "You are now playing on the table!",
-                            NotificationStatus.Success);
-                } else if (result.isPresent() && result.get() == orderButton) {
-                    // User chose to order
-                    Booking newBooking = new Booking();
-                    newBooking.setOrderId(newOrder.getOrderId());
-                    newBooking.setTableId(currentTable.getTableId());
-                    newBooking.setStartTime(LocalDateTime.now());
-                    newBooking.setBookingStatus("Order"); // Changed to "Order"
+                    if (choosePlayOrderPopup != null && chooseOrderTimePopup.isShowing())
+                        chooseOrderTimePopup.hide(); // Close` popup
+                });
 
-                    BookingDAO.handleAddBooking(newBooking);
+                orderButtonNode.setOnAction(event -> {
+                    Bounds bounds = orderButtonNode.localToScreen(orderButtonNode.getBoundsInLocal());
+                    double xPos = bounds.getMinX();
+                    double yPos = bounds.getMaxY(); // Position below the button
 
-                    System.out.println("This Order ID = "+order.getOrderId());
-                    showForEachOrderView(newOrder);
-                    NotificationService.showNotification("Success",
-                            "Your order is placed on the table!",
-                            NotificationStatus.Success);
-                } else {
-                    // User canceled the action
-                    NotificationService.showNotification("Info",
-                            "Action canceled.",
-                            NotificationStatus.Information);
-                }
+                    showChooseOrderTimePopup(xPos, yPos, (selectedDate, selectedTime) -> {
+                        // Combine selected date and time into LocalDateTime
+                        LocalDateTime startTime = LocalDateTime.of(selectedDate, selectedTime);
 
-                closeWindow();
+                        // Print for debugging
+                        System.out.println("Selected Order Time: " + startTime);
+
+                        // Process the order
+                        orderDAO.addOrder(order);
+                        Order newOrder = OrderDAO.getTheLatestOrderCreated();
+
+                        // Create a new booking
+                        Booking newBooking = new Booking();
+                        newBooking.setOrderId(newOrder.getOrderId());
+                        newBooking.setTableId(currentTable.getTableId());
+                        newBooking.setStartTime(startTime);
+                        newBooking.setBookingStatus("Order");
+
+                        // Insert booking into the database
+                        BookingDAO.handleAddBooking(newBooking);
+
+                        // Show success notification
+                        System.out.println("This Order ID = " + order.getOrderId());
+                        NotificationService.showNotification("Success", "Your order is placed on the table!", NotificationStatus.Success);
+
+                        // Update UI
+                        showForEachOrderView(newOrder);
+
+                        // Close pool table popup if open
+                        if (poolTableController != null && poolTableController.getCurrentPoolPopup().isShowing()) {
+                            poolTableController.hidePoolPopup();
+                        }
+                    });
+
+                });
+
+                cancelButtonNode.setOnAction(event -> {
+                    NotificationService.showNotification("Info", "Action canceled.", NotificationStatus.Information);
+                    if (poolTableController != null && poolTableController.getCurrentPoolPopup().isShowing())
+                        poolTableController.hidePoolPopup();
+                });
             } else {
-                NotificationService.showNotification("Error",
-                        "Failed to create order",
-                        NotificationStatus.Error);
+                NotificationService.showNotification("Error", "Failed to create order", NotificationStatus.Error);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            NotificationService.showNotification("Error",
-                    "Failed to create order: " + e.getMessage(),
-                    NotificationStatus.Error);
+            NotificationService.showNotification("Error", "Failed to create order: " + e.getMessage(), NotificationStatus.Error);
+        }
+    }
+
+
+//    public void showChoosePlayOrderPopup(Scene scene, Parent content, double xPos, double yPos) {
+//        this.choosePlayOrderPopup = new Popup();
+//        StackPane contentPane = new StackPane();
+//        contentPane.setStyle("-fx-background-color: white; -fx-padding: 10;");
+//
+//        contentPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, null)));
+//        contentPane.getChildren().add(content);
+//
+//        choosePlayOrderPopup.getContent().add(contentPane);
+//
+//        choosePlayOrderPopup.setX(xPos);
+//        choosePlayOrderPopup.setY(yPos);
+//
+//        FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.12), contentPane);
+//        fadeIn.setFromValue(0);
+//        fadeIn.setToValue(1);
+//
+//        choosePlayOrderPopup.setAutoHide(true);
+//        choosePlayOrderPopup.setAutoFix(true);
+//        choosePlayOrderPopup.show(scene.getWindow());
+//
+//        fadeIn.play();
+//    }
+
+    private void showChooseOrderTimePopup(double xPos, double yPos, BiConsumer<LocalDate, LocalTime> onTimeSelected) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/pooltables/chooseOrderTime.fxml"));
+            Parent root = loader.load();
+
+            ChooseOrderTimeController controller = loader.getController();
+            controller.setOnTimeSelected(onTimeSelected);
+
+            Popup popup = new Popup();
+            popup.getContent().add(root);
+
+            // Hide popup when clicking outside
+            popup.setAutoHide(true);
+            popup.setX(xPos);
+            popup.setY(yPos);
+
+            // Apply fade-in effect
+            FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.12), root);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            fadeIn.play();
+
+            // Close popup from controller when Confirm is clicked
+            controller.setOnClosePopup(popup::hide);
+
+            popup.show(orderInformationTitle.getScene().getWindow());
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -286,14 +402,11 @@ public class PoolTableOrderInformationController {
 
             AddTableToOrderController controller = loader.getController();
             controller.setCurrentTableId(currentTable.getTableId());
+            controller.setPoolTableController(this.poolTableController);
+            controller.setTableContainer(this.tablesContainer);
 
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Order Information");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
+            if (poolTableController != null) poolTableController.showPoolPopup(tablesContainer, root);
 
-            closeWindow();
         } catch (Exception e) {
             e.printStackTrace();
             NotificationService.showNotification("Error",
@@ -301,7 +414,6 @@ public class PoolTableOrderInformationController {
                     NotificationStatus.Error);
         }
     }
-
 
     private void handleFinish(int orderId, int tableId) {
         try {
@@ -313,12 +425,13 @@ public class PoolTableOrderInformationController {
                 NotificationService.showNotification("Finish Order Success",
                         "Order in table " + currentTable.getName() + " has been finished successfully.",
                         NotificationStatus.Success);
-                closeWindow();
+
             } else {
                 NotificationService.showNotification("Error Finish Order",
                         "An unexpected error happens when finishing this order. Please try again later !",
                         NotificationStatus.Error);
             }
+            poolTableController.hidePoolPopup();
         } catch (Exception e) {
             e.printStackTrace();
             NotificationService.showNotification("Error",
@@ -332,17 +445,18 @@ public class PoolTableOrderInformationController {
             // Implement play logic
             int bookingId = BookingDAO.getBookingIdByOrderIdAndTableId(orderId, tableId);
 
-            boolean updateSuccess = BookingDAO.updateBooking(bookingId,orderId,tableId,"Playing");
+            boolean updateSuccess = BookingDAO.updateBooking(bookingId, orderId, tableId, "Playing");
 
             // Kiểm tra kết quả cập nhật và hiển thị thông báo
             if (updateSuccess) {
                 NotificationService.showNotification("Start Playing Successful",
                         "Start playing on this table successfully.", NotificationStatus.Success);
-                closeWindow();
+
             } else {
                 NotificationService.showNotification("Update Failed",
                         "Failed to update the booking status. Please try again.", NotificationStatus.Error);
             }
+            poolTableController.hidePoolPopup();
         } catch (Exception e) {
             e.printStackTrace();
             NotificationService.showNotification("Error",
@@ -363,7 +477,7 @@ public class PoolTableOrderInformationController {
                 NotificationService.showNotification("Cancel Booking Success",
                         "Booking in table " + currentTable.getName() + " has been cancelled successfully.",
                         NotificationStatus.Success);
-                closeWindow();
+                poolTableController.hidePoolPopup();
             } else {
                 NotificationService.showNotification("Error Cancel Booking",
                         "An unexpected error happens when cancelling this booking. Please try again later !",
@@ -377,8 +491,20 @@ public class PoolTableOrderInformationController {
         }
     }
 
-    private void closeWindow() {
-        Stage stage = (Stage) statusText.getScene().getWindow();
-        stage.close();
+
+    public void setPoolTableController(PoolTableController poolTableController) {
+        this.poolTableController = poolTableController;
+    }
+
+    public PoolTableController getPoolTableController() {
+        return poolTableController;
+    }
+
+    public StackPane getTableContainer() {
+        return this.tablesContainer;
+    }
+
+    public void setTablesContainer(StackPane tablesContainer) {
+        this.tablesContainer = tablesContainer;
     }
 }

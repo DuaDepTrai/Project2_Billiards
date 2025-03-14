@@ -1,6 +1,6 @@
 package src.billiardsmanagement.model;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 public class Order {
     private int orderId;
@@ -8,7 +8,7 @@ public class Order {
     private String customerName; // Để hiển thị tên khách hàng từ bảng `customers`
     private String customerPhone;
     private double totalCost;
-    private Date orderDate;
+    private LocalDateTime orderDate;
     private String orderStatus;
     private String currentTableName;
     private int userId;
@@ -23,7 +23,7 @@ public class Order {
         this.roleName = roleName;
     }
 
-    public Order(int orderId, int customerId, String customerName, String customerPhone, int userId, String userName, String roleName, Date orderDate, double totalCost, String orderStatus, String currentTableName) {
+    public Order(int orderId, int customerId, String customerName, String customerPhone, int userId, String userName, String roleName, LocalDateTime orderDate, double totalCost, String orderStatus, String currentTableName) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.customerName = customerName;
@@ -37,11 +37,11 @@ public class Order {
         this.currentTableName = currentTableName;
     }
 
-    public Date getOrderDate() {
+    public LocalDateTime getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(Date orderDate) {
+    public void setOrderDate(LocalDateTime orderDate) {
         this.orderDate = orderDate;
     }
 
@@ -63,7 +63,7 @@ public class Order {
 
 
     // Constructor với các thuộc tính cơ bản
-    public Order(int orderId, int customerId, int userId, double totalCost, Date orderDate, String orderStatus) {
+    public Order(int orderId, int customerId, int userId, double totalCost, LocalDateTime orderDate, String orderStatus) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.userId = userId;

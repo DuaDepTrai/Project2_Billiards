@@ -29,6 +29,7 @@ public class PoolTableInfoController {
     private PoolTableDAO poolTableDAO;
     private CatePooltableDAO catePooltableDAO;
     private PoolTableController mainController;
+    private PoolTableController poolTableController;
 
     public void initialize() {
         poolTableDAO = new PoolTableDAO();
@@ -137,9 +138,9 @@ public class PoolTableInfoController {
 
             if (mainController != null) {
                 mainController.handleViewAllTables();
+                mainController.hidePoolPopup();
             }
-            closeDialog();
-
+//            closeDialog();
         } catch (Exception e) {
             NotificationService.showNotification("Error", "Failed to update pool table: " + e.getMessage(),
                     NotificationStatus.Error);
@@ -160,6 +161,7 @@ public class PoolTableInfoController {
                         NotificationStatus.Success);
                 if (mainController != null) {
                     mainController.handleViewAllTables();
+                    mainController.hidePoolPopup();
                 }
                 closeDialog();
             } catch (Exception e) {
@@ -172,5 +174,9 @@ public class PoolTableInfoController {
     private void closeDialog() {
         Stage stage = (Stage) nameField.getScene().getWindow();
         stage.close();
+    }
+
+    public void setPoolTableController(PoolTableController poolTableController) {
+        this.poolTableController = poolTableController;
     }
 }

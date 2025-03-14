@@ -8,15 +8,12 @@
     <TableView fx:id="orderTable" prefHeight="408.0" prefWidth="784.0" styleClass="order-table">
         <columns>
             <TableColumn fx:id="sttColumn" prefWidth="54.0" styleClass="table-column-style" text="Bill No" />
-            <TableColumn fx:id="customerNameColumn" prefWidth="143.0" styleClass="table-column-style" text="Name" />
-            <TableColumn fx:id="phoneCustomerColumn" prefWidth="111.5" styleClass="table-column-style" text="Phone" />
-            <TableColumn fx:id="nameTableColumn" prefWidth="114.0" styleClass="table-column-style" text="Table Name" />
-            <TableColumn fx:id="orderStatusColumn" prefWidth="98.0" styleClass="table-column-style" text="Status" />
-            <TableColumn fx:id="dateColumn" prefWidth="105.5" text="Date" />
-            <TableColumn fx:id="actionColumn" prefWidth="125.5" style="-fx-alignment: CENTER;" text="Action" />
+            <TableColumn fx:id="customerNameColumn" prefWidth="140.5" styleClass="table-column-style" text="Name" />
+            <TableColumn fx:id="phoneCustomerColumn" prefWidth="116.0" styleClass="table-column-style" text="Phone" />
+            <TableColumn fx:id="nameTableColumn" prefWidth="120.5" styleClass="table-column-style" text="Table Name" />
+            <TableColumn fx:id="orderStatusColumn" prefWidth="95.5" styleClass="table-column-style" text="Status" />
+            <TableColumn fx:id="dateColumn" prefWidth="108.0" text="Date" />
+            <TableColumn fx:id="actionColumn" prefWidth="148.5" style="-fx-alignment: CENTER;" text="Action" />
         </columns>
-        <columnResizePolicy>
-            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-        </columnResizePolicy>
     </TableView>
 </AnchorPane>

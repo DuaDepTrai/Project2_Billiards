@@ -492,11 +492,18 @@ public class OrderController implements Initializable {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
                 Parent forEachOrderPage = loader.load();
 
+                int totalRow = orderTable.getItems().size();
+                int selectedIndex = orderTable.getItems().indexOf(selectedOrder);
+                int billNo = totalRow - selectedIndex;
+
                 // Lấy controller của ForEachOrderController
                 ForEachOrderController forEachOrderController = loader.getController();
                 forEachOrderController.setOrderID(selectedOrder.getOrderId());
                 forEachOrderController.setCustomerID(selectedOrder.getCustomerId());
                 forEachOrderController.setMainController(mainController);
+                forEachOrderController.setBillNo(billNo);
+                forEachOrderController.setOrderDate(selectedOrder.getOrderDate());
+
                 forEachOrderController.initializeAllTables();
                 // Cập nhật nội dung của contentArea trong MainController
                 if (mainController != null) {

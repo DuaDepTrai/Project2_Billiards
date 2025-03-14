@@ -22,6 +22,7 @@ import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.controller.orders.bookings.AddBookingController;
 import src.billiardsmanagement.controller.orders.items.AddOrderItemController;
 import src.billiardsmanagement.controller.orders.items.UpdateOrderItemController;
+import src.billiardsmanagement.controller.poolTables.PoolTableController;
 import src.billiardsmanagement.dao.*;
 import src.billiardsmanagement.model.*;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
@@ -178,11 +179,13 @@ public class ForEachOrderController {
     private AutoCompletionBinding<String> phoneAutoCompletion;
 
     private String initialPhoneText;
+    private LocalDateTime orderDate;
 
 //    @FXML private Button confirmUpdateDataCustomer;
     @FXML private Button confirmSaveCustomer;
 
     private PoolTable selectedTable;
+    private PoolTableController poolTableController;
 
     public void setOrderID(int orderID) {
         this.orderID = orderID;
@@ -563,9 +566,11 @@ public class ForEachOrderController {
         checkOrderStatus();
 
         // Set current timestamp in dateText
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH'h'mm '|' dd:MM:yyyy");
-        String currentTimestamp = LocalDateTime.now().format(formatter);
-        dateText.setText(currentTimestamp);
+        if(orderDate!=null){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH'h'mm | dd-MM-yyyy");
+            String formattedDateTime = orderDate.format(formatter);
+            dateText.setText(formattedDateTime);
+        }
 
         // If we have a selected table, create a booking for it
         if (selectedTable != null) {
@@ -744,7 +749,7 @@ public class ForEachOrderController {
                         "Start playing on this table successfully.", NotificationStatus.Success);
                 loadBookings(); // Tải lại danh sách booking sau khi cập nhật
                 checkOrderStatus();
-
+                if(poolTableController!=null) poolTableController.handleViewAllTables();
             } else {
                 NotificationService.showNotification("Update Failed",
                         "Failed to update the booking status. Please try again.", NotificationStatus.Error);
@@ -790,6 +795,7 @@ public class ForEachOrderController {
                 NotificationService.showNotification("Success", "Booking deleted successfully.",
                         NotificationStatus.Success);
                 loadBookings();
+                if(poolTableController!=null) poolTableController.handleViewAllTables();
             } else {
                 NotificationService.showNotification("Error", "Failed to delete the booking.",
                         NotificationStatus.Error);
@@ -1057,6 +1063,8 @@ public class ForEachOrderController {
                         loadBookings();
                         loadOrderDetail();
                         loadInfo();
+
+                        if(poolTableController!=null) poolTableController.handleViewAllTables();
                     } else {
                         NotificationService.showNotification("Error", "Failed to update order status.",
                                 NotificationStatus.Error);
@@ -1139,6 +1147,7 @@ public class ForEachOrderController {
                         "Booking in Table : " + selectedBooking.getTableName() + " has been cancelled successfully!",
                         NotificationStatus.Success);
                 loadBookings();
+                if(poolTableController!=null) poolTableController.handleViewAllTables();
             } else {
                 NotificationService.showNotification("Error Cancel Booking",
                         "An unexpected error happens when cancelling this booking. Please try again later !",
@@ -1313,5 +1322,21 @@ public class ForEachOrderController {
             e.printStackTrace();
             NotificationService.showNotification("Error", "Failed to navigate back.", NotificationStatus.Error);
         }
+    }
+
+    public void setOrderDate(LocalDateTime orderDate) {
+        this.orderDate = orderDate;
+    }
+
+    public LocalDateTime getOrderDate() {
+        return this.orderDate;
+    }
+
+    public void setPoolTableController(PoolTableController poolTableController) {
+        this.poolTableController = poolTableController;
+    }
+
+    public PoolTableController getPoolTableController() {
+        return this.poolTableController;
     }
 }

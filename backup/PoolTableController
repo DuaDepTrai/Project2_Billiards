@@ -3,11 +3,14 @@ package src.billiardsmanagement.controller.poolTables;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
+import javafx.animation.FadeTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -15,30 +18,35 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
+import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.controller.poolTables.catepooltables.UpdateCategoryPooltableController;
-import src.billiardsmanagement.dao.BookingDAO;
-import src.billiardsmanagement.dao.CatePooltableDAO;
-import src.billiardsmanagement.dao.OrderDAO;
-import src.billiardsmanagement.dao.PoolTableDAO;
+import src.billiardsmanagement.dao.*;
 import src.billiardsmanagement.model.*;
 import src.billiardsmanagement.service.NotificationService;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class PoolTableController {
     public MFXScrollPane availableTableScrollPane;
     public MFXScrollPane catePooltablesScrollPane;
     public Button addNewTableCategory;
+    public ScrollPane poolTableScrollPane;
+    private User currentUser; // Lưu user đang đăng nhập
+    private List<String> userPermissions = new ArrayList<>();
+
 
     @FXML
     protected FlowPane tablesContainer;
@@ -71,6 +79,9 @@ public class PoolTableController {
     protected ArrayList<CatePooltable> catePooltablesList;
     protected OrderDAO orderDAO = new OrderDAO();
 
+    public static Popup currentPoolTablePopup;
+    public static boolean isPoolTablePopupShowing = false;
+
     @FXML
     public void initialize() {
         catePooltablesList = new ArrayList<>();
@@ -99,6 +110,19 @@ public class PoolTableController {
 
         // Add handler for add new table button
         addNewButton.setOnAction(e -> showAddDialog());
+    }
+
+    public void setUser(User user) throws SQLException {
+        this.currentUser = user;
+        if (user != null) {
+            System.out.println("🟢 Gọi getUserPermissions() với user: " + user.getUsername());
+            this.userPermissions = user.getPermissionsAsString();
+            System.out.println("🔎 Debug: Quyền của user = " + userPermissions);
+
+            initializeCategoryList();
+        } else {
+            System.err.println("❌ Lỗi: loggedInUser chưa được set trong ProductController2!");
+        }
     }
 
     protected void filterTables(String searchText) {
@@ -171,19 +195,64 @@ public class PoolTableController {
         createOrderButton.setPrefHeight(60);
         createOrderButton.setWrapText(true);
         createOrderButton.setStyle("-fx-font-size: 12px;");
-        // createOrderButton.setOnAction(e -> createOrderForTable(table));
-        createOrderButton.setOnAction(e -> showPoolTableOrderInformation(table));
+        createOrderButton.setOnAction(e -> {
+            if (table.getStatus().equalsIgnoreCase("Available")) {
+                try{
+                    FXMLLoader loader = new FXMLLoader(
+                            getClass().getResource("/src/billiardsmanagement/pooltables/poolTableOrderInformation.fxml"));
+                    Parent root = loader.load();
 
-        // Order button
-        Button orderButton = new Button("Pool Info");
-        orderButton.getStyleClass().add("hover-button");
-        orderButton.setMaxWidth(Double.MAX_VALUE);
-        orderButton.setPrefHeight(60);
-        orderButton.setWrapText(true);
-        orderButton.setStyle("-fx-font-size: 12px;");
-        orderButton.setOnAction(e -> showOrderDialog(table));
+                    PoolTableOrderInformationController controller = loader.getController();
+                    controller.setPoolTable(table);
+                    controller.setPoolTableController(this);
+                    controller.setTablesContainer(tableStack);
+                    controller.initializeView();
 
-        hoverButtons.getChildren().addAll(createOrderButton, orderButton);
+                    showPoolTablePopup(tableStack, root);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                int orderId = BookingDAO.getTheLatestOrderByTableId(table.getTableId());
+                Booking latestBooking = BookingDAO.getBookingByTableIdAndOrderId(orderId, table.getTableId());
+                if (latestBooking.getBookingStatus() != null && (latestBooking.getBookingStatus().equalsIgnoreCase("Playing") ||
+                        latestBooking.getBookingStatus().equalsIgnoreCase("Order"))) {
+                    Order currentOrder = OrderDAO.getOrderById(orderId);
+                    showForEachOrderView(currentOrder, table);
+                } else {
+                    NotificationService.showNotification("Error",
+                            "This table is not booked yet, so that there's no Order associated with this table.",
+                            NotificationStatus.Error);
+                }
+            }
+        });
+
+        // Info button
+        Button infoButton = new Button("Pool Info");
+        infoButton.getStyleClass().add("hover-button");
+        infoButton.setMaxWidth(Double.MAX_VALUE);
+        infoButton.setPrefHeight(60);
+        infoButton.setWrapText(true);
+        infoButton.setStyle("-fx-font-size: 12px;");
+//        FinfoButton.setOnAction(e -> openTableInfoDialog(table));
+        infoButton.setOnMouseClicked(e -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/src/billiardsmanagement/pooltables/poolTableInfo.fxml"));
+                Parent root = loader.load();
+
+                // Get the controller and set up the table info
+                PoolTableInfoController controller = loader.getController();
+                controller.setMainController(this);
+                controller.setPoolTable(table);
+
+                showPoolTablePopup(tableStack, root);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        hoverButtons.getChildren().addAll(createOrderButton, infoButton);
 
         // Add elements to stack
         tableStack.getChildren().addAll(bgImage, textContainer, hoverButtons);
@@ -191,6 +260,131 @@ public class PoolTableController {
         // Add to container with reduced margin
         tablesContainer.getChildren().add(tableStack);
         FlowPane.setMargin(tableStack, new Insets(5));
+
+//        Node parent = tableStack.getParent();
+//        double xPos = tableStack.getLayoutX() + tableStack.getTranslateX() + parent.getLayoutX();
+//        double yPos = tableStack.getLayoutY() + tableStack.getTranslateY() + parent.getLayoutY();
+//        System.out.println("Table "+table.getName()+ " position : x = "+xPos+", y = "+yPos);
+    }
+
+    public static void hidePoolTablePopup() {
+        if (currentPoolTablePopup != null) {
+            FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.15), currentPoolTablePopup.getScene().getRoot());
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(event -> currentPoolTablePopup.hide());
+            fadeOut.play();
+        }
+    }
+
+    public void showPoolTablePopup(StackPane tableStack, Parent content) {
+        // Close the existing popup if it's open
+        if (currentPoolTablePopup != null) {
+            hidePoolTablePopup();
+        }
+
+        // Create a new Popup
+        currentPoolTablePopup = new Popup(); // Set the current popup to the newly created one
+
+        StackPane backgroundPane = new StackPane();
+        backgroundPane.setStyle("-fx-background-color: white; -fx-padding: 10;");
+
+// Set a border with glow effect
+        backgroundPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, null)));
+
+        // Add the content content to the StackPane
+        backgroundPane.getChildren().add(content);
+
+        // Set the currentPoolTablePopup content to the StackPane
+        currentPoolTablePopup.getContent().add(backgroundPane);
+
+        // Calculate the position of the StackPane in the scene
+        double x = tableStack.localToScene(0, 0).getX();
+        double y = tableStack.localToScene(0, 0).getY();
+
+        // Set currentPoolTablePopup position
+        currentPoolTablePopup.setX(x);
+        currentPoolTablePopup.setY(y);
+
+        // Show the currentPoolTablePopup immediately
+        currentPoolTablePopup.show(tablesContainer.getScene().getWindow());
+
+        // Create a fade-in transition
+        FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.12), backgroundPane);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        fadeIn.setOnFinished(event -> {
+            backgroundPane.setOpacity(1); // Ensure opacity is set to 1 after fade-in
+        });
+
+        // Create a fade-out transition
+        hidePoolTablePopup();
+
+        // Add mouse click event to the currentPoolTablePopup content
+        // Do nothing to keep the currentPoolTablePopup open if clicked inside
+        // Prevent event from bubbling up
+        content.setOnMouseClicked(Event::consume);
+
+        // **Manually detect clicks outside the popup**
+
+        fadeIn.setOnFinished(event -> {
+            backgroundPane.setOpacity(1); // Ensure full opacity
+            tablesContainer.getScene().addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+                Bounds bounds = backgroundPane.localToScene(backgroundPane.getBoundsInLocal());
+                double clickX = mouseEvent.getSceneX();
+                double clickY = mouseEvent.getSceneY();
+
+                if (!bounds.contains(clickX, clickY)) {
+                    hidePoolTablePopup();
+                    currentPoolTablePopup = null;
+                }
+            });
+        });
+
+//        // Add mouse click event to the stage to hide currentPoolTablePopup when clicking outside
+//        tablesContainer.getScene().setOnMouseClicked(mouseEvent -> {
+//            if (!backgroundPane.contains(mouseEvent.getX(), mouseEvent.getY())) {
+//                fadeOut.play();
+//            }
+//        });
+
+        tablesContainer.getScene().getWindow().focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) {
+                backgroundPane.setVisible(false);
+            } else {
+                backgroundPane.setVisible(true);
+            }
+        });
+    }
+
+    private void showForEachOrderView(Order order, PoolTable currentTable) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+            Parent root = loader.load();
+
+            ForEachOrderController forEachOrderController = loader.getController();
+            forEachOrderController.setOrderID(order.getOrderId());
+            forEachOrderController.setCustomerID(order.getCustomerId());
+            forEachOrderController.setForEachUserID(order.getUserId());
+            forEachOrderController.setBillNo(OrderController.getBillNumberCount());
+            if (order.getCustomerPhone() != null) {
+                forEachOrderController.setInitialPhoneText(order.getCustomerPhone());
+            }
+            forEachOrderController.initializeAllTables();
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Order Information");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+            handleViewAllTables();
+        } catch (Exception e) {
+            e.printStackTrace();
+            NotificationService.showNotification("Error",
+                    "Failed to open order information: " + e.getMessage(),
+                    NotificationStatus.Error);
+        }
     }
 
     protected void createOrderForTable(PoolTable table) {
@@ -410,6 +604,10 @@ public class PoolTableController {
                     category.getPrice()));
             categoryText.setStyle("-fx-line-spacing: 5;");
 
+            // Tạo khoảng trống để đẩy nút về bên phải
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
             // Create the edit button
             Button editButton = new Button();
             editButton.getStyleClass().add("edit-button");
@@ -448,8 +646,12 @@ public class PoolTableController {
 
             deleteButton.setOnAction(e -> showDeleteCategoryDialog(category)); // Assuming you have this method
 
-            categoryRow.getChildren().addAll(editButton, deleteButton, categoryText);
+            categoryRow.getChildren().addAll(categoryText, spacer, editButton, deleteButton);
             categoryContent.getChildren().add(categoryRow);
+
+            System.out.println("DEBUG: " + userPermissions);
+            editButton.setVisible(userPermissions.contains("update_pool_category"));
+            deleteButton.setVisible(userPermissions.contains("remove_pool_category"));
         });
         catePooltablesScrollPane.setContent(categoryContent);
     }
@@ -552,9 +754,31 @@ public class PoolTableController {
         tablesContainer.getChildren().clear();
         tableList.forEach(this::createTableUI);
 
+        poolTableScrollPane.setContent(tablesContainer);
+        poolTableScrollPane.setFitToWidth(true);
+
         // Update status lists
         updateStatusLists();
     }
+
+//    private void loadOneTable(PoolTable table) {
+//        Node currentTable = findTableNodeById(tablesContainer, table);
+//        if(currentTable!=null){
+//            int index = tablesContainer.getChildren().indexOf(currentTable);
+//            tablesContainer.getChildren().remove(currentTable);
+//            PoolTable tableUpdated = PoolTableDAO.getSpecificTable(table.getTableId());
+//            tablesContainer.getChildren().add(index, tableUpdated);
+//        }
+//    }
+//
+//    private Node findTableNodeById(FlowPane flowPane, PoolTable table) {
+//        for (Node node : flowPane.getChildren()) {
+//            if (node.getUserData() != null && node.getUserData().equals(table)) {
+//                return node; // Return the node if it matches the table ID
+//            }
+//        }
+//        return null; // Return null if no matching node is found
+//    }
 
     @FXML
     public void showAddDialog() {
@@ -633,16 +857,21 @@ public class PoolTableController {
                     NotificationStatus.Error);
         }
     }
+
     private void createTableCard(PoolTable table, FlowPane tablesContainer) {
         StackPane tableStack = new StackPane();
         tableStack.getStyleClass().add("table-card");
         tableStack.setPrefSize(150, 150);
 
         // Background image
-        ImageView bgImage = new ImageView(
-                new Image(getClass().getResourceAsStream("/src/billiardsmanagement/images/pool_table.png")));
-        bgImage.setFitWidth(150);
-        bgImage.setFitHeight(150);
+//        ImageView bgImage = new ImageView(
+//                new Image(getClass().getResourceAsStream("/src/billiardsmanagement/images/pool_table.png")));
+//        bgImage.setFitWidth(150);
+//        bgImage.setFitHeight(150);
+
+        VBox background = new VBox();
+        background.setPrefSize(150, 150);
+        background.setStyle("-fx-background-color: #2A2A2A; -fx-background-radius: 5;");
 
         // Text container
         VBox textContainer = new VBox(5);
@@ -682,7 +911,7 @@ public class PoolTableController {
         tableStack.setOnMouseExited(e -> hoverButtons.setVisible(false));
 
         // Add elements to stack
-        tableStack.getChildren().addAll(bgImage, textContainer, hoverButtons);
+        tableStack.getChildren().addAll(textContainer, hoverButtons);
 
         // Add to container with reduced margin
         tablesContainer.getChildren().add(tableStack);
@@ -718,7 +947,88 @@ public class PoolTableController {
     }
 
     @FXML
-    public void showTableInfo(ActionEvent actionEvent) {
+    private void openTableInfoDialog(PoolTable table) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/src/billiardsmanagement/pooltables/poolTableInfo.fxml"));
+            Parent root = loader.load();
 
+            // Get the controller and set up the table info
+            PoolTableInfoController controller = loader.getController();
+            controller.setMainController(this);
+            controller.setPoolTable(table);
+
+            Stage stage = new Stage();
+            stage.setTitle("Pool Table Information");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            NotificationService.showNotification("Error", "Could not open table info: " + e.getMessage(),
+                    NotificationStatus.Error);
+        }
     }
+
+    // Remove duplicate methods
+    @FXML
+    private void showTableInfo(ActionEvent event) {
+        Button button = (Button) event.getSource();
+        PoolTable table = (PoolTable) button.getUserData();
+        openTableInfoDialog(table);
+    }
+
+    private void applyPermissions() {
+        if (currentUser != null) {
+            PermissionDAO permissionDAO = new PermissionDAO();
+            List<String> permissions = permissionDAO.getUserPermissions(currentUser.getId());
+            System.out.println("✅ Permissions: " + permissions);
+
+            addNewButton.setVisible(permissions.contains("add_pool"));
+            addNewTableCategory.setVisible(permissions.contains("add_pool_category"));
+//            addProductButton.setVisible(permissions.contains("add_product"));
+//            editButton.setVisible(permissions.contains("add_product"));
+//            deleteButton.setVisible(permissions.contains("add_product"));
+//            stockUpButton.setVisible(permissions.contains("add_product"));
+//            btnAddNewCategory.setVisible(permissions.contains("add_product"));
+//            updateCategoryButton.setVisible(permissions.contains("add_product"));
+//            removeCategoryButton.setVisible(permissions.contains("add_product"));
+        } else {
+            System.err.println("⚠️ Lỗi: currentUser bị null trong ProductController!");
+        }
+    }
+
+    private User loggedInUser;
+
+    public void setLoggedInUser(User user) {
+        System.out.println("🟢 Gọi setCurrentUser() với user: " + (user != null ? user.getUsername() : "null"));
+
+        this.loggedInUser = user;
+        if (user != null) {
+            System.out.println("🟢 Gọi setCurrentUser() với user: " + user.getUsername());
+            System.out.println("🎯 Kiểm tra quyền sau khi truyền user...");
+            List<String> permissions = user.getPermissionsAsString();
+            System.out.println("🔎 Debug: Quyền sau khi truyền user = " + permissions);
+            applyPermissions();
+        } else {
+            System.err.println("❌ Lỗi: currentUser vẫn null sau khi set!");
+        }
+    }
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+    }
+
+    public static Popup getCurrentPooltablePopup() {
+        return PoolTableController.currentPoolTablePopup;
+    }
+
+    public static void setCurrentPooltablePopup(Popup newPopup) {
+        if(newPopup==null) {
+            System.out.println("🔴 Lỗi: newPopup = null");
+            return;
+        }
+        PoolTableController.currentPoolTablePopup = newPopup;
+    }
+
 }

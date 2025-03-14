@@ -1,19 +1,26 @@
 package src.billiardsmanagement.controller.poolTables;
 
+import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
 import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.dao.BookingDAO;
@@ -22,11 +29,17 @@ import src.billiardsmanagement.model.NotificationStatus;
 import src.billiardsmanagement.model.Order;
 import src.billiardsmanagement.service.NotificationService;
 
+import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.BiConsumer;
 
 public class AddTableToOrderController implements Initializable {
 
@@ -51,6 +64,9 @@ public class AddTableToOrderController implements Initializable {
     private OrderDAO orderDAO = new OrderDAO();
     private int currentTableId = -1;
 
+    private PoolTableController poolTableController;
+    private StackPane tableContainer;
+    private Popup chooseOrderTimePopup;
 
     // Initialize the table columns
     @Override
@@ -127,53 +143,96 @@ public class AddTableToOrderController implements Initializable {
                     return;
                 }
 
-                // Create a button for "Add to Order"
-                Button addToOrderButton = new Button("Add to Order");
-                addToOrderButton.setOnAction(event -> {
-                    Order order = getTableView().getItems().get(getIndex());
-                    System.out.println("Order = " + order);
+                Order order = getTableView().getItems().get(getIndex());
 
-                    // Create a dialog to ask user's choice
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("Choose Action");
-                    alert.setHeaderText("Add Order");
-                    alert.setContentText("Do you want to play on the table or just order?");
+                // Create buttons for each row
+                Button playButton = new Button("Play");
+                Button orderButton = new Button("Order");
 
-                    ButtonType playButton = new ButtonType("Play on Table");
-                    ButtonType orderButton = new ButtonType("Order on Table");
-                    ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+                // Set button size
+                playButton.setPrefSize(90, 20);
+                orderButton.setPrefSize(90, 20);
 
-                    alert.getButtonTypes().setAll(playButton, orderButton, cancelButton);
-
-                    Optional<ButtonType> result = alert.showAndWait();
-                    if (result.isPresent() && result.get() == playButton) {
-                        // User chose to play
-                        addToOrder(order, "Playing");
-                    } else if (result.isPresent() && result.get() == orderButton) {
-                        // User chose to order
-                        addToOrder(order, "Order");
-                    } else {
-                        NotificationService.showNotification("Info",
-                                "Action canceled.",
-                                NotificationStatus.Information);
-                    }
+                // Play button action
+                playButton.setOnAction(e -> {
+                    addToOrder(order, "Playing", null);
                 });
 
-                // Add the button to an HBox for alignment
-                HBox actionBox = new HBox();
+                // Order button action (opens chooseOrderTimePopup)
+                orderButton.setOnAction(e -> {
+                    Bounds bounds = orderButton.localToScreen(orderButton.getBoundsInLocal());
+                    double xPos = bounds.getMinX();
+                    double yPos = bounds.getMaxY(); // Position below the button
+
+                    showChooseOrderTimePopup(xPos, yPos, (selectedDate, selectedTime) -> {
+                        // Format the selected date and time into a string
+                        String st = selectedDate + " " + selectedTime.format(DateTimeFormatter.ofPattern("HH:mm"));
+                        System.out.println("Selected Order Time: " + st);
+
+                        // Convert to LocalDateTime
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                        LocalDateTime startTime = LocalDateTime.parse(selectedDate + " " + selectedTime.format(formatter), formatter);
+
+                        // Store the selected time in a variable or use it
+                        addToOrder(order, "Order", startTime);
+                    });
+                });
+
+                // HBox to hold buttons
+                HBox actionBox = new HBox(15, playButton, orderButton);
                 actionBox.setAlignment(Pos.CENTER);
-                actionBox.getChildren().add(addToOrderButton);
+                actionBox.setMaxWidth(Double.MAX_VALUE); // Full width of the column
+                HBox.setHgrow(actionBox, Priority.ALWAYS); // Ensure it expands
 
                 setGraphic(actionBox);
             }
         });
 
+
         loadOrderList();
     }
 
-    private void addToOrder(Order order, String bookingStatus) {
+    private void showChooseOrderTimePopup(double xPos, double yPos, BiConsumer<LocalDate, LocalTime> onTimeSelected) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/pooltables/chooseOrderTime.fxml"));
+            Parent root = loader.load();
+
+            ChooseOrderTimeController controller = loader.getController();
+            controller.setOnTimeSelected(onTimeSelected);
+
+            Popup popup = new Popup();
+            popup.getContent().add(root);
+
+            // Hide popup when clicking outside
+            popup.setAutoHide(true);
+            popup.setX(xPos);
+            popup.setY(yPos);
+
+            // Apply fade-in effect
+            FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.12), root);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            fadeIn.play();
+
+            // Close popup from controller when Confirm is clicked
+            controller.setOnClosePopup(popup::hide);
+
+            popup.show(orderTable.getScene().getWindow());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addToOrder(Order order, String bookingStatus, LocalDateTime orderStartTime) {
         if (currentTableId != -1) {
-            boolean success = BookingDAO.addBookingToExistedOrder(order.getOrderId(), currentTableId, bookingStatus);
+            boolean success = false;
+            if(orderStartTime==null){
+                success = BookingDAO.addBookingToExistedOrder(order.getOrderId(), currentTableId, bookingStatus);
+            }
+            else{
+                success = BookingDAO.addOrderedBookingToExistedOrder(order.getOrderId(), currentTableId, bookingStatus, orderStartTime);
+            }
 
             if (success) {
                 NotificationService.showNotification(
@@ -208,10 +267,12 @@ public class AddTableToOrderController implements Initializable {
             forEachOrderController.setCustomerID(order.getCustomerId());
             forEachOrderController.setForEachUserID(order.getUserId());
             forEachOrderController.setBillNo(OrderController.getBillNumberCount());
+            forEachOrderController.setPoolTableController(this.poolTableController);
             if(order.getCustomerPhone()!=null){
                 forEachOrderController.setInitialPhoneText(order.getCustomerPhone());
             }
             forEachOrderController.initializeAllTables();
+            poolTableController.handleViewAllTables();
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -226,7 +287,6 @@ public class AddTableToOrderController implements Initializable {
         }
     }
 
-
     private void loadOrderList() {
         List<Order> orders = orderDAO.getAllOrders();
         if (!orders.isEmpty()) {
@@ -239,8 +299,19 @@ public class AddTableToOrderController implements Initializable {
         this.currentTableId = tableId;
     }
 
-    private void closeWindow() {
-        Stage stage = (Stage) orderTable.getScene().getWindow();
-        stage.close();
+    public void setTableContainer(StackPane tableContainer){
+        this.tableContainer = tableContainer;
+    }
+
+    public StackPane getTableContainer(){
+        return this.tableContainer;
+    }
+
+    public void setPoolTableController(PoolTableController poolTableController) {
+        this.poolTableController = poolTableController;
+    }
+
+    public PoolTableController getPoolTableController() {
+        return this.poolTableController;
     }
 }

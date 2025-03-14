@@ -11,7 +11,8 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="totalBooking" prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/forEachOrderStyle.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
+<!--<AnchorPane fx:id="totalBooking" prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/forEachOrderStyle.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">-->
+    <AnchorPane fx:id="totalBooking" prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
 
     <!-- Top Information Section -->
     <!-- Booking Pane -->
