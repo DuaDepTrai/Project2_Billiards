@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 10, 2025 at 01:18 PM
+-- Generation Time: Mar 13, 2025 at 05:12 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -37,49 +37,6 @@ CREATE TABLE `bookings` (
   `total` double DEFAULT NULL,
   `booking_status` enum('Order','Playing','Finish','Canceled') NOT NULL DEFAULT 'Playing'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `bookings`
---
-
-INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end_time`, `timeplay`, `total`, `booking_status`) VALUES
-(1, 1, 1, '2024-12-31 20:00:00', '2024-12-31 22:00:00', 3.5, 70000, 'Finish'),
-(2, 2, 2, '2025-01-02 00:00:00', '2025-01-02 02:30:00', 2.5, 187500, 'Finish'),
-(3, 3, 3, '2025-01-03 04:00:00', '2025-01-03 05:30:00', 1.5, 150000, 'Finish'),
-(4, 4, 1, '2025-01-03 19:00:00', '2025-01-03 20:00:00', 1, 35000, 'Finish'),
-(5, 5, 2, '2025-01-04 21:00:00', '2025-01-04 22:45:00', 1.75, 131250, 'Finish'),
-(6, 6, 3, '2025-01-05 23:00:00', '2025-01-06 01:00:00', 2, 200000, 'Finish'),
-(7, 7, 1, '2025-01-07 02:00:00', '2025-01-07 03:30:00', 1.5, 52500, 'Finish'),
-(8, 8, 2, '2025-01-08 03:00:00', '2025-01-08 04:00:00', 1, 75000, 'Finish'),
-(9, 9, 3, '2025-01-09 04:00:00', NULL, NULL, NULL, 'Finish'),
-(25, 26, 6, '2025-02-14 16:49:00', '2025-02-14 17:00:15', 0.183333333, 18333.3333, 'Finish'),
-(26, 29, 4, '2025-02-21 16:38:00', '2025-02-21 16:57:07', 0.316666666, NULL, 'Finish'),
-(27, 29, 4, '2025-02-21 16:39:00', '2025-02-21 16:57:07', 0.3, 7000, 'Finish'),
-(29, 29, 9, '2025-02-21 16:42:00', '2025-02-21 16:57:07', 0.25, NULL, 'Finish'),
-(30, 31, 4, '2025-02-21 17:03:00', '2025-02-21 17:25:08', 0.4, 14000, 'Finish'),
-(31, 32, 6, '2025-02-21 17:26:00', '2025-02-21 17:26:40', 0, 0, 'Finish'),
-(32, 30, 7, '2025-02-21 17:27:00', '2025-02-21 17:27:25', 0, 0, 'Finish'),
-(33, 28, 4, '2025-02-21 17:31:00', '2025-02-21 17:34:38', 0.05, 1750, 'Finish'),
-(34, 28, 9, '2025-02-21 17:31:00', '2025-02-21 17:34:38', 0.05, 5000, 'Finish'),
-(35, 27, 7, '2025-02-21 17:39:00', '2025-02-21 17:39:29', 0, 0, 'Finish'),
-(36, 27, 9, '2025-02-21 17:39:00', '2025-02-21 17:39:29', 0, 0, 'Finish'),
-(37, 33, 4, '2025-02-22 16:18:00', '2025-02-22 16:25:39', 0.116666666, NULL, 'Finish'),
-(38, 33, 7, '2025-02-22 16:18:00', '2025-02-22 16:25:39', 0.116666666, NULL, 'Finish'),
-(39, 33, 4, '2025-02-22 16:22:00', '2025-02-22 16:25:39', 0.05, NULL, 'Finish'),
-(40, 33, 7, '2025-02-22 16:22:00', '2025-02-22 16:25:39', 0.05, NULL, 'Finish'),
-(41, 34, 6, '2025-02-22 16:25:00', '2025-02-22 16:26:15', 0.016666666, 1666.6666, 'Finish'),
-(42, 36, 9, '2025-02-22 16:27:00', '2025-02-22 16:27:45', 0, 0, 'Finish'),
-(43, 39, 5, '2025-03-06 18:44:00', NULL, NULL, NULL, 'Playing'),
-(44, 37, 8, '2025-03-06 19:14:00', '2025-03-06 20:15:22', 1.016666666, 76249.99995000001, 'Finish'),
-(45, 42, 1, '2025-03-07 19:51:46', '2025-03-08 17:07:37', 21.25, 743750, 'Finish'),
-(46, 42, 7, '2025-03-07 19:51:53', '2025-03-08 17:07:37', 21.25, 743750, 'Finish'),
-(47, 42, 10, '2025-03-07 19:51:57', '2025-03-08 17:07:37', 21.25, 743750, 'Finish'),
-(48, 42, 10, '2025-03-07 19:53:54', '2025-03-08 17:07:37', 21.216666666, 742583.3333099999, 'Finish'),
-(49, 42, 4, '2025-03-07 19:53:58', '2025-03-08 17:07:37', 21.216666666, 742583.3333099999, 'Finish'),
-(50, 42, 4, '2025-03-07 19:54:35', '2025-03-08 17:07:37', 21.216666666, 742583.3333099999, 'Finish'),
-(51, 42, 15, '2025-03-07 19:57:16', '2025-03-08 17:07:37', 21.166666666, 2116666.6666, 'Finish'),
-(52, 65, 22, '2025-03-08 16:51:00', NULL, NULL, NULL, 'Playing'),
-(53, 66, 21, '2025-03-08 16:59:00', NULL, NULL, NULL, 'Playing');
 
 --
 -- Triggers `bookings`
@@ -185,36 +142,38 @@ CREATE TABLE `customers` (
   `customer_id` int(11) NOT NULL,
   `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `phone` varchar(15) NOT NULL,
-  `total_playtime` double DEFAULT NULL
+  `total_playtime` double DEFAULT NULL,
+  `birthday` date DEFAULT '1990-01-01',
+  `address` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `customers`
 --
 
-INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`) VALUES
-(1, 'Guest', '0999999999', 154.166666664),
-(2, 'Le Thi Mai', '0912345678', 0),
-(3, 'Tran Minh Tu', '0903456789', 0),
-(4, 'Phan Quoc Toan', '0856789012', 0),
-(5, 'Hoang Minh Thao', '0321234567', 0),
-(6, 'Nguyen Van Anh', '0708765432', 0),
-(7, 'Tran Thi Binh', '0562345678', 0),
-(8, 'Le Hoang Nam', '0593987654', 0),
-(9, 'Pham Thanh Tam', '0345678910', 0),
-(10, 'Dang Minh Duc', '0777123456', 0),
-(11, 'Bui Van Khoa', '0965123456', 0),
-(12, 'Hoang Thi Lan', '0946789012', 0),
-(13, 'Vo Quoc Bao', '0932345678', 0),
-(14, 'Doan Ngoc Hai', '0887654321', 0),
-(15, 'Truong Kim Ngan', '0813456789', 0),
-(16, 'Ngo Van Son', '0398765432', 0),
-(17, 'Luong Bao Chau', '0789123456', 0),
-(18, 'Phan Thanh Phong', '0582345678', 0),
-(19, 'Dinh Hai Dang', '0356789012', 0),
-(20, 'Cao Anh Tuan', '0765432189', 0),
-(21, 'Tran Van B', '9876543211', 0),
-(22, 'Nguyen Anh Tuan', '0987654321', 0);
+INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`, `birthday`, `address`) VALUES
+(1, 'Guest', '0999999999', 0, '1990-01-01', NULL),
+(2, 'Le Thi Mai', '0912345678', 0, '1990-01-01', NULL),
+(3, 'Tran Minh Tu', '0903456789', 0, '1990-01-01', NULL),
+(4, 'Phan Quoc Toan', '0856789012', 0, '1990-01-01', NULL),
+(5, 'Hoang Minh Thao', '0321234567', 0, '1990-01-01', NULL),
+(6, 'Nguyen Van Anh', '0708765432', 0, '1990-01-01', NULL),
+(7, 'Tran Thi Binh', '0562345678', 0, '1990-01-01', NULL),
+(8, 'Le Hoang Nam', '0593987654', 0, '1990-01-01', NULL),
+(9, 'Pham Thanh Tam', '0345678910', 0, '1990-01-01', NULL),
+(10, 'Dang Minh Duc', '0777123456', 0, '1990-01-01', NULL),
+(11, 'Bui Van Khoa', '0965123456', 0, '1990-01-01', NULL),
+(12, 'Hoang Thi Lan', '0946789012', 0, '1990-01-01', NULL),
+(13, 'Vo Quoc Bao', '0932345678', 0, '1990-01-01', NULL),
+(14, 'Doan Ngoc Hai', '0887654321', 0, '1990-01-01', NULL),
+(15, 'Truong Kim Ngan', '0813456789', 0, '1990-01-01', NULL),
+(16, 'Ngo Van Son', '0398765432', 0, '1990-01-01', NULL),
+(17, 'Luong Bao Chau', '0789123456', 0, '1990-01-01', NULL),
+(18, 'Phan Thanh Phong', '0582345678', 0, '1990-01-01', NULL),
+(19, 'Dinh Hai Dang', '0356789012', 0, '1990-01-01', NULL),
+(20, 'Cao Anh Tuan', '0765432189', 0, '1990-01-01', NULL),
+(21, 'Tran Van B', '9876543211', 0, '1990-01-01', NULL),
+(22, 'Nguyen Anh Tuan', '0987654321', 0, '1990-01-01', NULL);
 
 -- --------------------------------------------------------
 
@@ -231,42 +190,6 @@ CREATE TABLE `orders` (
   `order_status` enum('Order','Playing','Finished','Paid','Canceled') NOT NULL DEFAULT 'Playing'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `orders`
---
-
-INSERT INTO `orders` (`order_id`, `customer_id`, `user_id`, `total_cost`, `order_date`, `order_status`) VALUES
-(1, 1, 2, 1345000, '2025-01-01 00:00:00', 'Finished'),
-(2, 2, 2, 1647500, '2025-01-02 00:00:00', 'Paid'),
-(3, 3, 2, 3280000, '2025-01-03 00:00:00', 'Finished'),
-(4, 4, 2, 695000, '2025-01-04 00:00:00', 'Finished'),
-(5, 5, 2, 1513750, '2025-01-05 00:00:00', 'Finished'),
-(6, 1, 2, 300000, '2025-01-06 00:00:00', 'Finished'),
-(7, 2, 2, 202500, '2025-01-07 00:00:00', 'Finished'),
-(8, 3, 2, 225000, '2025-01-08 00:00:00', 'Paid'),
-(9, 4, 2, 0, '2025-01-09 00:00:00', 'Canceled'),
-(26, 4, 2, NULL, '2025-02-14 00:00:00', 'Finished'),
-(27, 2, 2, 320000, '2025-02-22 00:00:00', 'Finished'),
-(28, 1, 2, 611750, '2025-02-22 00:00:00', 'Finished'),
-(29, 21, 2, 467000, '2025-02-21 00:00:00', 'Canceled'),
-(30, 1, 2, NULL, '2025-02-22 00:00:00', 'Canceled'),
-(31, 3, 2, NULL, '2025-02-22 00:00:00', 'Canceled'),
-(32, 5, 2, NULL, '2025-02-22 00:00:00', 'Canceled'),
-(33, 2, 2, 215000, '2025-02-22 00:00:00', 'Finished'),
-(34, 5, 2, 1666.6666, '2025-02-22 00:00:00', 'Canceled'),
-(35, 5, 2, 0, '2025-02-22 00:00:00', 'Finished'),
-(36, 9, 2, NULL, '2025-02-22 00:00:00', 'Canceled'),
-(37, 11, 2, NULL, '2025-02-22 00:00:00', 'Playing'),
-(38, 1, 1, 0, '2025-03-01 00:00:00', 'Finished'),
-(39, 1, 1, 0, '2025-03-01 00:00:00', 'Finished'),
-(40, 13, 2, 0, '2025-03-07 00:00:00', 'Paid'),
-(41, 11, 2, 0, '2025-03-07 00:00:00', 'Paid'),
-(42, 1, 1, 6575666.666529999, '2025-03-07 00:00:00', 'Finished'),
-(64, 22, 1, NULL, '2025-03-08 00:00:00', 'Playing'),
-(65, 1, 1, NULL, '2025-03-08 00:00:00', 'Playing'),
-(66, 1, 1, NULL, '2025-03-08 23:59:35', 'Playing'),
-(67, 1, 1, NULL, '2025-03-09 00:11:34', 'Playing');
-
 -- --------------------------------------------------------
 
 --
@@ -280,30 +203,6 @@ CREATE TABLE `orders_items` (
   `quantity` int(11) NOT NULL,
   `total` double DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `orders_items`
---
-
-INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity`, `total`) VALUES
-(2, 1, 12, 3, 60000),
-(3, 1, 7, 1, 15000),
-(5, 2, 13, 2, 60000),
-(6, 2, 8, 1, 25000),
-(8, 3, 14, 1, 25000),
-(9, 3, 10, 1, 30000),
-(11, 4, 15, 1, 40000),
-(12, 4, 11, 1, 20000),
-(14, 5, 16, 2, 100000),
-(15, 5, 9, 2, 20000),
-(50, 26, 17, 24, 480000),
-(51, 26, 16, 30, 1500000),
-(52, 27, 15, 10, 320000),
-(53, 29, 15, 10, 400000),
-(54, 28, 10, 1, 30000),
-(55, 28, 16, 1, 50000),
-(56, 28, 8, 1, 25000),
-(58, 33, 17, 10, 200000);
 
 -- --------------------------------------------------------
 
@@ -364,36 +263,36 @@ CREATE TABLE `pooltables` (
 --
 
 INSERT INTO `pooltables` (`cate_id`, `table_id`, `name`, `status`) VALUES
-(1, 1, 'Standard 1', 'Available'),
-(2, 2, 'Deluxe 1', 'Ordered'),
-(3, 3, 'VIP 1', 'Playing'),
-(1, 4, 'Standard 2', 'Available'),
-(2, 5, 'Deluxe 2', 'Available'),
-(3, 6, 'VIP 2', 'Playing'),
-(1, 7, 'Standard 3', 'Available'),
-(2, 8, 'Deluxe 3', 'Available'),
-(3, 9, 'VIP 3', 'Playing'),
-(1, 10, 'Standard 4', 'Available'),
-(2, 11, 'Deluxe 4', 'Available'),
-(3, 12, 'VIP 4', 'Available'),
-(1, 13, 'Standard 5', 'Available'),
-(2, 14, 'Deluxe 5', 'Available'),
-(3, 15, 'VIP 5', 'Available'),
-(1, 16, 'Standard 6', 'Available'),
-(2, 17, 'Deluxe 6', 'Available'),
-(3, 18, 'VIP 6', 'Available'),
-(1, 19, 'Standard 7', 'Available'),
-(2, 20, 'Deluxe 7', 'Available'),
-(3, 21, 'VIP 7', 'Playing'),
-(1, 22, 'Standard 8', 'Playing'),
-(2, 23, 'Deluxe 8', 'Available'),
-(3, 24, 'VIP 8', 'Available'),
-(1, 25, 'Standard 9', 'Available'),
-(2, 26, 'Deluxe 9', 'Available'),
-(3, 27, 'VIP 9', 'Available'),
-(1, 28, 'Standard 10', 'Available'),
-(2, 29, 'Deluxe 10', 'Available'),
-(3, 30, 'VIP 10', 'Available');
+(1, 31, 'Standard 01', 'Available'),
+(1, 32, 'Standard 02', 'Available'),
+(1, 33, 'Standard 03', 'Available'),
+(1, 34, 'Standard 04', 'Available'),
+(1, 35, 'Standard 05', 'Available'),
+(1, 36, 'Standard 06', 'Available'),
+(1, 37, 'Standard 07', 'Available'),
+(1, 38, 'Standard 08', 'Available'),
+(1, 39, 'Standard 09', 'Available'),
+(1, 40, 'Standard 10', 'Available'),
+(2, 41, 'Deluxe 01', 'Available'),
+(2, 42, 'Deluxe 02', 'Available'),
+(2, 43, 'Deluxe 03', 'Available'),
+(2, 44, 'Deluxe 04', 'Available'),
+(2, 45, 'Deluxe 05', 'Available'),
+(2, 46, 'Deluxe 06', 'Available'),
+(2, 47, 'Deluxe 07', 'Available'),
+(2, 48, 'Deluxe 08', 'Available'),
+(2, 49, 'Deluxe 09', 'Available'),
+(2, 50, 'Deluxe 10', 'Available'),
+(3, 51, 'VIP 01', 'Available'),
+(3, 52, 'VIP 02', 'Available'),
+(3, 53, 'VIP 03', 'Available'),
+(3, 54, 'VIP 04', 'Available'),
+(3, 55, 'VIP 05', 'Available'),
+(3, 56, 'VIP 06', 'Available'),
+(3, 57, 'VIP 07', 'Available'),
+(3, 58, 'VIP 08', 'Available'),
+(3, 59, 'VIP 09', 'Available'),
+(3, 60, 'VIP 10', 'Available');
 
 -- --------------------------------------------------------
 
@@ -415,25 +314,24 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `quantity`) VALUES
-(4, 'Standard Cue - For Rent', 2, 50000, 'Piece', 10),
-(5, 'Deluxe Cue - For Rent', 2, 100000, 'Piece', 10),
-(6, 'Professional Cue - For Rent', 2, 150000, 'Piece', 10),
+(4, 'Standard Cue - For Rent', 2, 50000, 'Piece', 20),
+(5, 'Deluxe Cue - For Rent', 2, 100000, 'Piece', 20),
+(6, 'Professional Cue - For Rent', 2, 150000, 'Piece', 20),
 (7, 'Soda', 3, 15000, 'Can', 50),
 (8, 'Juice', 3, 25000, 'Can', 50),
-(9, 'Water', 3, 10000, 'Bottle', 120),
-(10, 'Coffee', 3, 30000, 'Cup', 49),
-(11, 'Tea', 3, 20000, 'Cup', 60),
+(9, 'Water', 3, 10000, 'Bottle', 50),
+(10, 'Coffee', 3, 30000, 'Cup', 50),
+(11, 'Tea', 3, 20000, 'Cup', 50),
 (12, 'Chips', 4, 20000, 'Bag', 50),
-(13, 'Nuts', 4, 30000, 'Bag', 40),
-(14, 'Popcorn', 4, 25000, 'Bag', 60),
-(15, 'Chocolate', 4, 40000, 'Bar', 25),
-(16, 'Cookies Box', 4, 50000, 'Box', 24),
-(17, 'Coca Cola', 3, 20000, 'Can', 26),
-(20, 'Uno', 5, 60000, 'Set', 20),
-(21, 'Poker Deck (Plastic Cards)', 5, 80000, 'Set', 15),
+(13, 'Nuts', 4, 30000, 'Bag', 50),
+(14, 'Popcorn', 4, 25000, 'Bag', 50),
+(15, 'Chocolate', 4, 40000, 'Bar', 50),
+(16, 'Cookies Box', 4, 50000, 'Box', 50),
+(17, 'Coca Cola', 3, 20000, 'Can', 50),
+(20, 'Uno', 5, 60000, 'Set', 30),
+(21, 'Poker Deck (Plastic Cards)', 5, 80000, 'Set', 30),
 (22, 'Poker Deck (Plastic Coated)', 5, 50000, 'Set', 30),
-(23, 'Sting', 3, 15000, 'Bottle', 50),
-(24, 'VIP Cues', 2, 200000, 'Piece', 5);
+(23, 'Sting', 3, 15000, 'Bottle', 50);
 
 -- --------------------------------------------------------
 
@@ -693,7 +591,7 @@ ALTER TABLE `permissions`
 -- AUTO_INCREMENT for table `pooltables`
 --
 ALTER TABLE `pooltables`
-  MODIFY `table_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `table_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT for table `products`
