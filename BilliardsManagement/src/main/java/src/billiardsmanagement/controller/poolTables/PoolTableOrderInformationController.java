@@ -408,6 +408,7 @@ public class PoolTableOrderInformationController {
             controller.setCurrentTableId(currentTable.getTableId());
             controller.setPoolTableController(this.poolTableController);
             controller.setTableContainer(this.tablesContainer);
+            controller.setOrderController(this.orderController);
 
             if (poolTableController != null) poolTableController.showPoolPopup(tablesContainer, root);
 

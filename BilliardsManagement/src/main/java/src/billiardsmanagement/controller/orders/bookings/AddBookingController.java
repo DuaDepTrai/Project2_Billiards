@@ -222,7 +222,7 @@ public class AddBookingController implements Initializable {
     }
 
     private void loadTableNameToIdMap() {
-        String query = "SELECT table_id,name FROM pooltables";
+        String query = "SELECT table_id,name FROM pooltables WHERE status = 'Available'";
         try (PreparedStatement statement = conn.prepareStatement(query);
              ResultSet resultSet = statement.executeQuery()) {
 

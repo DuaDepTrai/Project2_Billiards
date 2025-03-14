@@ -15,6 +15,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -117,7 +118,7 @@ public class PoolTableController {
         addNewButton.setOnAction(e -> showAddDialog());
     }
 
-    public void initializePoolTableController(){
+    public void initializePoolTableController() {
         System.out.println("Pool Table Controller's Initialize() method is called!");
         catePooltablesList = new ArrayList<>();
         catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
@@ -162,15 +163,26 @@ public class PoolTableController {
 
     protected void filterTables(String searchText) {
         tablesContainer.getChildren().clear();
-        if (searchText == null || searchText.isEmpty()) {
-            tableList.forEach(this::createTableUI);
+
+        if (searchText != null && !searchText.isEmpty()) {
+            ObservableList<PoolTable> filteredList = FXCollections.observableArrayList();
+
+            for (PoolTable table : tableList) {
+                if (table.getName().toLowerCase().contains(searchText.toLowerCase())) {
+                    filteredList.add(table);
+                }
+            }
+
+            for (PoolTable table : filteredList) {
+                createTableUI(table);  // Assuming createTableUI adds the table to the UI
+            }
         } else {
-            tableList.stream()
-                    .filter(table -> table.getName().toLowerCase().contains(searchText.toLowerCase()))
-                    .forEach(this::createTableUI);
+            // If no search text, you might want to show all tables or handle accordingly
+            for (PoolTable table : tableList) {
+                createTableUI(table);
+            }
         }
     }
-
     protected void createTableUI(PoolTable table) {
         StackPane tableStack = new StackPane();
         tableStack.setPrefSize(100, 135);
@@ -251,9 +263,9 @@ public class PoolTableController {
             } else {
                 int orderId = BookingDAO.getTheLatestOrderByTableId(table.getTableId());
                 Booking latestBooking = BookingDAO.getBookingByTableIdAndOrderId(orderId, table.getTableId());
-                System.out.println("Latest Booking : "+latestBooking);
-                System.out.println("Order ID = "+orderId);
-                System.out.println("Status : "+latestBooking.getBookingStatus());
+                System.out.println("Latest Booking : " + latestBooking);
+                System.out.println("Order ID = " + orderId);
+                System.out.println("Status : " + latestBooking.getBookingStatus());
                 if (latestBooking.getBookingStatus() != null && (latestBooking.getBookingStatus().equalsIgnoreCase("Playing") || latestBooking.getBookingStatus().equalsIgnoreCase("Order"))) {
                     Order currentOrder = OrderDAO.getOrderById(orderId);
                     showForEachOrderView(currentOrder, table);
@@ -330,7 +342,7 @@ public class PoolTableController {
     }
 
     public void hidePoolPopup() {
-        if(poolPopup!=null && poolPopup.isShowing()) {
+        if (poolPopup != null && poolPopup.isShowing()) {
             poolPopup.hide();
         }
 //        if (poolPopup != null && poolPopup.isShowing()) {
@@ -370,7 +382,7 @@ public class PoolTableController {
             forEachOrderController.setOrderDate(order.getOrderDate());
             forEachOrderController.setOrderController(this.orderController);
             int billNo = OrderDAO.getOrderBillNo(order.getOrderId());
-            if(billNo!=-1) forEachOrderController.setBillNo(billNo);
+            if (billNo != -1) forEachOrderController.setBillNo(billNo);
             forEachOrderController.setPoolTableController(this);
             if (order.getCustomerPhone() != null) {
                 forEachOrderController.setInitialPhoneText(order.getCustomerPhone());
