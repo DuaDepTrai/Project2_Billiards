@@ -29,11 +29,11 @@
     -fx-background-color: black;
 }
 
-.add-button {
-    -fx-background-color: #4CAF50;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-}
+/*.add-button {*/
+/*    -fx-background-color: #4CAF50;*/
+/*    -fx-text-fill: white;*/
+/*    -fx-font-weight: bold;*/
+/*}*/
 
 .search-button {
     -fx-background-color: #2196F3;
@@ -63,39 +63,39 @@
     -fx-font-weight: bold;
 }
 
-.table-view {
-    -fx-background-color: transparent;
-}
+/*.table-view {*/
+/*    -fx-background-color: transparent;*/
+/*}*/
 
-.table-view .column-header {
-    -fx-background-color: #2196F3;
-    -fx-padding: 5px;
-}
+/*.table-view .column-header {*/
+/*    -fx-background-color: #2196F3;*/
+/*    -fx-padding: 5px;*/
+/*}*/
 
-.table-view .column-header .label {
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-}
+/*.table-view .column-header .label {*/
+/*    -fx-text-fill: white;*/
+/*    -fx-font-weight: bold;*/
+/*}*/
 
-.table-row-cell:odd {
-    -fx-background-color: #f5f5f5;
-}
+/*.table-row-cell:odd {*/
+/*    -fx-background-color: #f5f5f5;*/
+/*}*/
 
-.table-row-cell:even {
-    -fx-background-color: white;
-}
+/*.table-row-cell:even {*/
+/*    -fx-background-color: white;*/
+/*}*/
 
-.table-row-cell:selected {
-    -fx-background-color: #bbdefb;
-}
+/*.table-row-cell:selected {*/
+/*    -fx-background-color: #bbdefb;*/
+/*}*/
 
-.text-field {
-    -fx-background-color: white;
-    -fx-border-color: #ddd;
-    -fx-border-width: 1px;
-    -fx-border-radius: 3px;
-    -fx-padding: 5px;
-}
+/*.text-field {*/
+/*    -fx-background-color: white;*/
+/*    -fx-border-color: #ddd;*/
+/*    -fx-border-width: 1px;*/
+/*    -fx-border-radius: 3px;*/
+/*    -fx-padding: 5px;*/
+/*}*/
 
 .search-container {
     -fx-spacing: 10;
@@ -106,16 +106,16 @@
     -fx-pref-width: 200;
 }
 
-.button {
-    -fx-background-radius: 5px;
-    -fx-cursor: hand;
-    -fx-font-weight: bold;
-    -fx-padding: 8 15;
-}
+/*.button {*/
+/*    -fx-background-radius: 5px;*/
+/*    -fx-cursor: hand;*/
+/*    -fx-font-weight: bold;*/
+/*    -fx-padding: 8 15;*/
+/*}*/
 
-.add-button:hover {
-    -fx-background-color: #45a049;
-}
+/*.add-button:hover {*/
+/*    -fx-background-color: #45a049;*/
+/*}*/
 
 .search-button:hover {
     -fx-background-color: #1976D2;

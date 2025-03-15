@@ -112,13 +112,13 @@ public class ProductController2 {
         categoryLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 5px;");
 
         FontAwesomeIconView addProductIcon = new FontAwesomeIconView(FontAwesomeIcon.PLUS_CIRCLE);
-        addProductIcon.setGlyphSize(18);
+        addProductIcon.setGlyphSize(14);
 
         FontAwesomeIconView updateCategoryIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
-        updateCategoryIcon.setGlyphSize(18);
+        updateCategoryIcon.setGlyphSize(14);
 
         FontAwesomeIconView removeCategoryIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
-        removeCategoryIcon.setGlyphSize(18);
+        removeCategoryIcon.setGlyphSize(14);
 
         Button addProductButton = new Button();
         addProductButton.setGraphic(addProductIcon);
@@ -152,7 +152,7 @@ public class ProductController2 {
         TableColumn<Product, Integer> quantityColumn = new TableColumn<>("Quantity");
         TableColumn<Product, Double> priceColumn = new TableColumn<>("Price");
         TableColumn<Product, String> unitColumn = new TableColumn<>("Unit");
-        TableColumn<Product, Void> actionColumn = new TableColumn<>("Action");
+        TableColumn<Product, Void> actionColumn = new TableColumn<>("");
 
         nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
         quantityColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getQuantity()).asObject());
@@ -202,17 +202,17 @@ public class ProductController2 {
 
             {
                 FontAwesomeIconView stockUpIcon = new FontAwesomeIconView(FontAwesomeIcon.ARROW_CIRCLE_UP);
-                stockUpIcon.setSize("16");
+                stockUpIcon.setSize("12");
                 stockUpButton.setGraphic(stockUpIcon);
                 stockUpButton.getStyleClass().add("action-button");
 
                 FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
-                editIcon.setSize("16");
+                editIcon.setSize("12");
                 editButton.setGraphic(editIcon);
                 editButton.getStyleClass().add("action-button");
 
                 FontAwesomeIconView deleteIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
-                deleteIcon.setSize("16");
+                deleteIcon.setSize("12");
                 deleteButton.setGraphic(deleteIcon);
                 deleteButton.getStyleClass().add("action-button");
 

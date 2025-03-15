@@ -263,7 +263,7 @@ public class PrintBillController {
         Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9);   // Bold, size 12
         Font cellFont = FontFactory.getFont(FontFactory.HELVETICA, 8);          // Regular, size 10
 
-        String[] headers = {"Item Name", "QT", "Unit", "Unit Price", "Total Price"};
+        String[] headers = {"Item", "QT", "Unit", "Price", "Total"};
         for (String header : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);   // Center alignment for headers

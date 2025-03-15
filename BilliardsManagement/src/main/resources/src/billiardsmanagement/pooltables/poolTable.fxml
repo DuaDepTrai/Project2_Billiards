@@ -17,7 +17,7 @@
         <!-- Search and Add New Section -->
         <HBox spacing="10" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
             <TextField fx:id="searchField" prefHeight="26.0" prefWidth="117.0" promptText="Search..." />
-            <Button fx:id="searchButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" styleClass="search-button" />
+<!--            <Button fx:id="searchButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" styleClass="search-button" />-->
         </HBox>
 
         <Button fx:id="addNewButton" layoutX="628.0" layoutY="13.0" mnemonicParsing="false" onAction="#showAddDialog" prefWidth="153.0" styleClass="add-button" text="Add new Pool Table" textAlignment="CENTER" textFill="WHITE" AnchorPane.rightAnchor="310.0">
@@ -88,7 +88,7 @@
             <MFXScrollPane fx:id="catePooltablesScrollPane" prefHeight="150.0" prefWidth="205.0" />
 
             <!-- Add Category Button -->
-            <Button fx:id="addNewTableCategory" prefHeight="25.0" prefWidth="250.0" styleClass="add-cate-pooltable-button" text="New Table Category" textAlignment="CENTER" textFill="WHITE" />
+            <Button fx:id="addNewTableCategory" prefHeight="25.0" prefWidth="250.0" styleClass="add-button" text="New Table Category" textAlignment="CENTER" textFill="WHITE" />
         </VBox>
     </children>
 </AnchorPane>

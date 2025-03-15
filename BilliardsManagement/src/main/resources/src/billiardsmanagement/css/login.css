@@ -1,9 +1,3 @@
-.root {
-    -fx-background-image: url("bg_login.jpg");
-    -fx-background-size: cover;
-    -fx-background-position: center;
-}
-
 /* Áp dụng cho tất cả văn bản bên trong VBox */
 VBox {
     -fx-text-fill: white;

@@ -11,7 +11,7 @@
     -fx-background-color: rgba(4, 52, 73, 0.6);
     -fx-border-color: transparent;
     -fx-border-width: 0;
-    -fx-border-radius: 10; /* Set border radius */
+    /*-fx-border-radius: 10; !* Set border radius *!*/
     -fx-transition: opacity 0.3s ease, background-color 0.3s ease;
 }
 
@@ -23,7 +23,7 @@
     -fx-cursor: hand;
     -fx-padding: 10px;
     -fx-border-width: 0;
-    -fx-border-radius: 10; /* Set border radius */
+    /*-fx-border-radius: 10; !* Set border radius *!*/
 }
 
 .hover-button:hover {
@@ -62,7 +62,7 @@
     -fx-text-fill: white; /* Text color */
     -fx-padding: 10; /* Optional: padding for better appearance */
     -fx-border-color: transparent; /* Optional: border color */
-    -fx-border-radius: 5; /* Optional: border radius for rounded corners */
+    /*-fx-border-radius: 5; !* Optional: border radius for rounded corners *!*/
 }
 
 .add-cate-pooltable-button:hover {

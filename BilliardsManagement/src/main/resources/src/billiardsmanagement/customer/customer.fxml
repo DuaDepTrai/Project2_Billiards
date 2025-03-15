@@ -19,7 +19,7 @@
                 <HBox.margin>
                     <Insets right="5.0" />
                 </HBox.margin></TextField>
-            <Button fx:id="searchBtn" mnemonicParsing="false" onAction="#handleSearchCustomer" prefHeight="26.0" prefWidth="80.0" styleClass="search-button" text="Search" textAlignment="CENTER" />
+<!--            <Button fx:id="searchBtn" mnemonicParsing="false" onAction="#handleSearchCustomer" prefHeight="26.0" prefWidth="80.0" styleClass="search-button" text="Search" textAlignment="CENTER" />-->
         </HBox>
 
         <Button fx:id="addCustomerBtn" mnemonicParsing="false" onAction="#handleAddCustomer" prefHeight="35.0" prefWidth="240.0" styleClass="add-button" text="Add New Customer" textAlignment="CENTER" textFill="WHITE" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="25.0">

@@ -28,12 +28,12 @@
                 <TableColumn fx:id="bookingActionColumn" prefWidth="127.2000732421875" styleClass="number-aligned" text="Action" />
             </columns>
         </TableView>
-        <Button fx:id="addOrderItemButton" layoutX="832.0" layoutY="195.0" mnemonicParsing="false" onAction="#addOrderItem" prefHeight="16.0" prefWidth="168.0" styleClass="finish-button" text="Add New Item" textAlignment="CENTER" textFill="WHITE" focusTraversable="false">
+        <Button fx:id="addOrderItemButton" layoutX="832.0" layoutY="195.0" mnemonicParsing="false" onAction="#addOrderItem" prefHeight="16.0" prefWidth="168.0" styleClass="add-button" text="Add New Item" textAlignment="CENTER" textFill="WHITE" focusTraversable="false">
             <font>
                 <Font size="11.0" />
             </font>
         </Button>
-        <Button fx:id="addBookingButton" layoutX="833.0" layoutY="-2.0" mnemonicParsing="false" onAction="#addBooking" prefHeight="16.0" prefWidth="168.0" styleClass="finish-button" text="Add New Booking" textAlignment="CENTER" textFill="WHITE" focusTraversable="false">
+        <Button fx:id="addBookingButton" layoutX="833.0" layoutY="-2.0" mnemonicParsing="false" onAction="#addBooking" prefHeight="16.0" prefWidth="168.0" styleClass="add-button" text="Add New Booking" textAlignment="CENTER" textFill="WHITE" focusTraversable="false">
             <font>
                 <Font size="11.0" />
             </font>
@@ -63,7 +63,7 @@
     </HBox>
     <HBox alignment="CENTER_RIGHT" layoutX="853.0" layoutY="8.0" prefHeight="25.0" prefWidth="168.0">
         <children>
-            <Button fx:id="finishOrderButton" mnemonicParsing="false" onAction="#finishOrder" prefHeight="32.0" prefWidth="168.0" styleClass="finish-button" text="Finish this Order" textAlignment="CENTER" textFill="WHITE" focusTraversable="false" />
+            <Button fx:id="finishOrderButton" mnemonicParsing="false" onAction="#finishOrder" prefHeight="32.0" prefWidth="168.0" styleClass="add-button" text="Finish this Order" textAlignment="CENTER" textFill="WHITE" focusTraversable="false" />
         </children>
     </HBox>
     <HBox alignment="CENTER" layoutX="718.0" layoutY="7.0" prefHeight="25.0" prefWidth="122.0" />
@@ -121,6 +121,6 @@
     </Text>
     <Label layoutX="358.0" layoutY="7.0" prefHeight="21.0" prefWidth="77.0" styleClass="section-label" text="Status: " />
     <Button layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" text="Add Customer" focusTraversable="true" />
-    <Button fx:id="btnBack" onAction="#goBack" text="Back" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" focusTraversable="false" />
+<!--    <Button fx:id="btnBack" onAction="#goBack" text="Back" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" focusTraversable="false" />-->
     <Button fx:id="confirmSaveCustomer" layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" prefHeight="25.0" prefWidth="167.0" text="Add New Customer" focusTraversable="true" />
 </AnchorPane>

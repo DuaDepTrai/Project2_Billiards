@@ -7,7 +7,10 @@
 <!--    <Button fx:id="btnBack" text="Back"-->
 <!--            AnchorPane.topAnchor="10.0" AnchorPane.leftAnchor="10.0"/>-->
 
-    <VBox spacing="10" alignment="TOP_CENTER" AnchorPane.topAnchor="10" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10">
+    <Button fx:id="btnAddNewRole" text="Add New Role" styleClass="add-button" AnchorPane.topAnchor="10.0"
+            AnchorPane.rightAnchor="20.0"/>
+
+    <VBox spacing="10" alignment="TOP_CENTER" AnchorPane.topAnchor="50" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10">
         <HBox spacing="5" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" HBox.hgrow="ALWAYS">
             <!-- TableView hiển thị danh sách Role -->
             <TableView fx:id="roleTable" HBox.hgrow="ALWAYS">
@@ -28,7 +31,5 @@
         </HBox>
     </VBox>
 
-    <Button fx:id="btnAddNewRole" text="Add New Role" AnchorPane.bottomAnchor="10.0"
-            AnchorPane.rightAnchor="200.0"/>
 </AnchorPane>
 

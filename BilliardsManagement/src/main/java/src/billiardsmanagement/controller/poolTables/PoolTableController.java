@@ -101,7 +101,7 @@ public class PoolTableController {
                 new Image(getClass().getResourceAsStream("/src/billiardsmanagement/images/pooltables/searchIcon.png")));
         searchIcon.setFitHeight(16);
         searchIcon.setFitWidth(16);
-        searchButton.setGraphic(searchIcon);
+//        searchButton.setGraphic(searchIcon);
 
         // Load all tables
         handleViewAllTables();
@@ -136,7 +136,7 @@ public class PoolTableController {
                 new Image(getClass().getResourceAsStream("/src/billiardsmanagement/images/pooltables/searchIcon.png")));
         searchIcon.setFitHeight(16);
         searchIcon.setFitWidth(16);
-        searchButton.setGraphic(searchIcon);
+//        searchButton.setGraphic(searchIcon);
 
         // Load all tables
         handleViewAllTables();

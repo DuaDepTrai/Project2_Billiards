@@ -53,13 +53,20 @@
 
 /* Action buttons styles */
 .add-button {
-    -fx-background-color: #0095ff;
+    /*-fx-background-color: #0095ff;*/
     -fx-text-fill: white;
-    -fx-background-radius: 25;
-    -fx-padding: 10 20;
-    -fx-font-size: 13px;
+    /*-fx-background-radius: 25;*/
+    /*-fx-padding: 10 20;*/
+    -fx-font-size: 14px;
     -fx-cursor: hand;
     -fx-effect: dropshadow(three-pass-box, rgba(0,149,255,0.25), 5, 0, 0, 0);
+
+    -fx-pref-height: 23.0;
+    -fx-max-height: 23.0;
+    -fx-background-color: #4CAF50;
+    /*-fx-text-fill: white;*/
+    -fx-font-weight: bold;
+    -fx-padding: 0 10;
 }
 
 .add-button:hover {

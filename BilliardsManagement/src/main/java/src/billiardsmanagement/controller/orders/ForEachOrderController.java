@@ -70,8 +70,8 @@ public class ForEachOrderController {
     protected Button addBookingButton;
     @FXML
     protected Button cancelBookingButton;
-    @FXML
-    private Button btnBack;
+//    @FXML
+//    private Button btnBack;
 
     // Actions
     @FXML
@@ -1441,19 +1441,19 @@ public class ForEachOrderController {
         return this.currentOrder;
     }
 
-    @FXML
-    public void goBack(ActionEvent actionEvent) {
-        try {
-            if (mainController != null) {
-                mainController.showOrdersPage();
-            } else {
-                NotificationService.showNotification("Error", "MainController is not set.", NotificationStatus.Error);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            NotificationService.showNotification("Error", "Failed to navigate back.", NotificationStatus.Error);
-        }
-    }
+//    @FXML
+//    public void goBack(ActionEvent actionEvent) {
+//        try {
+//            if (mainController != null) {
+//                mainController.showOrdersPage();
+//            } else {
+//                NotificationService.showNotification("Error", "MainController is not set.", NotificationStatus.Error);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            NotificationService.showNotification("Error", "Failed to navigate back.", NotificationStatus.Error);
+//        }
+//    }
 
     public void setOrderDate(LocalDateTime orderDate) {
         this.orderDate = orderDate;

@@ -38,8 +38,8 @@ public class RolesPermissionsController {
     @FXML
     private Button btnAddNewRole;
 
-    @FXML
-    private Button btnBack;  // Khai báo nút Back
+//    @FXML
+//    private Button btnBack;  // Khai báo nút Back
 
     @FXML
     private TableColumn<String, String> permissionColumn;
@@ -222,16 +222,16 @@ public class RolesPermissionsController {
         }
     }
 
-    @FXML
-    private void handleBackAction() {
-        if (mainController != null) {
-            try {
-                mainController.showUsersPage(); // Gọi phương thức showUsersPage() trong MainController
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    @FXML
+//    private void handleBackAction() {
+//        if (mainController != null) {
+//            try {
+//                mainController.showUsersPage(); // Gọi phương thức showUsersPage() trong MainController
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     private void applyPermissions() {
         if (currentUser != null) {
