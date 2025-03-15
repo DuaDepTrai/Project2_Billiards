@@ -15,15 +15,15 @@
 
     <top>
         <HBox alignment="CENTER_LEFT" spacing="10" styleClass="header">
-            <padding>
-                <Insets bottom="20" left="20" right="20" top="20" />
-            </padding>
+<!--            <padding>-->
+<!--                <Insets bottom="20" left="20" right="20" top="20" />-->
+<!--            </padding>-->
 
-            <Label styleClass="title-label" text="ORDER" />
+<!--            <Label styleClass="title-label" text="ORDER" />-->
 
             <Region HBox.hgrow="ALWAYS" />
 
-            <TextField fx:id="autoCompleteTextField" promptText="Search order" styleClass="search-field" />
+            <TextField fx:id="autoCompleteTextField" promptText="Search by name/phone" styleClass="search-field" />
 <!--            <Button onAction="#searchOrder" styleClass="search-button">-->
 <!--                <graphic>-->
 <!--                    <FontAwesomeIconView glyphName="SEARCH" size="16" />-->
@@ -44,7 +44,7 @@
                 <TableColumn fx:id="totalCostColumn" styleClass="table-column-style" text="Cost" />
                 <TableColumn fx:id="orderStatusColumn" styleClass="table-column-style" text="Status" />
                 <TableColumn fx:id="dateColumn" prefWidth="75.0" text="Date" />
-                <TableColumn fx:id="managerColumn" prefWidth="75.0" text="Create by" />
+                <TableColumn fx:id="staffColumn" prefWidth="75.0" text="Create by" />
                 <TableColumn fx:id="actionColumn" prefWidth="100.0" style="-fx-alignment: CENTER;"/>
             </columns>
             <columnResizePolicy>

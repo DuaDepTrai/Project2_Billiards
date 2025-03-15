@@ -88,14 +88,14 @@
 /* Table header styles */
 .table-view .column-header-background {
     -fx-background-color: #e0e0e0;  /* Màu nền xám cho toàn bộ header */
-    -fx-background-radius: 8;
+    /*-fx-background-radius: 8;*/
     -fx-background-insets: 0;
     -fx-padding: 0;
 }
 
 .table-view .column-header {
     -fx-background-color: transparent;
-    -fx-padding: 12 8;
+    /*-fx-padding: 12 8;*/
     -fx-pref-height: 45px;
     -fx-alignment: center-left;
     -fx-font-weight: bold;

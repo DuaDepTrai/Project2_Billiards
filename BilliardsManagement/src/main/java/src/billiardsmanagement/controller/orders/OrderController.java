@@ -62,7 +62,7 @@ public class OrderController implements Initializable {
     @FXML
     private TableColumn<Order, String> dateColumn;
     @FXML
-    private TableColumn<Order, String> managerColumn;
+    private TableColumn<Order, String> staffColumn;
     @FXML
     private BorderPane mainPane; // Thêm khai báo này
     @FXML
@@ -303,7 +303,7 @@ public class OrderController implements Initializable {
         });
 
 
-        managerColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
+        staffColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
         actionColumn.setCellFactory(column -> new TableCell<>() {
             private final HBox container = new HBox(10); // spacing = 10
 
@@ -511,7 +511,7 @@ public class OrderController implements Initializable {
         });
 
 
-        managerColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
+        staffColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
         actionColumn.setCellFactory(column -> new TableCell<>() {
             private final HBox container = new HBox(10); // spacing = 10
 

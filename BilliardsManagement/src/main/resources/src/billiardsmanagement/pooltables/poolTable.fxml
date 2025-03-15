@@ -12,24 +12,28 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.layout.Region?>
 <AnchorPane prefHeight="609.0" prefWidth="1001.0" stylesheets="@../css/poolTable.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.poolTables.PoolTableController">
     <children>
         <!-- Search and Add New Section -->
-        <HBox spacing="10" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0">
-            <TextField fx:id="searchField" prefHeight="26.0" prefWidth="117.0" promptText="Search..." />
-<!--            <Button fx:id="searchButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" styleClass="search-button" />-->
-        </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="10" AnchorPane.rightAnchor="350.0" AnchorPane.topAnchor="14.0">
+            <Region HBox.hgrow="ALWAYS" />
 
-        <Button fx:id="addNewButton" layoutX="628.0" layoutY="13.0" mnemonicParsing="false" onAction="#showAddDialog" prefWidth="153.0" styleClass="add-button" text="Add new Pool Table" textAlignment="CENTER" textFill="WHITE" AnchorPane.rightAnchor="310.0">
-            <font>
-                <Font size="13.0" />
-            </font>
-        </Button>
+            <TextField fx:id="searchField" prefHeight="26.0" prefWidth="200.0" promptText="Search by pool name" styleClass="search-field" />
+<!--            <Button fx:id="searchButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" styleClass="search-button" />-->
+
+
+            <Button fx:id="addNewButton" layoutX="628.0" layoutY="13.0" mnemonicParsing="false" onAction="#showAddDialog" prefWidth="153.0" styleClass="add-button" text="Add new Pool Table" textAlignment="CENTER" textFill="WHITE" >
+                <font>
+                    <Font size="13.0" />
+                </font>
+            </Button>
+        </HBox>
 
         <VirtualTable layoutX="97.0" layoutY="236.0" />
         <VirtualTable layoutX="140.0" layoutY="255.0" prefHeight="258.0" prefWidth="257.0" />
 
-        <ScrollPane fx:id="poolTableScrollPane" layoutX="15.0" layoutY="57.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="350" AnchorPane.topAnchor="50.0" AnchorPane.bottomAnchor="50.0" >
+        <ScrollPane fx:id="poolTableScrollPane" layoutX="15.0" layoutY="57.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="350" AnchorPane.topAnchor="70.0" AnchorPane.bottomAnchor="50.0" >
             <content>
                 <!-- Tables Container -->
                 <FlowPane fx:id="tablesContainer" alignment="CENTER" hgap="10" layoutX="14.0" layoutY="50.0" vgap="10" >
