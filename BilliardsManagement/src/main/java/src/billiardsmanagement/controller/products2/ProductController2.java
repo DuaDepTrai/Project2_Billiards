@@ -159,6 +159,20 @@ public class ProductController2 {
         priceColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getPrice()).asObject());
         unitColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUnit()));
 
+        priceColumn.setCellFactory(column -> {
+            return new TableCell<Product, Double>() {
+                @Override
+                protected void updateItem(Double item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText(null);
+                    } else {
+                        setText(String.format("%,.0f", item)); // Hiển thị số tiền có dấu phẩy
+                    }
+                }
+            };
+        });
+
         quantityColumn.setSortType(TableColumn.SortType.DESCENDING);
         tableView.getSortOrder().add(quantityColumn);
         actionColumn.setCellFactory(col -> createActionCellFactory(product -> tableView.getItems().remove(product), userPermissions));

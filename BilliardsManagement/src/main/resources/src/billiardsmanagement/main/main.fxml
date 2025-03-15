@@ -9,7 +9,7 @@
 <BorderPane xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="src.billiardsmanagement.controller.MainController"
-            stylesheets="@../css/poolTable.css"
+            stylesheets="@../css/main.css"
             fx:id="mainContainer"
 >
     <left>
@@ -27,41 +27,41 @@
             </HBox>
 
             <VBox fx:id="navbarContainer" styleClass="navbar" spacing="10">
-                <Button styleClass="nav-item" onAction="#showPoolTablePage" text="Pool Tables">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="TABLE" size="16"/>
-                    </graphic>
-                </Button>
+<!--                <Button styleClass="nav-item" onAction="#showPoolTablePage" text="Pool Tables">-->
+<!--                    <graphic>-->
+<!--                        <FontAwesomeIconView glyphName="TABLE" size="16"/>-->
+<!--                    </graphic>-->
+<!--                </Button>-->
 
-                <Button styleClass="nav-item" onAction="#showOrdersPage" text="Orders">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="SHOPPING_CART" size="16"/>
-                    </graphic>
-                </Button>
+<!--                <Button styleClass="nav-item" onAction="#showOrdersPage" text="Orders">-->
+<!--                    <graphic>-->
+<!--                        <FontAwesomeIconView glyphName="SHOPPING_CART" size="16"/>-->
+<!--                    </graphic>-->
+<!--                </Button>-->
 
-                <Button styleClass="nav-item" onAction="#showProductsPage" text ="Products">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="CUBE" size="16"/>
-                    </graphic>
-                </Button>
+<!--                <Button styleClass="nav-item" onAction="#showProductsPage" text ="Products">-->
+<!--                    <graphic>-->
+<!--                        <FontAwesomeIconView glyphName="CUBE" size="16"/>-->
+<!--                    </graphic>-->
+<!--                </Button>-->
 
-                <Button styleClass="nav-item" onAction="#showUsersPage" text="Staffs">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="USERS" size="16"/>
-                    </graphic>
-                </Button>
+<!--                <Button styleClass="nav-item" onAction="#showUsersPage" text="Staffs">-->
+<!--                    <graphic>-->
+<!--                        <FontAwesomeIconView glyphName="USERS" size="16"/>-->
+<!--                    </graphic>-->
+<!--                </Button>-->
 
-                <Button styleClass="nav-item" onAction="#showCustomerPage" text="Customers">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="USER" size="16"/>
-                    </graphic>
-                </Button>
+<!--                <Button styleClass="nav-item" onAction="#showCustomerPage" text="Customers">-->
+<!--                    <graphic>-->
+<!--                        <FontAwesomeIconView glyphName="USER" size="16"/>-->
+<!--                    </graphic>-->
+<!--                </Button>-->
 
-                <Button styleClass="nav-item" onAction="#showReportPage" text="Reports">
-                    <graphic>
-                        <FontAwesomeIconView glyphName="BAR_CHART" size="16"/>
-                    </graphic>
-                </Button>
+<!--                <Button styleClass="nav-item" onAction="#showReportPage" text="Reports">-->
+<!--                    <graphic>-->
+<!--                        <FontAwesomeIconView glyphName="BAR_CHART" size="16"/>-->
+<!--                    </graphic>-->
+<!--                </Button>-->
             </VBox>
         </VBox>
     </left>

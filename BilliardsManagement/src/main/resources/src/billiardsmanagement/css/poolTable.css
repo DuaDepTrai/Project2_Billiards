@@ -73,16 +73,4 @@
     -fx-text-fill: black; /* Text color on hover */
 }
 
-.avatar-cell {
-    -fx-padding: 5px;
-    -fx-alignment: center;
-}
-
-.avatar-image {
-    -fx-border-color: white; /* Màu viền */
-    -fx-border-width: 5px; /* Độ dày viền */
-    -fx-border-radius: 50%; /* Làm tròn */
-    -fx-background-radius: 50%;
-    -fx-effect: dropshadow(gaussian, rgb(255, 255, 255), 2, 1, 0, 0); /* Hiệu ứng đổ bóng */
-}
 
