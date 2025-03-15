@@ -67,6 +67,7 @@ public class AddTableToOrderController implements Initializable {
     private PoolTableController poolTableController;
     private StackPane tableContainer;
     private Popup chooseOrderTimePopup;
+    private OrderController orderController;
 
     // Initialize the table columns
     @Override
@@ -268,6 +269,7 @@ public class AddTableToOrderController implements Initializable {
             forEachOrderController.setCustomerID(order.getCustomerId());
             forEachOrderController.setForEachUserID(order.getUserId());
             forEachOrderController.setOrderDate(order.getOrderDate());
+            forEachOrderController.setOrderController(this.orderController);
 
             int billNo = OrderDAO.getOrderBillNo(order.getOrderId());
             if (billNo != -1) forEachOrderController.setBillNo(billNo);
@@ -294,7 +296,7 @@ public class AddTableToOrderController implements Initializable {
     private void loadOrderList() {
         List<Order> orders = orderDAO.getAllOrders();
         if (!orders.isEmpty()) {
-            orders = orders.stream().filter(order -> order.getOrderStatus().equalsIgnoreCase("Playing")).toList();
+            orders = orders.stream().filter(order -> order.getOrderStatus().equalsIgnoreCase("Playing") || order.getOrderStatus().equalsIgnoreCase("Order")).toList();
             orderTable.setItems(FXCollections.observableArrayList(orders));
         }
     }
@@ -317,5 +319,9 @@ public class AddTableToOrderController implements Initializable {
 
     public PoolTableController getPoolTableController() {
         return this.poolTableController;
+    }
+
+    public void setOrderController(OrderController orderController) {
+        this.orderController = orderController;
     }
 }

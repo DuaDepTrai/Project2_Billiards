@@ -2,6 +2,7 @@ package src.billiardsmanagement.controller.poolTables;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -18,6 +19,7 @@ import java.util.function.BiConsumer;
 
 public class ChooseOrderTimeController implements Initializable {
 
+    @FXML private Label notifyLabel;
     @FXML private VBox popupContent;
     @FXML private DatePicker datePicker;
     @FXML private ComboBox<Integer> hourPicker;
@@ -72,7 +74,6 @@ public class ChooseOrderTimeController implements Initializable {
             startMinute = ((now.getMinute() / 5) + 1) * 5; // Round to next 5-minute slot
         }
 
-
         if(startMinute>=55){
             minutePicker.getItems().add(59);
         }
@@ -90,26 +91,40 @@ public class ChooseOrderTimeController implements Initializable {
 
     // Modify hourPicker listener to update minutes dynamically
     private void updateTimePickers() {
-        LocalDate selectedDate = datePicker.getValue();
+        LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
+        LocalDate selectedDate = datePicker.getValue();
 
         hourPicker.getItems().clear();
         minutePicker.getItems().clear();
 
-        if (selectedDate.equals(LocalDate.now())) {
-            for (int h = now.getHour(); h < 24; h++) hourPicker.getItems().add(h);
+        if (selectedDate.equals(today)) {
+            // If selected date is today, allow only future hours
+            for (int h = now.getHour(); h < 24; h++) {
+                hourPicker.getItems().add(h);
+            }
+        } else if (selectedDate.equals(today.plusDays(1))) {
+            // If selected date is tomorrow, calculate remaining hours
+            int remainingToday = 24 - (now.getHour()); // Hours left in today
+            int totalTomorrow = Math.min(24 - remainingToday, 24); // Ensure total < 24
+
+            for (int h = 0; h < totalTomorrow; h++) {
+                hourPicker.getItems().add(h);
+            }
         } else {
-            for (int h = 0; h < 24; h++) hourPicker.getItems().add(h);
+            // If selected date is beyond tomorrow, allow full range
+            for (int h = 0; h < 24; h++) {
+                hourPicker.getItems().add(h);
+            }
         }
 
         if (!hourPicker.getItems().isEmpty()) {
             hourPicker.setValue(hourPicker.getItems().get(0));
         }
 
-        updateMinutePicker(); // Call to initialize minute selection
+        updateMinutePicker(); // Initialize minute selection
         hourPicker.setOnAction(e -> updateMinutePicker()); // Ensure minutes update when hour changes
     }
-
 
     @FXML
     private void handleConfirm() {
@@ -125,12 +140,31 @@ public class ChooseOrderTimeController implements Initializable {
         }
     }
 
+    public void forceConfirm() {
+        LocalDate selectedDate = datePicker.getValue();
+        LocalTime selectedTime = LocalTime.of(hourPicker.getValue(), minutePicker.getValue());
+
+        if (onTimeSelected != null) {
+            onTimeSelected.accept(selectedDate, selectedTime);
+        }
+
+        if (onClosePopup != null) {
+            onClosePopup.run(); // Hide the popup
+        }
+    }
+
+
     public void setOnTimeSelected(BiConsumer<LocalDate, LocalTime> onTimeSelected) {
         this.onTimeSelected = onTimeSelected;
     }
 
     public void setOnClosePopup(Runnable onClosePopup) {
         this.onClosePopup = onClosePopup;
+    }
+
+    public void hideConfirmButton() {
+        confirmButton.setVisible(false);
+        popupContent.setPrefHeight(127.0);
     }
 }
 

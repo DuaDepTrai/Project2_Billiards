@@ -195,6 +195,7 @@ public class MainController {
             poolTableLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/poolTables/poolTable.fxml"));
             poolTablePane = poolTableLoader.load();
             poolTableController = poolTableLoader.getController();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
