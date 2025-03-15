@@ -1,5 +1,7 @@
 package src.billiardsmanagement.controller.orders;
 
+import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -13,9 +15,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.controller.MainController;
@@ -27,7 +32,6 @@ import src.billiardsmanagement.dao.*;
 import src.billiardsmanagement.model.*;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.scene.layout.HBox;
 import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
@@ -46,6 +50,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ForEachOrderController {
+    @FXML private Text orderTotalCost;
     // Buttons
     @FXML
     protected Button finishOrderButton;
@@ -155,6 +160,7 @@ public class ForEachOrderController {
     // private TableColumn<OrderItem, Double> promotionDiscountOrderItem;
 
     private MainController mainController; // Biến để lưu MainController
+    private Popup forEachPopup;
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
@@ -590,6 +596,40 @@ public class ForEachOrderController {
         }
     }
 
+    protected void initializeForEachOrderButtonsAndInformation(){
+        List<Customer> customerList = customerDAO.getInfoCustomer(customerID);
+        Order order = OrderDAO.getOrderById(orderID);
+        currentOrder = order;
+
+        String status = currentOrder != null ? currentOrder.getOrderStatus() : orderStatusText.getText();
+        if (status.equalsIgnoreCase("Finished") || status.equalsIgnoreCase("Canceled")
+                || status.equalsIgnoreCase("Paid")) {
+            finishOrderButton.setDisable(true);
+            addOrderItemButton.setDisable(true);
+            addBookingButton.setDisable(true);
+            customerText.setDisable(true);
+            phoneText.setDisable(true);
+            confirmSaveCustomer.setDisable(true);
+        } else {
+            finishOrderButton.setDisable(false);
+            addOrderItemButton.setDisable(false);
+            addBookingButton.setDisable(false);
+            customerText.setDisable(false);
+            phoneText.setDisable(false);
+            confirmSaveCustomer.setDisable(false);
+        }
+
+        if (customerList != null && !customerList.isEmpty() && order != null) {
+            Customer customer = customerList.get(0);
+            customerText.setText(customer.getName());
+            phoneText.setText(customer.getPhone());
+            orderStatusText.setText(order.getOrderStatus());
+            if(order.getTotalCost()!=0.0) {
+                orderTotalCost.setText(formatTotal(order.getTotalCost()));
+            }
+        }
+    }
+
     private void setupPhoneAutoCompletion() {
         if (phoneAutoCompletion != null) {
             phoneAutoCompletion.dispose();
@@ -644,7 +684,7 @@ public class ForEachOrderController {
     }
 
 
-//    public void addBooking(ActionEvent event) {
+    //    public void addBooking(ActionEvent event) {
 //        if (orderStatusText.getText().equals("Paid")) {
 //            NotificationService.showNotification("Error!", "Cannot add booking with status Paid",
 //                    NotificationStatus.Error);
@@ -676,6 +716,54 @@ public class ForEachOrderController {
 //        }
 //    }
 
+    public void showForEachPopup(Parent content) {
+        // Ensure the content is not null
+        if (content == null) {
+            throw new IllegalArgumentException("Content cannot be null");
+        }
+
+        // Initialize forEachPopup if it's null
+        if (this.forEachPopup == null) {
+            this.forEachPopup = new Popup();
+        } else if (this.forEachPopup.isShowing()) {
+            this.forEachPopup.hide();
+        }
+
+        Platform.runLater(() -> {
+            StackPane contentPane = new StackPane();
+            contentPane.setStyle("-fx-background-color: white; -fx-padding: 10;");
+            contentPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, null)));
+            contentPane.getChildren().add(content);
+
+            // Clear existing content before adding new content
+            forEachPopup.getContent().clear();
+            forEachPopup.getContent().add(contentPane);
+
+            Scene scene = orderItemsTable.getScene();
+            double sceneWidth = scene.getWidth();
+            double sceneHeight = scene.getHeight();
+
+            double popupWidth = forEachPopup.getWidth();
+            double popupHeight = forEachPopup.getHeight();
+
+            double xPos = (sceneWidth - popupWidth) / 2;
+            double yPos = (sceneHeight - popupHeight) / 2;
+
+            forEachPopup.setX(xPos);
+            forEachPopup.setY(yPos);
+
+            FadeTransition fadeIn = new FadeTransition(javafx.util.Duration.seconds(0.16), contentPane);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+
+            forEachPopup.setAutoHide(true);
+            forEachPopup.setAutoFix(true);
+            forEachPopup.show(scene.getWindow());
+
+            fadeIn.play();
+        });
+    }
+
     public void addBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
             NotificationService.showNotification("Error!", "Cannot add booking with status Paid",
@@ -687,17 +775,32 @@ public class ForEachOrderController {
                     getClass().getResource("/src/billiardsmanagement/orders/bookings/addBooking.fxml"));
             Parent root = loader.load();
 
-            AddBookingController addBookingController = loader.getController();
-            addBookingController.setOrderId(orderID);
-            addBookingController.setOrderTable(orderTable);
-            Stage stage = new Stage();
-            stage.setTitle("Add Booking");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
+            // Create a StackPane and add the Parent root to it
+            StackPane addBookingStackPane = new StackPane();
+            addBookingStackPane.getChildren().add(root);
 
-            loadBookings();
+            // Retrieve the controller before showing the popup
+            AddBookingController addBookingController = loader.getController();
+            addBookingController.setForEachPopup(this.forEachPopup);
+            addBookingController.setAddBookingStackPane(addBookingStackPane);
+            addBookingController.setOrderId(this.orderID);
+            addBookingController.initializeAddBooking();
+
+            // Show the Popup using the provided method
+            showForEachPopup(addBookingStackPane);
+
+            // Load bookings only when forEach Popup hidden to avoid multiple loading
+            this.forEachPopup.setOnHidden(e -> {
+                loadBookings();
+                this.forEachPopup.setOnHidden(null); // this line is very important
+            });
+
         } catch (IOException e) {
-            NotificationService.showNotification("Error!", "Cannot add Load Booking form !", NotificationStatus.Error);
+            NotificationService.showNotification("Error!", "Cannot load Booking form!", NotificationStatus.Error);
+        } catch (Exception e) {
+            // Catch any other exceptions and log them
+            e.printStackTrace();
+            NotificationService.showNotification("Error!", "An unexpected error occurred!", NotificationStatus.Error);
         }
     }
 
@@ -1019,14 +1122,16 @@ public class ForEachOrderController {
 
     private void loadInfo() {
         List<Customer> customerList = customerDAO.getInfoCustomer(customerID);
-        Order orderList = OrderDAO.getOrderById(orderID);
+        Order order = OrderDAO.getOrderById(orderID);
 
-        if (customerList != null && !customerList.isEmpty() && orderList != null) {
+        if (customerList != null && !customerList.isEmpty() && order != null) {
             Customer customer = customerList.get(0);
-
             customerText.setText(customer.getName());
             phoneText.setText(customer.getPhone());
-            orderStatusText.setText(orderList.getOrderStatus());
+            orderStatusText.setText(order.getOrderStatus());
+            if(order.getTotalCost()!=0.0) {
+                orderTotalCost.setText(formatTotal(order.getTotalCost()));
+            }
         }
     }
 
@@ -1046,7 +1151,7 @@ public class ForEachOrderController {
             Optional<ButtonType> result = confirmAlert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 // Finish all bookings
-                boolean finishAllSuccess = BookingDAO.finishOrder(this.orderID);
+                boolean finishAllSuccess = BookingDAO.finishAllBookings(this.orderID);
 
                 if (finishAllSuccess) {
                     // Calculate total cost
@@ -1061,10 +1166,7 @@ public class ForEachOrderController {
                                 NotificationStatus.Success);
 
                         // Refresh the tables
-                        loadBookings();
-                        loadOrderDetail();
-                        loadInfo();
-
+                        initializeForEachOrderButtonsAndInformation();
                         if (poolTableController != null) poolTableController.handleViewAllTables();
                     } else {
                         NotificationService.showNotification("Error", "Failed to update order status.",
@@ -1109,6 +1211,7 @@ public class ForEachOrderController {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
         if (bookings.size() == 1 && "Canceled".equalsIgnoreCase(bookings.get(0).getBookingStatus())) {
             OrderDAO.updateStatusOrder(orderID, "Canceled");
+            initializeForEachOrderButtonsAndInformation();
             System.out.println("✅ From ForEachOrder : Order updated to Canceled ; only 1 booking found.");
             return;
         }
@@ -1116,13 +1219,14 @@ public class ForEachOrderController {
         for (Booking booking : bookings) {
             if (booking.getBookingStatus().equals("Playing")) {
                 OrderDAO.updateStatusOrder(orderID, "Playing");
+                initializeForEachOrderButtonsAndInformation();
                 System.out.println("Da chuyen order thanh playing");
             } else if (!booking.getBookingStatus().equals("Finish") && (booking.getBookingStatus().equals("Order"))) {
                 OrderDAO.updateStatusOrder(orderID, "Order");
+                initializeForEachOrderButtonsAndInformation();
                 System.out.println("Da chuyen order thanh order");
-
             } else if (booking.getBookingStatus().equals("Finish")) {
-
+                initializeForEachOrderButtonsAndInformation();
                 System.out.println("Da chuyen booking thanh Finish");
             }
 //            else {
@@ -1157,10 +1261,11 @@ public class ForEachOrderController {
                         NotificationStatus.Success);
                 loadBookings();
                 if (poolTableController != null) poolTableController.handleViewAllTables();
-                if (orderController == null) System.out.println("❌ From ForEachOrderController : orderController is null. Cannot call loadOrderList()");
-                    else {
-                        orderController.loadOrderList();
-                        checkOrderStatus();
+                if (orderController == null)
+                    System.out.println("❌ From ForEachOrderController : orderController is null. Cannot call loadOrderList()");
+                else {
+                    orderController.loadOrderList();
+                    checkOrderStatus();
                     System.out.println("✅ From ForEachOrderController, cancelBooking() : loadOrderList() called from orderController non-null");
                     System.out.println("✅ From ForEachOrderController, cancelBooking() : checkOrderStatus() called");
                 }
@@ -1372,5 +1477,9 @@ public class ForEachOrderController {
 
     public OrderController getOrderController() {
         return this.orderController;
+    }
+
+    public void hideForEachPopup(){
+        this.forEachPopup.hide();
     }
 }

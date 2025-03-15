@@ -1,294 +1,219 @@
 package src.billiardsmanagement.controller.orders.bookings;
 
-import javafx.collections.FXCollections;
+import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Popup;
-import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
+import src.billiardsmanagement.controller.poolTables.ChooseOrderTimeController;
 import src.billiardsmanagement.dao.BookingDAO;
-import src.billiardsmanagement.dao.OrderDAO;
+import src.billiardsmanagement.dao.PoolTableDAO;
 import src.billiardsmanagement.model.Booking;
-import src.billiardsmanagement.model.DatabaseConnection;
-import src.billiardsmanagement.model.Order;
+import src.billiardsmanagement.model.NotificationStatus;
+import src.billiardsmanagement.model.PoolTable;
+import src.billiardsmanagement.service.NotificationService;
 
-import java.net.URL;
-import java.sql.*;
+import java.awt.print.Book;
+import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
-public class AddBookingController implements Initializable {
+public class AddBookingController {
+    @FXML private Button addBookingButton;
+    @FXML private Label notifyLabel;
+    @FXML private ComboBox<String> bookingStatusComboBox;
+    @FXML private TextField tableNameTextField;
+    @FXML private StackPane chooseOrderTimeStackPane;
 
-    @FXML
-    private ComboBox<String> bookingStatusComboBox;
+    private Popup chooseOrderTimePopup;
+    private Popup addBookingPopup;
+    private StackPane addBookingStackPane;
+    private Popup forEachPopup; // use this to hide popup after adding booking
 
+    private List<PoolTable> poolTableAvailableList;
+    private List<String> poolTableNameList;
 
-    @FXML
-    private DatePicker datePicker;
+    private ChooseOrderTimeController chooseOrderTimeController;
+    private int orderId = -1;
 
-    @FXML
-    private TextField hourTextField;
+    private BookingDAO bookingDAO = new BookingDAO();
+    private Timestamp chooseOrderTimeResult;
 
-    @FXML
-    private TextField minuteTextField;
+    private String playStatus = "Play on Table";
+    private String orderStatus = "Order on Table";
 
-    @FXML
-    private TextField orderIDField;
+    public void initializeAddBooking() {
+        bookingStatusComboBox.getItems().addAll(playStatus, orderStatus);
+        bookingStatusComboBox.setValue("Play on Table");
 
-    @FXML
-    private TextField tableNameColumn;
+        notifyLabel.setText("Please enter a Table Name !");
+        notifyLabel.setStyle("-fx-text-fill: red;");
+        notifyLabel.setVisible(true);
+        addBookingButton.setDisable(true);
 
-    @FXML
-    private Label startTimeLabel;
+        poolTableAvailableList = PoolTableDAO.getAllAvailableTables();
+        poolTableNameList = poolTableAvailableList.stream()
+                .map(table -> table.getName() + " ") // Add space at the end
+                .collect(Collectors.toList());
 
-    @FXML
-    private TableView<Order> orderTable;
-
-    private Popup popup;
-    private ListView<String> listView;
-    private int orderID;
-
-    Connection conn = DatabaseConnection.getConnection();
-    private final Map<String, Integer> getTableNameToIdMap = new HashMap<>();
-    private final OrderDAO orderDAO = new OrderDAO();
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        loadTableNameToIdMap();
-//        popup = new Popup();
-//        listView = new ListView<>();
-//        popup.getContent().add(listView);
-
-        if(!getTableNameToIdMap.isEmpty()){
-            ArrayList<String> tableNames = new ArrayList<>(getTableNameToIdMap.keySet());
-            AutoCompletionBinding<String> tableNameCompletion = TextFields.bindAutoCompletion(tableNameColumn, tableNames);
-            tableNameCompletion.setVisibleRowCount(7);
-            tableNameCompletion.setHideOnEscape(true);
-            tableNameCompletion.setUserInput(" ");
-        }
-
-//        tableNameColumn.textProperty().addListener((observable, oldValue, newValue) -> {
-//            if (!newValue.isEmpty()) {
-//                List<String> filteredCustomers = fetchTableByName(newValue);
-//
-//                System.out.println("List view: " + filteredCustomers);
-//                listView.getItems().setAll(filteredCustomers);
-//
-//                if (!filteredCustomers.isEmpty() && !popup.isShowing()) {
-//                    popup.show(tableNameColumn,
-//                            tableNameColumn.localToScreen(tableNameColumn.getBoundsInLocal()).getMinX(),
-//                            tableNameColumn.localToScreen(tableNameColumn.getBoundsInLocal()).getMaxY());
-//                }
-//            } else {
-//                popup.hide();
-//            }
-//        });
-//
-//        listView.setOnMouseClicked(event -> {
-//            if (!listView.getSelectionModel().isEmpty()) {
-//                tableNameColumn.setText(listView.getSelectionModel().getSelectedItem());
-//                popup.hide();
-//            }
-//        });
-
-//        tableNameColumn.setOnKeyPressed(event -> {
-//            switch (event.getCode()) {
-//                case ENTER:
-//                    if (!listView.getSelectionModel().isEmpty()) {
-//                        tableNameColumn.setText(listView.getSelectionModel().getSelectedItem());
-//                        popup.hide();
-//                    }
-//                    break;
-//                case ESCAPE:
-//                    popup.hide();
-//                    break;
-//                default:
-//                    break;
-//            }
-//        });
-        LocalTime now = LocalTime.now();
-        int currentHour = now.getHour();
-        int currentMinute = now.getMinute();
-
-        hourTextField.setText(String.valueOf(currentHour));
-        minuteTextField.setText(String.valueOf(currentMinute));
-
-// Validate khi nhập liệu
-        hourTextField.textProperty().addListener((observable, oldValue, newValue) -> validateTimeInput(hourTextField, 23));
-        minuteTextField.textProperty().addListener((observable, oldValue, newValue) -> validateTimeInput(minuteTextField, 59));
-
-        datePicker.setValue(LocalDate.now());
-
-        bookingStatusComboBox.setItems(FXCollections.observableArrayList("Order", "Playing"));
-        // Lắng nghe thay đổi của bookingStatusComboBox để hiển thị/ẩn các trường giờ và ngày
+        // Listener for booking status changes
         bookingStatusComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            toggleDateTimeFields(newValue);
+            System.out.println("New Value Add Booking : "+newValue);
+            handleBookingStatusChange(newValue);
         });
-        datePicker.setVisible(false);
-        hourTextField.setVisible(false);
-        minuteTextField.setVisible(false);
-        startTimeLabel.setVisible(false);
+
+        tableNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            validateTableName(tableNameTextField.getText());
+        });
+
+        AutoCompletionBinding<String> autoCompletionBinding = TextFields.bindAutoCompletion(tableNameTextField, poolTableNameList);
+        handleTextFieldClick(autoCompletionBinding, poolTableNameList, tableNameTextField);
     }
 
-    private void validateTimeInput(TextField textField, int maxValue) {
-        String input = textField.getText();
-        if (!input.matches("\\d*")) {
-            textField.setText(input.replaceAll("[^\\d]", "")); // Chỉ giữ lại số
+    private void handleBookingStatusChange(String newValue) {
+        System.out.println("New Value : ["+newValue+"]");
+        if (orderStatus.equals(newValue)) {
+//            double xPos = chooseOrderTimeStackPane.getScene().getWindow().getX() + 100;
+//            double yPos = chooseOrderTimeStackPane.getScene().getWindow().getY() + 100;
+
+            showChooseOrderTimePopup((selectedDate, selectedTime) -> {
+                LocalDateTime startTime = LocalDateTime.of(selectedDate, selectedTime);
+                chooseOrderTimeResult = Timestamp.valueOf(startTime);
+                System.out.println("From AddBookingController - Selected Order Time: " + startTime);
+
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                String formattedDateTime = startTime.format(formatter);
+
+                System.out.println("From AddBookingController - Selected Order Time: " + formattedDateTime);
+                System.out.println("From AddBookingController - Timestamp: " + chooseOrderTimeResult);
+            });
+        } else if (playStatus.equals(newValue)) {
+            System.out.println("From AddBookingController - Selected Play on Table");
+            chooseOrderTimeController = null;
+            chooseOrderTimeStackPane.getChildren().clear();
+            chooseOrderTimeResult = null;
         }
-
-        if (!input.isEmpty()) {
-            int value = Integer.parseInt(input);
-            if (value > maxValue) {
-                textField.setText(String.valueOf(maxValue)); // Giới hạn giá trị tối đa
-            }
-        }
+        System.out.println("From AddBookingController - handleBookingStatusChange called");
     }
 
-    public void setOrderId(int orderID) {
-        this.orderID = orderID;
-        initializeOrderId();
+    public void handleTextFieldClick(AutoCompletionBinding<String> auto, List<String> list, TextField text) {
+        text.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) { // When the text field gains focus
+                auto.setUserInput(" "); // Set user input to a space
+            }
+        });
     }
 
-    public void saveBooking(ActionEvent event) {
-        try {
-            int order_id = Integer.parseInt(orderIDField.getText());
-            if (order_id == 0) {
-                throw new IllegalArgumentException("Please choose an Order Id !");
-            }
+    private void validateTableName(String input) {
+        // Trim the input for comparison
+        String trimmedInput = input == null ? null : input.trim();
 
-            String selectedTableName = tableNameColumn.getText();
-            int tableId;
-            if (selectedTableName != null) {
-                tableId = getTableNameToIdMap.get(selectedTableName);
-            } else {
-                throw new IllegalArgumentException("You haven't choose any Pool Table yet. Please select one !");
-            }
-
-            int selectedHour = Integer.parseInt(hourTextField.getText());
-            int selectedMinute = Integer.parseInt(minuteTextField.getText());
-
-            if (selectedHour < 0 || selectedHour > 23 || selectedMinute < 0 || selectedMinute > 59) {
-                throw new IllegalArgumentException("Please enter the hour from 0-23 and minute from 0-59");
-            }
-
-            LocalDate selectedDate = datePicker.getValue();
-            if (selectedDate == null) {
-                throw new IllegalArgumentException("Please choose a day !");
-            }
-
-            String startTime = String.format("%02d:%02d", selectedHour, selectedMinute);
-            LocalTime time = LocalTime.parse(startTime);
-            LocalDateTime dateTime = LocalDateTime.of(selectedDate, time);
-            Timestamp timeStamp = Timestamp.valueOf(dateTime);
-
-            String bookingStatus = bookingStatusComboBox.getValue();
-            if (bookingStatus == null || bookingStatus.isEmpty()) {
-                throw new IllegalArgumentException("Please enter the Booking Status");
-            }
-
-            Booking newBooking = new Booking(order_id, tableId, timeStamp, bookingStatus);
-            BookingDAO bookingDAO = new BookingDAO();
-            bookingDAO.addBooking(newBooking);
-
-
-            // Navigate back to the previous scene
-            Stage currentStage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            currentStage.close(); // Close the current stage
-
-        } catch (IllegalArgumentException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("An error occurred while saving the data.");
-            alert.setContentText("Please try again later.");
-            alert.showAndWait();
-        }
-    }
-
-    private void initializeOrderId() {
-        orderIDField.setText(String.valueOf(orderID));
-        System.out.println("OrderIdField: " + orderIDField.getText());
-    }
-
-    private void loadTableNameToIdMap() {
-        String query = "SELECT table_id,name FROM pooltables WHERE status = 'Available'";
-        try (PreparedStatement statement = conn.prepareStatement(query);
-             ResultSet resultSet = statement.executeQuery()) {
-
-            getTableNameToIdMap.clear();
-            while (resultSet.next()) {
-                int id = resultSet.getInt("table_id");
-                String name = resultSet.getString("name");
-
-                getTableNameToIdMap.put(name, id);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load table data.");
-        }
-    }
-
-    private void toggleDateTimeFields(String bookingStatus) {
-        if ("Order".equals(bookingStatus)) {
-            // Hiển thị các trường ngày giờ khi trạng thái là "order"
-            datePicker.setVisible(true);
-            hourTextField.setVisible(true);
-            minuteTextField.setVisible(true);
-            startTimeLabel.setVisible(true);
+        if (trimmedInput == null || trimmedInput.isEmpty()) {
+            notifyLabel.setText("Please enter a Table Name !");
+            notifyLabel.setStyle("-fx-text-fill: red;");
+            notifyLabel.setVisible(true);
+            addBookingButton.setDisable(true);
         } else {
-            // Ẩn các trường ngày giờ nếu trạng thái không phải là "order"
-            datePicker.setVisible(false);
-            hourTextField.setVisible(false);
-            minuteTextField.setVisible(false);
-            startTimeLabel.setVisible(false);
-        }
-    }
+            boolean found = false;
 
-    private List<String> fetchTableByName(String name) {
-        List<String> tableNames = new ArrayList<>();
-        String query = "SELECT name FROM pooltables WHERE name LIKE ? AND status = 'available'";
-
-        try (PreparedStatement statement = conn.prepareStatement(query)) {
-            statement.setString(1, name + "%"); // Use LIKE with a wildcard for partial matches
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                String tableName = resultSet.getString("name");
-                tableNames.add(tableName);
+            // Check if the trimmed input exists in the list
+            for (String tableName : poolTableNameList) {
+                if (tableName.trim().equals(trimmedInput)) {
+                    found = true;
+                    break;
+                }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error while fetching table names", e);
+
+            if (!found) {
+                notifyLabel.setText("Cannot find this table !");
+                notifyLabel.setStyle("-fx-text-fill: red;");
+                notifyLabel.setVisible(true);
+                addBookingButton.setDisable(true);
+            } else {
+                notifyLabel.setVisible(false); // Hide the label if the input is valid
+                addBookingButton.setDisable(false);
+            }
         }
-        System.out.println("Query executed: " + query + " with name: " + name + "%");
-        return tableNames;
     }
 
-    public void setOrderTable(TableView<Order> orderTable) {
-        this.orderTable = orderTable;
+    private void showChooseOrderTimePopup(BiConsumer<LocalDate, LocalTime> onTimeSelected) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/pooltables/chooseOrderTime.fxml"));
+            Parent root = loader.load();
+
+            chooseOrderTimeController = loader.getController();
+            chooseOrderTimeController.setOnTimeSelected(onTimeSelected);
+            chooseOrderTimeController.hideConfirmButton();
+
+            chooseOrderTimeStackPane.getChildren().add(root);
+
+            // Apply fade-in effect
+            FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.12), root);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            fadeIn.play();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
+    @FXML
+    public void addBooking(ActionEvent actionEvent) {
+        String selectedTable = tableNameTextField.getText().trim();
+        PoolTable selectedPoolTable = poolTableAvailableList.stream()
+                .filter(table -> table.getName().equals(selectedTable))
+                .findFirst()
+                .orElse(null);
+        String selectedStatus = bookingStatusComboBox.getValue().equals("Play on Table") ? "Playing" : "Order";
 
+        boolean bookingSuccess = false;
 
+        if (chooseOrderTimeController == null) {
+            if (selectedPoolTable != null && this.orderId > 0) {
+                Timestamp startTime = new Timestamp(System.currentTimeMillis());
+                Booking booking = new Booking(this.orderId, selectedPoolTable.getTableId(), startTime, selectedStatus);
+                bookingSuccess = bookingDAO.addBooking(booking);
+            }
+        } else {
+            chooseOrderTimeController.forceConfirm();
+            if (selectedPoolTable != null && this.orderId > 0) {
+                Booking booking = new Booking(this.orderId, selectedPoolTable.getTableId(), chooseOrderTimeResult, selectedStatus);
+                bookingSuccess = bookingDAO.addBooking(booking);
+            }
+        }
 
-
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        if (bookingSuccess) {
+            NotificationService.showNotification("Success!", "Booking added successfully!", NotificationStatus.Success);
+        } else {
+            NotificationService.showNotification("Error!", "Failed to add booking. Please try again.", NotificationStatus.Error);
+        }
     }
 
+    private void updateCustomerInformation(ActionEvent actionEvent) {
+        // Implementation for updating customer information
+    }
+
+    public void setForEachPopup(Popup forEachPopup) {
+        this.forEachPopup = forEachPopup;
+    }
+
+    public void setAddBookingStackPane(StackPane addBookingStackPane) {
+        this.addBookingStackPane = addBookingStackPane;
+    }
+
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
+    }
 }

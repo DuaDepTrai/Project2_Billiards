@@ -741,7 +741,7 @@ public class OrderController implements Initializable {
                 FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bookings/addBooking.fxml"));
                 Parent addBookingPage = loader1.load();
                 AddBookingController addBookingController = loader1.getController();
-                addBookingController.setOrderTable(orderTable);
+
             } catch (IOException e) {
                 e.printStackTrace();
                 NotificationService.showNotification("Error", "Failed to load order details.", NotificationStatus.Error);

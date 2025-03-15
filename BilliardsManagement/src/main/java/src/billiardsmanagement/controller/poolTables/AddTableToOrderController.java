@@ -296,7 +296,7 @@ public class AddTableToOrderController implements Initializable {
     private void loadOrderList() {
         List<Order> orders = orderDAO.getAllOrders();
         if (!orders.isEmpty()) {
-            orders = orders.stream().filter(order -> order.getOrderStatus().equalsIgnoreCase("Playing")).toList();
+            orders = orders.stream().filter(order -> order.getOrderStatus().equalsIgnoreCase("Playing") || order.getOrderStatus().equalsIgnoreCase("Order")).toList();
             orderTable.setItems(FXCollections.observableArrayList(orders));
         }
     }

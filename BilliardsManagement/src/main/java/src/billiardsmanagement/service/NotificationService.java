@@ -100,7 +100,7 @@ public class NotificationService {
             // setAlwaysOnTop
             notificationStage.setAlwaysOnTop(true);
 
-            if (status == NotificationStatus.Error) {
+            if (status == NotificationStatus.Error || status == NotificationStatus.Warning) {
                 TranslateTransition slideDown = new TranslateTransition(Duration.millis(350), root);
                 slideDown.setFromY(-150); // Start off-screen
                 slideDown.setToY(0); // Stop at top-center

@@ -5,6 +5,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.github.palexdev.materialfx.controls.MFXScrollPane;
 import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -42,6 +43,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class PoolTableController {
     public MFXScrollPane availableTableScrollPane;
@@ -74,7 +76,7 @@ public class PoolTableController {
     @FXML
     private ComboBox<String> editStatusCombo;
 
-    protected ObservableList<PoolTable> tableList = FXCollections.observableArrayList();
+    protected List<PoolTable> tableList;
     protected ObservableList<PoolTable> availableTableList = FXCollections.observableArrayList();
     protected ObservableList<PoolTable> orderedTableList = FXCollections.observableArrayList();
     protected ObservableList<PoolTable> playingTableList = FXCollections.observableArrayList();
@@ -86,6 +88,7 @@ public class PoolTableController {
     private Popup oldPopup;
     private boolean isPoolPopupShowing = false;
     private OrderController orderController;
+    private List<String> tableNameList;
 
     @FXML
     public void initialize() {
@@ -105,7 +108,7 @@ public class PoolTableController {
 
         // Add search functionality
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filterTables(newValue);
+            if(newValue!=null) filterTables(searchField.getText());
         });
 
         // Initialize category list
@@ -114,8 +117,13 @@ public class PoolTableController {
         // Add handler for new category button
         addNewTableCategory.setOnAction(e -> showAddCategoryDialog());
 
+        tableList = poolTableDAO.getAllTables();
+        tableNameList = this.tableList.stream()
+                .map(PoolTable::getName)
+                .collect(Collectors.toCollection(ArrayList::new));
+
         // Add handler for add new table button
-        addNewButton.setOnAction(e -> showAddDialog());
+//        addNewButton.setOnAction(e -> showAddDialog());
     }
 
     public void initializePoolTableController() {
@@ -135,7 +143,9 @@ public class PoolTableController {
 
         // Add search functionality
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filterTables(newValue);
+            if(newValue!=null){
+                filterTables(searchField.getText());
+            }
         });
 
         // Initialize category list
@@ -144,8 +154,13 @@ public class PoolTableController {
         // Add handler for new category button
         addNewTableCategory.setOnAction(e -> showAddCategoryDialog());
 
+        tableList = poolTableDAO.getAllTables();
+        tableNameList = this.tableList.stream()
+                .map(PoolTable::getName)
+                .collect(Collectors.toCollection(ArrayList::new));
+
         // Add handler for add new table button
-        addNewButton.setOnAction(e -> showAddDialog());
+//        addNewButton.setOnAction(e -> showAddDialog());
     }
 
     public void setUser(User user) throws SQLException {
@@ -165,24 +180,23 @@ public class PoolTableController {
         tablesContainer.getChildren().clear();
 
         if (searchText != null && !searchText.isEmpty()) {
-            ObservableList<PoolTable> filteredList = FXCollections.observableArrayList();
+            List<PoolTable> filteredList = new ArrayList<>(); // Using ArrayList instead of ObservableList
 
             for (PoolTable table : tableList) {
                 if (table.getName().toLowerCase().contains(searchText.toLowerCase())) {
                     filteredList.add(table);
                 }
             }
+            if(filteredList.isEmpty()) System.out.println("Filter List empty.");
+            if(tableList.isEmpty()) System.out.println("Table List empty.");
 
-            for (PoolTable table : filteredList) {
-                createTableUI(table);  // Assuming createTableUI adds the table to the UI
-            }
+            if(!filteredList.isEmpty()) updateUIWithTables(filteredList);
         } else {
-            // If no search text, you might want to show all tables or handle accordingly
-            for (PoolTable table : tableList) {
-                createTableUI(table);
-            }
+            // If no search text, show all tables
+            updateUIWithTables(tableList);
         }
     }
+
     protected void createTableUI(PoolTable table) {
         StackPane tableStack = new StackPane();
         tableStack.setPrefSize(100, 135);
@@ -293,8 +307,12 @@ public class PoolTableController {
 
                 // Get the controller and set up the table info
                 PoolTableInfoController controller = loader.getController();
-                controller.setMainController(this);
+                controller.setPoolTableController(this);
+                // setCatePooltableComboBox must be called before setPoolTable() !
+                controller.setCatePooltableComboBox(catePooltablesList);
+                controller.setTableNameList(tableNameList);
                 controller.setPoolTable(table);
+                controller.initializePoolInfo();
 
                 showPoolPopup(tableStack, root);
             } catch (Exception ex) {
@@ -312,7 +330,7 @@ public class PoolTableController {
         FlowPane.setMargin(tableStack, new Insets(5));
     }
 
-    public void showPoolPopup(StackPane stackPane, Parent content) {
+    public void showPoolPopup(Parent container, Parent content) {
         Platform.runLater(() -> {
             this.poolPopup = new Popup();
             StackPane contentPane = new StackPane();
@@ -323,8 +341,8 @@ public class PoolTableController {
 
             poolPopup.getContent().add(contentPane);
 
-            double xPos = stackPane.localToScene(0, 0).getX();
-            double yPos = stackPane.localToScene(0, 0).getY();
+            double xPos = container.localToScene(0, 0).getX();
+            double yPos = container.localToScene(0, 0).getY();
 
             poolPopup.setX(xPos);
             poolPopup.setY(yPos);
@@ -338,6 +356,43 @@ public class PoolTableController {
             poolPopup.show(tablesContainer.getScene().getWindow());
 
             fadeIn.play();
+        });
+    }
+
+    public void showPoolPopupInTheMiddle(Parent container, Parent content) {
+        Platform.runLater(() -> {
+            this.poolPopup = new Popup();
+            StackPane contentPane = new StackPane();
+            contentPane.setStyle("-fx-background-color: white; -fx-padding: 10;");
+            contentPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, null)));
+            contentPane.getChildren().add(content);
+
+            // Set initial opacity to 0
+            contentPane.setOpacity(0);
+
+            poolPopup.getContent().add(contentPane);
+
+            // Show the popup first to ensure dimensions are calculated correctly
+            poolPopup.show(container.getScene().getWindow());
+
+            // Calculate the center position of the container
+            double centerX = container.getScene().getWindow().getX() + (container.getScene().getWindow().getWidth() / 2);
+            double centerY = container.getScene().getWindow().getY() + (container.getScene().getWindow().getHeight() / 2);
+
+            // Position the popup in the center of the container
+            poolPopup.setAnchorX(centerX - (contentPane.getWidth() / 2));
+            poolPopup.setAnchorY(centerY - (contentPane.getHeight() / 2));
+
+            // Fade-in effect
+            FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.25), contentPane);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+
+            // Play the fade-in transition after showing the popup
+            fadeIn.play();
+
+            poolPopup.setAutoHide(true);
+            poolPopup.setAutoFix(true);
         });
     }
 
@@ -406,7 +461,6 @@ public class PoolTableController {
 
     protected void createOrderForTable(PoolTable table) {
         try {
-
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
             Parent root = loader.load();
@@ -775,7 +829,7 @@ public class PoolTableController {
             @Override
             protected void succeeded() {
                 // This method runs on the JavaFX Application Thread
-                List<PoolTable> tableList = getValue(); // Get the result from call()
+                tableList = getValue(); // Get the result from call()
                 updateUIWithTables(tableList);
             }
 
@@ -829,14 +883,14 @@ public class PoolTableController {
                     getClass().getResource("/src/billiardsmanagement/pooltables/addPoolTable.fxml"));
             Parent root = loader.load();
 
-            Stage dialog = new Stage();
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.setTitle("Add New Table");
+            AddPoolTableController controller = loader.getController();
 
-            Scene scene = new Scene(root);
-            dialog.setScene(scene);
-            dialog.showAndWait();
+            controller.setTableNameList(tableNameList);
+            controller.setPoolController(this);
+            controller.initializeAddPoolTable();
 
+            showPoolPopupInTheMiddle(poolTableScrollPane, root);
+            
             // Refresh the table list after dialog closes
             handleViewAllTables();
         } catch (IOException e) {
@@ -999,7 +1053,7 @@ public class PoolTableController {
 
             // Get the controller and set up the table info
             PoolTableInfoController controller = loader.getController();
-            controller.setMainController(this);
+            controller.setPoolTableController(this);
             controller.setPoolTable(table);
 
             Stage stage = new Stage();
@@ -1083,4 +1137,17 @@ public class PoolTableController {
         return this.orderController;
     }
 
+    // Used after every operation executed on PoolTable
+    public void resetTableListAndTableNameList(){
+        tableList = poolTableDAO.getAllTables();
+        tableNameList = this.tableList.stream()
+                .map(PoolTable::getName)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    // Used after every operation executed on CatePooltable
+    public void resetCatePooltableList(){
+        catePooltablesList.clear();
+        catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
+    }
 }

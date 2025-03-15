@@ -97,6 +97,98 @@ public class BookingDAO {
         }
     }
 
+    public static boolean finishAllBookings(int orderId) {
+        Connection conn = DatabaseConnection.getConnection();
+        if (conn == null) return false;
+
+        try {
+            conn.setAutoCommit(false);
+
+            // 1. Update all bookings
+            String updateBookingsQuery = """
+                    UPDATE bookings
+                    SET
+                        end_time = CASE
+                            WHEN booking_status = 'Playing' THEN NOW()
+                            ELSE end_time
+                        END,
+                        booking_status = CASE
+                            WHEN booking_status = 'Playing' THEN 'Finish'
+                            WHEN booking_status = 'Order' THEN 'Canceled'
+                            ELSE booking_status
+                        END,
+                        timeplay = CASE
+                            WHEN booking_status = 'Playing' THEN TIMESTAMPDIFF(MINUTE, start_time, NOW()) / 60.0
+                            ELSE timeplay
+                        END
+                    WHERE order_id = ?""";
+
+            try (PreparedStatement stmt = conn.prepareStatement(updateBookingsQuery)) {
+                stmt.setInt(1, orderId);
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected <= 0) {
+                    throw new SQLException("No bookings were updated. Check the order ID.");
+                }
+
+                // 2. Calculate total for bookings
+                String updateBookingCostQuery = """
+                        UPDATE bookings b
+                        JOIN pooltables p ON b.table_id = p.table_id
+                        JOIN cate_pooltables c ON p.cate_id = c.id
+                        SET b.total = CASE
+                            WHEN b.booking_status = 'Finish' THEN (TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time) / 60.0) * c.price
+                            ELSE b.total
+                        END
+                        WHERE b.order_id = ?""";
+
+                try (PreparedStatement stmt2 = conn.prepareStatement(updateBookingCostQuery)) {
+                    stmt2.setInt(1, orderId);
+                    int rowsAffectedCost = stmt2.executeUpdate();
+                    if (rowsAffectedCost <= 0) {
+                        throw new SQLException("No total cost was calculated. Check the order ID.");
+                    }
+
+                    // 3. Update pool table status to 'available'
+                    String updatePooltablesQuery = """
+                            UPDATE pooltables
+                            SET status = 'available'
+                            WHERE table_id IN (
+                                SELECT table_id FROM bookings
+                                WHERE order_id = ?
+                            )""";
+
+                    try (PreparedStatement stmt3 = conn.prepareStatement(updatePooltablesQuery)) {
+                        stmt3.setInt(1, orderId);
+                        int rowsAffectedTables = stmt3.executeUpdate();
+                        if (rowsAffectedTables <= 0) {
+                            throw new SQLException("No pool tables were updated to available. Check the order ID.");
+                        }
+                    }
+                }
+            }
+            conn.commit();
+            return true;
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static boolean finishOrder(int orderId) {
         Connection conn = DatabaseConnection.getConnection();
         if (conn == null) return false;
@@ -352,32 +444,32 @@ public class BookingDAO {
     public static boolean handleFinishBooking(int bookingId, int tableId) {
         System.out.println("Booking ID : " + bookingId + " Table ID : " + tableId);
         String updateBookingQuery = """
-            UPDATE bookings
-            SET end_time = NOW(),
-                booking_status = 'Finish',
-                timeplay = TIMESTAMPDIFF(MINUTE, start_time, NOW()) / 60.0
-            WHERE booking_id = ?""";
+                UPDATE bookings
+                SET end_time = NOW(),
+                    booking_status = 'Finish',
+                    timeplay = TIMESTAMPDIFF(MINUTE, start_time, NOW()) / 60.0
+                WHERE booking_id = ?""";
 
         String updateBookingTotalQuery = """
-            UPDATE bookings b
-            JOIN pooltables p ON b.table_id = p.table_id
-            JOIN cate_pooltables c ON p.cate_id = c.id
-            SET b.total = (TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time) / 60.0) * c.price
-            WHERE b.booking_id = ?""";
+                UPDATE bookings b
+                JOIN pooltables p ON b.table_id = p.table_id
+                JOIN cate_pooltables c ON p.cate_id = c.id
+                SET b.total = (TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time) / 60.0) * c.price
+                WHERE b.booking_id = ?""";
 
         String updateTableQuery = "UPDATE pooltables SET status = 'Available' WHERE table_id = ?";
 
         Connection conn = DatabaseConnection.getConnection();
 
         try (
-             PreparedStatement stmtBooking = conn.prepareStatement(updateBookingQuery);
-             PreparedStatement stmtTable = conn.prepareStatement(updateTableQuery);
-             PreparedStatement stmtTotal = conn.prepareStatement(updateBookingTotalQuery)) {
+                PreparedStatement stmtBooking = conn.prepareStatement(updateBookingQuery);
+                PreparedStatement stmtTable = conn.prepareStatement(updateTableQuery);
+                PreparedStatement stmtTotal = conn.prepareStatement(updateBookingTotalQuery)) {
 
             conn.setAutoCommit(false);
 
             // Update Booking status + timeplay + end time
-            System.out.println("Booking ID passed = "+bookingId);
+            System.out.println("Booking ID passed = " + bookingId);
             stmtBooking.setInt(1, bookingId);
             int rowsUpdatedBooking = stmtBooking.executeUpdate();
 
@@ -414,7 +506,7 @@ public class BookingDAO {
         return false;
     }
 
-    public static boolean handleCancelBooking(int bookingId, int tableId){
+    public static boolean handleCancelBooking(int bookingId, int tableId) {
         String updateBookingQuery = "UPDATE bookings SET booking_status = 'Canceled' WHERE booking_id = ?";
         String updateTableQuery = "UPDATE pooltables SET status = 'Available' WHERE table_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -472,7 +564,7 @@ public class BookingDAO {
     }
 
 
-    public void addBooking(Booking newBooking) {
+    public boolean addBooking(Booking newBooking) {
         String query = "INSERT INTO bookings (order_id, table_id, start_time, booking_status) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -489,6 +581,7 @@ public class BookingDAO {
 
             if (rowsAffected > 0) {
                 System.out.println("Booking added successfully!");
+                return true;
             } else {
                 System.out.println("Failed to add booking.");
             }
@@ -496,6 +589,7 @@ public class BookingDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     public static void handleAddBooking(Booking newBooking) {

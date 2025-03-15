@@ -11,11 +11,9 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<!--<AnchorPane fx:id="totalBooking" prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/forEachOrderStyle.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">-->
-    <AnchorPane fx:id="totalBooking" prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
+<AnchorPane fx:id="totalBooking" prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.ForEachOrderController">
 
     <!-- Top Information Section -->
-    <!-- Booking Pane -->
     <AnchorPane fx:id="bookingPane" layoutX="20.0" layoutY="162.0" prefHeight="258.0" prefWidth="1010.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="2.400000000000091" AnchorPane.topAnchor="162.0">
         <TableView fx:id="bookingPoolTable" layoutX="-9.0" layoutY="35.0" prefHeight="132.0" prefWidth="1011.0">
             <columns>
@@ -30,12 +28,12 @@
                 <TableColumn fx:id="bookingActionColumn" prefWidth="127.2000732421875" styleClass="number-aligned" text="Action" />
             </columns>
         </TableView>
-        <Button fx:id="addOrderItemButton" layoutX="832.0" layoutY="195.0" mnemonicParsing="false" onAction="#addOrderItem" prefHeight="16.0" prefWidth="168.0" styleClass="finish-button" text="Add New Item" textAlignment="CENTER" textFill="WHITE">
+        <Button fx:id="addOrderItemButton" layoutX="832.0" layoutY="195.0" mnemonicParsing="false" onAction="#addOrderItem" prefHeight="16.0" prefWidth="168.0" styleClass="finish-button" text="Add New Item" textAlignment="CENTER" textFill="WHITE" focusTraversable="false">
             <font>
                 <Font size="11.0" />
             </font>
         </Button>
-        <Button fx:id="addBookingButton" layoutX="833.0" layoutY="-2.0" mnemonicParsing="false" onAction="#addBooking" prefHeight="16.0" prefWidth="168.0" styleClass="finish-button" text="Add New Booking" textAlignment="CENTER" textFill="WHITE">
+        <Button fx:id="addBookingButton" layoutX="833.0" layoutY="-2.0" mnemonicParsing="false" onAction="#addBooking" prefHeight="16.0" prefWidth="168.0" styleClass="finish-button" text="Add New Booking" textAlignment="CENTER" textFill="WHITE" focusTraversable="false">
             <font>
                 <Font size="11.0" />
             </font>
@@ -50,7 +48,6 @@
                 <TableColumn fx:id="productNameColumn" prefWidth="273.49998474121094" styleClass="left-aligned" text="Product Name" />
                 <TableColumn fx:id="quantityColumn" prefWidth="108.5" styleClass="number-aligned" text="Quantity" />
                 <TableColumn fx:id="priceOrderItemColumn" prefWidth="234.0" styleClass="number-aligned" text="Price" />
-                <!-- <TableColumn fx:id="subTotalOrderItemColumn" prefWidth="193.5999755859375" styleClass="number-aligned" text="Sub Total" /> -->
                 <TableColumn fx:id="totalOrderItemColumn" prefWidth="207.0" styleClass="number-aligned" text="Total Cost" />
                 <TableColumn fx:id="orderItemActionColumn" prefWidth="125.5" styleClass="number-aligned" text="Action" />
             </columns>
@@ -66,7 +63,7 @@
     </HBox>
     <HBox alignment="CENTER_RIGHT" layoutX="853.0" layoutY="8.0" prefHeight="25.0" prefWidth="168.0">
         <children>
-            <Button fx:id="finishOrderButton" mnemonicParsing="false" onAction="#finishOrder" prefHeight="32.0" prefWidth="168.0" styleClass="finish-button" text="Finish this Order" textAlignment="CENTER" textFill="WHITE" />
+            <Button fx:id="finishOrderButton" mnemonicParsing="false" onAction="#finishOrder" prefHeight="32.0" prefWidth="168.0" styleClass="finish-button" text="Finish this Order" textAlignment="CENTER" textFill="WHITE" focusTraversable="false" />
         </children>
     </HBox>
     <HBox alignment="CENTER" layoutX="718.0" layoutY="7.0" prefHeight="25.0" prefWidth="122.0" />
@@ -83,12 +80,12 @@
     <Label layoutX="11.0" layoutY="43.0" prefHeight="20.0" prefWidth="167.0" styleClass="section-label" text="Phone Number:" />
     <Line endX="963.199951171875" endY="149.89999389648438" startX="75.19999694824219" startY="149.89999389648438" stroke="#a31d1d" />
     <Line endX="963.199951171875" endY="149.89999389648438" layoutY="200.0" startX="75.19999694824219" startY="149.89999389648438" stroke="#a31d1d" />
-    <TextField fx:id="phoneText" layoutX="141.0" layoutY="41.0" prefHeight="27.0" prefWidth="167.0">
+    <TextField fx:id="phoneText" layoutX="141.0" layoutY="41.0" prefHeight="27.0" prefWidth="167.0" focusTraversable="false">
         <font>
             <Font name="Arial" size="15.0" />
         </font>
     </TextField>
-    <TextField fx:id="customerText" layoutX="141.0" layoutY="8.0" prefHeight="27.0" prefWidth="167.0">
+    <TextField fx:id="customerText" layoutX="141.0" layoutY="8.0" prefHeight="27.0" prefWidth="167.0" focusTraversable="true">
         <font>
             <Font name="Arial" size="15.0" />
         </font>
@@ -98,7 +95,7 @@
             <Font name="FontAwesome" size="16.0" />
         </font>
     </Text>
-    <Text fx:id="staffNameText" layoutX="141.0" layoutY="92.0" wrappingWidth="167.0">
+    <Text fx:id="staffNameText" layoutX="141.0" layoutY="92.0" wrappingWidth="167.0" focusTraversable="false">
         <font>
             <Font name="Arial" size="15.0" />
         </font>
@@ -112,19 +109,18 @@
             <Font name="FontAwesome" size="16.0" />
         </font>
     </Text>
-    <Text layoutX="629.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Cost">
+    <Text fx:id="orderTotalCost" layoutX="629.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Cost">
         <font>
             <Font name="FontAwesome" size="16.0" />
         </font>
     </Text>
-    <Text fx:id="orderStatusText" layoutX="435.0" layoutY="24.0" text="Order Status" wrappingWidth="114.0">
+    <Text fx:id="orderStatusText" layoutX="435.0" layoutY="24.0" text="Order Status" wrappingWidth="114.0" focusTraversable="false">
         <font>
             <Font name="FontAwesome" size="16.0" />
         </font>
     </Text>
     <Label layoutX="358.0" layoutY="7.0" prefHeight="21.0" prefWidth="77.0" styleClass="section-label" text="Status: " />
-    <Button layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" text="Add Customer" />
-    <!--   <Button layoutX="853.0" layoutY="95.0" mnemonicParsing="false" onAction="#goBack" text="Back" />-->
-    <Button fx:id="btnBack" onAction="#goBack" text="Back" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
-    <Button fx:id="confirmSaveCustomer" layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" prefHeight="25.0" prefWidth="167.0" text="Add New Customer" />
+    <Button layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" text="Add Customer" focusTraversable="true" />
+    <Button fx:id="btnBack" onAction="#goBack" text="Back" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" focusTraversable="false" />
+    <Button fx:id="confirmSaveCustomer" layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" prefHeight="25.0" prefWidth="167.0" text="Add New Customer" focusTraversable="true" />
 </AnchorPane>
