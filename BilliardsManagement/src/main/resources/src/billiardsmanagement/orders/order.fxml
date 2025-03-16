@@ -37,6 +37,7 @@
 <!--            </Button>-->
 
             <Button onAction="#addOrder" styleClass="add-button" text="Add New Order" />
+            <Button fx:id="refreshButton" text="Refresh" onAction="#refreshPage"/>
         </HBox>
     </top>
 

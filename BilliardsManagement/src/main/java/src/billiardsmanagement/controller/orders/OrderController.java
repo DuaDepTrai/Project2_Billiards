@@ -931,6 +931,19 @@ public class OrderController implements Initializable {
         if (selectedStatus != null) {
             orderTable.setItems(OrderDAO.getOrdersByStatus(selectedStatus));
         }
-    }
 
+    }
+    @FXML
+    private Button refreshButton;
+    @FXML
+    public void refreshPage(ActionEvent event) {
+        loadCustomerNameToIdMap(); // Làm mới danh sách tên khách hàng
+        loadOrderList(); // Làm mới danh sách đơn hàng
+        autoCompleteTextField.clear(); // Xóa trường tìm kiếm
+        filterTypeComboBox.getSelectionModel().clearSelection();
+        datePicker.setValue(null);
+        categoryComboBox.getSelectionModel().clearSelection();
+        statusComboBox.getSelectionModel().clearSelection();
+        NotificationService.showNotification("Refresh", "Page has been refreshed.", NotificationStatus.Information);
+    }
 }
