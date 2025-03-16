@@ -15,6 +15,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -46,11 +48,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ForEachOrderController {
+    @FXML private AnchorPane forEachAnchorPane;
     @FXML private Text orderTotalCost;
+
     // Buttons
     @FXML
     protected Button finishOrderButton;
@@ -70,8 +75,8 @@ public class ForEachOrderController {
     protected Button addBookingButton;
     @FXML
     protected Button cancelBookingButton;
-//    @FXML
-//    private Button btnBack;
+    @FXML
+    private Button btnBack;
 
     // Actions
     @FXML
@@ -160,10 +165,17 @@ public class ForEachOrderController {
     // private TableColumn<OrderItem, Double> promotionDiscountOrderItem;
 
     private MainController mainController; // Biến để lưu MainController
-    private Popup forEachPopup;
+    private String mainControllerChosenPage;
+    private String orderPageChosen = "OrderPage";
+    private String poolTablePageChosen = "PoolTablePage";
 
-    public void setMainController(MainController mainController) {
+    private Popup forEachPopup;
+    private StackPane contentArea;
+
+    public void setMainController(MainController mainController, String mainControllerChosenPage) {
+        this.mainControllerChosenPage = mainControllerChosenPage;
         this.mainController = mainController;
+
     }
 
     private final ObservableList<Booking> bookingList = FXCollections.observableArrayList();
@@ -553,6 +565,11 @@ public class ForEachOrderController {
             confirmSaveCustomer.setDisable(false);
         }
 
+        // Set "Tab" key Traversal logic
+        customerText.addEventFilter(KeyEvent.KEY_PRESSED, this::handleTabTraversal);
+        phoneText.addEventFilter(KeyEvent.KEY_PRESSED, this::handleTabTraversal);
+        confirmSaveCustomer.addEventFilter(KeyEvent.KEY_PRESSED, this::handleTabTraversal);
+
         // Staff Name
         String staffName = OrderDAO.getStaffNameByOrderId(orderID);
         if (staffName == null) {
@@ -596,6 +613,36 @@ public class ForEachOrderController {
         }
     }
 
+    private void handleTabTraversal(KeyEvent event) {
+        switch (event.getCode()) {
+            case TAB -> {
+                if (event.isShiftDown()) { // Shift + Tab (reverse order)
+                    if (customerText.isFocused()) {
+                        confirmSaveCustomer.requestFocus();
+                        event.consume();
+                    } else if (phoneText.isFocused()) {
+                        customerText.requestFocus();
+                        event.consume();
+                    } else if (confirmSaveCustomer.isFocused()) {
+                        phoneText.requestFocus();
+                        event.consume();
+                    }
+                } else { // Normal Tab (forward order)
+                    if (customerText.isFocused()) {
+                        phoneText.requestFocus();
+                        event.consume();
+                    } else if (phoneText.isFocused()) {
+                        confirmSaveCustomer.requestFocus();
+                        event.consume();
+                    } else if (confirmSaveCustomer.isFocused()) {
+                        customerText.requestFocus();
+                        event.consume();
+                    }
+                }
+            }
+        }
+    }
+
     protected void initializeForEachOrderButtonsAndInformation(){
         List<Customer> customerList = customerDAO.getInfoCustomer(customerID);
         Order order = OrderDAO.getOrderById(orderID);
@@ -629,6 +676,7 @@ public class ForEachOrderController {
             }
         }
     }
+
 
     private void setupPhoneAutoCompletion() {
         if (phoneAutoCompletion != null) {
@@ -1110,7 +1158,6 @@ public class ForEachOrderController {
                 }
             }
         }
-
     }
 
     public void setCustomerID(int customerId) {
@@ -1211,6 +1258,7 @@ public class ForEachOrderController {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
         if (bookings.size() == 1 && "Canceled".equalsIgnoreCase(bookings.get(0).getBookingStatus())) {
             OrderDAO.updateStatusOrder(orderID, "Canceled");
+            BookingDAO.cancelBooking(bookings.get(0).getBookingId());
             initializeForEachOrderButtonsAndInformation();
             System.out.println("✅ From ForEachOrder : Order updated to Canceled ; only 1 booking found.");
             return;
@@ -1441,19 +1489,22 @@ public class ForEachOrderController {
         return this.currentOrder;
     }
 
-//    @FXML
-//    public void goBack(ActionEvent actionEvent) {
-//        try {
-//            if (mainController != null) {
-//                mainController.showOrdersPage();
-//            } else {
-//                NotificationService.showNotification("Error", "MainController is not set.", NotificationStatus.Error);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            NotificationService.showNotification("Error", "Failed to navigate back.", NotificationStatus.Error);
-//        }
-//    }
+    @FXML
+    public void goBack(ActionEvent actionEvent) {
+        try {
+            if (mainController != null) {
+                if(mainControllerChosenPage.equalsIgnoreCase(orderPageChosen))
+                    mainController.showOrdersPage();
+                if(mainControllerChosenPage.equalsIgnoreCase(poolTablePageChosen))
+                    mainController.showPoolTablePage();
+            } else {
+                NotificationService.showNotification("Error", "MainController is not set.", NotificationStatus.Error);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            NotificationService.showNotification("Error", "Failed to navigate back.", NotificationStatus.Error);
+        }
+    }
 
     public void setOrderDate(LocalDateTime orderDate) {
         this.orderDate = orderDate;
@@ -1481,5 +1532,9 @@ public class ForEachOrderController {
 
     public void hideForEachPopup(){
         this.forEachPopup.hide();
+    }
+
+    public void setMainControllerContentArea(StackPane contentArea){
+        this.contentArea = contentArea;
     }
 }

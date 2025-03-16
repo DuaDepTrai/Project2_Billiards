@@ -490,7 +490,6 @@ public class OrderDAO {
 
             if (rowsAffected > 0) {
                 System.out.println("Order added successfully!");
-                OrderController.setBillNumberCount(OrderController.getBillNumberCount()+1);
             }
         } catch (SQLException e) {
             e.printStackTrace();

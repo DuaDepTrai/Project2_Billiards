@@ -31,6 +31,7 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
+import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
 import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.controller.poolTables.catepooltables.UpdateCategoryPooltableController;
@@ -89,6 +90,13 @@ public class PoolTableController {
     private boolean isPoolPopupShowing = false;
     private OrderController orderController;
     private List<String> tableNameList;
+
+    private FXMLLoader forEachViewLoader;
+    private ForEachOrderController forEachOrderController;
+    private Parent forEachRoot;
+
+    private MainController mainController;
+    private String poolTablePageChosen = "PoolTablePage";
 
     @FXML
     public void initialize() {
@@ -427,15 +435,17 @@ public class PoolTableController {
 
     private void showForEachOrderView(Order order, PoolTable currentTable) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
-            Parent root = loader.load();
+            forEachViewLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+            forEachRoot = forEachViewLoader.load();
 
-            ForEachOrderController forEachOrderController = loader.getController();
+            forEachOrderController = forEachViewLoader.getController();
+
             forEachOrderController.setOrderID(order.getOrderId());
             forEachOrderController.setCustomerID(order.getCustomerId());
             forEachOrderController.setForEachUserID(order.getUserId());
             forEachOrderController.setOrderDate(order.getOrderDate());
             forEachOrderController.setOrderController(this.orderController);
+            forEachOrderController.setMainController(this.mainController, poolTablePageChosen);
             int billNo = OrderDAO.getOrderBillNo(order.getOrderId());
             if (billNo != -1) forEachOrderController.setBillNo(billNo);
             forEachOrderController.setPoolTableController(this);
@@ -444,11 +454,11 @@ public class PoolTableController {
             }
             forEachOrderController.initializeAllTables();
 
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Order Information");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
+            if(mainController!=null){
+                StackPane contentArea = mainController.getContentArea();
+                contentArea.getChildren().clear();
+                contentArea.getChildren().add(forEachRoot);
+            }
 
             handleViewAllTables();
         } catch (Exception e) {
@@ -1149,5 +1159,9 @@ public class PoolTableController {
     public void resetCatePooltableList(){
         catePooltablesList.clear();
         catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
+    }
+
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
     }
 }

@@ -152,7 +152,6 @@ public class PoolTableOrderInformationController {
             }
 
             poolTableController.handleViewAllTables();
-            forEachOrderController.setBillNo(OrderController.getBillNumberCount());
             forEachOrderController.initializeAllTables();
 
             Stage stage = new Stage();

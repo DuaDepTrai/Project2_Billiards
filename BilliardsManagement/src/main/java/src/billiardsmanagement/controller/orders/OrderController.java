@@ -89,7 +89,7 @@ public class OrderController implements Initializable {
     private ObservableList<Order> orderList = FXCollections.observableArrayList();
 
     private int orderID;
-    private static int billNumberCount = OrderDAO.getBillNumberCount();
+    private ObservableList<Order> orderList = FXCollections.observableArrayList();
 
     private final Connection conn = DatabaseConnection.getConnection();
     private final OrderDAO orderDAO = new OrderDAO();
@@ -97,7 +97,11 @@ public class OrderController implements Initializable {
     private final BookingDAO bookingDAO = new BookingDAO();
     private final Map<String, Integer> customerNameToIdMap = new HashMap<>();
     private final PoolTableDAO poolTableDAO = new PoolTableDAO();
+    
     private MainController mainController;
+    private String orderPageChosen = "OrderPage";
+
+    // without chosen page, of course
     public void setMainController(MainController mainController){
         this.mainController = mainController;;
     }
@@ -160,8 +164,9 @@ public class OrderController implements Initializable {
 
     public void loadOrderList() {
         List<Order> orders = orderDAO.getAllOrders();
+        orderList = FXCollections.observableArrayList(orders);
         orderTable.getItems().clear();
-        orderTable.setItems(FXCollections.observableArrayList(orders));
+        orderTable.setItems(FXCollections.observableArrayList(orderList));
     }
 
     public void loadCustomerNameToIdMap() {
@@ -717,7 +722,8 @@ public class OrderController implements Initializable {
                 ForEachOrderController forEachOrderController = loader.getController();
                 forEachOrderController.setOrderID(selectedOrder.getOrderId());
                 forEachOrderController.setCustomerID(selectedOrder.getCustomerId());
-                forEachOrderController.setMainController(mainController);
+
+                forEachOrderController.setMainController(mainController, orderPageChosen);
                 forEachOrderController.setBillNo(billNo);
                 forEachOrderController.setOrderDate(selectedOrder.getOrderDate());
                 forEachOrderController.setCurrentOrder(selectedOrder);
@@ -727,6 +733,7 @@ public class OrderController implements Initializable {
                 // Cập nhật nội dung của contentArea trong MainController
                 if (mainController != null) {
                     StackPane contentArea = mainController.getContentArea(); // Phương thức lấy contentArea
+                    contentArea.getChildren().clear();
                     contentArea.getChildren().setAll(forEachOrderPage); // Xóa nội dung cũ và thêm trang mới
                 }
                 FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bookings/addBooking.fxml"));
@@ -840,12 +847,13 @@ public class OrderController implements Initializable {
         this.orderID = orderId;
     }
 
-    public static int getBillNumberCount() {
-        return billNumberCount;
+    public ObservableList<Order> getOrderList() {
+        if(orderList.isEmpty()) System.out.println("From OrderController - getOrderList() : order List is empty.");
+        return this.orderList;
     }
-
-    public static void setBillNumberCount(int newBillNumberCount) {
-        OrderController.billNumberCount = newBillNumberCount;
+    
+    public void setOrderList(ObservableList<Order> orderList) {
+        this.orderList = orderList;
     }
     private void setupFilters() {
         // Tạo ComboBox chọn kiểu lọc

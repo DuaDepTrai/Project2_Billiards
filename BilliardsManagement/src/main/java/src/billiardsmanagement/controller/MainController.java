@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import src.billiardsmanagement.controller.database.BookingAndOrderTableListener;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
 import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.controller.poolTables.*;
@@ -196,6 +197,11 @@ public class MainController {
             poolTablePane = poolTableLoader.load();
             poolTableController = poolTableLoader.getController();
 
+            // Inject OrderController's Table View + Order List into Listener
+            BookingAndOrderTableListener bookingAndOrderTableListener = new BookingAndOrderTableListener();
+            bookingAndOrderTableListener.setOrderTable(orderController.getOrderTable());
+            bookingAndOrderTableListener.setOrderList(orderController.getOrderList());
+            bookingAndOrderTableListener.startListening();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -387,6 +393,7 @@ public class MainController {
         if (poolTableLoader != null && poolTablePane != null && poolTableController != null) {
             poolTableController.setCurrentUser(loggedInUser);
             poolTableController.setUser(loggedInUser);
+            poolTableController.setMainController(this);
             poolTableController.setOrderController(orderController);
 
             System.out.println("🔹 Truyền user vào poolTableController: " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));

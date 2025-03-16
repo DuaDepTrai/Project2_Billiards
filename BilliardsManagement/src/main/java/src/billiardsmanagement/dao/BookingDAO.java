@@ -55,7 +55,7 @@ public class BookingDAO {
     }
 
     public static int getTheLatestOrderByTableId(int tableId) {
-        String query = "SELECT * FROM bookings WHERE table_id = ? AND booking_status IN ('Playing', 'Order') ORDER BY start_time DESC LIMIT 1";
+        String query = "SELECT * FROM bookings WHERE table_id = ? AND booking_status IN ('Playing', 'Ordered') ORDER BY start_time DESC LIMIT 1";
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement pr = con.prepareStatement(query)) {
 
@@ -114,7 +114,7 @@ public class BookingDAO {
                         END,
                         booking_status = CASE
                             WHEN booking_status = 'Playing' THEN 'Finish'
-                            WHEN booking_status = 'Order' THEN 'Canceled'
+                            WHEN booking_status = 'Ordered' THEN 'Canceled'
                             ELSE booking_status
                         END,
                         timeplay = CASE
