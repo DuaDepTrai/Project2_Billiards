@@ -37,6 +37,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -74,6 +75,17 @@ public class OrderController implements Initializable {
 
     private Popup popup;
     private ListView<String> listView;
+    @FXML
+    private ComboBox<String> filterTypeComboBox;
+    @FXML
+    private DatePicker datePicker;
+    @FXML
+    private ComboBox<String> categoryComboBox;
+    @FXML
+    private ComboBox<String> statusComboBox;
+    @FXML
+    private VBox filterContainer; // Chứa bộ lọc
+    private ObservableList<Order> orderList = FXCollections.observableArrayList();
 
     private int orderID;
     private static int billNumberCount = OrderDAO.getBillNumberCount();
@@ -376,6 +388,7 @@ public class OrderController implements Initializable {
         orderTable.setOnMouseClicked(event -> {
             showItem(event);
         });
+        setupFilters();
     }
 
     public void initializeOrderController(){
@@ -585,7 +598,6 @@ public class OrderController implements Initializable {
             showItem(event);
         });
 
-        System.out.println("✅ From OrderController : initializeOrderController() method called");
     }
 
     private Bill createBill(Order selectedOrder) {
@@ -856,4 +868,69 @@ public class OrderController implements Initializable {
     public static void setBillNumberCount(int newBillNumberCount) {
         OrderController.billNumberCount = newBillNumberCount;
     }
+    private void setupFilters() {
+        // Tạo ComboBox chọn kiểu lọc
+        filterTypeComboBox = createComboBox(Arrays.asList("Date", "Table Category", "Status"));
+        datePicker = createDatePicker();
+        categoryComboBox = new ComboBox<>();
+        statusComboBox = new ComboBox<>();
+
+        // Load danh mục bàn và trạng thái từ database
+        categoryComboBox.setItems(FXCollections.observableArrayList(OrderDAO.getCatePoolTables()));
+        statusComboBox.setItems(FXCollections.observableArrayList(OrderDAO.getOrderStatuses()));
+
+        // Thêm ComboBox chọn kiểu lọc vào `filterContainer`
+        filterContainer.getChildren().add(filterTypeComboBox);
+
+        // Xử lý sự kiện thay đổi bộ lọc
+        filterTypeComboBox.setOnAction(event -> updateFilterUI());
+        datePicker.setOnAction(event -> filterByDate());
+        categoryComboBox.setOnAction(event -> filterByCategory());
+        statusComboBox.setOnAction(event -> filterByStatus());
+    }
+
+    private ComboBox<String> createComboBox(List<String> items) {
+        return new ComboBox<>(FXCollections.observableArrayList(items));
+    }
+
+    private DatePicker createDatePicker() {
+        return new DatePicker();
+    }
+
+    private void updateFilterUI() {
+        filterContainer.getChildren().clear(); // Xóa bộ lọc cũ
+        filterContainer.getChildren().add(filterTypeComboBox); // Luôn giữ `filterTypeComboBox`
+
+        // Thêm bộ lọc phù hợp vào giao diện
+        String selectedFilter = filterTypeComboBox.getValue();
+        if ("Date".equals(selectedFilter)) {
+            filterContainer.getChildren().add(datePicker);
+        } else if ("Table Category".equals(selectedFilter)) {
+            filterContainer.getChildren().add(categoryComboBox);
+        } else if ("Status".equals(selectedFilter)) {
+            filterContainer.getChildren().add(statusComboBox);
+        }
+    }
+
+    private void filterByDate() {
+        LocalDate selectedDate = datePicker.getValue();
+        if (selectedDate != null) {
+            orderTable.setItems(OrderDAO.getOrdersByDate(selectedDate));
+        }
+    }
+
+    private void filterByCategory() {
+        String selectedCategory = categoryComboBox.getValue();
+        if (selectedCategory != null) {
+            orderTable.setItems(OrderDAO.getOrdersByCatePoolTable(selectedCategory));
+        }
+    }
+
+    private void filterByStatus() {
+        String selectedStatus = statusComboBox.getValue();
+        if (selectedStatus != null) {
+            orderTable.setItems(OrderDAO.getOrdersByStatus(selectedStatus));
+        }
+    }
+
 }

@@ -1,5 +1,7 @@
 package src.billiardsmanagement.dao;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.model.Order;
 import src.billiardsmanagement.model.DatabaseConnection;
@@ -212,6 +214,206 @@ public class OrderDAO {
             e.printStackTrace();
         }
         return -1;
+    }
+
+    public static ObservableList<Order> getOrdersByDate(LocalDate selectedDate) {
+        ObservableList<Order> orders = FXCollections.observableArrayList();
+        String query = """
+        SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
+               o.total_cost, o.order_date, o.order_status, u.user_id, u.fullname AS user_name, r.role_name,
+               GROUP_CONCAT(
+                   CONCAT(
+                       CASE 
+                           WHEN p.name LIKE 'Standard %' THEN 'STD' 
+                           WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
+                           WHEN p.name LIKE 'VIP %' THEN 'VIP' 
+                           ELSE p.name 
+                       END, 
+                       SUBSTRING_INDEX(p.name, ' ', -1)
+                   ) SEPARATOR ', '
+               ) AS currentTableName
+        FROM orders o
+        JOIN customers c ON o.customer_id = c.customer_id
+        JOIN users u ON o.user_id = u.user_id
+        JOIN roles r ON u.role_id = r.role_id
+        LEFT JOIN bookings b ON o.order_id = b.order_id
+        LEFT JOIN pooltables p ON b.table_id = p.table_id
+        WHERE DATE(o.order_date) = ?
+        GROUP BY o.order_id
+        ORDER BY o.order_date DESC
+    """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setDate(1, Date.valueOf(selectedDate));
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                orders.add(new Order(
+                        rs.getInt("order_id"),
+                        rs.getInt("customer_id"),
+                        rs.getString("customer_name"),
+                        rs.getString("customer_phone"),
+                        rs.getInt("user_id"),
+                        rs.getString("user_name"),
+                        rs.getString("role_name"),
+                        rs.getTimestamp("order_date").toLocalDateTime(),
+                        rs.getDouble("total_cost"),
+                        rs.getString("order_status"),
+                        rs.getString("currentTableName")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return orders;
+    }
+
+    public static List<String> getCatePoolTables() {
+        List<String> categories = new ArrayList<>();
+        String query = "SELECT DISTINCT name FROM cate_pooltables ORDER BY name";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                categories.add(rs.getString("name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return categories;
+    }
+
+    public static List<String> getOrderStatuses() {
+        List<String> statuses = new ArrayList<>();
+        String query = "SELECT DISTINCT order_status FROM orders ORDER BY order_status";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                statuses.add(rs.getString("order_status"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return statuses;
+    }
+
+    public static ObservableList<Order> getOrdersByCatePoolTable(String category) {
+        ObservableList<Order> orders = FXCollections.observableArrayList();
+        String query = """
+            SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone,
+                   o.user_id, u.fullname AS user_name, r.role_name, o.order_date,
+                   o.total_cost, o.order_status,
+                   GROUP_CONCAT(
+                       CONCAT(
+                           CASE 
+                               WHEN p.name LIKE 'Standard %' THEN 'STD' 
+                               WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
+                               WHEN p.name LIKE 'VIP %' THEN 'VIP' 
+                               ELSE p.name 
+                           END, 
+                           SUBSTRING_INDEX(p.name, ' ', -1)
+                       ) SEPARATOR ', '
+                   ) AS currentTableName
+            FROM orders o
+            JOIN customers c ON o.customer_id = c.customer_id
+            JOIN users u ON o.user_id = u.user_id
+            JOIN roles r ON u.role_id = r.role_id
+            LEFT JOIN bookings b ON o.order_id = b.order_id
+            LEFT JOIN pooltables p ON b.table_id = p.table_id
+            LEFT JOIN cate_pooltables cp ON p.cate_id = cp.id
+            WHERE cp.name = ?
+            GROUP BY o.order_id
+            ORDER BY o.order_id DESC
+        """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, category); // Gán loại bàn cần lọc
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Order order = new Order(
+                        rs.getInt("order_id"),
+                        rs.getInt("customer_id"),
+                        rs.getString("customer_name"),
+                        rs.getString("customer_phone"),
+                        rs.getInt("user_id"),
+                        rs.getString("user_name"),
+                        rs.getString("role_name"),
+                        rs.getDate("order_date"),
+                        rs.getDouble("total_cost"),
+                        rs.getString("order_status"),
+                        rs.getString("currentTableName")
+                );
+                orders.add(order);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return orders;
+    }
+
+
+
+    public static ObservableList<Order> getOrdersByStatus(String selectedStatus) {
+        ObservableList<Order> orders = FXCollections.observableArrayList();
+        String query = """
+        SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
+               o.total_cost, o.order_date, o.order_status, u.user_id, u.fullname AS user_name, r.role_name,
+               GROUP_CONCAT(
+                   CONCAT(
+                       CASE 
+                           WHEN p.name LIKE 'Standard %' THEN 'STD' 
+                           WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
+                           WHEN p.name LIKE 'VIP %' THEN 'VIP' 
+                           ELSE p.name 
+                       END, 
+                       SUBSTRING_INDEX(p.name, ' ', -1)
+                   ) SEPARATOR ', '
+               ) AS currentTableName
+        FROM orders o
+        JOIN customers c ON o.customer_id = c.customer_id
+        JOIN users u ON o.user_id = u.user_id
+        JOIN roles r ON u.role_id = r.role_id
+        LEFT JOIN bookings b ON o.order_id = b.order_id
+        LEFT JOIN pooltables p ON b.table_id = p.table_id
+        WHERE o.order_status = ?
+        GROUP BY o.order_id
+        ORDER BY o.order_date DESC
+    """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, selectedStatus);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                orders.add(new Order(
+                        rs.getInt("order_id"),
+                        rs.getInt("customer_id"),
+                        rs.getString("customer_name"),
+                        rs.getString("customer_phone"),
+                        rs.getInt("user_id"),
+                        rs.getString("user_name"),
+                        rs.getString("role_name"),
+                        rs.getTimestamp("order_date").toLocalDateTime(),
+                        rs.getDouble("total_cost"),
+                        rs.getString("order_status"),
+                        rs.getString("currentTableName")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return orders;
     }
 
 

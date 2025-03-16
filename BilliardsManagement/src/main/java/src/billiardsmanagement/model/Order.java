@@ -1,6 +1,8 @@
 package src.billiardsmanagement.model;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public class Order {
     private int orderId;
@@ -14,6 +16,23 @@ public class Order {
     private int userId;
     private String userName;
     private String roleName;
+
+    public Order(int orderId, int customerId, String customerName, String customerPhone, int userId, String userName, String roleName, Date orderDate, double totalCost, String orderStatus, String currentTableName) {
+        this.orderId = orderId;
+        this.customerId = customerId;
+        this.customerName = customerName;
+        this.customerPhone = customerPhone;
+        this.userId = userId;
+        this.userName = userName;
+        this.roleName = roleName;
+        this.totalCost = totalCost;
+        this.orderStatus = orderStatus;
+        this.currentTableName = currentTableName;
+
+        // Chuyển đổi từ Date sang LocalDateTime
+        // Chuyển từ java.sql.Date sang LocalDateTime
+        this.orderDate = (orderDate != null) ? orderDate.toLocalDate().atStartOfDay() : null;
+    }
 
     public String getRoleName() {
         return roleName;

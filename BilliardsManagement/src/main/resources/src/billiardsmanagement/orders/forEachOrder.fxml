@@ -120,7 +120,6 @@
         </font>
     </Text>
     <Label layoutX="358.0" layoutY="7.0" prefHeight="21.0" prefWidth="77.0" styleClass="section-label" text="Status: " />
-    <Button layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" text="Add Customer" focusTraversable="true" />
 <!--    <Button fx:id="btnBack" onAction="#goBack" text="Back" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" focusTraversable="false" />-->
     <Button fx:id="confirmSaveCustomer" layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" prefHeight="25.0" prefWidth="167.0" text="Add New Customer" focusTraversable="true" />
 </AnchorPane>
