@@ -278,7 +278,7 @@ public class ForEachOrderController {
                 actionBox.getStyleClass().add("action-hbox");
 
                 switch (booking.getBookingStatus()) {
-                    case "Order":
+                    case "Ordered":
                         // Play Icon
                         FontAwesomeIconView playIcon = new FontAwesomeIconView(FontAwesomeIcon.PLAY);
                         playIcon.prefWidth(14); // Set icon size
@@ -1221,8 +1221,8 @@ public class ForEachOrderController {
                 OrderDAO.updateStatusOrder(orderID, "Playing");
                 initializeForEachOrderButtonsAndInformation();
                 System.out.println("Da chuyen order thanh playing");
-            } else if (!booking.getBookingStatus().equals("Finish") && (booking.getBookingStatus().equals("Order"))) {
-                OrderDAO.updateStatusOrder(orderID, "Order");
+            } else if (!booking.getBookingStatus().equals("Finish") && (booking.getBookingStatus().equals("Ordered"))) {
+                OrderDAO.updateStatusOrder(orderID, "Ordered");
                 initializeForEachOrderButtonsAndInformation();
                 System.out.println("Da chuyen order thanh order");
             } else if (booking.getBookingStatus().equals("Finish")) {
