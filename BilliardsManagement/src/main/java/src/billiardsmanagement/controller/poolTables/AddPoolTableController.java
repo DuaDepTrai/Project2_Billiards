@@ -10,6 +10,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
+import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.dao.CatePooltableDAO;
 import src.billiardsmanagement.dao.PoolTableDAO;
 import src.billiardsmanagement.model.CatePooltable;
@@ -36,6 +37,7 @@ public class AddPoolTableController {
     private ArrayList<CatePooltable> catePooltablesList;
     private List<String> currentTableNameList;
     private PoolTableController poolTableController;
+    private MainController mainController;
 
     public void initializeAddPoolTable() {
         poolTableDAO = new PoolTableDAO();
@@ -158,6 +160,10 @@ public class AddPoolTableController {
                 poolTableController.getCurrentPoolPopup().requestFocus();
             }
         });
+    }
+
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
     }
 
     public void setTableNameList(List<String> tableNameList) {

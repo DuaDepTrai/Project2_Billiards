@@ -96,7 +96,6 @@ public class PoolTableController {
     private Parent forEachRoot;
 
     private MainController mainController;
-    private String poolTablePageChosen = "PoolTablePage";
 
     @FXML
     public void initialize() {
@@ -230,6 +229,7 @@ public class PoolTableController {
         Label statusLabel = new Label(table.getStatus());
         statusLabel.setStyle("-fx-font-weight: bold; -fx-underline: true;"); // Set bold and underline
 
+
         // Set status color based on the table's status
         switch (table.getStatus()) {
             case "Available":
@@ -238,8 +238,7 @@ public class PoolTableController {
                 break;
             case "Ordered":
                 statusLabel.setStyle(statusLabel.getStyle() + "-fx-text-fill: #FFA500; -fx-font-size: 16"); // Orange
-                // for
-                // Ordered
+                // for Ordered
                 break;
             case "Playing":
                 statusLabel.setStyle(statusLabel.getStyle() + "-fx-text-fill: #C21E00; -fx-font-size: 16"); // Red for
@@ -276,6 +275,7 @@ public class PoolTableController {
                     controller.setPoolTableController(this);
                     controller.setTablesContainer(tableStack);
                     controller.setOrderController(this.orderController);
+                    controller.setMainController(this.mainController);
                     controller.initializeView();
 
                     showPoolPopup(tableStack, root);
@@ -288,7 +288,7 @@ public class PoolTableController {
                 System.out.println("Latest Booking : " + latestBooking);
                 System.out.println("Order ID = " + orderId);
                 System.out.println("Status : " + latestBooking.getBookingStatus());
-                if (latestBooking.getBookingStatus() != null && (latestBooking.getBookingStatus().equalsIgnoreCase("Playing") || latestBooking.getBookingStatus().equalsIgnoreCase("Order"))) {
+                if (latestBooking.getBookingStatus() != null && (latestBooking.getBookingStatus().equalsIgnoreCase("Playing") || latestBooking.getBookingStatus().equalsIgnoreCase("Ordered"))) {
                     Order currentOrder = OrderDAO.getOrderById(orderId);
                     showForEachOrderView(currentOrder, table);
                 } else {
@@ -445,7 +445,7 @@ public class PoolTableController {
             forEachOrderController.setForEachUserID(order.getUserId());
             forEachOrderController.setOrderDate(order.getOrderDate());
             forEachOrderController.setOrderController(this.orderController);
-            forEachOrderController.setMainController(this.mainController, poolTablePageChosen);
+            forEachOrderController.setMainController(this.mainController, ChosenPage.POOLTABLES);
             int billNo = OrderDAO.getOrderBillNo(order.getOrderId());
             if (billNo != -1) forEachOrderController.setBillNo(billNo);
             forEachOrderController.setPoolTableController(this);
@@ -831,7 +831,7 @@ public class PoolTableController {
         // Create a task for fetching tables
         Task<List<PoolTable>> fetchTablesTask = new Task<>() {
             @Override
-            protected List<PoolTable> call() throws Exception {
+            protected List<PoolTable> call() {
                 // Simulate time-consuming data fetching operation
                 return poolTableDAO.getAllTables(); // Fetch tables from DAO
             }

@@ -563,6 +563,52 @@ public class BookingDAO {
         return bookingId; // Return the found booking_id or -1 if not found
     }
 
+    public static void cancelAllBookings(int orderID) {
+        String updateBookingsSQL = "UPDATE bookings SET booking_status = 'Canceled' WHERE order_id = ? AND booking_status IN ('Ordered')";
+        String updateOrderSQL = "UPDATE orders SET order_status = 'Canceled' WHERE order_id = ?";
+
+        Connection conn = null;
+        PreparedStatement updateBookingsStmt = null;
+        PreparedStatement updateOrderStmt = null;
+
+        try {
+            conn = DatabaseConnection.getConnection(); // Get DB connection
+            conn.setAutoCommit(false); // Start transaction
+
+            // Cancel all bookings under the given order
+            updateBookingsStmt = conn.prepareStatement(updateBookingsSQL);
+            updateBookingsStmt.setInt(1, orderID);
+            int affectedRows = updateBookingsStmt.executeUpdate();
+
+            // If at least one booking was canceled, update the order status
+            if (affectedRows > 0) {
+                updateOrderStmt = conn.prepareStatement(updateOrderSQL);
+                updateOrderStmt.setInt(1, orderID);
+                updateOrderStmt.executeUpdate();
+            }
+
+            conn.commit(); // Commit transaction
+            System.out.println("All bookings for order " + orderID + " have been canceled.");
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback(); // Rollback on failure
+                    System.out.println("Transaction rolled back due to an error: " + e.getMessage());
+                } catch (SQLException rollbackEx) {
+                    rollbackEx.printStackTrace();
+                }
+            }
+        } finally {
+            try {
+                if (updateBookingsStmt != null) updateBookingsStmt.close();
+                if (updateOrderStmt != null) updateOrderStmt.close();
+                if (conn != null) conn.setAutoCommit(true); // Restore auto-commit
+                if (conn != null) conn.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
 
     public boolean addBooking(Booking newBooking) {
         String query = "INSERT INTO bookings (order_id, table_id, start_time, booking_status) VALUES (?, ?, ?, ?)";

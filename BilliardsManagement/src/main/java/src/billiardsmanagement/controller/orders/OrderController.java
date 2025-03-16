@@ -99,7 +99,10 @@ public class OrderController implements Initializable {
     private final PoolTableDAO poolTableDAO = new PoolTableDAO();
     
     private MainController mainController;
-    private String orderPageChosen = "OrderPage";
+    private ForEachOrderController forEachOrderController;
+    private Parent forEachOrderPage;
+    private FXMLLoader forEachOrderLoader;
+
 
     // without chosen page, of course
     public void setMainController(MainController mainController){
@@ -711,19 +714,16 @@ public class OrderController implements Initializable {
 
             // Tải trang forEachOrder.fxml
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
-                Parent forEachOrderPage = loader.load();
-
                 int totalRow = orderTable.getItems().size();
                 int selectedIndex = orderTable.getItems().indexOf(selectedOrder);
                 int billNo = totalRow - selectedIndex;
 
-                // Lấy controller của ForEachOrderController
-                ForEachOrderController forEachOrderController = loader.getController();
+                forEachOrderController.initializeAllTables();
+
                 forEachOrderController.setOrderID(selectedOrder.getOrderId());
                 forEachOrderController.setCustomerID(selectedOrder.getCustomerId());
 
-                forEachOrderController.setMainController(mainController, orderPageChosen);
+                forEachOrderController.setMainController(mainController, ChosenPage.ORDERS);
                 forEachOrderController.setBillNo(billNo);
                 forEachOrderController.setOrderDate(selectedOrder.getOrderDate());
                 forEachOrderController.setCurrentOrder(selectedOrder);
@@ -736,6 +736,11 @@ public class OrderController implements Initializable {
                     contentArea.getChildren().clear();
                     contentArea.getChildren().setAll(forEachOrderPage); // Xóa nội dung cũ và thêm trang mới
                 }
+
+                Platform.runLater(() -> {
+                    forEachOrderPage.requestFocus();
+                });
+
                 FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bookings/addBooking.fxml"));
                 Parent addBookingPage = loader1.load();
                 AddBookingController addBookingController = loader1.getController();
@@ -855,6 +860,14 @@ public class OrderController implements Initializable {
     public void setOrderList(ObservableList<Order> orderList) {
         this.orderList = orderList;
     }
+
+    public void setForEachOrderController(ForEachOrderController forEachOrderController) {
+        this.forEachOrderController = forEachOrderController;
+    }
+
+    public void setForEachOrderPage(Parent forEachOrderPage) {
+        this.forEachOrderPage = forEachOrderPage;
+    }
     private void setupFilters() {
         // Tạo ComboBox chọn kiểu lọc
         filterTypeComboBox = createComboBox(Arrays.asList("Date", "Table Category", "Status"));
@@ -937,4 +950,10 @@ public class OrderController implements Initializable {
         statusComboBox.getSelectionModel().clearSelection();
         NotificationService.showNotification("Refresh", "Page has been refreshed.", NotificationStatus.Information);
     }
+
+
+    public void setForEachOrderLoader(FXMLLoader forEachOrderLoader) {
+        this.forEachOrderLoader = forEachOrderLoader;
+    }
 }
+

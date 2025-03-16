@@ -21,10 +21,12 @@ import javafx.stage.Modality;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
 import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.dao.BookingDAO;
 import src.billiardsmanagement.dao.OrderDAO;
+import src.billiardsmanagement.model.ChosenPage;
 import src.billiardsmanagement.model.NotificationStatus;
 import src.billiardsmanagement.model.Order;
 import src.billiardsmanagement.service.NotificationService;
@@ -68,6 +70,11 @@ public class AddTableToOrderController implements Initializable {
     private StackPane tableContainer;
     private Popup chooseOrderTimePopup;
     private OrderController orderController;
+    private MainController mainController;
+
+    private ForEachOrderController forEachOrderController;
+    private Parent forEachRoot;
+    private FXMLLoader forEachViewLoader;
 
     // Initialize the table columns
     @Override
@@ -176,7 +183,7 @@ public class AddTableToOrderController implements Initializable {
                         System.out.println("Selected Order Time: " + formattedDateTime);
 
                         // Store the selected time in a variable or use it
-                        addToOrder(order, "Order", startTime);
+                        addToOrder(order, "Ordered", startTime);
                     });
                 });
 
@@ -261,16 +268,17 @@ public class AddTableToOrderController implements Initializable {
 
     private void showForEachOrderView(Order order) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
-            Parent root = loader.load();
+            forEachViewLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+            forEachRoot = forEachViewLoader.load();
 
-            ForEachOrderController forEachOrderController = loader.getController();
+            forEachOrderController = forEachViewLoader.getController();
+
             forEachOrderController.setOrderID(order.getOrderId());
             forEachOrderController.setCustomerID(order.getCustomerId());
             forEachOrderController.setForEachUserID(order.getUserId());
             forEachOrderController.setOrderDate(order.getOrderDate());
             forEachOrderController.setOrderController(this.orderController);
-
+            forEachOrderController.setMainController(this.mainController, ChosenPage.POOLTABLES);
             int billNo = OrderDAO.getOrderBillNo(order.getOrderId());
             if (billNo != -1) forEachOrderController.setBillNo(billNo);
             forEachOrderController.setPoolTableController(this.poolTableController);
@@ -278,13 +286,14 @@ public class AddTableToOrderController implements Initializable {
                 forEachOrderController.setInitialPhoneText(order.getCustomerPhone());
             }
             forEachOrderController.initializeAllTables();
-            poolTableController.handleViewAllTables();
 
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Order Information");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
+            if(mainController!=null){
+                StackPane contentArea = mainController.getContentArea();
+                contentArea.getChildren().clear();
+                contentArea.getChildren().add(forEachRoot);
+            }
+
+            poolTableController.handleViewAllTables();
         } catch (Exception e) {
             e.printStackTrace();
             NotificationService.showNotification("Error",
@@ -323,5 +332,9 @@ public class AddTableToOrderController implements Initializable {
 
     public void setOrderController(OrderController orderController) {
         this.orderController = orderController;
+    }
+
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
     }
 }

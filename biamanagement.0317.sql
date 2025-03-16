@@ -35,7 +35,7 @@ CREATE TABLE `bookings` (
   `end_time` timestamp NULL DEFAULT NULL,
   `timeplay` double DEFAULT NULL,
   `total` double DEFAULT NULL,
-  `booking_status` enum('Order','Playing','Finish','Canceled') NOT NULL DEFAULT 'Playing'
+  `booking_status` enum('Ordered','Playing','Finish','Canceled') NOT NULL DEFAULT 'Playing'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -55,7 +55,7 @@ INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end
 --
 DELIMITER $$
 CREATE TRIGGER `after_bookings_insert` AFTER INSERT ON `bookings` FOR EACH ROW BEGIN
-    IF NEW.booking_status = 'order' THEN
+    IF NEW.booking_status = 'ordered' THEN
         UPDATE pooltables
         SET status = 'ordered'
         WHERE table_id = NEW.table_id;

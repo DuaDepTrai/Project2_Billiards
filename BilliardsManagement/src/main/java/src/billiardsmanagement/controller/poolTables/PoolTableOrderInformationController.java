@@ -21,6 +21,7 @@ import javafx.stage.Modality;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
 import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.controller.poolTables.ChooseOrderTimeController;
@@ -68,6 +69,11 @@ public class PoolTableOrderInformationController {
     private Popup chooseOrderTimePopup;
     private Popup choosePlayOrderPopup;
     private OrderController orderController;
+
+    private MainController mainController;
+    private ForEachOrderController forEachOrderController;
+    private Parent forEachRoot;
+    private FXMLLoader forEachViewLoader;
 
     public void initializeView() {
         orderInformationTitle.setText("Table " + currentTable.getName() + "'s Order Information");
@@ -135,30 +141,32 @@ public class PoolTableOrderInformationController {
 
     private void showForEachOrderView(Order order) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
-            Parent root = loader.load();
+            forEachViewLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+            forEachRoot = forEachViewLoader.load();
 
-            ForEachOrderController forEachOrderController = loader.getController();
+            forEachOrderController = forEachViewLoader.getController();
+
             forEachOrderController.setOrderID(order.getOrderId());
             forEachOrderController.setCustomerID(order.getCustomerId());
             forEachOrderController.setForEachUserID(order.getUserId());
             forEachOrderController.setOrderDate(order.getOrderDate());
             forEachOrderController.setOrderController(this.orderController);
+            forEachOrderController.setMainController(this.mainController, ChosenPage.POOLTABLES);
             int billNo = OrderDAO.getOrderBillNo(order.getOrderId());
-            if(billNo!=-1) forEachOrderController.setBillNo(billNo);
+            if (billNo != -1) forEachOrderController.setBillNo(billNo);
             forEachOrderController.setPoolTableController(this.poolTableController);
             if (order.getCustomerPhone() != null) {
                 forEachOrderController.setInitialPhoneText(order.getCustomerPhone());
             }
-
-            poolTableController.handleViewAllTables();
             forEachOrderController.initializeAllTables();
 
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Order Information");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
+            if(mainController!=null){
+                StackPane contentArea = mainController.getContentArea();
+                contentArea.getChildren().clear();
+                contentArea.getChildren().add(forEachRoot);
+            }
+
+            poolTableController.handleViewAllTables();
         } catch (Exception e) {
             e.printStackTrace();
             NotificationService.showNotification("Error",
@@ -305,7 +313,7 @@ public class PoolTableOrderInformationController {
                         newBooking.setOrderId(newOrder.getOrderId());
                         newBooking.setTableId(currentTable.getTableId());
                         newBooking.setStartTime(startTime);
-                        newBooking.setBookingStatus("Order");
+                        newBooking.setBookingStatus("Ordered");
 
                         // Insert booking into the database
                         BookingDAO.handleAddBooking(newBooking);
@@ -408,6 +416,7 @@ public class PoolTableOrderInformationController {
             controller.setPoolTableController(this.poolTableController);
             controller.setTableContainer(this.tablesContainer);
             controller.setOrderController(this.orderController);
+            controller.setMainController(this.mainController);
 
             if (poolTableController != null) poolTableController.showPoolPopup(tablesContainer, root);
 
@@ -514,5 +523,9 @@ public class PoolTableOrderInformationController {
 
     public void setOrderController(OrderController orderController) {
         this.orderController = orderController;
+    }
+
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
     }
 }

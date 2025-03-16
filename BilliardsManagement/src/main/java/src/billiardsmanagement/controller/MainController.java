@@ -3,6 +3,7 @@ package src.billiardsmanagement.controller;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -76,6 +77,10 @@ public class MainController {
 
     private FXMLLoader poolTableLoader;
     private AnchorPane poolTablePane;
+
+    private ForEachOrderController forEachOrderController;
+    private Parent forEachOrderPage;
+    private FXMLLoader forEachOrderLoader;
 
     //
 //    private void loadNavbar() {
@@ -197,10 +202,22 @@ public class MainController {
             poolTablePane = poolTableLoader.load();
             poolTableController = poolTableLoader.getController();
 
+            if(forEachOrderLoader==null) forEachOrderLoader = new FXMLLoader(MainController.class.getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
+            if(forEachOrderPage==null) forEachOrderPage = forEachOrderLoader.load();
+            if(forEachOrderController==null) forEachOrderController = forEachOrderLoader.getController();
+            if(forEachOrderController != null) {
+                System.out.println("🔹 forEachOrderController đã load!");
+            }
+            else{
+                System.out.println("❌ forEachOrderController không load được!");
+            }
+
             // Inject OrderController's Table View + Order List into Listener
             BookingAndOrderTableListener bookingAndOrderTableListener = new BookingAndOrderTableListener();
             bookingAndOrderTableListener.setOrderTable(orderController.getOrderTable());
             bookingAndOrderTableListener.setOrderList(orderController.getOrderList());
+            bookingAndOrderTableListener.setForEachController(this.forEachOrderController);
+            bookingAndOrderTableListener.setPoolTableController(this.poolTableController);
             bookingAndOrderTableListener.startListening();
         } catch (Exception e) {
             e.printStackTrace();
@@ -303,6 +320,11 @@ public class MainController {
     public void showOrdersPage() throws IOException {
         if (orderLoader != null && orderPane != null && orderController != null) {
             orderController.setMainController(this); // Truyền MainController vào OrderController
+
+            orderController.setForEachOrderController(this.forEachOrderController);
+            orderController.setForEachOrderLoader(this.forEachOrderLoader);
+            orderController.setForEachOrderPage(this.forEachOrderPage);
+
             contentArea.getChildren().setAll(orderPane); // Hiển thị trang order
             orderController.initializeOrderController();
         }
