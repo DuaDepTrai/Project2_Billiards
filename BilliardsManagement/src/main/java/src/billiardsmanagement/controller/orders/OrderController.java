@@ -85,7 +85,7 @@ public class OrderController implements Initializable {
     @FXML
     private ComboBox<String> statusComboBox;
     @FXML
-    private VBox filterContainer; // Chứa bộ lọc
+    private HBox filterContainer; // Chứa bộ lọc
     private ObservableList<Order> orderList = FXCollections.observableArrayList();
 
     private int orderID;

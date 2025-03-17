@@ -25,7 +25,7 @@
     -fx-border-radius: 25;
     -fx-border-color: #e9ecef;
     -fx-padding: 10 15;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
     -fx-prompt-text-fill: #adb5bd; /* Giữ nguyên placeholder khi chưa nhập */
 }
 
@@ -83,6 +83,8 @@
 .table-view {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
+    -fx-font-size: 16px;
+
 }
 
 /* Table header styles */
@@ -100,7 +102,7 @@
     -fx-alignment: center-left;
     -fx-font-weight: bold;
     -fx-text-fill: #333333;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
     -fx-border-color: transparent;
 }
 
@@ -159,7 +161,7 @@
     -fx-alignment: CENTER_LEFT;
     -fx-spacing: 10;
     -fx-cursor: hand;
-    -fx-font-size: 13px;
+    -fx-font-size: 16px;
     -fx-text-fill: #555555;
     -fx-min-width: 220;
     -fx-border-width: 0;
