@@ -6,6 +6,9 @@
 -- Generation Time: Mar 17, 2025 at 01:12 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
+DROP DATABASE biamanagement;
+CREATE DATABASE biamanagement;
+use biamanagement;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -199,7 +202,7 @@ CREATE TABLE `orders` (
   `user_id` int(11) NOT NULL,
   `total_cost` double DEFAULT NULL,
   `order_date` datetime NOT NULL,
-  `order_status` enum('Order','Playing','Finished','Paid','Canceled') NOT NULL DEFAULT 'Playing'
+  `order_status` enum('Ordered','Playing','Finished','Paid','Canceled') NOT NULL DEFAULT 'Playing'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
