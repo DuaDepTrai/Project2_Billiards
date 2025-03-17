@@ -197,7 +197,7 @@ public class ProductController2 {
                     setText(null);
                 } else {
                     setText(item);
-                    setAlignment(Pos.CENTER_LEFT); // Căn trái
+                    setAlignment(Pos.CENTER); // Căn trái
                 }
             }
         });
@@ -208,10 +208,10 @@ public class ProductController2 {
         tableView.getColumns().addAll(nameColumn, quantityColumn, priceColumn, unitColumn, actionColumn);
 //        tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         nameColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.35)); // 30% tổng chiều rộng bảng
-        quantityColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.11)); // 15%
+        quantityColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.15)); // 15%
         priceColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.15)); // 20%
         unitColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.15)); // 15%
-        actionColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.2)); // 20%
+        actionColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.15)); // 20%
 
         tableView.setPlaceholder(new Label("No products available in this category."));
 

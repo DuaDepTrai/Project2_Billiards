@@ -129,34 +129,21 @@ public class UserController {
         columnHireDate.prefWidthProperty().bind(tableUsers.widthProperty().multiply(0.08)); // 10%
         columnAction.prefWidthProperty().bind(tableUsers.widthProperty().multiply(0.10)); // 10%
 
-//        tableUsers.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-//        sttColumn.setPrefWidth(48);
-//        columnAvatar.setPrefWidth(80);
-//        columnUsername.setPrefWidth(160);
-//        columnRole.setPrefWidth(160);
-//        columnFullname.setPrefWidth(240);
-//        columnPhone.setPrefWidth(128);
-//        columnBirthday.setPrefWidth(128);
-//        columnAddress.setPrefWidth(352);
-//        columnHireDate.setPrefWidth(128);
-//        columnAction.setPrefWidth(160);
-
-
         // Căn trái
         columnUsername.setStyle("-fx-alignment: CENTER-LEFT;");
         columnRole.setStyle("-fx-alignment: CENTER-LEFT;");
         columnFullname.setStyle("-fx-alignment: CENTER-LEFT;");
         columnAddress.setStyle("-fx-alignment: CENTER-LEFT;");
 
-// Căn giữa
+        // Căn giữa
         sttColumn.setStyle("-fx-alignment: CENTER;");
         columnAvatar.setStyle("-fx-alignment: CENTER;");
         columnAction.setStyle("-fx-alignment: CENTER;");
+        columnPhone.setStyle("-fx-alignment: CENTER;");
+        columnBirthday.setStyle("-fx-alignment: CENTER;");
+        columnHireDate.setStyle("-fx-alignment: CENTER;");
 
-// Căn phải
-        columnPhone.setStyle("-fx-alignment: CENTER-RIGHT;");
-        columnBirthday.setStyle("-fx-alignment: CENTER-RIGHT;");
-        columnHireDate.setStyle("-fx-alignment: CENTER-RIGHT;");
+        // Căn phải
 
     }
 
@@ -370,14 +357,6 @@ public class UserController {
             PermissionDAO permissionDAO = new PermissionDAO();
             List<String> permissions = permissionDAO.getUserPermissions(currentUser.getId());
             System.out.println("✅ Permissions: " + permissions);
-
-//            addProductButton.setVisible(permissions.contains("add_product"));
-//            editButton.setVisible(permissions.contains("add_product"));
-//            deleteButton.setVisible(permissions.contains("add_product"));
-//            stockUpButton.setVisible(permissions.contains("add_product"));
-//            btnAddNewCategory.setVisible(permissions.contains("add_product"));
-//            updateCategoryButton.setVisible(permissions.contains("add_product"));
-//            removeCategoryButton.setVisible(permissions.contains("add_product"));
         } else {
             System.err.println("⚠️ Lỗi: currentUser bị null trong ProductController!");
         }
