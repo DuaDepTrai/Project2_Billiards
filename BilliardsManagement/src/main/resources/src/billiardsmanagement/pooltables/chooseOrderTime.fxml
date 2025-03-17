@@ -32,8 +32,13 @@
             <Insets />
          </VBox.margin>
       </HBox>
-
-        <Button fx:id="confirmButton" onAction="#handleConfirm" prefHeight="25.0" prefWidth="84.0" text="Confirm" />
+      <HBox alignment="CENTER" prefHeight="24.0" prefWidth="246.0" spacing="10.0">
+         <children>
+            <Button fx:id="instantOrderForDevOnly" onAction="#instantConfirmForDevelopement" mnemonicParsing="false" text="Instant Order for Dev" />
+      
+              <Button fx:id="confirmButton" onAction="#handleConfirm" prefHeight="25.0" prefWidth="84.0" text="Confirm" />
+         </children>
+      </HBox>
 
     </VBox>
 

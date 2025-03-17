@@ -13,7 +13,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -86,13 +85,7 @@ public class OrderController implements Initializable {
     @FXML
     private ComboBox<String> statusComboBox;
     @FXML
-    private DatePicker startDatePicker;
-    @FXML
-    private DatePicker endDatePicker;
-    @FXML
-    private HBox filterContainer,orderStatusContainer, tableCategoryContainer; // Chứa bộ lọc
-    @FXML
-    private Button  filterDateButton;
+    private HBox filterContainer; // Chứa bộ lọc
     private ObservableList<Order> orderList = FXCollections.observableArrayList();
 
     private int orderID;
@@ -103,6 +96,7 @@ public class OrderController implements Initializable {
     private final BookingDAO bookingDAO = new BookingDAO();
     private final Map<String, Integer> customerNameToIdMap = new HashMap<>();
     private final PoolTableDAO poolTableDAO = new PoolTableDAO();
+    
     private MainController mainController;
     private ForEachOrderController forEachOrderController;
     private Parent forEachOrderPage;
@@ -167,6 +161,7 @@ public class OrderController implements Initializable {
                     NotificationStatus.Error);
         }
     }
+
     public void loadOrderList() {
         List<Order> orders = orderDAO.getAllOrders();
         orderList = FXCollections.observableArrayList(orders);
@@ -610,6 +605,8 @@ public class OrderController implements Initializable {
         stage.show();
     }
 
+
+
     @FXML
     public void billOrder(ActionEvent event) {
         try {
@@ -841,15 +838,16 @@ public class OrderController implements Initializable {
         orderTable.setItems(filteredList);
     }
 
-    private void setUpSearchField(){
+    private void setUpSearchField() {
         autoCompleteTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue == null || newValue.isEmpty()){
+            if (newValue == null || newValue.isEmpty()) {
                 loadOrderList();
-            }else{
-                filteredOrders(newValue);
+            } else {
+                filteredOrders(newValue.toLowerCase().trim());
             }
         });
     }
+
     private void setOrderID(int orderId) {
         this.orderID = orderId;
     }
@@ -870,41 +868,31 @@ public class OrderController implements Initializable {
     public void setForEachOrderPage(Parent forEachOrderPage) {
         this.forEachOrderPage = forEachOrderPage;
     }
+    
     private void setupFilters() {
-        // Tạo ComboBox chọn kiểu lọc
-        filterTypeComboBox = createComboBox(Arrays.asList("Date", "Date Range", "Table Category", "Order Status"));
-        filterTypeComboBox.setPromptText("Filter Type");
-
-        // Tạo DatePicker
-        startDatePicker = createDatePicker();
-        startDatePicker.setPromptText("Start Date");
-        startDatePicker.setOnAction(event -> filterByDate()); // Lọc ngay khi chọn ngày
-
-        endDatePicker = createDatePicker();
-        endDatePicker.setPromptText("End Date");
-        endDatePicker.setOnAction(event -> filterByDate()); // Lọc ngay khi chọn ngày
-
-        // Tạo danh sách CheckBox cho Table Category
-        tableCategoryContainer = new HBox(10);
-        for (String category : OrderDAO.getCatePoolTables()) {
-            CheckBox checkBox = new CheckBox(category);
-            checkBox.setOnAction(event -> filterByCategory()); // Lọc ngay khi chọn
-            tableCategoryContainer.getChildren().add(checkBox);
-        }
-
-        // Tạo danh sách CheckBox cho Order Status
-        orderStatusContainer = new HBox(10);
-        for (String status : OrderDAO.getOrderStatuses()) {
-            CheckBox checkBox = new CheckBox(status);
-            checkBox.setOnAction(event -> filterByStatus()); // Lọc ngay khi chọn
-            orderStatusContainer.getChildren().add(checkBox);
-        }
-
         // Thêm ComboBox chọn kiểu lọc vào `filterContainer`
-        filterContainer.getChildren().add(filterTypeComboBox);
+        // Null pointer exception
+//        filterContainer.getChildren().add(filterTypeComboBox);
+
+        // Tạo ComboBox chọn kiểu lọc
+        filterTypeComboBox = createComboBox(Arrays.asList("Date", "Table Category", "Status"));
+        filterTypeComboBox.setPromptText("Filter Type");
+        datePicker = createDatePicker();
+        categoryComboBox = new ComboBox<>();
+        statusComboBox = new ComboBox<>();
+        filterTypeComboBox.getStyleClass().add("combo-box");
+        categoryComboBox.getStyleClass().add("combo-box");
+        statusComboBox.getStyleClass().add("combo-box");
+
+        // Load danh mục bàn và trạng thái từ database
+        categoryComboBox.setItems(FXCollections.observableArrayList(OrderDAO.getCatePoolTables()));
+        statusComboBox.setItems(FXCollections.observableArrayList(OrderDAO.getOrderStatuses()));
 
         // Xử lý sự kiện thay đổi bộ lọc
         filterTypeComboBox.setOnAction(event -> updateFilterUI());
+        datePicker.setOnAction(event -> filterByDate());
+        categoryComboBox.setOnAction(event -> filterByCategory());
+        statusComboBox.setOnAction(event -> filterByStatus());
     }
 
     private ComboBox<String> createComboBox(List<String> items) {
@@ -914,65 +902,43 @@ public class OrderController implements Initializable {
     private DatePicker createDatePicker() {
         return new DatePicker();
     }
+
     private void updateFilterUI() {
-        filterContainer.getChildren().clear(); // Xóa các thành phần cũ
-        filterContainer.getChildren().add(filterTypeComboBox); // Luôn giữ ComboBox chọn loại lọc
+        filterContainer.getChildren().clear(); // Xóa bộ lọc cũ
+        filterContainer.getChildren().add(filterTypeComboBox); // Luôn giữ `filterTypeComboBox`
 
+        // Thêm bộ lọc phù hợp vào giao diện
         String selectedFilter = filterTypeComboBox.getValue();
-
-        if ("Date Range".equals(selectedFilter)) {
-            filterContainer.getChildren().addAll(startDatePicker, endDatePicker);
+        if ("Date".equals(selectedFilter)) {
+            filterContainer.getChildren().add(datePicker);
         } else if ("Table Category".equals(selectedFilter)) {
-            filterContainer.getChildren().add(tableCategoryContainer);
-        } else if ("Order Status".equals(selectedFilter)) {
-            filterContainer.getChildren().add(orderStatusContainer);
+            filterContainer.getChildren().add(categoryComboBox);
+        } else if ("Status".equals(selectedFilter)) {
+            filterContainer.getChildren().add(statusComboBox);
         }
     }
 
     private void filterByDate() {
-        LocalDate startDate = startDatePicker.getValue();
-        LocalDate endDate = endDatePicker.getValue();
-
-        if (startDate != null && endDate != null && !startDate.isAfter(endDate)) {
-            orderTable.setItems(OrderDAO.getOrdersByDateRange(startDate, endDate));
-        } else if (startDate != null) {
-            orderTable.setItems(OrderDAO.getOrdersByDate(startDate));
+        LocalDate selectedDate = datePicker.getValue();
+        if (selectedDate != null) {
+            orderTable.setItems(OrderDAO.getOrdersByDate(selectedDate));
         }
     }
 
     private void filterByCategory() {
-        List<String> selectedCategories = new ArrayList<>();
-
-        for (Node node : tableCategoryContainer.getChildren()) {
-            if (node instanceof CheckBox checkBox && checkBox.isSelected()) {
-                selectedCategories.add(checkBox.getText());
-            }
-        }
-
-        if (!selectedCategories.isEmpty()) {
-            orderTable.setItems(OrderDAO.getOrdersByCatePoolTable(selectedCategories));
-        } else {
-           loadOrderList();
+        String selectedCategory = categoryComboBox.getValue();
+        if (selectedCategory != null) {
+            orderTable.setItems(OrderDAO.getOrdersByCatePoolTable(selectedCategory));
         }
     }
 
     private void filterByStatus() {
-        List<String> selectedStatuses = new ArrayList<>();
-
-        for (Node node : orderStatusContainer.getChildren()) {
-            if (node instanceof CheckBox checkBox && checkBox.isSelected()) {
-                selectedStatuses.add(checkBox.getText());
-            }
+        String selectedStatus = statusComboBox.getValue();
+        if (selectedStatus != null) {
+            orderTable.setItems(OrderDAO.getOrdersByStatus(selectedStatus));
         }
 
-        if (!selectedStatuses.isEmpty()) {
-            orderTable.setItems(OrderDAO.getOrdersByStatus(selectedStatuses));
-        } else {
-           loadOrderList();
-        }
     }
-
-
     @FXML
     private Button refreshButton;
     @FXML
@@ -981,8 +947,7 @@ public class OrderController implements Initializable {
         loadOrderList(); // Làm mới danh sách đơn hàng
         autoCompleteTextField.clear(); // Xóa trường tìm kiếm
         filterTypeComboBox.getSelectionModel().clearSelection();
-        startDatePicker.setValue(null);
-        endDatePicker.setValue(null);
+        datePicker.setValue(null);
         categoryComboBox.getSelectionModel().clearSelection();
         statusComboBox.getSelectionModel().clearSelection();
         NotificationService.showNotification("Refresh", "Page has been refreshed.", NotificationStatus.Information);

@@ -13,7 +13,7 @@
         <VBox spacing="10" alignment="CENTER">
             <HBox alignment="CENTER_LEFT" spacing="10">
                 <Region HBox.hgrow="ALWAYS"/> <!-- Đẩy btnAddNewCategory về bên phải -->
-                <TextField fx:id="searchField" prefHeight="26.0" prefWidth="200.0" styleClass="search-field" promptText="Search by product name" />
+                <TextField fx:id="searchField" styleClass="search-field" prefWidth="200.0" promptText="Search by name..."/>
                 <Button fx:id="btnAddNewCategory" mnemonicParsing="false" prefHeight="26.0" prefWidth="153.0"
                         styleClass="add-button" text="Add Category" textAlignment="CENTER" textFill="WHITE">
                     <font>

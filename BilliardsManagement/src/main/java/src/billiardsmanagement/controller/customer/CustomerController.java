@@ -14,6 +14,11 @@ import javafx.event.ActionEvent;
 import java.util.List;
 
 public class CustomerController {
+    @FXML
+    private TextField addressField;
+
+    @FXML
+    private DatePicker birthdayPicker;
 
     @FXML
     private TableView<Customer> customerTableView;
@@ -124,16 +129,23 @@ public class CustomerController {
 
     @FXML
     private void handleAddCustomer(ActionEvent event) {
-        // Clear form fields
-        nameField.clear();
-        phoneField.clear();
-        playtimeLabel.setText("0.00");
+        if (customerForm.isVisible()) {
+            // If form is visible, hide it
+            customerForm.setVisible(false);
+        } else {
+            // If form is hidden, show it and clear fields
+            nameField.clear();
+            phoneField.clear();
+            addressField.clear();
+            birthdayPicker.setValue(null);
+            playtimeLabel.setText("0.00");
 
-        // Hide update form if visible
-        updateForm.setVisible(false);
+            // Hide update form if visible
+            updateForm.setVisible(false);
 
-        // Show add customer form
-        customerForm.setVisible(true);
+            // Show add customer form
+            customerForm.setVisible(true);
+        }
     }
 
     @FXML
@@ -309,14 +321,6 @@ public class CustomerController {
         customerList.clear();
         customerList.addAll(customerDAO.getAllCustomers());
         customerTableView.setItems(customerList);
-    }
-
-    private void clearInputFields() {
-        nameField.clear();
-        phoneField.clear();
-        playtimeLabel.setText("0.00");
-        searchField.clear();
-        customerTableView.getSelectionModel().clearSelection();
     }
 
     private void refreshTable() {

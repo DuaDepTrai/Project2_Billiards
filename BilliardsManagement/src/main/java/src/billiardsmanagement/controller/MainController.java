@@ -2,7 +2,6 @@ package src.billiardsmanagement.controller;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.application.Platform;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -14,8 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.apache.pdfbox.Loader;
-import src.billiardsmanagement.controller.database.BookingAndOrderTableListener;
+import src.billiardsmanagement.controller.orders.BookingAndOrderTableListener;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
 import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.controller.poolTables.*;
@@ -34,7 +32,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.AnchorPane;
@@ -195,57 +192,51 @@ public class MainController {
 
     public void initializeAllControllers() {
         try {
-            orderLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/order.fxml"));
-            orderPane = orderLoader.load();
-            orderController = orderLoader.getController();
-
-            // pooltables, not fcking poolTables !
+            // Assign URLs
+            URL orderURL = getClass().getResource("/src/billiardsmanagement/orders/order.fxml");
             URL poolTableURL = getClass().getResource("/src/billiardsmanagement/pooltables/poolTable.fxml");
-            System.out.println("Pool Table FXML Path: " + poolTableURL);
+            URL forEachOrderURL = MainController.class.getResource("/src/billiardsmanagement/orders/forEachOrder.fxml");
 
-            if (poolTableURL == null) {
-                throw new Exception("ERROR: poolTable.fxml not found! Check file path.");
+            // Check and reload Order FXML
+            if (orderLoader == null || orderPane == null || orderController == null) {
+                orderLoader = new FXMLLoader(orderURL);
+                orderPane = orderLoader.load();
+                orderController = orderLoader.getController();
             }
 
-            poolTableLoader = new FXMLLoader(poolTableURL);
-            poolTablePane = poolTableLoader.load();
-            poolTableController = poolTableLoader.getController();
-
-            // Reload all controller, pane and loader if one of those is null.
-//            if (poolTableController == null || poolTablePane==null || poolTableLoader == null) {
-//                try {
-//                    poolTableController = null;
-//                    poolTablePane = null;
-//                    poolTableLoader = null;
-//
-//
-//                } catch (IOException e) {
-//                    e.printStackTrace(); // Handle the exception as necessary
-//                }
-//            } else {
-//                // Skip loading since the controller is already initialized
-//                System.out.println("PoolTableController is already initialized, skipping load.");
-//            }
-
-            if(forEachOrderLoader==null) forEachOrderLoader = new FXMLLoader(MainController.class.getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
-            if(forEachOrderPage==null) forEachOrderPage = forEachOrderLoader.load();
-            if(forEachOrderController==null) forEachOrderController = forEachOrderLoader.getController();
-            if(forEachOrderController != null) {
-                System.out.println("🔹 forEachOrderController đã load!");
+            // Check and reload Pool Table FXML
+            if (poolTableLoader == null || poolTablePane == null || poolTableController == null) {
+                if (poolTableURL == null) {
+                    throw new Exception("ERROR: poolTable.fxml not found! Check file path.");
+                }
+                poolTableLoader = new FXMLLoader(poolTableURL);
+                poolTablePane = poolTableLoader.load();
+                poolTableController = poolTableLoader.getController();
             }
-            else{
-                System.out.println("❌ forEachOrderController không load được!");
+
+            // Check and reload ForEachOrder FXML
+            if (forEachOrderLoader == null || forEachOrderPage == null || forEachOrderController == null) {
+                forEachOrderLoader = new FXMLLoader(forEachOrderURL);
+                forEachOrderPage = forEachOrderLoader.load();
+                forEachOrderController = forEachOrderLoader.getController();
+            }
+
+            // Debugging log
+            if (forEachOrderController != null) {
+                System.out.println("🔹 forEachOrderController has been loaded!");
+            } else {
+                System.out.println("❌ forEachOrderController failed to load!");
             }
 
             // Inject OrderController's Table View + Order List into Listener
             BookingAndOrderTableListener bookingAndOrderTableListener = new BookingAndOrderTableListener();
-            bookingAndOrderTableListener.setOrderTable(orderController.getOrderTable());
-            bookingAndOrderTableListener.setOrderList(orderController.getOrderList());
+            bookingAndOrderTableListener.setOrderController(this.orderController);
             bookingAndOrderTableListener.setForEachController(this.forEachOrderController);
             bookingAndOrderTableListener.setPoolTableController(this.poolTableController);
             bookingAndOrderTableListener.startListening();
+
         } catch (Exception e) {
-            System.out.println("Loading Pool Table error : "+e.getMessage());
+            System.out.println("❌ Error loading FXML files: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -346,6 +337,7 @@ public class MainController {
     public void showOrdersPage() throws IOException {
         if (orderLoader != null && orderPane != null && orderController != null) {
             orderController.setMainController(this); // Truyền MainController vào OrderController
+            orderController.setForEachOrderPage(this.forEachOrderPage);
 
             orderController.setForEachOrderController(this.forEachOrderController);
             orderController.setForEachOrderLoader(this.forEachOrderLoader);

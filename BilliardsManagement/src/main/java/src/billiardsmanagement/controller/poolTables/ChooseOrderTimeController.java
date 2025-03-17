@@ -19,6 +19,7 @@ import java.util.function.BiConsumer;
 
 public class ChooseOrderTimeController implements Initializable {
 
+    @FXML private Button instantOrderForDevOnly;
     @FXML private Label notifyLabel;
     @FXML private VBox popupContent;
     @FXML private DatePicker datePicker;
@@ -153,7 +154,6 @@ public class ChooseOrderTimeController implements Initializable {
         }
     }
 
-
     public void setOnTimeSelected(BiConsumer<LocalDate, LocalTime> onTimeSelected) {
         this.onTimeSelected = onTimeSelected;
     }
@@ -165,6 +165,20 @@ public class ChooseOrderTimeController implements Initializable {
     public void hideConfirmButton() {
         confirmButton.setVisible(false);
         popupContent.setPrefHeight(127.0);
+    }
+
+    @FXML // For developement and test only
+    public void instantConfirmForDevelopement(ActionEvent actionEvent) {
+        LocalDate selectedDate = LocalDate.now();
+        LocalTime selectedTime = LocalTime.now();
+
+        if (onTimeSelected != null) {
+            onTimeSelected.accept(selectedDate, selectedTime);
+        }
+
+        if (onClosePopup != null) {
+            onClosePopup.run(); // Hide the popup
+        }
     }
 }
 
