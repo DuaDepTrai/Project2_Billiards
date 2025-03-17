@@ -2,6 +2,7 @@ package src.billiardsmanagement.controller.orders;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -213,12 +214,6 @@ public class OrderController implements Initializable {
         phoneCustomerColumn.setCellValueFactory(new PropertyValueFactory<>("customerPhone"));
         nameTableColumn.setCellValueFactory(new PropertyValueFactory<>("currentTableName"));
         nameTableColumn.setCellFactory(column -> new TableCell<Order, String>() {
-            private final Text text = new Text();
-
-            {
-                text.wrappingWidthProperty().bind(nameTableColumn.widthProperty());
-            }
-
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -226,12 +221,36 @@ public class OrderController implements Initializable {
                     setText(null);
                     setGraphic(null);
                 } else {
-                    text.setText(item);
-                    setGraphic(text);
+                    setText(item);
+                    setWrapText(true); // Cho phép text xuống dòng
+                    getStyleClass().add("table-name-cell");
                 }
             }
         });
 
+        // Đảm bảo các cột có kích thước phù hợp
+        orderTable.widthProperty().addListener((obs, oldWidth, newWidth) -> {
+            double tableWidth = newWidth.doubleValue();
+            // Phân bổ kích thước cho từng cột theo tỷ lệ phù hợp
+            sttColumn.setPrefWidth(tableWidth * 0.08);
+            customerNameColumn.setPrefWidth(tableWidth * 0.15);
+            phoneCustomerColumn.setPrefWidth(tableWidth * 0.12);
+            nameTableColumn.setPrefWidth(tableWidth * 0.15);
+            totalCostColumn.setPrefWidth(tableWidth * 0.10);
+            orderStatusColumn.setPrefWidth(tableWidth * 0.10);
+            dateColumn.setPrefWidth(tableWidth * 0.15);
+            staffColumn.setPrefWidth(tableWidth * 0.10);
+            actionColumn.setPrefWidth(tableWidth * 0.05);
+        });
+
+        // Đảm bảo cập nhật kích thước khi cửa sổ thay đổi
+        mainPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                Platform.runLater(() -> {
+                    orderTable.refresh(); // Làm mới bảng để áp dụng các thay đổi
+                });
+            }
+        });
         totalCostColumn.setCellFactory(param -> new TableCell<Order, Double>() {
             private final DecimalFormat df = new DecimalFormat("#,###");
 
@@ -259,20 +278,6 @@ public class OrderController implements Initializable {
         });
 
         // Table Name column
-        nameTableColumn.setCellFactory(column -> {
-            return new TableCell<Order, String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (item == null || empty) {
-                        setText(null);
-                    } else {
-                        setText(item);
-                        getStyleClass().add("table-name-cell");
-                    }
-                }
-            };
-        });
 
         // Status column
 //        orderStatusColumn.setCellFactory(column -> {
@@ -308,11 +313,7 @@ public class OrderController implements Initializable {
         });
 
 
-        dateColumn.setCellValueFactory(cellData -> {
-            LocalDateTime startTime = cellData.getValue().getOrderDate();
-            return new SimpleStringProperty(
-                    startTime != null ? startTime.format(DateTimeFormatter.ofPattern("HH'h'mm | dd-MM-yyyy")) : "");
-        });
+
 
 
         staffColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
@@ -388,6 +389,18 @@ public class OrderController implements Initializable {
         orderTable.setOnMouseClicked(event -> {
             showItem(event);
         });
+        orderTable.getColumns().forEach(column -> {
+            column.setMinWidth(50); // Độ rộng tối thiểu
+            column.setPrefWidth(120); // Độ rộng mặc định
+            column.setResizable(true); // Cho phép thay đổi kích thước
+        });
+
+        orderTable.widthProperty().addListener((obs, oldWidth, newWidth) -> {
+            for (TableColumn<?, ?> column : orderTable.getColumns()) {
+                column.setPrefWidth(newWidth.doubleValue() / orderTable.getColumns().size());
+            }
+        });
+
         setupFilters();
     }
 
@@ -420,26 +433,7 @@ public class OrderController implements Initializable {
         customerNameColumn.setCellValueFactory(new PropertyValueFactory<>("customerName"));
         orderStatusColumn.setCellValueFactory(new PropertyValueFactory<>("orderStatus"));
         phoneCustomerColumn.setCellValueFactory(new PropertyValueFactory<>("customerPhone"));
-        nameTableColumn.setCellValueFactory(new PropertyValueFactory<>("currentTableName"));
-        nameTableColumn.setCellFactory(column -> new TableCell<Order, String>() {
-            private final Text text = new Text();
 
-            {
-                text.wrappingWidthProperty().bind(nameTableColumn.widthProperty());
-            }
-
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    text.setText(item);
-                    setGraphic(text);
-                }
-            }
-        });
 
         totalCostColumn.setCellFactory(param -> new TableCell<Order, Double>() {
             private final DecimalFormat df = new DecimalFormat("#,###");
@@ -468,20 +462,6 @@ public class OrderController implements Initializable {
         });
 
         // Table Name column
-        nameTableColumn.setCellFactory(column -> {
-            return new TableCell<Order, String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (item == null || empty) {
-                        setText(null);
-                    } else {
-                        setText(item);
-                        getStyleClass().add("table-name-cell");
-                    }
-                }
-            };
-        });
 
         // Status column
         orderStatusColumn.setCellFactory(column -> {
@@ -516,13 +496,12 @@ public class OrderController implements Initializable {
             };
         });
 
-
         dateColumn.setCellValueFactory(cellData -> {
             LocalDateTime startTime = cellData.getValue().getOrderDate();
             return new SimpleStringProperty(
-                    startTime != null ? startTime.format(DateTimeFormatter.ofPattern("HH'h'mm | dd-MM-yyyy")) : "");
+                    startTime != null ? startTime.format(DateTimeFormatter.ofPattern("HH'h'mm | dd-MM")) : ""
+            );
         });
-
 
         staffColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
         actionColumn.setCellFactory(column -> new TableCell<>() {
@@ -871,9 +850,13 @@ public class OrderController implements Initializable {
     private void setupFilters() {
         // Tạo ComboBox chọn kiểu lọc
         filterTypeComboBox = createComboBox(Arrays.asList("Date", "Table Category", "Status"));
+        filterTypeComboBox.setPromptText("Filter Type");
         datePicker = createDatePicker();
         categoryComboBox = new ComboBox<>();
         statusComboBox = new ComboBox<>();
+        filterTypeComboBox.getStyleClass().add("combo-box");
+        categoryComboBox.getStyleClass().add("combo-box");
+        statusComboBox.getStyleClass().add("combo-box");
 
         // Load danh mục bàn và trạng thái từ database
         categoryComboBox.setItems(FXCollections.observableArrayList(OrderDAO.getCatePoolTables()));

@@ -168,3 +168,34 @@
 .submenu-item:hover {
     -fx-background-color: #e8e8e8;
 }
+
+
+.combo-box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #007acc;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 5px;
+    -fx-font-size: 14px;
+    -fx-padding: 5px;
+}
+
+.combo-box .list-cell {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #333333;
+    -fx-font-size: 14px;
+    -fx-padding: 5px;
+}
+
+.combo-box .list-cell:hover {
+    -fx-background-color: #007acc;
+    -fx-text-fill: #ffffff;
+}
+
+.combo-box .arrow {
+    -fx-background-color: #007acc;
+}
+
+.combo-box:focused {
+    -fx-border-color: #005b99;
+    -fx-background-color: #f0f8ff;
+}
