@@ -20,7 +20,7 @@
             <Region HBox.hgrow="ALWAYS" />
 
             <TextField fx:id="searchField" prefHeight="26.0" prefWidth="200.0" promptText="Search by pool name" styleClass="search-field" />
-<!--            <Button fx:id="searchButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" styleClass="search-button" />-->
+            <!--            <Button fx:id="searchButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" styleClass="search-button" />-->
 
 
             <Button fx:id="addNewButton" layoutX="628.0" layoutY="13.0" mnemonicParsing="false" onAction="#showAddDialog" prefWidth="153.0" styleClass="add-button" text="Add new Pool Table" textAlignment="CENTER" textFill="WHITE" >
@@ -51,19 +51,19 @@
             </content>
         </ScrollPane>
 
-<!--        &lt;!&ndash; Tables Container &ndash;&gt;-->
-<!--        <FlowPane fx:id="tablesContainer" alignment="CENTER" hgap="10" layoutX="14.0" layoutY="50.0" vgap="10" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="350" AnchorPane.topAnchor="50.0">-->
-<!--            &lt;!&ndash; Pool table items will be added here dynamically &ndash;&gt;-->
-<!--            &lt;!&ndash; Each pool table item will have this structure: &ndash;&gt;-->
-<!--            <fx:define>-->
-<!--                <VBox fx:id="poolTableItemTemplate" spacing="5" styleClass="pool-table-item" visible="false">-->
-<!--                    <HBox alignment="CENTER" spacing="5">-->
-<!--                        <Button fx:id="orderButton" styleClass="order-button" text="Order" />-->
-<!--                        <Button fx:id="infoButton" onAction="#showTableInfo" styleClass="info-button" text="Info" />-->
-<!--                    </HBox>-->
-<!--                </VBox>-->
-<!--            </fx:define>-->
-<!--        </FlowPane>-->
+        <!--        &lt;!&ndash; Tables Container &ndash;&gt;-->
+        <!--        <FlowPane fx:id="tablesContainer" alignment="CENTER" hgap="10" layoutX="14.0" layoutY="50.0" vgap="10" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="350" AnchorPane.topAnchor="50.0">-->
+        <!--            &lt;!&ndash; Pool table items will be added here dynamically &ndash;&gt;-->
+        <!--            &lt;!&ndash; Each pool table item will have this structure: &ndash;&gt;-->
+        <!--            <fx:define>-->
+        <!--                <VBox fx:id="poolTableItemTemplate" spacing="5" styleClass="pool-table-item" visible="false">-->
+        <!--                    <HBox alignment="CENTER" spacing="5">-->
+        <!--                        <Button fx:id="orderButton" styleClass="order-button" text="Order" />-->
+        <!--                        <Button fx:id="infoButton" onAction="#showTableInfo" styleClass="info-button" text="Info" />-->
+        <!--                    </HBox>-->
+        <!--                </VBox>-->
+        <!--            </fx:define>-->
+        <!--        </FlowPane>-->
 
         <!-- Right Side Panel -->
         <VBox fx:id="" layoutX="800.0" layoutY="13.0" prefWidth="250.0" spacing="10" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="50.0">

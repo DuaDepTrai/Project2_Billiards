@@ -48,13 +48,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class PoolTableController {
-    public MFXScrollPane availableTableScrollPane;
-    public MFXScrollPane catePooltablesScrollPane;
-    public Button addNewTableCategory;
-    public ScrollPane poolTableScrollPane;
-    public AnchorPane poolTableMasterPane;
-    private User currentUser; // Lưu user đang đăng nhập
-    private List<String> userPermissions = new ArrayList<>();
+    @FXML public MFXScrollPane availableTableScrollPane;
+    @FXML public MFXScrollPane catePooltablesScrollPane;
+    @FXML public Button addNewTableCategory;
+    @FXML public ScrollPane poolTableScrollPane;
+    @FXML public AnchorPane poolTableMasterPane;
+    @FXML private User currentUser; // Lưu user đang đăng nhập
+    @FXML private List<String> userPermissions = new ArrayList<>();
 
     @FXML
     protected FlowPane tablesContainer;
@@ -101,7 +101,11 @@ public class PoolTableController {
 
     @FXML
     public void initialize() {
-        System.out.println("Pool Table Controller's Initialize() method is called!");
+        tableList = poolTableDAO.getAllTables();
+        tableNameList = this.tableList.stream()
+                .map(PoolTable::getName)
+                .collect(Collectors.toCollection(ArrayList::new));
+
         catePooltablesList = new ArrayList<>();
         catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
 
@@ -127,17 +131,16 @@ public class PoolTableController {
         // Add handler for new category button
         addNewTableCategory.setOnAction(e -> showAddCategoryDialog());
 
-        tableList = poolTableDAO.getAllTables();
-        tableNameList = this.tableList.stream()
-                .map(PoolTable::getName)
-                .collect(Collectors.toCollection(ArrayList::new));
-
         // Add handler for add new table button
 //        addNewButton.setOnAction(e -> showAddDialog());
     }
 
     public void initializePoolTableController() {
-        System.out.println("Pool Table Controller's Initialize() method is called!");
+        tableList = poolTableDAO.getAllTables();
+        tableNameList = this.tableList.stream()
+                .map(PoolTable::getName)
+                .collect(Collectors.toCollection(ArrayList::new));
+
         catePooltablesList = new ArrayList<>();
         catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
 
@@ -164,11 +167,6 @@ public class PoolTableController {
 
         // Add handler for new category button
         addNewTableCategory.setOnAction(e -> showAddCategoryDialog());
-
-        tableList = poolTableDAO.getAllTables();
-        tableNameList = this.tableList.stream()
-                .map(PoolTable::getName)
-                .collect(Collectors.toCollection(ArrayList::new));
 
         // Add handler for add new table button
 //        addNewButton.setOnAction(e -> showAddDialog());
