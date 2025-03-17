@@ -16,7 +16,7 @@
             <TableView fx:id="roleTable" HBox.hgrow="ALWAYS">
                 <columns>
                     <TableColumn text="Role" fx:id="roleColumn" />
-                    <TableColumn fx:id="columnAction" text="Action"
+                    <TableColumn fx:id="columnAction"
                                  prefWidth="100.0" minWidth="100.0" maxWidth="100.0"
                                  style="-fx-alignment: CENTER;" resizable="false" />
                 </columns>

@@ -97,28 +97,17 @@ public class ProductController2 {
     }
 
     private VBox createCategoryTable(Category category) throws SQLException {
-        System.out.println("----- DEBUG: createCategoryTable() -----");
-
-        if (category == null) {
-            System.out.println("Category is NULL! Không thể tạo bảng.");
-            return new VBox();
-        } else {
-            System.out.println("Category name: " + category.getName());
-        }
-
-        System.out.println("Danh sách quyền hiện tại: " + userPermissions);
-
-        Label categoryLabel = new Label(category.getName());
+        Label categoryLabel = new Label(category.getName().toUpperCase());
         categoryLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 5px;");
 
         FontAwesomeIconView addProductIcon = new FontAwesomeIconView(FontAwesomeIcon.PLUS_CIRCLE);
-        addProductIcon.setGlyphSize(14);
+        addProductIcon.setGlyphSize(16);
 
         FontAwesomeIconView updateCategoryIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
-        updateCategoryIcon.setGlyphSize(14);
+        updateCategoryIcon.setGlyphSize(16);
 
         FontAwesomeIconView removeCategoryIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
-        removeCategoryIcon.setGlyphSize(14);
+        removeCategoryIcon.setGlyphSize(16);
 
         Button addProductButton = new Button();
         addProductButton.setGraphic(addProductIcon);
@@ -149,7 +138,7 @@ public class ProductController2 {
         tableView.setPrefSize(750, 300);
 
         TableColumn<Product, String> nameColumn = new TableColumn<>("Product Name");
-        TableColumn<Product, Integer> quantityColumn = new TableColumn<>("Quantity");
+        TableColumn<Product, Integer> quantityColumn = new TableColumn<>("Qty");
         TableColumn<Product, Double> priceColumn = new TableColumn<>("Price");
         TableColumn<Product, String> unitColumn = new TableColumn<>("Unit");
         TableColumn<Product, Void> actionColumn = new TableColumn<>("");
@@ -158,6 +147,32 @@ public class ProductController2 {
         quantityColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getQuantity()).asObject());
         priceColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getPrice()).asObject());
         unitColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUnit()));
+
+        nameColumn.setCellFactory(column -> new TableCell<Product, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    setText(item);
+                    setAlignment(Pos.CENTER_LEFT); // Căn trái
+                }
+            }
+        });
+
+        quantityColumn.setCellFactory(column -> new TableCell<Product, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    setText(String.valueOf(item));
+                    setAlignment(Pos.CENTER_RIGHT); // Căn phải
+                }
+            }
+        });
 
         priceColumn.setCellFactory(column -> {
             return new TableCell<Product, Double>() {
@@ -168,17 +183,36 @@ public class ProductController2 {
                         setText(null);
                     } else {
                         setText(String.format("%,.0f", item)); // Hiển thị số tiền có dấu phẩy
+                        setAlignment(Pos.CENTER_RIGHT); // Căn phải
                     }
                 }
             };
         });
 
-        quantityColumn.setSortType(TableColumn.SortType.DESCENDING);
+        unitColumn.setCellFactory(column -> new TableCell<Product, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    setText(item);
+                    setAlignment(Pos.CENTER_LEFT); // Căn trái
+                }
+            }
+        });
+
         tableView.getSortOrder().add(quantityColumn);
         actionColumn.setCellFactory(col -> createActionCellFactory(product -> tableView.getItems().remove(product), userPermissions));
 
         tableView.getColumns().addAll(nameColumn, quantityColumn, priceColumn, unitColumn, actionColumn);
-        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+//        tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        nameColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.35)); // 30% tổng chiều rộng bảng
+        quantityColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.11)); // 15%
+        priceColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.15)); // 20%
+        unitColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.15)); // 15%
+        actionColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.2)); // 20%
+
         tableView.setPlaceholder(new Label("No products available in this category."));
 
         List<Product> products = productDAO.getProductsByCategory(category.getId());
@@ -202,17 +236,17 @@ public class ProductController2 {
 
             {
                 FontAwesomeIconView stockUpIcon = new FontAwesomeIconView(FontAwesomeIcon.ARROW_CIRCLE_UP);
-                stockUpIcon.setSize("12");
+                stockUpIcon.setSize("14");
                 stockUpButton.setGraphic(stockUpIcon);
                 stockUpButton.getStyleClass().add("action-button");
 
                 FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
-                editIcon.setSize("12");
+                editIcon.setSize("14");
                 editButton.setGraphic(editIcon);
                 editButton.getStyleClass().add("action-button");
 
                 FontAwesomeIconView deleteIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
-                deleteIcon.setSize("12");
+                deleteIcon.setSize("14");
                 deleteButton.setGraphic(deleteIcon);
                 deleteButton.getStyleClass().add("action-button");
 
