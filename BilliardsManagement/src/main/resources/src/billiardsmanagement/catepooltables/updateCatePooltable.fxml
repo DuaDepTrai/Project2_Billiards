@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" prefHeight="205.0" prefWidth="228.0" spacing="10" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.poolTables.catepooltables.UpdateCategoryPooltableController">
+<VBox alignment="CENTER" prefHeight="250" prefWidth="300" spacing="10" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.poolTables.catepooltables.UpdateCategoryPooltableController">
     
     <padding>
         <Insets bottom="20" left="20" right="20" top="20" />
@@ -15,12 +15,40 @@
 
     <Label style="-fx-font-size: 16; -fx-font-weight: bold;" text="Update Table Category" />
 
-    <TextField fx:id="cateNameField" promptText="Enter new Category name" />
-    <TextField fx:id="shortNameField" promptText="Enter new Short Name" />
-    <TextField fx:id="priceField" promptText="Enter new Price" />
+    <TextField fx:id="cateNameField" promptText="Enter new Category name">
+        <VBox.margin>
+            <Insets top="5.0" />
+        </VBox.margin>
+    </TextField>
+    <Label fx:id="notifyCategoryName" prefHeight="17.0" prefWidth="266.0">
+        <VBox.margin>
+            <Insets top="-10.0" />
+        </VBox.margin>
+    </Label>
+
+    <TextField fx:id="shortNameField" promptText="Enter new Short Name (max 10 chars)">
+        <VBox.margin>
+            <Insets top="5.0" />
+        </VBox.margin>
+    </TextField>
+    <Label fx:id="notifyShortName" prefHeight="17.0" prefWidth="266.0">
+        <VBox.margin>
+            <Insets top="-10.0" />
+        </VBox.margin>
+    </Label>
+
+    <TextField fx:id="priceField" promptText="Enter new Price">
+        <VBox.margin>
+            <Insets top="5.0" />
+        </VBox.margin>
+    </TextField>
+    <Label fx:id="notifyPrice" prefHeight="17.0" prefWidth="266.0">
+        <VBox.margin>
+            <Insets top="-10.0" />
+        </VBox.margin>
+    </Label>
 
     <HBox alignment="CENTER" spacing="10">
-        <Button defaultButton="true" onAction="#handleConfirm" text="Confirm" />
-        <Button cancelButton="true" onAction="#handleClose" text="Close" />
+        <Button fx:id="confirmUpdateButton" defaultButton="true" onAction="#handleConfirm" prefHeight="25.0" prefWidth="99.0" text="Confirm" />
     </HBox>
 </VBox>

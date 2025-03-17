@@ -89,7 +89,6 @@ public class OrderController implements Initializable {
     private ObservableList<Order> orderList = FXCollections.observableArrayList();
 
     private int orderID;
-    private ObservableList<Order> orderList = FXCollections.observableArrayList();
 
     private final Connection conn = DatabaseConnection.getConnection();
     private final OrderDAO orderDAO = new OrderDAO();

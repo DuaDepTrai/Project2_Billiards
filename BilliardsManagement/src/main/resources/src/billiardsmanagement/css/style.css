@@ -169,6 +169,26 @@
     -fx-background-color: #e8e8e8;
 }
 
+/* Add New Item + Add New Booking Button */
+.add-order-item-button,
+.add-booking-button,
+.finish-order-button{
+    -fx-background-color: #4CAF50; /* Original background color */
+    -fx-text-fill: white; /* Text color */
+    -fx-font-weight: bold; /* Font weight */
+    -fx-padding: 7 10; /* Padding: top/bottom 7, left/right 10 */
+    -fx-cursor: hand; /* Hand cursor on hover */
+    -fx-transition: background-color 400ms; /* Transition for background color */
+}
+
+.add-order-item-button:hover,
+.add-booking-button:hover,
+.finish-order-button:hover {
+    -fx-background-color: #1e5c1f; /* Darker background color on hover */
+    -fx-text-fill: white; /* Text color */
+    -fx-font-weight: bold; /* Font weight */
+    -fx-padding: 7 10; /* Padding: top/bottom 7, left/right 10 */
+}
 
 .combo-box {
     -fx-background-color: #ffffff;

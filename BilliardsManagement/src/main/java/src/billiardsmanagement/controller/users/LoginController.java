@@ -101,6 +101,7 @@ public class LoginController {
                 mainController.setLoggedInUser(user); // Cập nhật username
                 System.out.println("🔹 Đã truyền user vào MainController: " + user.getUsername());
             }
+            // This controller might be null
             mainController.showHomePage();
 
             mainController.initializeAllControllers();

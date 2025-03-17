@@ -18,26 +18,22 @@
         <AnchorPane fx:id="bookingPane" layoutX="20.0" layoutY="162.0" prefHeight="258.0" prefWidth="1010.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="162.0">
             <TableView fx:id="bookingPoolTable" layoutX="-9.0" layoutY="35.0" prefHeight="141.0" prefWidth="1000.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0">
                 <columns>
-                    <TableColumn fx:id="sttColumn" prefWidth="42.0" styleClass="number-aligned" text="STT" />
-                    <TableColumn fx:id="tableNameColumn" prefWidth="147.0" styleClass="left-aligned" text="Table Name" />
-                    <TableColumn fx:id="startTimeColumn" prefWidth="101.0" styleClass="left-aligned" text="Start Time" />
-                    <TableColumn fx:id="endTimeColumn" prefWidth="101.0" styleClass="left-aligned" text="End Time" />
-                    <TableColumn fx:id="timeplayColumn" prefWidth="70.0" styleClass="number-aligned" text="Timeplay" />
-                    <TableColumn fx:id="priceColumn" prefWidth="143.5" styleClass="number-aligned" text="Price" />
-                    <TableColumn fx:id="costColumn" prefWidth="156.5" styleClass="number-aligned" text="Total Cost" />
-                    <TableColumn fx:id="statusColumn" prefWidth="127.199951171875" styleClass="left-aligned" text="Status" />
+                    <TableColumn fx:id="sttColumn" prefWidth="47.0" styleClass="number-aligned" text="STT" />
+                    <TableColumn fx:id="tableNameColumn" prefWidth="142.0" styleClass="left-aligned" text="Table Name" />
+                    <TableColumn fx:id="startTimeColumn" prefWidth="115.5" styleClass="left-aligned" text="Start Time" />
+                    <TableColumn fx:id="endTimeColumn" prefWidth="124.0" styleClass="left-aligned" text="End Time" />
+                    <TableColumn fx:id="timeplayColumn" prefWidth="78.5" styleClass="number-aligned" text="Timeplay" />
+                    <TableColumn fx:id="priceColumn" prefWidth="130.0" styleClass="number-aligned" text="Price" />
+                    <TableColumn fx:id="costColumn" prefWidth="145.0" styleClass="number-aligned" text="Total Cost" />
+                    <TableColumn fx:id="statusColumn" prefWidth="106.5" styleClass="left-aligned" text="Status" />
                     <TableColumn fx:id="bookingActionColumn" prefWidth="127.2000732421875" styleClass="number-aligned" text="Action" />
                 </columns>
             </TableView>
-            <Button fx:id="addOrderItemButton" layoutX="839.0" layoutY="195.0" mnemonicParsing="false" onAction="#addOrderItem" prefHeight="30.0" prefWidth="168.0" styleClass="finish-button" text="Add New Item" textAlignment="CENTER" textFill="WHITE" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="195.0">
-                <font>
-                    <Font size="11.0" />
-                </font>
+            <Button fx:id="addOrderItemButton" layoutX="839.0" layoutY="192.0" mnemonicParsing="false" onAction="#addOrderItem" prefHeight="17.0" prefWidth="168.0" styleClass="add-order-item-button" text="Add New Item" textAlignment="CENTER" textFill="WHITE" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="192.0">
+
             </Button>
-            <Button fx:id="addBookingButton" layoutX="839.0" layoutY="5.0" mnemonicParsing="false" onAction="#addBooking" prefHeight="30.0" prefWidth="168.0" styleClass="finish-button" text="Add New Booking" textAlignment="CENTER" textFill="WHITE" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
-                <font>
-                    <Font size="11.0" />
-                </font>
+            <Button fx:id="addBookingButton" layoutX="839.0" layoutY="3.0" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" onAction="#addBooking" prefHeight="16.0" prefWidth="168.0" styleClass="add-booking-button" text="Add New Booking" textAlignment="CENTER" textFill="WHITE" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="3.0">
+
             </Button>
         </AnchorPane>
 
@@ -109,12 +105,11 @@
             </font>
         </Text>
         <Label layoutX="358.0" layoutY="7.0" prefHeight="21.0" prefWidth="77.0" styleClass="section-label" text="Status: " />
-        <Button layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" text="Add Customer" />
         <Button fx:id="confirmSaveCustomer" layoutX="141.0" layoutY="107.0" mnemonicParsing="false" onAction="#saveCustomer" prefHeight="25.0" prefWidth="167.0" text="Add New Customer" />
         <Line endX="963.199951171875" endY="149.89999389648438" layoutY="5.0" startX="75.19999694824219" startY="149.89999389648438" stroke="#a31d1d" />
         <Line endX="963.199951171875" endY="149.89999389648438" layoutY="200.0" startX="75.19999694824219" startY="149.89999389648438" stroke="#a31d1d" />
         <Label layoutX="10.0" layoutY="12.0" prefHeight="20.0" prefWidth="167.0" styleClass="section-label" text="Customer Name:" AnchorPane.leftAnchor="10.0" />
-        <Button fx:id="finishOrderButton" layoutX="838.0" layoutY="6.0" mnemonicParsing="false" onAction="#finishOrder" prefHeight="32.0" prefWidth="168.0" styleClass="finish-button" text="Finish this Order" textAlignment="CENTER" textFill="WHITE" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
+        <Button fx:id="finishOrderButton" layoutX="838.0" layoutY="6.0" mnemonicParsing="false" onAction="#finishOrder" prefHeight="32.0" prefWidth="168.0" styleClass="finish-order-button" text="Finish this Order" textAlignment="CENTER" textFill="WHITE" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
     </AnchorPane>
     <Button fx:id="btnBack" onAction="#goBack" prefHeight="25.0" prefWidth="167.0" text="Return to Previous Page" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
 </AnchorPane>

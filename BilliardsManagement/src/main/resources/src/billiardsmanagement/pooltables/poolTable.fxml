@@ -13,7 +13,7 @@
 <?import javafx.scene.text.Font?>
 
 <?import javafx.scene.layout.Region?>
-<AnchorPane prefHeight="609.0" prefWidth="1001.0" stylesheets="@../css/poolTable.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.poolTables.PoolTableController">
+<AnchorPane fx:id="poolTableMasterPane" prefHeight="609.0" prefWidth="1001.0" stylesheets="@../css/poolTable.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.poolTables.PoolTableController">
     <children>
         <!-- Search and Add New Section -->
         <HBox alignment="CENTER_LEFT" spacing="10" AnchorPane.rightAnchor="350.0" AnchorPane.topAnchor="14.0">
@@ -66,7 +66,7 @@
 <!--        </FlowPane>-->
 
         <!-- Right Side Panel -->
-        <VBox layoutX="800.0" layoutY="13.0" prefWidth="250.0" spacing="10" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="50.0">
+        <VBox fx:id="" layoutX="800.0" layoutY="13.0" prefWidth="250.0" spacing="10" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="50.0">
             <!-- Pool Tables Header -->
             <HBox alignment="CENTER" prefHeight="20.0">
                 <Text styleClass="poolReportHeader" text="Pool Tables">

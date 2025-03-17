@@ -34,6 +34,7 @@ import javafx.util.Duration;
 import src.billiardsmanagement.controller.MainController;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
 import src.billiardsmanagement.controller.orders.OrderController;
+import src.billiardsmanagement.controller.poolTables.catepooltables.AddCategoryPooltableController;
 import src.billiardsmanagement.controller.poolTables.catepooltables.UpdateCategoryPooltableController;
 import src.billiardsmanagement.dao.*;
 import src.billiardsmanagement.model.*;
@@ -51,6 +52,7 @@ public class PoolTableController {
     public MFXScrollPane catePooltablesScrollPane;
     public Button addNewTableCategory;
     public ScrollPane poolTableScrollPane;
+    public AnchorPane poolTableMasterPane;
     private User currentUser; // Lưu user đang đăng nhập
     private List<String> userPermissions = new ArrayList<>();
 
@@ -115,11 +117,12 @@ public class PoolTableController {
 
         // Add search functionality
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue!=null) filterTables(searchField.getText());
+            if (newValue != null) filterTables(searchField.getText());
         });
 
         // Initialize category list
         initializeCategoryList();
+        updateStatusLists();
 
         // Add handler for new category button
         addNewTableCategory.setOnAction(e -> showAddCategoryDialog());
@@ -150,13 +153,14 @@ public class PoolTableController {
 
         // Add search functionality
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue!=null){
+            if (newValue != null) {
                 filterTables(searchField.getText());
             }
         });
 
         // Initialize category list
         initializeCategoryList();
+        updateStatusLists();
 
         // Add handler for new category button
         addNewTableCategory.setOnAction(e -> showAddCategoryDialog());
@@ -194,10 +198,10 @@ public class PoolTableController {
                     filteredList.add(table);
                 }
             }
-            if(filteredList.isEmpty()) System.out.println("Filter List empty.");
-            if(tableList.isEmpty()) System.out.println("Table List empty.");
+            if (filteredList.isEmpty()) System.out.println("Filter List empty.");
+            if (tableList.isEmpty()) System.out.println("Table List empty.");
 
-            if(!filteredList.isEmpty()) updateUIWithTables(filteredList);
+            if (!filteredList.isEmpty()) updateUIWithTables(filteredList);
         } else {
             // If no search text, show all tables
             updateUIWithTables(tableList);
@@ -339,69 +343,67 @@ public class PoolTableController {
     }
 
     public void showPoolPopup(Parent container, Parent content) {
-        Platform.runLater(() -> {
-            this.poolPopup = new Popup();
-            StackPane contentPane = new StackPane();
-            contentPane.setStyle("-fx-background-color: white; -fx-padding: 10;");
 
-            contentPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, null)));
-            contentPane.getChildren().add(content);
+        this.poolPopup = new Popup();
+        StackPane contentPane = new StackPane();
+        contentPane.setStyle("-fx-background-color: white; -fx-padding: 10;");
 
-            poolPopup.getContent().add(contentPane);
+        contentPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, null)));
+        contentPane.getChildren().add(content);
 
-            double xPos = container.localToScene(0, 0).getX();
-            double yPos = container.localToScene(0, 0).getY();
+        poolPopup.getContent().add(contentPane);
 
-            poolPopup.setX(xPos);
-            poolPopup.setY(yPos);
+        double xPos = container.localToScene(0, 0).getX();
+        double yPos = container.localToScene(0, 0).getY();
 
-            FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.12), contentPane);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
+        poolPopup.setX(xPos);
+        poolPopup.setY(yPos);
 
-            poolPopup.setAutoHide(true);
-            poolPopup.setAutoFix(true);
-            poolPopup.show(tablesContainer.getScene().getWindow());
+        FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.12), contentPane);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
 
-            fadeIn.play();
-        });
+        poolPopup.setAutoHide(true);
+        poolPopup.setAutoFix(true);
+        poolPopup.show(tablesContainer.getScene().getWindow());
+
+        fadeIn.play();
+
     }
 
     public void showPoolPopupInTheMiddle(Parent container, Parent content) {
-        Platform.runLater(() -> {
-            this.poolPopup = new Popup();
-            StackPane contentPane = new StackPane();
-            contentPane.setStyle("-fx-background-color: white; -fx-padding: 10;");
-            contentPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, null)));
-            contentPane.getChildren().add(content);
 
-            // Set initial opacity to 0
-            contentPane.setOpacity(0);
+        this.poolPopup = new Popup();
+        StackPane contentPane = new StackPane();
+        contentPane.setStyle("-fx-background-color: white; -fx-padding: 10;");
+        contentPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, null)));
+        contentPane.getChildren().add(content);
 
-            poolPopup.getContent().add(contentPane);
+        // Set initial opacity to 0
+        contentPane.setOpacity(0);
 
-            // Show the popup first to ensure dimensions are calculated correctly
-            poolPopup.show(container.getScene().getWindow());
+        poolPopup.getContent().add(contentPane);
 
-            // Calculate the center position of the container
-            double centerX = container.getScene().getWindow().getX() + (container.getScene().getWindow().getWidth() / 2);
-            double centerY = container.getScene().getWindow().getY() + (container.getScene().getWindow().getHeight() / 2);
+        // Show the popup first to ensure dimensions are calculated correctly
+        poolPopup.show(poolTableMasterPane.getScene().getWindow());
 
-            // Position the popup in the center of the container
-            poolPopup.setAnchorX(centerX - (contentPane.getWidth() / 2));
-            poolPopup.setAnchorY(centerY - (contentPane.getHeight() / 2));
+        // Calculate the center position relative to poolTableMasterPane
+        Bounds bounds = poolTableMasterPane.localToScreen(poolTableMasterPane.getBoundsInLocal());
+        double centerX = bounds.getMinX() + (bounds.getWidth() / 2);
+        double centerY = bounds.getMinY() + (bounds.getHeight() / 2);
 
-            // Fade-in effect
-            FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.25), contentPane);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
+        // Position the popup in the center
+        poolPopup.setX(centerX - (contentPane.getWidth() / 2));
+        poolPopup.setY(centerY - (contentPane.getHeight() / 2));
 
-            // Play the fade-in transition after showing the popup
-            fadeIn.play();
+        // Fade-in effect
+        FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.25), contentPane);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        fadeIn.play();
 
-            poolPopup.setAutoHide(true);
-            poolPopup.setAutoFix(true);
-        });
+        poolPopup.setAutoHide(true);
+        poolPopup.setAutoFix(true);
     }
 
     public void hidePoolPopup() {
@@ -454,7 +456,7 @@ public class PoolTableController {
             }
             forEachOrderController.initializeAllTables();
 
-            if(mainController!=null){
+            if (mainController != null) {
                 StackPane contentArea = mainController.getContentArea();
                 contentArea.getChildren().clear();
                 contentArea.getChildren().add(forEachRoot);
@@ -743,19 +745,21 @@ public class PoolTableController {
                     getClass().getResource("/src/billiardsmanagement/catepooltables/addCatePooltable.fxml"));
             Parent root = loader.load();
 
-            Stage dialog = new Stage();
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.setTitle("Add New Category");
+            AddCategoryPooltableController controller = loader.getController();
+            controller.initializeCatePooltables();
 
-            Scene scene = new Scene(root);
-            dialog.setScene(scene);
-            dialog.showAndWait();
+            // Show popup in the middle
+            showPoolPopupInTheMiddle(poolTableMasterPane, root);
 
-            // Refresh categories after dialog closes
-            catePooltablesList.clear();
-            catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
-            initializeCategoryList();
-            handleViewAllTables();
+            // Add on hidden handler
+            poolPopup.setOnHidden(e -> {
+                // Refresh categories after dialog closes
+                catePooltablesList.clear();
+                catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
+                initializeCategoryList();
+                updateStatusLists();
+            });
+
         } catch (IOException e) {
             e.printStackTrace();
             NotificationService.showNotification("Error", "Failed to open add category dialog: " + e.getMessage(),
@@ -772,19 +776,19 @@ public class PoolTableController {
             UpdateCategoryPooltableController controller = loader.getController();
             controller.setCatePooltable(category);
 
-            Stage dialog = new Stage();
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.setTitle("Update Category");
+            // Show popup in the middle
+            showPoolPopupInTheMiddle(poolTableMasterPane, root);
 
-            Scene scene = new Scene(root);
-            dialog.setScene(scene);
-            dialog.showAndWait();
+            // Add on hidden handler
+            poolPopup.setOnHidden(e -> {
+                // Refresh categories after dialog closes
+                catePooltablesList.clear();
+                catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
+                initializeCategoryList();
+                updateStatusLists();
+                initializePoolTableController();
+            });
 
-            // Refresh categories after dialog closes
-            catePooltablesList.clear();
-            catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
-            initializeCategoryList();
-            handleViewAllTables();
         } catch (IOException e) {
             e.printStackTrace();
             NotificationService.showNotification("Error", "Failed to open update category dialog: " + e.getMessage(),
@@ -900,7 +904,7 @@ public class PoolTableController {
             controller.initializeAddPoolTable();
 
             showPoolPopupInTheMiddle(poolTableScrollPane, root);
-            
+
             // Refresh the table list after dialog closes
             handleViewAllTables();
         } catch (IOException e) {
@@ -1148,7 +1152,7 @@ public class PoolTableController {
     }
 
     // Used after every operation executed on PoolTable
-    public void resetTableListAndTableNameList(){
+    public void resetTableListAndTableNameList() {
         tableList = poolTableDAO.getAllTables();
         tableNameList = this.tableList.stream()
                 .map(PoolTable::getName)
@@ -1156,7 +1160,7 @@ public class PoolTableController {
     }
 
     // Used after every operation executed on CatePooltable
-    public void resetCatePooltableList(){
+    public void resetCatePooltableList() {
         catePooltablesList.clear();
         catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
     }

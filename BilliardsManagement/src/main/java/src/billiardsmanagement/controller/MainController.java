@@ -14,6 +14,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.apache.pdfbox.Loader;
 import src.billiardsmanagement.controller.database.BookingAndOrderTableListener;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
 import src.billiardsmanagement.controller.orders.OrderController;
@@ -198,9 +199,33 @@ public class MainController {
             orderPane = orderLoader.load();
             orderController = orderLoader.getController();
 
-            poolTableLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/poolTables/poolTable.fxml"));
+            // pooltables, not fcking poolTables !
+            URL poolTableURL = getClass().getResource("/src/billiardsmanagement/pooltables/poolTable.fxml");
+            System.out.println("Pool Table FXML Path: " + poolTableURL);
+
+            if (poolTableURL == null) {
+                throw new Exception("ERROR: poolTable.fxml not found! Check file path.");
+            }
+
+            poolTableLoader = new FXMLLoader(poolTableURL);
             poolTablePane = poolTableLoader.load();
             poolTableController = poolTableLoader.getController();
+
+            // Reload all controller, pane and loader if one of those is null.
+//            if (poolTableController == null || poolTablePane==null || poolTableLoader == null) {
+//                try {
+//                    poolTableController = null;
+//                    poolTablePane = null;
+//                    poolTableLoader = null;
+//
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace(); // Handle the exception as necessary
+//                }
+//            } else {
+//                // Skip loading since the controller is already initialized
+//                System.out.println("PoolTableController is already initialized, skipping load.");
+//            }
 
             if(forEachOrderLoader==null) forEachOrderLoader = new FXMLLoader(MainController.class.getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
             if(forEachOrderPage==null) forEachOrderPage = forEachOrderLoader.load();
@@ -220,6 +245,7 @@ public class MainController {
             bookingAndOrderTableListener.setPoolTableController(this.poolTableController);
             bookingAndOrderTableListener.startListening();
         } catch (Exception e) {
+            System.out.println("Loading Pool Table error : "+e.getMessage());
             e.printStackTrace();
         }
     }
