@@ -796,6 +796,16 @@ public class PoolTableController {
 
     private void showDeleteCategoryDialog(CatePooltable category) {
         // Create a confirmation alert
+        List<PoolTable> existedTables = CatePooltableDAO.getTablesByCategory(category.getId());
+        if (!existedTables.isEmpty()) {
+            NotificationService.showNotification(
+                    "Error Deleting Category",
+                    "Cannot delete this category because there are tables associated with it.",
+                    NotificationStatus.Error
+            );
+            return;
+        }
+
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete Category");
         alert.setHeaderText("Are you sure you want to delete this category?");
@@ -815,11 +825,14 @@ public class PoolTableController {
                 // Call the DAO to delete the category
                 CatePooltableDAO.deleteCategory(category.getId());
 
+                NotificationService.showNotification("Delete Successfully", "Category "+category.getName()+" has been deleted successfully", NotificationStatus.Success);
+
                 // Refresh the category list after deletion
                 catePooltablesList.clear();
                 catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
                 initializeCategoryList();
-                handleViewAllTables();
+                updateStatusLists();
+                initializePoolTableController();
             } catch (Exception e) {
                 e.printStackTrace();
                 NotificationService.showNotification("Error", "Failed to delete category: " + e.getMessage(),
