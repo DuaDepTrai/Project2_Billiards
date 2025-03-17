@@ -8,12 +8,10 @@ import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.model.Pair;
 
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class OrderDAO {
     public static int getOrderBillNo(int orderId) {
@@ -304,40 +302,51 @@ public class OrderDAO {
         return statuses;
     }
 
-    public static ObservableList<Order> getOrdersByCatePoolTable(String category) {
+    public static ObservableList<Order> getOrdersByCatePoolTable(List<String> categories) {
         ObservableList<Order> orders = FXCollections.observableArrayList();
-        String query = """
-            SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone,
-                   o.user_id, u.fullname AS user_name, r.role_name, o.order_date,
-                   o.total_cost, o.order_status,
-                   GROUP_CONCAT(
-                       CONCAT(
-                           CASE 
-                               WHEN p.name LIKE 'Standard %' THEN 'STD' 
-                               WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
-                               WHEN p.name LIKE 'VIP %' THEN 'VIP' 
-                               ELSE p.name 
-                           END, 
-                           SUBSTRING_INDEX(p.name, ' ', -1)
-                       ) SEPARATOR ', '
-                   ) AS currentTableName
-            FROM orders o
-            JOIN customers c ON o.customer_id = c.customer_id
-            JOIN users u ON o.user_id = u.user_id
-            JOIN roles r ON u.role_id = r.role_id
-            LEFT JOIN bookings b ON o.order_id = b.order_id
-            LEFT JOIN pooltables p ON b.table_id = p.table_id
-            LEFT JOIN cate_pooltables cp ON p.cate_id = cp.id
-            WHERE cp.name = ?
-            GROUP BY o.order_id
-            ORDER BY o.order_id DESC
-        """;
+
+        if (categories.isEmpty()) {
+             // Nếu không chọn gì, hiển thị tất cả
+        }
+
+        // Tạo dấu ? tương ứng với số lượng danh mục bàn cần lọc
+        String placeholders = String.join(",", Collections.nCopies(categories.size(), "?"));
+
+        String query = "SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, "
+                + "o.user_id, u.fullname AS user_name, r.role_name, o.order_date, "
+                + "o.total_cost, o.order_status, "
+                + "GROUP_CONCAT( "
+                + "   CONCAT( "
+                + "       CASE "
+                + "           WHEN p.name LIKE 'Standard %' THEN 'STD' "
+                + "           WHEN p.name LIKE 'Deluxe %' THEN 'DLX' "
+                + "           WHEN p.name LIKE 'VIP %' THEN 'VIP' "
+                + "           ELSE p.name "
+                + "       END, "
+                + "       SUBSTRING_INDEX(p.name, ' ', -1) "
+                + "   ) SEPARATOR ', ' "
+                + ") AS currentTableName "
+                + "FROM orders o "
+                + "JOIN customers c ON o.customer_id = c.customer_id "
+                + "JOIN users u ON o.user_id = u.user_id "
+                + "JOIN roles r ON u.role_id = r.role_id "
+                + "LEFT JOIN bookings b ON o.order_id = b.order_id "
+                + "LEFT JOIN pooltables p ON b.table_id = p.table_id "
+                + "LEFT JOIN cate_pooltables cp ON p.cate_id = cp.id "
+                + "WHERE cp.name IN (" + placeholders + ") "
+                + "GROUP BY o.order_id "
+                + "ORDER BY o.order_id DESC;";
+
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, category); // Gán loại bàn cần lọc
-            ResultSet rs = stmt.executeQuery();
 
+            // Gán giá trị cho các dấu `?`
+            for (int i = 0; i < categories.size(); i++) {
+                stmt.setString(i + 1, categories.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Order order = new Order(
                         rs.getInt("order_id"),
@@ -362,41 +371,53 @@ public class OrderDAO {
 
 
 
-    public static ObservableList<Order> getOrdersByStatus(String selectedStatus) {
+
+    public static ObservableList<Order> getOrdersByStatus(List<String> statuses) {
         ObservableList<Order> orders = FXCollections.observableArrayList();
-        String query = """
-        SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
-               o.total_cost, o.order_date, o.order_status, u.user_id, u.fullname AS user_name, r.role_name,
-               GROUP_CONCAT(
-                   CONCAT(
-                       CASE 
-                           WHEN p.name LIKE 'Standard %' THEN 'STD' 
-                           WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
-                           WHEN p.name LIKE 'VIP %' THEN 'VIP' 
-                           ELSE p.name 
-                       END, 
-                       SUBSTRING_INDEX(p.name, ' ', -1)
-                   ) SEPARATOR ', '
-               ) AS currentTableName
-        FROM orders o
-        JOIN customers c ON o.customer_id = c.customer_id
-        JOIN users u ON o.user_id = u.user_id
-        JOIN roles r ON u.role_id = r.role_id
-        LEFT JOIN bookings b ON o.order_id = b.order_id
-        LEFT JOIN pooltables p ON b.table_id = p.table_id
-        WHERE o.order_status = ?
-        GROUP BY o.order_id
-        ORDER BY o.order_date DESC
-    """;
+
+        if (statuses.isEmpty()) {
+            // Nếu không chọn gì, hiển thị tất cả
+        }
+
+        // Tạo dấu ? tương ứng với số lượng trạng thái cần lọc
+        String placeholders = String.join(",", Collections.nCopies(statuses.size(), "?"));
+
+        String query = "SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, "
+                + "o.user_id, u.fullname AS user_name, r.role_name, o.order_date, "
+                + "o.total_cost, o.order_status, "
+                + "GROUP_CONCAT( "
+                + "   CONCAT( "
+                + "       CASE "
+                + "           WHEN p.name LIKE 'Standard %' THEN 'STD' "
+                + "           WHEN p.name LIKE 'Deluxe %' THEN 'DLX' "
+                + "           WHEN p.name LIKE 'VIP %' THEN 'VIP' "
+                + "           ELSE p.name "
+                + "       END, "
+                + "       SUBSTRING_INDEX(p.name, ' ', -1) "
+                + "   ) SEPARATOR ', ' "
+                + ") AS currentTableName "
+                + "FROM orders o "
+                + "JOIN customers c ON o.customer_id = c.customer_id "
+                + "JOIN users u ON o.user_id = u.user_id "
+                + "JOIN roles r ON u.role_id = r.role_id "
+                + "LEFT JOIN bookings b ON o.order_id = b.order_id "
+                + "LEFT JOIN pooltables p ON b.table_id = p.table_id "
+                + "LEFT JOIN cate_pooltables cp ON p.cate_id = cp.id "
+                + "WHERE o.order_status IN (" + placeholders + ") "
+                + "GROUP BY o.order_id "
+                + "ORDER BY o.order_id DESC;";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, selectedStatus);
-            ResultSet rs = stmt.executeQuery();
+            // Gán giá trị cho các dấu `?`
+            for (int i = 0; i < statuses.size(); i++) {
+                stmt.setString(i + 1, statuses.get(i));
+            }
 
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                orders.add(new Order(
+                Order order = new Order(
                         rs.getInt("order_id"),
                         rs.getInt("customer_id"),
                         rs.getString("customer_name"),
@@ -404,17 +425,20 @@ public class OrderDAO {
                         rs.getInt("user_id"),
                         rs.getString("user_name"),
                         rs.getString("role_name"),
-                        rs.getTimestamp("order_date").toLocalDateTime(),
+                        rs.getDate("order_date"),
                         rs.getDouble("total_cost"),
                         rs.getString("order_status"),
                         rs.getString("currentTableName")
-                ));
+                );
+                orders.add(order);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return orders;
     }
+
+
 
 
     // Không cần khai báo URL, USER, PASSWORD nữa, vì đã có trong DatabaseConnection
@@ -733,130 +757,60 @@ public class OrderDAO {
         return staffName;
     }
 
-    public Map<String, Double> getTotalOrdersAndRevenue(LocalDate startDate, LocalDate endDate) throws SQLException {
-        String sql = "SELECT COUNT(*) as total_orders, SUM(total_cost) as total_revenue FROM orders WHERE order_date BETWEEN ? AND ?";
-        Map<String, Double> result = new HashMap<>();
+
+    public static ObservableList<Order> getOrdersByDateRange(LocalDate startDate, LocalDate endDate) {
+        ObservableList<Order> orders = FXCollections.observableArrayList();
+        String query = """
+        SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
+               o.total_cost, o.order_date, o.order_status, u.user_id, u.fullname AS user_name, r.role_name,
+               GROUP_CONCAT(
+                   CONCAT(
+                       CASE 
+                           WHEN p.name LIKE 'Standard %' THEN 'STD' 
+                           WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
+                           WHEN p.name LIKE 'VIP %' THEN 'VIP' 
+                           ELSE p.name 
+                       END, 
+                       SUBSTRING_INDEX(p.name, ' ', -1)
+                   ) SEPARATOR ', '
+               ) AS currentTableName
+        FROM orders o
+        JOIN customers c ON o.customer_id = c.customer_id
+        JOIN users u ON o.user_id = u.user_id
+        JOIN roles r ON u.role_id = r.role_id
+        LEFT JOIN bookings b ON o.order_id = b.order_id
+        LEFT JOIN pooltables p ON b.table_id = p.table_id
+        WHERE DATE(o.order_date) BETWEEN ? AND ?
+        GROUP BY o.order_id
+        ORDER BY o.order_date DESC
+    """;
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            pstmt.setDate(1, java.sql.Date.valueOf(startDate));
-            pstmt.setDate(2, java.sql.Date.valueOf(endDate));
+            stmt.setDate(1, Date.valueOf(startDate));
+            stmt.setDate(2, Date.valueOf(endDate));
+            ResultSet rs = stmt.executeQuery();
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    result.put("totalOrders", rs.getDouble("total_orders"));
-                    result.put("totalRevenue", rs.getDouble("total_revenue"));
-                }
+            while (rs.next()) {
+                orders.add(new Order(
+                        rs.getInt("order_id"),
+                        rs.getInt("customer_id"),
+                        rs.getString("customer_name"),
+                        rs.getString("customer_phone"),
+                        rs.getInt("user_id"),
+                        rs.getString("user_name"),
+                        rs.getString("role_name"),
+                        rs.getTimestamp("order_date").toLocalDateTime(),
+                        rs.getDouble("total_cost"),
+                        rs.getString("order_status"),
+                        rs.getString("currentTableName")
+                ));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
-        return result;
-    }
-
-    public List<Map<String, Object>> getRevenueByPeriod(String period, LocalDate startDate, LocalDate endDate) throws
-            SQLException {
-        String sql;
-        String dateFormat;
-
-        switch (period) {
-            case "Ngày":
-                sql = "SELECT DATE(order_date) as date, SUM(total_cost) as revenue FROM orders WHERE order_date BETWEEN ? AND ? GROUP BY DATE(order_date)";
-                dateFormat = "yyyy-MM-dd";
-                break;
-            case "Tháng":
-                sql = "SELECT DATE_FORMAT(order_date, '%Y-%m') as date, SUM(total_cost) as revenue FROM orders WHERE order_date BETWEEN ? AND ? GROUP BY DATE_FORMAT(order_date, '%Y-%m')";
-                dateFormat = "yyyy-MM";
-                break;
-            case "Năm":
-                sql = "SELECT YEAR(order_date) as date, SUM(total_cost) as revenue FROM orders WHERE order_date BETWEEN ? AND ? GROUP BY YEAR(order_date)";
-                dateFormat = "yyyy";
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid period: " + period);
-        }
-
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setDate(1, java.sql.Date.valueOf(startDate));
-            pstmt.setDate(2, java.sql.Date.valueOf(endDate));
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Map<String, Object> row = new HashMap<>();
-                    row.put("date", rs.getString("date"));
-                    row.put("revenue", rs.getDouble("revenue"));
-                    result.add(row);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    public List<Map<String, Object>> getRevenueByTableGroup(LocalDate startDate, LocalDate endDate) throws
-            SQLException {
-        String sql = "SELECT ct.name as group_name, SUM(b.total) as revenue " +
-                "FROM bookings b " +
-                "JOIN pooltables pt ON b.table_id = pt.table_id " +
-                "JOIN cate_pooltables ct ON pt.cate_id = ct.id " +
-                "JOIN orders o ON b.order_id = o.order_id " +
-                "WHERE o.order_date BETWEEN ? AND ? " +
-                "GROUP BY ct.id";
-
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setDate(1, java.sql.Date.valueOf(startDate));
-            pstmt.setDate(2, java.sql.Date.valueOf(endDate));
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Map<String, Object> row = new HashMap<>();
-                    row.put("groupName", rs.getString("group_name"));
-                    row.put("revenue", rs.getDouble("revenue"));
-                    result.add(row);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    public List<Map<String, Object>> getRevenueByProductCategory(LocalDate startDate, LocalDate endDate) throws
-            SQLException {
-        String sql = "SELECT c.category_name, SUM(oi.total) as revenue " +
-                "FROM orders_items oi " +
-                "JOIN products p ON oi.product_id = p.product_id " +
-                "JOIN category c ON p.category_id = c.category_id " +
-                "JOIN orders o ON oi.order_id = o.order_id " +
-                "WHERE o.order_date BETWEEN ? AND ? " +
-                "GROUP BY c.category_id";
-
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setDate(1, java.sql.Date.valueOf(startDate));
-            pstmt.setDate(2, java.sql.Date.valueOf(endDate));
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Map<String, Object> row = new HashMap<>();
-                    row.put("categoryName", rs.getString("category_name"));
-                    row.put("revenue", rs.getDouble("revenue"));
-                    result.add(row);
-                }
-            }
-        }
-
-        return result;
+        return orders;
     }
 
 
