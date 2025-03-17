@@ -196,7 +196,6 @@ public class OrderController implements Initializable {
         loadCustomerNameToIdMap();
         setUpSearchField();
         loadOrderList();
-        orderTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         VBox.setVgrow(orderTable, Priority.ALWAYS);
 
         // Add scene size listener after scene is created
@@ -237,20 +236,27 @@ public class OrderController implements Initializable {
             }
         });
 
-        // Đảm bảo các cột có kích thước phù hợp
-        orderTable.widthProperty().addListener((obs, oldWidth, newWidth) -> {
-            double tableWidth = newWidth.doubleValue();
-            // Phân bổ kích thước cho từng cột theo tỷ lệ phù hợp
-            sttColumn.setPrefWidth(tableWidth * 0.08);
-            customerNameColumn.setPrefWidth(tableWidth * 0.15);
-            phoneCustomerColumn.setPrefWidth(tableWidth * 0.12);
-            nameTableColumn.setPrefWidth(tableWidth * 0.15);
-            totalCostColumn.setPrefWidth(tableWidth * 0.10);
-            orderStatusColumn.setPrefWidth(tableWidth * 0.10);
-            dateColumn.setPrefWidth(tableWidth * 0.15);
-            staffColumn.setPrefWidth(tableWidth * 0.10);
-            actionColumn.setPrefWidth(tableWidth * 0.05);
-        });
+        orderTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+
+        sttColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.08));
+        customerNameColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.15));
+        phoneCustomerColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.12));
+        nameTableColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.15));
+        totalCostColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.1));
+        orderStatusColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.1));
+        dateColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.15));
+        staffColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.10));
+        actionColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.05));
+
+        sttColumn.setStyle("-fx-alignment: CENTER;");
+        customerNameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+        phoneCustomerColumn.setStyle("-fx-alignment: CENTER;");
+        nameTableColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+        totalCostColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
+        orderStatusColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+        dateColumn.setStyle("-fx-alignment: CENTER;");
+        staffColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+        actionColumn.setStyle("-fx-alignment: CENTER;");
 
         // Đảm bảo cập nhật kích thước khi cửa sổ thay đổi
         mainPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
@@ -286,25 +292,6 @@ public class OrderController implements Initializable {
             };
         });
 
-        // Table Name column
-
-        // Status column
-//        orderStatusColumn.setCellFactory(column -> {
-//            return new TableCell<Order, String>() {
-//                @Override
-//                protected void updateItem(String item, boolean empty) {
-//                    super.updateItem(item, empty);
-//                    if (item == null || empty) {
-//                        setText(null);
-//                    } else {
-//                        setText(item);
-//                        if (item.equals("Playing")) {
-//                            getStyleClass().add("status-playing");
-//                        }
-//                    }
-//                }
-//            };
-//        });
 
         // Cost column formatting
         totalCostColumn.setCellFactory(column -> {
@@ -398,17 +385,17 @@ public class OrderController implements Initializable {
         orderTable.setOnMouseClicked(event -> {
             showItem(event);
         });
-        orderTable.getColumns().forEach(column -> {
-            column.setMinWidth(50); // Độ rộng tối thiểu
-            column.setPrefWidth(120); // Độ rộng mặc định
-            column.setResizable(true); // Cho phép thay đổi kích thước
-        });
+//        orderTable.getColumns().forEach(column -> {
+//            column.setMinWidth(50); // Độ rộng tối thiểu
+//            column.setPrefWidth(120); // Độ rộng mặc định
+//            column.setResizable(true); // Cho phép thay đổi kích thước
+//        });
 
-        orderTable.widthProperty().addListener((obs, oldWidth, newWidth) -> {
-            for (TableColumn<?, ?> column : orderTable.getColumns()) {
-                column.setPrefWidth(newWidth.doubleValue() / orderTable.getColumns().size());
-            }
-        });
+//        orderTable.widthProperty().addListener((obs, oldWidth, newWidth) -> {
+//            for (TableColumn<?, ?> column : orderTable.getColumns()) {
+//                column.setPrefWidth(newWidth.doubleValue() / orderTable.getColumns().size());
+//            }
+//        });
 
         setupFilters();
     }
@@ -417,7 +404,7 @@ public class OrderController implements Initializable {
         loadCustomerNameToIdMap();
         setUpSearchField();
         loadOrderList();
-        orderTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        orderTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         VBox.setVgrow(orderTable, Priority.ALWAYS);
 
         // Add scene size listener after scene is created
@@ -471,6 +458,25 @@ public class OrderController implements Initializable {
         });
 
         // Table Name column
+        nameTableColumn.setCellFactory(tc -> {
+            TableCell<Order, String> cell = new TableCell<>() {
+                private final Text text = new Text();
+
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                    } else {
+                        text.setText(item);
+                        text.wrappingWidthProperty().bind(nameTableColumn.widthProperty().subtract(10)); // Tránh sát mép cột
+                        setGraphic(text);
+                    }
+                }
+            };
+            return cell;
+        });
 
         // Status column
         orderStatusColumn.setCellFactory(column -> {
@@ -586,6 +592,15 @@ public class OrderController implements Initializable {
             showItem(event);
         });
 
+        sttColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.05));
+        customerNameColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.17));
+        phoneCustomerColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.08));
+        nameTableColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.20));
+        totalCostColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.1));
+        orderStatusColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.08));
+        dateColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.1));
+        staffColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.1));
+        actionColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.08));
     }
 
     private Bill createBill(Order selectedOrder) {
@@ -882,10 +897,14 @@ public class OrderController implements Initializable {
         startDatePicker = createDatePicker();
         startDatePicker.setPromptText("Start Date");
         startDatePicker.setOnAction(event -> filterByDateRange());
+        startDatePicker.getStyleClass().add("hbox-filter");
+
 
         endDatePicker = createDatePicker();
         endDatePicker.setPromptText("End Date");
         endDatePicker.setOnAction(event -> filterByDateRange());
+        endDatePicker.getStyleClass().add("hbox-filter");
+
 
         // Tạo danh sách CheckBox cho Table Category
         tableCategoryContainer = new HBox(10);
@@ -893,6 +912,8 @@ public class OrderController implements Initializable {
             CheckBox checkBox = new CheckBox(category);
             checkBox.setOnAction(event -> filterByCategory());
             tableCategoryContainer.getChildren().add(checkBox);
+            tableCategoryContainer.getStyleClass().add("hbox-filter");
+
         }
 
         // Tạo danh sách CheckBox cho Order Status
@@ -901,10 +922,14 @@ public class OrderController implements Initializable {
             CheckBox checkBox = new CheckBox(status);
             checkBox.setOnAction(event -> filterByStatus());
             orderStatusContainer.getChildren().add(checkBox);
+            orderStatusContainer.getStyleClass().add("hbox-filter");
+
         }
 
         // Thêm ComboBox chọn kiểu lọc vào `filterContainer`
         filterContainer.getChildren().add(filterTypeComboBox);
+        filterContainer.getStyleClass().add("filter-container");
+
 
         // Xử lý sự kiện thay đổi bộ lọc
         filterTypeComboBox.setOnAction(event -> updateFilterUI());

@@ -13,15 +13,15 @@ public class CustomerDAO {
     private static final String PASS = ""; // Thay đổi mật khẩu
 
     public void addCustomer(Customer customer) {
-        String sql = "INSERT INTO customers (name, phone, total_playtime, address, birthday) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO customers (name, phone, total_playtime,, birthday address) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, customer.getName());
             pstmt.setString(2, customer.getPhone());
             pstmt.setDouble(3, customer.getTotalPlaytime());
-            pstmt.setString(4, customer.getAddress());
-            pstmt.setDate(5, customer.getBirthday() != null ? new java.sql.Date(customer.getBirthday().getTime()) : null);
+            pstmt.setDate(4, customer.getBirthday() != null ? new java.sql.Date(customer.getBirthday().getTime()) : null);
+            pstmt.setString(5, customer.getAddress());
             pstmt.executeUpdate();
 
             ResultSet generatedKeys = pstmt.getGeneratedKeys();
@@ -34,15 +34,15 @@ public class CustomerDAO {
     }
 
     public void updateCustomer(Customer customer) {
-        String sql = "UPDATE customers SET name = ?, phone = ?, total_playtime = ?, address = ?, birthday = ? WHERE customer_id = ?";
+        String sql = "UPDATE customers SET name = ?, phone = ?, total_playtime = ?, birthday = ?, address = ? WHERE customer_id = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, customer.getName());
             pstmt.setString(2, customer.getPhone());
             pstmt.setDouble(3, customer.getTotalPlaytime());
-            pstmt.setString(4, customer.getAddress());
-            pstmt.setDate(5, customer.getBirthday() != null ? new java.sql.Date(customer.getBirthday().getTime()) : null);
+            pstmt.setDate(4, customer.getBirthday() != null ? new java.sql.Date(customer.getBirthday().getTime()) : null);
+            pstmt.setString(5, customer.getAddress());
             pstmt.setInt(6, customer.getCustomerId());
             pstmt.executeUpdate();
 
@@ -78,8 +78,8 @@ public class CustomerDAO {
                 customer.setName(rs.getString("name"));
                 customer.setPhone(rs.getString("phone"));
                 customer.setTotalPlaytime(rs.getDouble("total_playtime"));
-                customer.setAddress(rs.getString("address"));
                 customer.setBirthday(rs.getDate("birthday"));
+                customer.setAddress(rs.getString("address"));
                 customers.add(customer);
             }
 

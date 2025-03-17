@@ -97,12 +97,12 @@ public class RolesPermissionsController {
 
             {
                 FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
-                editIcon.setSize("16");
+                editIcon.setSize("14");
                 editButton.setGraphic(editIcon);
                 editButton.getStyleClass().add("action-button");
 
                 FontAwesomeIconView deleteIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
-                deleteIcon.setSize("16");
+                deleteIcon.setSize("14");
                 deleteButton.setGraphic(deleteIcon);
                 deleteButton.getStyleClass().add("action-button");
 

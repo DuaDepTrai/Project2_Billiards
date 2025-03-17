@@ -10,31 +10,36 @@
             prefHeight="609.0" prefWidth="1001.0"
             stylesheets="@../css/poolTable.css">
     <center>
-        <VBox spacing="10" alignment="CENTER">
-            <HBox alignment="CENTER_LEFT" spacing="10">
-                <Region HBox.hgrow="ALWAYS"/> <!-- Đẩy btnAddNewCategory về bên phải -->
-                <TextField fx:id="searchField" styleClass="search-field" prefWidth="200.0" promptText="Search by name..."/>
-                <Button fx:id="btnAddNewCategory" mnemonicParsing="false" prefHeight="26.0" prefWidth="153.0"
-                        styleClass="add-button" text="Add Category" textAlignment="CENTER" textFill="WHITE">
-                    <font>
-                        <Font size="13.0" />
-                    </font>
-                </Button>
-            </HBox>
+        <StackPane>
+            <padding>
+                <Insets left="30" right="30"/>
+            </padding>
+            <VBox spacing="10" alignment="CENTER" >
+                <HBox alignment="CENTER_LEFT" spacing="10" styleClass="header">
+                    <Region HBox.hgrow="ALWAYS"/> <!-- Đẩy btnAddNewCategory về bên phải -->
+                    <TextField fx:id="searchField" styleClass="search-field" prefWidth="200.0" promptText="Search by name..."/>
+                    <Button fx:id="btnAddNewCategory" mnemonicParsing="false" prefHeight="26.0" prefWidth="153.0"
+                            styleClass="add-button" text="Add Category" textAlignment="CENTER" textFill="WHITE">
+                        <font>
+                            <Font size="13.0" />
+                        </font>
+                    </Button>
+                </HBox>
 
-            <!-- Khu vực GridPane -->
-            <ScrollPane fitToWidth="true">
-                <GridPane fx:id="gridPane" maxWidth="Infinity">
-                    <columnConstraints>
-                        <ColumnConstraints percentWidth="50"/>
-                        <ColumnConstraints percentWidth="50"/>
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints percentHeight="30"/>
-                        <RowConstraints percentHeight="30"/>
-                    </rowConstraints>
-                </GridPane>
-            </ScrollPane>
-        </VBox>
+                <!-- Khu vực GridPane -->
+                <ScrollPane fitToWidth="true">
+                    <GridPane fx:id="gridPane" maxWidth="Infinity">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50"/>
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints percentHeight="30"/>
+                            <RowConstraints percentHeight="30"/>
+                        </rowConstraints>
+                    </GridPane>
+                </ScrollPane>
+            </VBox>
+        </StackPane>
     </center>
 </BorderPane>

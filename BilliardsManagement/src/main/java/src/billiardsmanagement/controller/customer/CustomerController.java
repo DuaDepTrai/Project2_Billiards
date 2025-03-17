@@ -1,5 +1,7 @@
 package src.billiardsmanagement.controller.customer;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -8,9 +10,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import src.billiardsmanagement.dao.CustomerDAO;
 import src.billiardsmanagement.model.Customer;
+import src.billiardsmanagement.model.User;
 import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
 import javafx.event.ActionEvent;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class CustomerController {
@@ -21,6 +27,8 @@ public class CustomerController {
     private DatePicker birthdayPicker;
 
     @FXML
+    private TableColumn<User,Integer> sttColumn;
+    @FXML
     private TableView<Customer> customerTableView;
     @FXML
     private TableColumn<Customer, Integer> customerIdCol;
@@ -30,6 +38,10 @@ public class CustomerController {
     private TableColumn<Customer, String> phoneCol;
     @FXML
     private TableColumn<Customer, Double> totalPlaytimeCol;
+    @FXML
+    private TableColumn<Customer, String> birthdayCol;
+    @FXML
+    private TableColumn<Customer, String> addressCol;
 
     @FXML
     private TextField searchField;
@@ -66,6 +78,7 @@ public class CustomerController {
 
     private ObservableList<Customer> customerList = FXCollections.observableArrayList();
     private CustomerDAO customerDAO = new CustomerDAO();
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
     @FXML
     public void initialize() {
@@ -80,10 +93,14 @@ public class CustomerController {
     }
 
     private void setupTableColumns() {
-        customerIdCol.setCellValueFactory(new PropertyValueFactory<>("customerId"));
+        sttColumn.setCellValueFactory(cellData ->
+                new ReadOnlyObjectWrapper<>(customerTableView.getItems().indexOf(cellData.getValue()) + 1)
+        );
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         phoneCol.setCellValueFactory(new PropertyValueFactory<>("phone"));
         totalPlaytimeCol.setCellValueFactory(new PropertyValueFactory<>("totalPlaytime"));
+        addressCol.setCellValueFactory(new PropertyValueFactory<>("address"));
+
 
         // Format total playtime to show 2 decimal places
         totalPlaytimeCol.setCellFactory(column -> new TableCell<Customer, Double>() {
@@ -97,6 +114,43 @@ public class CustomerController {
                 }
             }
         });
+
+        birthdayCol.setCellValueFactory(cellData -> {
+            Date date = cellData.getValue().getBirthday(); // Lấy Date từ User
+            String formattedDate = (date != null) ? dateFormat.format(date) : ""; // Chuyển thành String
+            return new SimpleStringProperty(formattedDate);
+        });
+
+        birthdayCol.setCellFactory(column -> new TableCell<Customer, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item);
+            }
+        });
+
+        customerTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY); // Cho phép cột co giãn tự do
+
+        sttColumn.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.05)); // 5% tổng chiều rộng
+        nameCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.25)); // 5% tổng chiều rộng
+        phoneCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.1)); // 5% tổng chiều rộng
+        totalPlaytimeCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.1)); // 5% tổng chiều rộng
+        birthdayCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.1)); // 5% tổng chiều rộng
+        addressCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.4)); // 5% tổng chiều rộng
+
+        // Căn trái
+        nameCol.setStyle("-fx-alignment: CENTER-LEFT;");
+        addressCol.setStyle("-fx-alignment: CENTER-LEFT;");
+
+
+        // Căn giữa
+        sttColumn.setStyle("-fx-alignment: CENTER;");
+        phoneCol.setStyle("-fx-alignment: CENTER;");
+        birthdayCol.setStyle("-fx-alignment: CENTER;");
+
+        // Căn phải
+        totalPlaytimeCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+
     }
 
     private void setupSearchField() {

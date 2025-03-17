@@ -40,7 +40,7 @@
     -fx-background-color: #4CAF50;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-padding: 0;
+    -fx-padding: 5 10;
 }
 
 .search-button {
@@ -71,4 +71,16 @@
     -fx-max-height: 25.0;
     -fx-background-color: gray; /* Background color on hover */
     -fx-text-fill: black; /* Text color on hover */
+}
+
+.filter-container {
+    -fx-display: flex;
+    -fx-align-items: center; /* Căn giữa theo chiều cao */
+}
+
+.hbox-filter {
+    -fx-display: flex;
+    -fx-align-items: center; /* Căn giữa các checkbox và datepicker */
+    -fx-padding: 12;
+    -fx-background-color: transparent;
 }

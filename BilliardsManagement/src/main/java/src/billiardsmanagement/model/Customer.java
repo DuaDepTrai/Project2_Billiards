@@ -7,8 +7,8 @@ public class Customer {
     private String name;
     private String phone;
     private double totalPlaytime;
-    private String address;
     private Date birthday;
+    private String address;
 
     // Constructor
     public Customer() {}
@@ -18,12 +18,12 @@ public class Customer {
         this.phone = phone;
     }
 
-    public Customer(String name, String phone, double totalPlaytime, String address, Date birthday) {
+    public Customer(String name, String phone, double totalPlaytime, Date birthday, String address) {
         this.name = name;
         this.phone = phone;
         this.totalPlaytime = totalPlaytime;
-        this.address = address;
         this.birthday = birthday;
+        this.address = address;
     }
 
     // Getters and setters
@@ -59,19 +59,19 @@ public class Customer {
         this.totalPlaytime = totalPlaytime;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public Date getBirthday() {
         return birthday;
     }
 
     public void setBirthday(Date birthday) {
         this.birthday = birthday;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

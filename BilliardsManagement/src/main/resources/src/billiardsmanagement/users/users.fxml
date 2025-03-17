@@ -15,7 +15,7 @@
     <!--    <Button fx:id="btnRolesPermissions" text="Roles - Permissions" AnchorPane.bottomAnchor="10.0"-->
     <!--            AnchorPane.rightAnchor="50.0"/>-->
 
-    <HBox spacing="10" alignment="CENTER_LEFT" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="header" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0">
         <Region HBox.hgrow="ALWAYS"/>
         <TextField fx:id="searchText" prefHeight="26.0" prefWidth="200.0" promptText="Search by username, fullname..." styleClass="search-field" />
         <!--        <Button fx:id="searchButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" styleClass="search-button" />-->
@@ -27,8 +27,8 @@
     </HBox>
 
 
-    <TableView fx:id="tableUsers" AnchorPane.topAnchor="70.0" AnchorPane.leftAnchor="10.0"
-               AnchorPane.rightAnchor="10.0" AnchorPane.bottomAnchor="50.0">
+    <TableView fx:id="tableUsers" AnchorPane.topAnchor="90.0" AnchorPane.leftAnchor="30.0"
+               AnchorPane.rightAnchor="30.0" AnchorPane.bottomAnchor="30.0">
         <columns>
             <TableColumn fx:id="sttColumn" text="No"/>
             <TableColumn fx:id="columnAvatar" text="Avatar"/>
