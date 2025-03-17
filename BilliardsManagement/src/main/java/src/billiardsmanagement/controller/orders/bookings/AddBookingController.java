@@ -176,7 +176,7 @@ public class AddBookingController {
                 .filter(table -> table.getName().equals(selectedTable))
                 .findFirst()
                 .orElse(null);
-        String selectedStatus = bookingStatusComboBox.getValue().equals("Play on Table") ? "Playing" : "Order";
+        String selectedStatus = bookingStatusComboBox.getValue().equals("Play on Table") ? "Playing" : "Ordered";
 
         boolean bookingSuccess = false;
 
