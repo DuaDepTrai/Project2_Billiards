@@ -135,25 +135,20 @@ public class OrderController implements Initializable {
             System.out.println(orderId);
             loadOrderList();
 
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
-            Parent root = loader.load();
-            StackPane contentArea = mainController.getContentArea();
-
+            
             Stage stage = new Stage();
             stage.setTitle("Order Detail");
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(forEachOrderPage));
             stage.show();
 
-            ForEachOrderController controller = loader.getController();
-            controller.setOrderID(orderId);
-            controller.setCustomerID(1);
-            controller.setOrderTable(orderTable);
-            controller.setBillNo(billNo);
-            controller.setOrderDate(orderLatest.getOrderDate());
-            controller.setInitialPhoneText(orderLatest.getCustomerPhone());
-            controller.setInitialPhoneText(orderLatest.getCustomerPhone());
-            controller.initializeAllTables();
+            forEachOrderController.setOrderID(orderId);
+            forEachOrderController.setCustomerID(1);
+            forEachOrderController.setOrderTable(orderTable);
+            forEachOrderController.setBillNo(billNo);
+            forEachOrderController.setOrderDate(orderLatest.getOrderDate());
+            forEachOrderController.setInitialPhoneText(orderLatest.getCustomerPhone());
+            forEachOrderController.setInitialPhoneText(orderLatest.getCustomerPhone());
+            forEachOrderController.initializeAllTables();
 
         } catch (IllegalArgumentException e) {
             NotificationService.showNotification("Validation Error", e.getMessage(), NotificationStatus.Error);
@@ -607,6 +602,8 @@ public class OrderController implements Initializable {
         stage.show();
     }
 
+
+
     @FXML
     public void billOrder(ActionEvent event) {
         try {
@@ -838,15 +835,16 @@ public class OrderController implements Initializable {
         orderTable.setItems(filteredList);
     }
 
-    private void setUpSearchField(){
+    private void setUpSearchField() {
         autoCompleteTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue == null || newValue.isEmpty()){
+            if (newValue == null || newValue.isEmpty()) {
                 loadOrderList();
-            }else{
-                filteredOrders(newValue);
+            } else {
+                filteredOrders(newValue.toLowerCase().trim());
             }
         });
     }
+
     private void setOrderID(int orderId) {
         this.orderID = orderId;
     }
@@ -867,7 +865,12 @@ public class OrderController implements Initializable {
     public void setForEachOrderPage(Parent forEachOrderPage) {
         this.forEachOrderPage = forEachOrderPage;
     }
+    
     private void setupFilters() {
+        // Thêm ComboBox chọn kiểu lọc vào `filterContainer`
+        // Null pointer exception
+//        filterContainer.getChildren().add(filterTypeComboBox);
+
         // Tạo ComboBox chọn kiểu lọc
         filterTypeComboBox = createComboBox(Arrays.asList("Date", "Table Category", "Status"));
         filterTypeComboBox.setPromptText("Filter Type");
@@ -881,9 +884,6 @@ public class OrderController implements Initializable {
         // Load danh mục bàn và trạng thái từ database
         categoryComboBox.setItems(FXCollections.observableArrayList(OrderDAO.getCatePoolTables()));
         statusComboBox.setItems(FXCollections.observableArrayList(OrderDAO.getOrderStatuses()));
-
-        // Thêm ComboBox chọn kiểu lọc vào `filterContainer`
-        filterContainer.getChildren().add(filterTypeComboBox);
 
         // Xử lý sự kiện thay đổi bộ lọc
         filterTypeComboBox.setOnAction(event -> updateFilterUI());

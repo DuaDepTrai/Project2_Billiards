@@ -293,6 +293,7 @@ public class AddTableToOrderController implements Initializable {
                 contentArea.getChildren().add(forEachRoot);
             }
 
+            poolTableController.hidePoolPopup();
             poolTableController.handleViewAllTables();
         } catch (Exception e) {
             e.printStackTrace();

@@ -13,35 +13,37 @@ public class CustomerDAO {
     private static final String PASS = ""; // Thay đổi mật khẩu
 
     public void addCustomer(Customer customer) {
-        String sql = "INSERT INTO customers (name, phone, total_playtime) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO customers (name, phone, total_playtime, address, birthday) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, customer.getName());
             pstmt.setString(2, customer.getPhone());
             pstmt.setDouble(3, customer.getTotalPlaytime());
+            pstmt.setString(4, customer.getAddress());
+            pstmt.setDate(5, customer.getBirthday() != null ? new java.sql.Date(customer.getBirthday().getTime()) : null);
             pstmt.executeUpdate();
 
-            // Lấy ID được tạo tự động
             ResultSet generatedKeys = pstmt.getGeneratedKeys();
             if (generatedKeys.next()) {
                 customer.setCustomerId(generatedKeys.getInt(1));
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void updateCustomer(Customer customer) {
-        String sql = "UPDATE customers SET name = ?, phone = ?, total_playtime = ? WHERE customer_id = ?";
+        String sql = "UPDATE customers SET name = ?, phone = ?, total_playtime = ?, address = ?, birthday = ? WHERE customer_id = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, customer.getName());
             pstmt.setString(2, customer.getPhone());
             pstmt.setDouble(3, customer.getTotalPlaytime());
-            pstmt.setInt(4, customer.getCustomerId());
+            pstmt.setString(4, customer.getAddress());
+            pstmt.setDate(5, customer.getBirthday() != null ? new java.sql.Date(customer.getBirthday().getTime()) : null);
+            pstmt.setInt(6, customer.getCustomerId());
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -75,7 +77,9 @@ public class CustomerDAO {
                 customer.setCustomerId(rs.getInt("customer_id"));
                 customer.setName(rs.getString("name"));
                 customer.setPhone(rs.getString("phone"));
-                customer.setTotalPlaytime(rs.getDouble("total_playtime")); // Đảm bảo lấy đúng trường
+                customer.setTotalPlaytime(rs.getDouble("total_playtime"));
+                customer.setAddress(rs.getString("address"));
+                customer.setBirthday(rs.getDate("birthday"));
                 customers.add(customer);
             }
 
@@ -152,7 +156,26 @@ public class CustomerDAO {
             customerIds.add(customer.getCustomerId());
         }
         return customerIds;
-    }public Customer getCustomerByPhone(String phone) {
+    }
+
+    public static Integer getCustomerIdByPhone(String phone) {
+        String query = "SELECT customer_id FROM customers WHERE phone = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, phone);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("customer_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Trả về null nếu không tìm thấy khách hàng
+    }
+
+    public Customer getCustomerByPhone(String phone) {
         String sql = "SELECT * FROM customers WHERE phone = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -173,22 +196,5 @@ public class CustomerDAO {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public static Integer getCustomerIdByPhone(String phone) {
-        String query = "SELECT customer_id FROM customers WHERE phone = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setString(1, phone);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt("customer_id");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null; // Trả về null nếu không tìm thấy khách hàng
     }
 }
