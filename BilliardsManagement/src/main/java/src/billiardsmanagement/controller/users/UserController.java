@@ -115,20 +115,48 @@ public class UserController {
         loadUsers();
 
         btnAddNewUser.setOnAction(event -> handleAddNewUser());
-//        btnRolesPermissions.setOnAction(event -> openRolesPermissions());
 
-        tableUsers.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY); // Tự động giãn cột
+        tableUsers.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY); // Cho phép cột co giãn tự do
 
-        double totalColumns = 9.0; // Số lượng cột thực tế (trừ cột action nhỏ hơn)
-        columnAvatar.setPrefWidth(80); // Ảnh có chiều rộng cố định
-        columnUsername.setPrefWidth(tableUsers.getWidth() / totalColumns);
-        columnRole.setPrefWidth(tableUsers.getWidth() / totalColumns);
-        columnFullname.setPrefWidth(tableUsers.getWidth() / totalColumns);
-        columnPhone.setPrefWidth(tableUsers.getWidth() / totalColumns);
-        columnBirthday.setPrefWidth(tableUsers.getWidth() / totalColumns);
-        columnAddress.setPrefWidth(tableUsers.getWidth() / totalColumns);
-        columnHireDate.setPrefWidth(tableUsers.getWidth() / totalColumns);
-        columnAction.setPrefWidth(100); // Giữ cột action nhỏ hơn một chút
+        sttColumn.prefWidthProperty().bind(tableUsers.widthProperty().multiply(0.03)); // 5% tổng chiều rộng
+        columnAvatar.prefWidthProperty().bind(tableUsers.widthProperty().multiply(0.05)); // 10%
+        columnUsername.prefWidthProperty().bind(tableUsers.widthProperty().multiply(0.1)); // 15%
+        columnRole.prefWidthProperty().bind(tableUsers.widthProperty().multiply(0.1)); // 10%
+        columnFullname.prefWidthProperty().bind(tableUsers.widthProperty().multiply(0.15)); // 15%
+        columnPhone.prefWidthProperty().bind(tableUsers.widthProperty().multiply(0.08)); // 10%
+        columnBirthday.prefWidthProperty().bind(tableUsers.widthProperty().multiply(0.08)); // 10%
+        columnAddress.prefWidthProperty().bind(tableUsers.widthProperty().multiply(0.22)); // 15%
+        columnHireDate.prefWidthProperty().bind(tableUsers.widthProperty().multiply(0.08)); // 10%
+        columnAction.prefWidthProperty().bind(tableUsers.widthProperty().multiply(0.10)); // 10%
+
+//        tableUsers.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+//        sttColumn.setPrefWidth(48);
+//        columnAvatar.setPrefWidth(80);
+//        columnUsername.setPrefWidth(160);
+//        columnRole.setPrefWidth(160);
+//        columnFullname.setPrefWidth(240);
+//        columnPhone.setPrefWidth(128);
+//        columnBirthday.setPrefWidth(128);
+//        columnAddress.setPrefWidth(352);
+//        columnHireDate.setPrefWidth(128);
+//        columnAction.setPrefWidth(160);
+
+
+        // Căn trái
+        columnUsername.setStyle("-fx-alignment: CENTER-LEFT;");
+        columnRole.setStyle("-fx-alignment: CENTER-LEFT;");
+        columnFullname.setStyle("-fx-alignment: CENTER-LEFT;");
+        columnAddress.setStyle("-fx-alignment: CENTER-LEFT;");
+
+// Căn giữa
+        sttColumn.setStyle("-fx-alignment: CENTER;");
+        columnAvatar.setStyle("-fx-alignment: CENTER;");
+        columnAction.setStyle("-fx-alignment: CENTER;");
+
+// Căn phải
+        columnPhone.setStyle("-fx-alignment: CENTER-RIGHT;");
+        columnBirthday.setStyle("-fx-alignment: CENTER-RIGHT;");
+        columnHireDate.setStyle("-fx-alignment: CENTER-RIGHT;");
 
     }
 

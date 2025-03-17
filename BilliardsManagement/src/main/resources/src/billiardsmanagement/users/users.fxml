@@ -40,7 +40,7 @@
             <TableColumn fx:id="columnBirthday" text="Birthday"/>
             <TableColumn fx:id="columnAddress" text="Address"/>
             <TableColumn fx:id="columnHireDate" text="Hire Date"/>
-            <TableColumn fx:id="columnAction" prefWidth="100.0" style="-fx-alignment: CENTER;" text="Action" />
+            <TableColumn fx:id="columnAction" prefWidth="100.0" style="-fx-alignment: CENTER;" />
         </columns>
     </TableView>
 

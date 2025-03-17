@@ -96,7 +96,7 @@
 }
 
 .table-view .column-header {
-    -fx-background-color: transparent;
+    /*-fx-background-color: transparent;*/
     /*-fx-padding: 12 8;*/
     -fx-pref-height: 45px;
     -fx-alignment: center-left;
@@ -118,10 +118,15 @@
 /* Table content styles */
 .table-row-cell {
     -fx-background-color: white;
-    -fx-border-color: transparent;
-    -fx-padding: 5;
-    -fx-cell-size: 50px;
+    /*-fx-border-color: transparent;*/
+    /*-fx-padding: 5;*/
+    /*-fx-cell-size: 50px;*/
 }
+
+/*!* Thêm khoảng cách giữa header và content *!*/
+/*.table-view > .virtual-flow > .clipped-container > .sheet > .table-row-cell {*/
+/*    -fx-padding: 2;*/
+/*}*/
 
 /* Giữ nền khi hover */
 .table-row-cell:hover {
@@ -144,10 +149,6 @@
     -fx-fill: white;
 }
 
-/* Thêm khoảng cách giữa header và content */
-.table-view > .virtual-flow > .clipped-container > .sheet > .table-row-cell {
-    -fx-padding: 2;
-}
 
 
 .submenu-container {
