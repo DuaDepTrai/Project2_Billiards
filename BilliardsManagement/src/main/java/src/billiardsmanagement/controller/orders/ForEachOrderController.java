@@ -235,6 +235,8 @@ public class ForEachOrderController {
         bookingList.clear();
         bookingList.addAll(bookings);
         bookingPoolTable.setItems(bookingList);
+
+        checkBookingStatus();
     }
 
     private void loadOrderDetail() {
@@ -1131,21 +1133,22 @@ public class ForEachOrderController {
     }
 
     public void checkBookingStatus() {
-//        List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID); // Lấy danh sách booking
-//
-//        LocalDateTime now = LocalDateTime.now(); // Thời gian hiện tại
-//
-//        for (Booking booking : bookings) {
-//            LocalDateTime bookingTime = booking.getStartTimeBooking(); // Lấy thời gian bắt đầu booking
-//            if (bookingTime != null) { // Kiểm tra nếu booking có thời gian bắt đầu
-//                long minutesPassed = Duration.between(bookingTime, now).toMinutes();
-//                System.out.println("Thời gian chênh lệch: " + minutesPassed);
-//                if (minutesPassed > 30 && "Ordered".equals(booking.getBookingStatus())) {
-//                    BookingDAO.cancelBooking(booking.getBookingId());
-//                    System.out.println("Đã hủy bàn " + booking.getBookingId() + "thành công");
-//                }
-//            }
-//        }
+        int minutesLimit = 1;
+        List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID); // Lấy danh sách booking
+
+        LocalDateTime now = LocalDateTime.now(); // Thời gian hiện tại
+
+        for (Booking booking : bookings) {
+            LocalDateTime bookingTime = booking.getStartTimeBooking(); // Lấy thời gian bắt đầu booking
+            if (bookingTime != null) { // Kiểm tra nếu booking có thời gian bắt đầu
+                long minutesPassed = Duration.between(bookingTime, now).toMinutes();
+                System.out.println("Thời gian chênh lệch: " + minutesPassed);
+                if (minutesPassed > minutesLimit && "Ordered".equals(booking.getBookingStatus())) {
+                    BookingDAO.cancelBooking(booking.getBookingId());
+                    System.out.println("Đã hủy bàn " + booking.getBookingId() + "thành công");
+                }
+            }
+        }
     }
 
     public void setCustomerID(int customerId) {

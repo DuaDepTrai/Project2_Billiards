@@ -1,10 +1,14 @@
 package src.billiardsmanagement.model;
 
+import java.util.Date;
+
 public class Customer {
     private int customerId;
     private String name;
     private String phone;
     private double totalPlaytime;
+    private String address;
+    private Date birthday;
 
     // Constructor
     public Customer() {}
@@ -12,13 +16,14 @@ public class Customer {
     public Customer(String name, String phone) {
         this.name = name;
         this.phone = phone;
-        this.totalPlaytime = totalPlaytime;
     }
 
-    public Customer(String name, String phone, double totalPlaytime) {
+    public Customer(String name, String phone, double totalPlaytime, String address, Date birthday) {
         this.name = name;
         this.phone = phone;
         this.totalPlaytime = totalPlaytime;
+        this.address = address;
+        this.birthday = birthday;
     }
 
     // Getters and setters
@@ -52,5 +57,21 @@ public class Customer {
 
     public void setTotalPlaytime(double totalPlaytime) {
         this.totalPlaytime = totalPlaytime;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
     }
 }

@@ -1,7 +1,5 @@
 package src.billiardsmanagement.model;
 
-import src.billiardsmanagement.controller.database.BookingAndOrderTableListener;
-
 public class Notification {
     private int notificationId;
     private BookingTask task;
