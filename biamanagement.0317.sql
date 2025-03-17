@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 13, 2025 at 05:12 PM
+-- Generation Time: Mar 17, 2025 at 01:12 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -37,6 +37,18 @@ CREATE TABLE `bookings` (
   `total` double DEFAULT NULL,
   `booking_status` enum('Order','Playing','Finish','Canceled') NOT NULL DEFAULT 'Playing'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `bookings`
+--
+
+INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end_time`, `timeplay`, `total`, `booking_status`) VALUES
+(56, 73, 42, '2025-03-16 01:00:00', NULL, NULL, NULL, 'Canceled'),
+(57, 68, 31, '2025-03-15 17:36:27', '2025-03-15 18:04:37', 0.5, 16333.33331, 'Finish'),
+(58, 71, 41, '2025-03-15 17:36:36', '2025-03-16 17:22:31', NULL, 1781250, 'Finish'),
+(59, 71, 51, '2025-03-16 01:00:00', NULL, NULL, NULL, 'Canceled'),
+(60, 72, 33, '2025-03-15 17:37:03', '2025-03-16 17:23:26', NULL, 831833.33331, 'Finish'),
+(61, 74, 36, '2025-03-15 17:59:00', NULL, NULL, NULL, 'Canceled');
 
 --
 -- Triggers `bookings`
@@ -152,7 +164,7 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`, `birthday`, `address`) VALUES
-(1, 'Guest', '0999999999', 0, '1990-01-01', NULL),
+(1, 'Guest', '0999999999', 0.5, '1990-01-01', NULL),
 (2, 'Le Thi Mai', '0912345678', 0, '1990-01-01', NULL),
 (3, 'Tran Minh Tu', '0903456789', 0, '1990-01-01', NULL),
 (4, 'Phan Quoc Toan', '0856789012', 0, '1990-01-01', NULL),
@@ -189,6 +201,17 @@ CREATE TABLE `orders` (
   `order_date` datetime NOT NULL,
   `order_status` enum('Order','Playing','Finished','Paid','Canceled') NOT NULL DEFAULT 'Playing'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`order_id`, `customer_id`, `user_id`, `total_cost`, `order_date`, `order_status`) VALUES
+(68, 1, 1, 16333.33331, '2025-03-13 23:43:18', 'Finished'),
+(71, 11, 1, 1781250, '2025-03-16 00:23:04', 'Finished'),
+(72, 12, 1, 831833.33331, '2025-03-16 00:29:04', 'Paid'),
+(73, 22, 1, NULL, '2025-03-16 00:33:52', 'Canceled'),
+(74, 18, 1, NULL, '2025-03-16 00:58:05', 'Canceled');
 
 -- --------------------------------------------------------
 
@@ -549,7 +572,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
 
 --
 -- AUTO_INCREMENT for table `category`
@@ -573,7 +596,7 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- AUTO_INCREMENT for table `orders_items`
