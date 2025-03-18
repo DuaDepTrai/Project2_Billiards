@@ -43,6 +43,7 @@ import src.billiardsmanagement.service.NotificationService;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -77,7 +78,9 @@ public class PoolTableController {
     @FXML
     private TextField editNameField;
     @FXML
-    private ComboBox<String> editStatusCombo;
+    private ComboBox<String> editStatusCombo,filterTypeCombobox;
+    @FXML
+    private HBox tableCategoryContainer,poolStatusContainer,filterContainer;
 
     protected List<PoolTable> tableList;
     protected ObservableList<PoolTable> availableTableList = FXCollections.observableArrayList();
@@ -170,6 +173,7 @@ public class PoolTableController {
 
         // Add handler for add new table button
 //        addNewButton.setOnAction(e -> showAddDialog());
+        setUpFilter();
     }
 
     public void setUser(User user) throws SQLException {
@@ -1178,5 +1182,89 @@ public class PoolTableController {
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
+    }
+
+    private ComboBox<String> createComboBox(List<String> items) {
+        return new ComboBox<>(FXCollections.observableArrayList(items));
+    }
+    public void setUpFilter(){
+        filterTypeCombobox = createComboBox(Arrays.asList("Table Category","Table Status"));
+        filterTypeCombobox.setPromptText("Filter Type");
+
+        tableCategoryContainer = new HBox(10);
+        for (String category : OrderDAO.getCatePoolTables()) {
+            CheckBox checkBox = new CheckBox(category);
+            checkBox.setOnAction(event -> filterByCategory());
+            tableCategoryContainer.getChildren().add(checkBox);
+            tableCategoryContainer.getStyleClass().add("hbox-filter");
+        }
+
+        poolStatusContainer = new HBox(10);
+        for (String status : PoolTableDAO.getPoolStatuses()){
+            CheckBox checkBox = new CheckBox(status);
+            checkBox.setOnAction(event -> filterByStatus());
+            poolStatusContainer.getChildren().add(checkBox);
+            poolStatusContainer.getStyleClass().add("hbox-filter");
+        }
+        filterContainer.getChildren().add(filterTypeCombobox);
+        filterContainer.getStyleClass().add("filter-container");
+
+        filterTypeCombobox.setOnAction(event -> updateFilterUI());
+    }
+
+    private void updateFilterUI() {
+        filterContainer.getChildren().clear();
+        filterContainer.getChildren().add(filterTypeCombobox);
+
+        String selectedFilter = filterTypeCombobox.getValue();
+
+        if("Table Category".equals(selectedFilter)){
+            filterContainer.getChildren().add(tableCategoryContainer);
+        }else{
+            filterContainer.getChildren().add(poolStatusContainer);
+        }
+    }
+    private void filterByCategory() {
+        List<String> selectedCategories = new ArrayList<>();
+        for (Node node : tableCategoryContainer.getChildren()) {
+            if (node instanceof CheckBox checkBox && checkBox.isSelected()) {
+                selectedCategories.add(checkBox.getText());
+            }
+        }
+
+        if (!selectedCategories.isEmpty()) {
+            // Create a filtered list based on selected categories
+            List<PoolTable> filteredList = tableList.stream()
+                    .filter(table -> selectedCategories.contains(table.getCatePooltableName()))
+                    .collect(Collectors.toList());
+
+            // Update the UI with the filtered list
+            updateUIWithTables(filteredList);
+        } else {
+            // If no category is selected, show all tables
+            updateUIWithTables(tableList);
+        }
+    }
+
+    private void filterByStatus() {
+        List<String> selectedStatuses = new ArrayList<>();
+        for (Node node : poolStatusContainer.getChildren()) {
+            if (node instanceof CheckBox checkBox && checkBox.isSelected()) {
+                selectedStatuses.add(checkBox.getText());
+            }
+        }
+
+        if (!selectedStatuses.isEmpty()) {
+            // Create a filtered list based on selected statuses
+            List<PoolTable> filteredList = tableList.stream()
+                    .filter(table -> selectedStatuses.contains(table.getStatus()))
+                    .collect(Collectors.toList());
+
+            // Update the UI with the filtered list
+            updateUIWithTables(filteredList);
+        } else {
+            // If no status is selected, show all tables
+            updateUIWithTables(tableList);
+        }
     }
 }

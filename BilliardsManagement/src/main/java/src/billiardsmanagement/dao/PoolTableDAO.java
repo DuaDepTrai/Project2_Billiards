@@ -65,6 +65,7 @@ public class PoolTableDAO {
         return table; // Return the retrieved PoolTable object or null
     }
 
+
     public List<PoolTable> getAllTables() {
         List<PoolTable> tables = new ArrayList<>();
         String query = "SELECT p.table_id, p.name, p.status, p.cate_id, " +
@@ -86,6 +87,37 @@ public class PoolTableDAO {
                 double price = rs.getDouble("price");
                 PoolTable newTable = new PoolTable(tableId, name, status, cateId, cateName, shortName, price);
                 tables.add(newTable);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return tables;
+    }
+
+    public List<PoolTable> getTablesByCategoryName(String cateName) {
+        List<PoolTable> tables = new ArrayList<>();
+        String query = "SELECT p.table_id, p.name, p.status, p.cate_id, " +
+                "c.name as cate_name, c.price, c.shortName " +
+                "FROM pooltables p " +
+                "JOIN cate_pooltables c ON p.cate_id = c.id " +
+                "WHERE c.name = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, cateName); // Gán giá trị lọc theo tên loại bàn
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    int tableId = rs.getInt("table_id");
+                    String name = rs.getString("name");
+                    String status = rs.getString("status");
+                    int cateId = rs.getInt("cate_id");
+                    String shortName = rs.getString("shortName");
+                    double price = rs.getDouble("price");
+
+                    PoolTable newTable = new PoolTable(tableId, name, status, cateId, cateName, shortName, price);
+                    tables.add(newTable);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -169,4 +201,23 @@ public class PoolTableDAO {
         }
         return table;
     }
+
+    public static String[] getPoolStatuses() {
+        List<String> statuses = new ArrayList<>();
+        String query = "SELECT DISTINCT status FROM pooltables"; // Lấy các trạng thái duy nhất
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                statuses.add(rs.getString("status")); // Lấy từng trạng thái duy nhất
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return statuses.toArray(new String[0]); // Chuyển danh sách thành mảng String[]
+    }
+
 }

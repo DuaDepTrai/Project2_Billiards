@@ -28,8 +28,10 @@
                         <Font size="13.0" />
                     </font>
                 </Button>
+
             </HBox>
 
+        <HBox fx:id = "filterContainer"></HBox>
 
         <VirtualTable layoutX="97.0" layoutY="236.0" />
         <VirtualTable layoutX="140.0" layoutY="255.0" prefHeight="258.0" prefWidth="257.0" />
