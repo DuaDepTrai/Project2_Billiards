@@ -40,8 +40,8 @@ public class PoolTableInfoController {
 
         // Setup Validate Inline
         if(currentTable.getStatus().equalsIgnoreCase("Available")){
-            notifyLabel.setText("Please enter a name for the table.");
-            notifyLabel.setStyle("-fx-text-fill: #DB2B3D;"); // Red color
+            notifyLabel.setText("Enter a new name for this table");
+            notifyLabel.setStyle("-fx-text-fill: #FF9D23;"); // Red color
             updateButton.setDisable(true);
         }
         setupNameField();
@@ -63,7 +63,12 @@ public class PoolTableInfoController {
                 notifyLabel.setText("Please enter a name for the table.");
                 notifyLabel.setStyle("-fx-text-fill: #DB2B3D;"); // Red color
                 updateButton.setDisable(true);
-            } else if (currentTableNameList.contains(newValue)) {
+            } else if (newValue.equalsIgnoreCase(currentTable.getName())){
+                notifyLabel.setText("Nothing changed in table name.");
+                notifyLabel.setStyle("-fx-text-fill: #FF9D23;"); // Red color
+                updateButton.setDisable(true);
+            }
+            else if (currentTableNameList.contains(newValue)) {
                 // Provide feedback for existing name
                 notifyLabel.setText("This table name already exists!");
                 notifyLabel.setStyle("-fx-text-fill: #DB2B3D;"); // Red color

@@ -104,7 +104,10 @@ public class OrderController implements Initializable {
     private MainController mainController;
     private ForEachOrderController forEachOrderController;
     private Parent forEachOrderPage;
-    private FXMLLoader forEachOrderLoader;
+
+
+    // Minute Limit, use for auto-cancel booking and check booking-time
+    public static int minutesLimit = 1;
 
 
     // without chosen page, of course
@@ -115,6 +118,7 @@ public class OrderController implements Initializable {
     public TableView<Order> getOrderTable() {
         return orderTable;
     }
+
 
     @FXML
     public void addOrder(ActionEvent actionEvent) {
@@ -136,27 +140,32 @@ public class OrderController implements Initializable {
             // Lấy order mới nhất của khách hàng có ID = 1
             Order orderLatest = orderDAO.getLatestOrderByCustomerId(1);
             int orderId = orderLatest.getOrderId();
-
-            // Cập nhật danh sách đơn hàng
+            int totalRow = orderTable.getItems().size();
+            int selectedIndex = orderTable.getItems().indexOf(newOrder);
+            int billNo = totalRow - selectedIndex;
+            System.out.println(orderId);
             loadOrderList();
 
-            // Tải giao diện forEachOrder.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
-            Parent root = loader.load();
+//            Stage stage = new Stage();
+//            stage.setTitle("Order Detail");
+//            stage.setScene(new Scene(forEachOrderPage));
+//            stage.show();
 
-            // Lấy controller của forEachOrder.fxml
-            ForEachOrderController controller = loader.getController();
-            controller.setOrderID(orderId);
-            controller.setCustomerID(1);
-            controller.setOrderTable(orderTable);
-            controller.initializeAllTables();
+            forEachOrderController.setOrderID(orderId);
+            forEachOrderController.setMainController(this.mainController, ChosenPage.ORDERS);
+            forEachOrderController.setCustomerID(1);
+            forEachOrderController.setOrderTable(orderTable);
+            forEachOrderController.setBillNo(billNo);
+            forEachOrderController.setOrderDate(orderLatest.getOrderDate());
+            forEachOrderController.setInitialPhoneText(orderLatest.getCustomerPhone());
+            forEachOrderController.setInitialPhoneText(orderLatest.getCustomerPhone());
+            forEachOrderController.initializeAllTables();
 
-            // Cập nhật nội dung trong contentArea thay vì mở cửa sổ mới
-            if (mainController != null) {
+            if(mainController!=null){
                 StackPane contentArea = mainController.getContentArea();
-                contentArea.getChildren().setAll(root);
+                contentArea.getChildren().clear();
+                contentArea.getChildren().setAll(forEachOrderPage);
             }
-
         } catch (IllegalArgumentException e) {
             NotificationService.showNotification("Validation Error", e.getMessage(), NotificationStatus.Error);
         } catch (Exception e) {
@@ -745,6 +754,7 @@ public class OrderController implements Initializable {
                 forEachOrderController.setBillNo(billNo);
                 forEachOrderController.setOrderDate(selectedOrder.getOrderDate());
                 forEachOrderController.setCurrentOrder(selectedOrder);
+                forEachOrderController.setInitialPhoneText(selectedOrder.getCustomerPhone());
                 forEachOrderController.setOrderController(this);
                 forEachOrderController.initializeAllTables();
 
@@ -944,6 +954,7 @@ public class OrderController implements Initializable {
         return new DatePicker();
     }
 
+
     private void updateFilterUI() {
         filterContainer.getChildren().clear(); // Xóa các thành phần cũ
         filterContainer.getChildren().add(filterTypeComboBox); // Luôn giữ ComboBox chọn loại lọc
@@ -1011,13 +1022,15 @@ public class OrderController implements Initializable {
         }
 
         if (!selectedStatuses.isEmpty()) {
-            orderTable.setItems(OrderDAO.getOrdersByStatus(selectedStatuses));
+            orderTable.setItems(OrderDAO.getOrdersByStatus(String.valueOf(selectedStatuses)));
         } else {
             loadOrderList();
         }
     }
+    @FXML
+    private Button refreshButton;
 
-
+    private boolean isRefreshNotificationShow = true;
     @FXML
     public void refreshPage(ActionEvent event) {
         loadCustomerNameToIdMap(); // Làm mới danh sách tên khách hàng
@@ -1046,12 +1059,17 @@ public class OrderController implements Initializable {
         }
 
         NotificationService.showNotification("Refresh", "Page has been refreshed.", NotificationStatus.Information);
+        datePicker.setValue(null);
+        categoryComboBox.getSelectionModel().clearSelection();
+        statusComboBox.getSelectionModel().clearSelection();
+        if(isRefreshNotificationShow){
+            NotificationService.showNotification("Refresh", "Page has been refreshed.", NotificationStatus.Information);
+        }
     }
 
-
-
-    public void setForEachOrderLoader(FXMLLoader forEachOrderLoader) {
-        this.forEachOrderLoader = forEachOrderLoader;
+    public void setRefreshNotificationShow(boolean refreshNotificationShow) {
+        isRefreshNotificationShow = refreshNotificationShow;
     }
+
 }
 

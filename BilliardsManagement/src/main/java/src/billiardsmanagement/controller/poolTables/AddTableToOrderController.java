@@ -43,7 +43,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
 
-public class AddTableToOrderController implements Initializable {
+public class AddTableToOrderController {
 
     @FXML
     private TableView<Order> orderTable;
@@ -74,11 +74,9 @@ public class AddTableToOrderController implements Initializable {
 
     private ForEachOrderController forEachOrderController;
     private Parent forEachRoot;
-    private FXMLLoader forEachViewLoader;
 
     // Initialize the table columns
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void initializeAddTableToOrderController() {
 
         sttColumn.setCellValueFactory(param -> {
             TableView<?> tableView = sttColumn.getTableView();
@@ -268,10 +266,11 @@ public class AddTableToOrderController implements Initializable {
 
     private void showForEachOrderView(Order order) {
         try {
-            forEachViewLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
-            forEachRoot = forEachViewLoader.load();
-
-            forEachOrderController = forEachViewLoader.getController();
+            if(forEachRoot==null || forEachOrderController==null){
+                if(mainController!=null){
+                    mainController.initializeAllControllers();
+                }
+            }
 
             forEachOrderController.setOrderID(order.getOrderId());
             forEachOrderController.setCustomerID(order.getCustomerId());
@@ -306,7 +305,8 @@ public class AddTableToOrderController implements Initializable {
     private void loadOrderList() {
         List<Order> orders = orderDAO.getAllOrders();
         if (!orders.isEmpty()) {
-            orders = orders.stream().filter(order -> order.getOrderStatus().equalsIgnoreCase("Playing") || order.getOrderStatus().equalsIgnoreCase("Order")).toList();
+            orders = orders.stream().filter(order -> order.getOrderStatus().equalsIgnoreCase("Playing") ||
+                    order.getOrderStatus().equalsIgnoreCase("Ordered")).toList();
             orderTable.setItems(FXCollections.observableArrayList(orders));
         }
     }
@@ -337,5 +337,13 @@ public class AddTableToOrderController implements Initializable {
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
+    }
+
+    public void setForEachOrderController(ForEachOrderController forEachOrderController) {
+        this.forEachOrderController = forEachOrderController;
+    }
+
+    public void setForEachRoot(Parent forEachRoot) {
+        this.forEachRoot = forEachRoot;
     }
 }

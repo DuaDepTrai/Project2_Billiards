@@ -178,7 +178,6 @@ public class ForEachOrderController {
     public void setMainController(MainController mainController, ChosenPage mainControllerChosenPage) {
         this.mainControllerChosenPage = mainControllerChosenPage;
         this.mainController = mainController;
-
     }
 
     private final ObservableList<Booking> bookingList = FXCollections.observableArrayList();
@@ -190,7 +189,7 @@ public class ForEachOrderController {
     private final OrderItemDAO orderItemDAO = new OrderItemDAO();
     private Connection conn = DatabaseConnection.getConnection();
 
-    private int orderID;
+    private int orderID = -1; // Default value
     private int userID;
     private int customerID;
     private int billNo;
@@ -212,18 +211,10 @@ public class ForEachOrderController {
     private PoolTableController poolTableController;
     private OrderController orderController;
 
-    public void setOrderID(int orderID) {
-        this.orderID = orderID;
-        if (orderID > 0) {
-            loadBookings();
-            loadOrderDetail();
-        } else {
-            NotificationService.showNotification("Invalid Order ID", "The provided Order ID is invalid.",
-                    NotificationStatus.Error);
-        }
-    }
 
     public void loadBookings() {
+        // tam thoi comment lai de tranh vong lap goi ham
+//        checkBookingStatus();
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
         // Filter bookings to only show the selected table's bookings
 //        if (selectedTable != null) {
@@ -235,8 +226,7 @@ public class ForEachOrderController {
         bookingList.clear();
         bookingList.addAll(bookings);
         bookingPoolTable.setItems(bookingList);
-
-        checkBookingStatus();
+        System.out.println("From ForEachOrderController, loadBookings() has been called : " + bookings.size());
     }
 
     private void loadOrderDetail() {
@@ -669,7 +659,11 @@ public class ForEachOrderController {
             if (order.getTotalCost() != 0.0) {
                 orderTotalCost.setText(formatTotal(order.getTotalCost()));
             }
+            confirmSaveCustomer.setDisable(phoneText.getText().equalsIgnoreCase(initialPhoneText));
         }
+
+        loadBookings();
+        System.out.println("From ForEachOrderController, initializeForEachOrderButtonsAndInformation() has been called !");
     }
 
     private void setupPhoneAutoCompletion() {
@@ -686,7 +680,23 @@ public class ForEachOrderController {
         phoneAutoCompletion = TextFields.bindAutoCompletion(phoneText, suggestions);
         HandleTextFieldClick(phoneAutoCompletion, (ArrayList<String>) suggestions, phoneText);
 
+        phoneAutoCompletion.setHideOnEscape(true);
+        phoneAutoCompletion.setOnAutoCompleted(autoCompletionEvent -> {
+            if(phoneText.getText()!=null && !phoneText.getText().equalsIgnoreCase(initialPhoneText) && customerText.getText() != null) {
+                updateCustomerInformation(new ActionEvent());
+            }
+            else {
+                NotificationService.showNotification("No Changes", "No changes were made in the customer information field.",
+                        NotificationStatus.Warning);
+            }
+        });
+
         phoneText.textProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue!=null && newValue.equalsIgnoreCase(initialPhoneText)){
+                confirmSaveCustomer.setDisable(true);
+                return;
+            }
+            else confirmSaveCustomer.setDisable(false);
             if (newValue != null && !newValue.isEmpty()) {
                 // Tách số điện thoại từ chuỗi gợi ý (vd: "0123456789 - John" -> "0123456789")
                 String phone = newValue.split(" - ")[0];
@@ -700,26 +710,24 @@ public class ForEachOrderController {
     }
 
     private final AtomicBoolean isFirstFocus = new AtomicBoolean(true);
-    public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text) {
-        isFirstFocus.set(true);
-        auto.setHideOnEscape(true);
-        auto.setOnAutoCompleted(autoCompletionEvent -> {
-            if (!text.getText().equalsIgnoreCase(initialPhoneText) && customerText.getText() != null) {
-                updateCustomerInformation(new ActionEvent());
-            } else {
-                NotificationService.showNotification("No Changes", "No changes were made in the customer information field.",
-                        NotificationStatus.Warning);
-            }
-        });
 
+    public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text) {
         text.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue && isFirstFocus.get()) {
-                auto.setUserInput(" ");
-                phoneText.setText("");
-                isFirstFocus.set(false); // Prevents this from running again
+                System.out.println("initialPhoneText: " + initialPhoneText);
+                if(text.getText()!=null && !text.getText().equalsIgnoreCase(initialPhoneText)){
+                    isFirstFocus.set(false);
+                    return;
+                }
+                else{
+                    text.setText("");
+                    isFirstFocus.set(false); // Prevents this from running again
+                }
+            }
+            if(!newValue){
+                isFirstFocus.set(true);
             }
         });
-
     }
 
     //    public void addBooking(ActionEvent event) {
@@ -1188,14 +1196,13 @@ public class ForEachOrderController {
 
             Optional<ButtonType> result = confirmAlert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                if(bookingPoolTable.getItems().isEmpty()){
+                if (bookingPoolTable.getItems().isEmpty()) {
                     double totalCost = OrderDAO.calculateOrderTotal(orderID);
                     boolean updateOrderSuccess = OrderDAO.updateOrderStatus(this.orderID, totalCost);
-                    if(updateOrderSuccess){
+                    if (updateOrderSuccess) {
                         NotificationService.showNotification("Finish This Order", "Finish order successfully. There's no booking in this table.", NotificationStatus.Information);
                         initializeForEachOrderButtonsAndInformation();
-                    }
-                    else{
+                    } else {
                         NotificationService.showNotification("Error", "Failed to finish order.", NotificationStatus.Error);
                     }
                     return;
@@ -1263,7 +1270,6 @@ public class ForEachOrderController {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
         if (bookings.size() == 1 && "Canceled".equalsIgnoreCase(bookings.get(0).getBookingStatus())) {
             OrderDAO.updateStatusOrder(orderID, "Canceled");
-            BookingDAO.cancelBooking(bookings.get(0).getBookingId());
             initializeForEachOrderButtonsAndInformation();
             System.out.println("✅ From ForEachOrder : Order updated to Canceled ; only 1 booking found.");
             return;
@@ -1512,12 +1518,11 @@ public class ForEachOrderController {
                     mainController.showOrdersPage();
                 if (mainControllerChosenPage == ChosenPage.POOLTABLES)
                     mainController.showPoolTablePage();
-            } else {
-                NotificationService.showNotification("Error", "MainController is not set.", NotificationStatus.Error);
-            }
+            } else
+                System.out.println("From ForEachOrderController : mainController is not set !");
         } catch (Exception e) {
             e.printStackTrace();
-            NotificationService.showNotification("Error", "Failed to navigate back.", NotificationStatus.Error);
+            System.out.println("From ForEachOrderController : Failed to navigate back !");
         }
     }
 
@@ -1551,5 +1556,24 @@ public class ForEachOrderController {
 
     public void setMainControllerContentArea(StackPane contentArea) {
         this.contentArea = contentArea;
+    }
+
+    public TableView<Booking> getBookingTable() {
+        return this.bookingPoolTable;
+    }
+
+    public void setOrderID(int orderID) {
+        this.orderID = orderID;
+        if (orderID > 0) {
+            loadBookings();
+            loadOrderDetail();
+        } else {
+            NotificationService.showNotification("Invalid Order ID", "The provided Order ID is invalid.",
+                    NotificationStatus.Error);
+        }
+    }
+
+    public int getOrderID(){
+        return this.orderID;
     }
 }

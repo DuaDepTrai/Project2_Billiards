@@ -50,6 +50,18 @@ public class Booking {
         this.bookingStatus = bookingStatus;
     }
 
+    public Booking(int bookingId, int orderId, int tableId, LocalDateTime startTime, LocalDateTime localDateTime, double timeplay, double total, String bookingStatus, String tableName) {
+        this.bookingId = bookingId;
+        this.orderId = orderId;
+        this.tableId = tableId;
+        this.startTime = startTime;
+        this.endTime = localDateTime;
+        this.timeplay = timeplay;
+        this.total = total;
+        this.bookingStatus = bookingStatus;
+        this.tableName = tableName;
+    }
+
     // Getters and Setters
     public int getBookingId() {
         return bookingId;

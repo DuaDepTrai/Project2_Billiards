@@ -1,5 +1,6 @@
 package src.billiardsmanagement.dao;
 
+import src.billiardsmanagement.controller.orders.OrderController;
 import src.billiardsmanagement.model.Booking;
 import src.billiardsmanagement.model.DatabaseConnection;
 import src.billiardsmanagement.model.NotificationStatus;
@@ -11,6 +12,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookingDAO {
+
+    public static List<Booking> getBookingsInTimeRange() {
+        List<Booking> bookings = new ArrayList<>();
+        String query = "SELECT b.*, p.name AS table_name " +
+                "FROM bookings b " +
+                "JOIN pooltables p ON b.table_id = p.table_id " +
+                "WHERE b.start_time < NOW() - INTERVAL ? MINUTE " +
+                "AND b.booking_status = 'Ordered'";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, OrderController.minutesLimit);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Booking booking = new Booking(
+                        rs.getInt("booking_id"),
+                        rs.getInt("order_id"),
+                        rs.getInt("table_id"),
+                        rs.getTimestamp("start_time").toLocalDateTime(),
+                        rs.getTimestamp("end_time") != null ? rs.getTimestamp("end_time").toLocalDateTime() : null,
+                        rs.getDouble("timeplay"),
+                        rs.getDouble("total"),
+                        rs.getString("booking_status"),
+                        rs.getString("table_name") // Fetch pool table name
+                );
+                bookings.add(booking);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle exception properly in production
+        }
+        return bookings;
+    }
+
+
 
     public static Booking getBookingByTableIdAndOrderId(int orderId, int tableId) {
         String query = "SELECT * FROM bookings WHERE order_id = ? AND table_id = ? ORDER BY start_time DESC LIMIT 1";
@@ -409,6 +446,52 @@ public class BookingDAO {
         }
     }
 
+    // Used for canceling multiple bookings at once. Returns true if all bookings were canceled successfully.
+    public static boolean cancelMultipleBookings(List<Booking> bookings) {
+        if (bookings == null || bookings.isEmpty()) {
+            return false; // No bookings to cancel
+        }
+
+        String updateBookingQuery = "UPDATE bookings SET booking_status = 'Canceled' WHERE booking_id = ?";
+        String updateTableStatusQuery = "UPDATE pooltables SET status = 'Available' WHERE table_id = (SELECT table_id FROM bookings WHERE booking_id = ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false); // Start transaction
+
+            try (PreparedStatement stmt1 = conn.prepareStatement(updateBookingQuery);
+                 PreparedStatement stmt2 = conn.prepareStatement(updateTableStatusQuery)) {
+
+                for (Booking booking : bookings) {
+                    int bookingId = booking.getBookingId();
+
+                    // Update booking status to 'Canceled'
+                    stmt1.setInt(1, bookingId);
+                    int rowsUpdated = stmt1.executeUpdate();
+
+                    if (rowsUpdated == 0) {
+                        conn.rollback(); // Rollback transaction if any booking update fails
+                        return false;
+                    }
+
+                    // Update table status to 'Available'
+                    stmt2.setInt(1, bookingId);
+                    stmt2.executeUpdate();
+                }
+
+                conn.commit(); // Commit all updates
+                return true;
+            } catch (SQLException e) {
+                conn.rollback(); // Rollback if any error occurs
+                e.printStackTrace();
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
     public static boolean cancelBooking(int bookingId) {
         String updateBookingQuery = "UPDATE bookings SET booking_status = 'Canceled' WHERE booking_id = ?";
         String updateTableStatusQuery = "UPDATE pooltables SET status = 'Available' WHERE table_id = (SELECT table_id FROM bookings WHERE booking_id = ?)";
@@ -440,6 +523,7 @@ public class BookingDAO {
             return false;
         }
     }
+
 
     public static boolean handleFinishBooking(int bookingId, int tableId) {
         System.out.println("Booking ID : " + bookingId + " Table ID : " + tableId);

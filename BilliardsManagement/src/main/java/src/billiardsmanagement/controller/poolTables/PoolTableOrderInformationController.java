@@ -73,7 +73,6 @@ public class PoolTableOrderInformationController {
     private MainController mainController;
     private ForEachOrderController forEachOrderController;
     private Parent forEachRoot;
-    private FXMLLoader forEachViewLoader;
 
     public void initializeView() {
         orderInformationTitle.setText("Table " + currentTable.getName() + "'s Order Information");
@@ -141,10 +140,11 @@ public class PoolTableOrderInformationController {
 
     private void showForEachOrderView(Order order) {
         try {
-            forEachViewLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
-            forEachRoot = forEachViewLoader.load();
-
-            forEachOrderController = forEachViewLoader.getController();
+            if(forEachRoot == null || forEachOrderController == null){
+                if(mainController!=null){
+                    mainController.initializeAllControllers();
+                }
+            }
 
             forEachOrderController.setOrderID(order.getOrderId());
             forEachOrderController.setCustomerID(order.getCustomerId());
@@ -418,6 +418,11 @@ public class PoolTableOrderInformationController {
             controller.setOrderController(this.orderController);
             controller.setMainController(this.mainController);
 
+            // set ForEach
+            controller.setForEachOrderController(this.forEachOrderController);
+            controller.setForEachRoot(this.forEachRoot);
+            controller.initializeAddTableToOrderController();
+
             if (poolTableController != null) poolTableController.showPoolPopup(tablesContainer, root);
 
         } catch (Exception e) {
@@ -527,5 +532,13 @@ public class PoolTableOrderInformationController {
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
+    }
+
+    public void setForEachOrderController(ForEachOrderController forEachOrderController) {
+        this.forEachOrderController = forEachOrderController;
+    }
+
+    public void setForEachRoot(Parent forEachRoot) {
+        this.forEachRoot = forEachRoot;
     }
 }

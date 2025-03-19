@@ -13,6 +13,7 @@ import src.billiardsmanagement.model.Order;
 import java.text.DecimalFormat;
 
 public class BookingController {
+
     @FXML
     private Label customerNameLabel, customerPhoneLabel, totalCostLabel;
     @FXML

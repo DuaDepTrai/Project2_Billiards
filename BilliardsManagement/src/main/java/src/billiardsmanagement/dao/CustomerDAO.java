@@ -125,6 +125,21 @@ public class CustomerDAO {
         return customers;
     }
 
+    public static int getCustomerIdByOrderId(int orderId){
+        String query = "SELECT customer_id FROM orders WHERE order_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, orderId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("customer_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     public List<Customer> getInfoCustomer(int customerID) {
         List<Customer> customers = new ArrayList<>();
         String query = "SELECT name, phone FROM customers WHERE customer_id = ?";

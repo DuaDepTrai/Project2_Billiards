@@ -337,10 +337,9 @@ public class MainController {
     public void showOrdersPage() throws IOException {
         if (orderLoader != null && orderPane != null && orderController != null) {
             orderController.setMainController(this); // Truyền MainController vào OrderController
-            orderController.setForEachOrderPage(this.forEachOrderPage);
 
+            // page + controller is required
             orderController.setForEachOrderController(this.forEachOrderController);
-            orderController.setForEachOrderLoader(this.forEachOrderLoader);
             orderController.setForEachOrderPage(this.forEachOrderPage);
 
             contentArea.getChildren().setAll(orderPane); // Hiển thị trang order
@@ -435,6 +434,10 @@ public class MainController {
             poolTableController.setUser(loggedInUser);
             poolTableController.setMainController(this);
             poolTableController.setOrderController(orderController);
+
+            // root + controller is required
+            poolTableController.setForEachOrderController(forEachOrderController);
+            poolTableController.setForEachRoot(forEachOrderPage);
 
             System.out.println("🔹 Truyền user vào poolTableController: " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
 

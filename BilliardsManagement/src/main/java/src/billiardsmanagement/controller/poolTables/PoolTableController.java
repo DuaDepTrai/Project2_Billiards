@@ -96,7 +96,6 @@ public class PoolTableController {
     private OrderController orderController;
     private List<String> tableNameList;
 
-    private FXMLLoader forEachViewLoader;
     private ForEachOrderController forEachOrderController;
     private Parent forEachRoot;
 
@@ -282,6 +281,9 @@ public class PoolTableController {
                     controller.setTablesContainer(tableStack);
                     controller.setOrderController(this.orderController);
                     controller.setMainController(this.mainController);
+
+                    controller.setForEachOrderController(this.forEachOrderController);
+                    controller.setForEachRoot(this.forEachRoot);
                     controller.initializeView();
 
                     showPoolPopup(tableStack, root);
@@ -439,10 +441,11 @@ public class PoolTableController {
 
     private void showForEachOrderView(Order order, PoolTable currentTable) {
         try {
-            forEachViewLoader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/forEachOrder.fxml"));
-            forEachRoot = forEachViewLoader.load();
-
-            forEachOrderController = forEachViewLoader.getController();
+            if(forEachOrderController == null || forEachRoot == null){
+                if(mainController!=null){
+                    mainController.initializeAllControllers();
+                }
+            }
 
             forEachOrderController.setOrderID(order.getOrderId());
             forEachOrderController.setCustomerID(order.getCustomerId());
@@ -1165,6 +1168,15 @@ public class PoolTableController {
     public OrderController getOrderController() {
         return this.orderController;
     }
+
+    public void setForEachOrderController(ForEachOrderController forEachOrderController) {
+        this.forEachOrderController = forEachOrderController;
+    }
+
+    public void setForEachRoot(Parent forEachRoot) {
+        this.forEachRoot = forEachRoot;
+    }
+
 
     // Used after every operation executed on PoolTable
     public void resetTableListAndTableNameList() {
