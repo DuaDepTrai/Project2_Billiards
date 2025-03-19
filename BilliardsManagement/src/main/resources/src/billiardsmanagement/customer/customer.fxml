@@ -12,6 +12,7 @@
 <?import javafx.scene.text.Font?>
 
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.DatePicker?>
 <AnchorPane prefHeight="609.0" prefWidth="1032.0" stylesheets="@../css/poolTable.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.customer.CustomerController">
     <children>
         <!-- Search Section -->
@@ -37,6 +38,8 @@
             <TextField fx:id="nameField" prefWidth="200.0" promptText="Customer Name" />
             <TextField fx:id="phoneField" prefWidth="200.0" promptText="Phone Number" />
             <Label fx:id="playtimeLabel" prefWidth="200.0" text="0.00" styleClass="playtime-label" />
+            <DatePicker fx:id="birthdayPicker" prefWidth="200.0" promptText="Birthday" />
+            <TextField fx:id="addressField" prefWidth="200.0" promptText="Address" />
             <HBox spacing="10">
                 <Button fx:id="saveCustomerBtn" mnemonicParsing="false" onAction="#handleSaveCustomer" prefWidth="95.0" styleClass="save-button" text="Save" />
                 <Button fx:id="cancelBtn" mnemonicParsing="false" onAction="#handleCancelAdd" prefWidth="95.0" styleClass="cancel-button" text="Cancel" />

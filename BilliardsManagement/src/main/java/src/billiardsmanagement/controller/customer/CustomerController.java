@@ -173,6 +173,7 @@ public class CustomerController {
                 updateNameField.setText(newSelection.getName());
                 updatePhoneField.setText(newSelection.getPhone());
                 updatePlaytimeLabel.setText(String.format("%.2f", newSelection.getTotalPlaytime()));
+
                 updateForm.setVisible(true);
             } else {
                 // Hide update form when no selection
