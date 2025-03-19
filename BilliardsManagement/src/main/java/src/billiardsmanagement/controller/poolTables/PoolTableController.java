@@ -1188,26 +1188,35 @@ public class PoolTableController {
         return new ComboBox<>(FXCollections.observableArrayList(items));
     }
     public void setUpFilter(){
-        filterTypeCombobox = createComboBox(Arrays.asList("Table Category","Table Status"));
-        filterTypeCombobox.setPromptText("Filter Type");
+        if (filterTypeCombobox == null) { // Chỉ khởi tạo nếu chưa có
+            filterTypeCombobox = createComboBox(Arrays.asList("Table Category", "Table Status"));
+            filterTypeCombobox.setPromptText("Filter Type");
+            filterTypeCombobox.setOnAction(event -> updateFilterUI());
+        }
 
-        tableCategoryContainer = new HBox(10);
-        for (String category : OrderDAO.getCatePoolTables()) {
-            CheckBox checkBox = new CheckBox(category);
-            checkBox.setOnAction(event -> filterByCategory());
-            tableCategoryContainer.getChildren().add(checkBox);
+        if (tableCategoryContainer == null) { // Tránh tạo nhiều lần
+            tableCategoryContainer = new HBox(10);
+            for (String category : OrderDAO.getCatePoolTables()) {
+                CheckBox checkBox = new CheckBox(category);
+                checkBox.setOnAction(event -> filterByCategory());
+                tableCategoryContainer.getChildren().add(checkBox);
+            }
             tableCategoryContainer.getStyleClass().add("hbox-filter");
         }
 
-        poolStatusContainer = new HBox(10);
-        for (String status : PoolTableDAO.getPoolStatuses()){
-            CheckBox checkBox = new CheckBox(status);
-            checkBox.setOnAction(event -> filterByStatus());
-            poolStatusContainer.getChildren().add(checkBox);
+        if (poolStatusContainer == null) { // Tránh tạo nhiều lần
+            poolStatusContainer = new HBox(10);
+            for (String status : PoolTableDAO.getPoolStatuses()) {
+                CheckBox checkBox = new CheckBox(status);
+                checkBox.setOnAction(event -> filterByStatus());
+                poolStatusContainer.getChildren().add(checkBox);
+            }
             poolStatusContainer.getStyleClass().add("hbox-filter");
         }
-        filterContainer.getChildren().add(filterTypeCombobox);
-        filterContainer.getStyleClass().add("filter-container");
+        if (!filterContainer.getChildren().contains(filterTypeCombobox)) {
+            filterContainer.getChildren().add(filterTypeCombobox);
+            filterContainer.getStyleClass().add("filter-container");
+        }
 
         filterTypeCombobox.setOnAction(event -> updateFilterUI());
     }

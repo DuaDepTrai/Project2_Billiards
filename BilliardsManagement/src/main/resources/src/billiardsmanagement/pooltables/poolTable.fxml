@@ -13,10 +13,13 @@
 <?import javafx.scene.text.Font?>
 
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Label?>
 <AnchorPane fx:id="poolTableMasterPane" prefHeight="609.0" prefWidth="1600.0" stylesheets="@../css/poolTable.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.poolTables.PoolTableController">
     <children>
         <!-- Search and Add New Section -->
             <HBox alignment="CENTER_LEFT" spacing="10" styleClass="header" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="350.0">
+                <Label text="Filter By:" style="-fx-font-weight: bold; -fx-padding: 0 5 0 5;" />
+                <HBox fx:id = "filterContainer"></HBox>
                 <Region HBox.hgrow="ALWAYS" />
 
                 <TextField fx:id="searchField" prefHeight="26.0" prefWidth="200.0" promptText="Search by pool name" styleClass="search-field" />
@@ -31,7 +34,6 @@
 
             </HBox>
 
-        <HBox fx:id = "filterContainer"></HBox>
 
         <VirtualTable layoutX="97.0" layoutY="236.0" />
         <VirtualTable layoutX="140.0" layoutY="255.0" prefHeight="258.0" prefWidth="257.0" />

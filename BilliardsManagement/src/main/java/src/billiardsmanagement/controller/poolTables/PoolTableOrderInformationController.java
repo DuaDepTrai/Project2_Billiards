@@ -257,7 +257,7 @@ public class PoolTableOrderInformationController {
             if (true) {
                 // Create a StackPane to hold the custom dialog
                 StackPane stackPane = new StackPane();
-                stackPane.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-border-color: gray; -fx-border-width: 1;");
+                stackPane.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-border-width: 1;");
 
                 Label header = new Label("Choose Play or Order on this table.");
                 Label content = new Label("Do you want to play on the table or just order?");

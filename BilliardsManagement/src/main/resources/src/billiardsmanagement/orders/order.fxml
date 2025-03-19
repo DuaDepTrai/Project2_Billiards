@@ -28,7 +28,7 @@
 
                 <!--            <Label styleClass="title-label" text="ORDER" />-->
                 <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Label text="Filter By:" style="-fx-font-weight: bold; -fx-padding: 0 10 0 0;" />
+                    <Label text="Filter By:" style="-fx-font-weight: bold; -fx-padding: 0 5 0 5;" />
                     <HBox fx:id="filterContainer"></HBox>
                 </HBox>
 

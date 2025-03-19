@@ -283,7 +283,7 @@ public class UserController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirm Remove");
         alert.setHeaderText("Are you sure you want to remove this user?");
-        alert.setContentText("User: " + user.getUsername());
+        alert.setContentText("User: " + user.getUsername() + "\nFullname: " + user.getFullname() + "\nRole: " + user.getRole());
 
         ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
         ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);

@@ -136,7 +136,7 @@ public class CustomerController {
         phoneCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.1)); // 5% tổng chiều rộng
         totalPlaytimeCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.1)); // 5% tổng chiều rộng
         birthdayCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.1)); // 5% tổng chiều rộng
-        addressCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.4)); // 5% tổng chiều rộng
+        addressCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.38)); // 5% tổng chiều rộng
 
         // Căn trái
         nameCol.setStyle("-fx-alignment: CENTER-LEFT;");
