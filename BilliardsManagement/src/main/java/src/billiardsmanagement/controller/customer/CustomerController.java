@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 import src.billiardsmanagement.dao.CustomerDAO;
 import src.billiardsmanagement.model.Customer;
 import src.billiardsmanagement.model.User;
@@ -15,16 +16,25 @@ import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
 import javafx.event.ActionEvent;
 
+import java.io.Console;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+//import java.util.Date;
 import java.util.List;
+import java.sql.Date;
+
+
 
 public class CustomerController {
     @FXML
     private TextField addressField;
-
     @FXML
     private DatePicker birthdayPicker;
+    @FXML
+    private TextField updateAddressField;
+    @FXML
+    private DatePicker updateBirthdayPicker;
 
     @FXML
     private TableColumn<User,Integer> sttColumn;
@@ -90,6 +100,108 @@ public class CustomerController {
         // Initially hide both forms
         customerForm.setVisible(false);
         updateForm.setVisible(false);
+
+        setupBirthdayPickerFormat();
+        setupUpdateBirthdayPickerFormat();
+
+        // Giới hạn ngày sinh: tối đa là ngày hiện tại, tối thiểu là 100 năm trước
+        birthdayPicker.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+                LocalDate minDate = today.minusYears(100);
+
+                // Nếu ngày ngoài khoảng min/max thì disable
+                setDisable(date.isAfter(today) || date.isBefore(minDate));
+
+                // Tô màu cho ngày bị vô hiệu hóa
+                if (date.isAfter(today) || date.isBefore(minDate)) {
+                    setStyle("-fx-background-color: #ffcccc;");
+                }
+            }
+        });
+
+        // Đặt giá trị min/max cho DatePicker
+        birthdayPicker.setValue(null);
+
+        updateBirthdayPicker.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+                LocalDate minDate = today.minusYears(100);
+
+                // Nếu ngày ngoài khoảng min/max thì disable
+                setDisable(date.isAfter(today) || date.isBefore(minDate));
+
+                // Tô màu cho ngày bị vô hiệu hóa
+                if (date.isAfter(today) || date.isBefore(minDate)) {
+                    setStyle("-fx-background-color: #ffcccc;");
+                }
+            }
+        });
+        updateBirthdayPicker.setValue(null);
+    }
+
+    private void setupBirthdayPickerFormat() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        birthdayPicker.setConverter(new javafx.util.StringConverter<LocalDate>() {
+            @Override
+            public String toString(LocalDate date) {
+                return (date != null) ? date.format(formatter) : "";
+            }
+
+            @Override
+            public LocalDate fromString(String text) {
+                if (text == null || text.trim().isEmpty()) {
+                    return null;
+                }
+                try {
+                    return LocalDate.parse(text, formatter);
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+        });
+
+        // Lắng nghe sự kiện khi người dùng nhập vào DatePicker
+        birthdayPicker.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            if (isValidDateFormat(newValue)) {
+                birthdayPicker.setValue(LocalDate.parse(newValue, formatter)); // Cập nhật giá trị DatePicker
+            }
+        });
+    }
+
+    private void setupUpdateBirthdayPickerFormat() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        updateBirthdayPicker.setConverter(new javafx.util.StringConverter<LocalDate>() {
+            @Override
+            public String toString(LocalDate date) {
+                return (date != null) ? date.format(formatter) : "";
+            }
+
+            @Override
+            public LocalDate fromString(String text) {
+                if (text == null || text.trim().isEmpty()) {
+                    return null;
+                }
+                try {
+                    return LocalDate.parse(text, formatter);
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+        });
+
+        // Lắng nghe sự kiện khi người dùng nhập vào DatePicker
+        updateBirthdayPicker.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            if (isValidDateFormat(newValue)) {
+                updateBirthdayPicker.setValue(LocalDate.parse(newValue, formatter)); // Cập nhật giá trị DatePicker
+            }
+        });
     }
 
     private void setupTableColumns() {
@@ -116,8 +228,9 @@ public class CustomerController {
         });
 
         birthdayCol.setCellValueFactory(cellData -> {
-            Date date = cellData.getValue().getBirthday(); // Lấy Date từ User
-            String formattedDate = (date != null) ? dateFormat.format(date) : ""; // Chuyển thành String
+            java.util.Date utilDate = cellData.getValue().getBirthday(); // Nếu trả về java.util.Date
+            Date sqlDate = (utilDate != null) ? new Date(utilDate.getTime()) : null;
+            String formattedDate = (sqlDate != null) ? dateFormat.format(sqlDate) : "";
             return new SimpleStringProperty(formattedDate);
         });
 
@@ -172,7 +285,19 @@ public class CustomerController {
                 // Show update form with current values
                 updateNameField.setText(newSelection.getName());
                 updatePhoneField.setText(newSelection.getPhone());
-                updatePlaytimeLabel.setText(String.format("%.2f", newSelection.getTotalPlaytime()));
+//                updatePlaytimeLabel.setText(String.format("%.2f", newSelection.getTotalPlaytime()));
+
+                // Xử lý birthday
+                java.sql.Date birthday = (java.sql.Date) newSelection.getBirthday();
+                if (birthday != null) {
+                    LocalDate localDate = birthday.toLocalDate(); // Chuyển java.sql.Date -> LocalDate
+                    updateBirthdayPicker.setValue(localDate);
+                    updateBirthdayPicker.getEditor().setText(localDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                } else {
+                    updateBirthdayPicker.setValue(null);
+                    updateBirthdayPicker.getEditor().clear();
+                }
+                updateAddressField.setText(newSelection.getAddress());
 
                 updateForm.setVisible(true);
             } else {
@@ -191,9 +316,9 @@ public class CustomerController {
             // If form is hidden, show it and clear fields
             nameField.clear();
             phoneField.clear();
-            addressField.clear();
             birthdayPicker.setValue(null);
-            playtimeLabel.setText("0.00");
+            addressField.clear();
+//            playtimeLabel.setText("0.00");
 
             // Hide update form if visible
             updateForm.setVisible(false);
@@ -208,6 +333,16 @@ public class CustomerController {
         try {
             String name = nameField.getText().trim();
             String phone = phoneField.getText().trim();
+            LocalDate birthday = birthdayPicker.getValue();
+            String address = addressField.getText().trim();
+
+            // Kiểm tra nếu ngày sinh trống hoặc sai định dạng
+            String birthdayStr = birthdayPicker.getEditor().getText().trim();
+            if (birthday == null || !isValidDateFormat(birthdayStr)) {
+                NotificationService.showNotification("Error", "Date must be in the format DD/MM/YYYY.",
+                        NotificationStatus.Error);
+                return;
+            }
 
             // Validate input
             if (name.isEmpty() || phone.isEmpty()) {
@@ -229,11 +364,17 @@ public class CustomerController {
                 return;
             }
 
+            // Chuyển đổi LocalDate sang java.sql.Date để lưu vào database
+            Date sqlBirthday = Date.valueOf(birthday);
+
+
             // Create and save customer
             Customer customer = new Customer();
             customer.setName(name);
             customer.setPhone(phone);
-            customer.setTotalPlaytime(0.0); // Set initial playtime to 0
+//            customer.setTotalPlaytime(0.0); // Set initial playtime to 0
+            customer.setBirthday(sqlBirthday);
+            customer.setAddress(address);
 
             customerDAO.addCustomer(customer);
             NotificationService.showNotification("Success", "Customer added successfully",
@@ -254,7 +395,9 @@ public class CustomerController {
         // Clear form fields
         nameField.clear();
         phoneField.clear();
-        playtimeLabel.setText("0.00");
+//        playtimeLabel.setText("0.00");
+        birthdayPicker.setValue(null);
+        addressField.clear();
 
         // Hide the form
         customerForm.setVisible(false);
@@ -275,6 +418,16 @@ public class CustomerController {
 
             String name = updateNameField.getText().trim();
             String phone = updatePhoneField.getText().trim();
+            LocalDate birthday = updateBirthdayPicker.getValue();
+            String address = updateAddressField.getText().trim();
+
+            // Kiểm tra nếu ngày sinh trống hoặc sai định dạng
+            String birthdayStr = updateBirthdayPicker.getEditor().getText().trim();
+            if (birthday == null || !isValidDateFormat(birthdayStr)) {
+                NotificationService.showNotification("Error", "Date must be in the format DD/MM/YYYY.",
+                        NotificationStatus.Error);
+                return;
+            }
 
             // Validate input
             if (name.isEmpty() || phone.isEmpty()) {
@@ -296,12 +449,18 @@ public class CustomerController {
                 return;
             }
 
+            // Chuyển đổi LocalDate sang java.sql.Date để lưu vào database
+            Date sqlBirthday = Date.valueOf(birthday);
+
+
             // Update customer object
             selectedCustomer.setName(name);
             selectedCustomer.setPhone(phone);
             // Keep the existing playtime value
-            double currentPlaytime = selectedCustomer.getTotalPlaytime();
-            selectedCustomer.setTotalPlaytime(currentPlaytime);
+//            double currentPlaytime = selectedCustomer.getTotalPlaytime();
+//            selectedCustomer.setTotalPlaytime(currentPlaytime);
+            selectedCustomer.setBirthday(sqlBirthday);
+            selectedCustomer.setAddress(address);
 
             // Save to database
             customerDAO.updateCustomer(selectedCustomer);
@@ -381,5 +540,19 @@ public class CustomerController {
     private void refreshTable() {
         List<Customer> customers = customerDAO.getAllCustomers();
         customerTableView.setItems(FXCollections.observableArrayList(customers));
+    }
+
+    private boolean isValidDateFormat(String date) {
+        if (date == null || date.trim().isEmpty()) {
+            return false;
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        try {
+            LocalDate.parse(date, formatter);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

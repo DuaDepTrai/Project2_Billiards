@@ -107,7 +107,7 @@ public class OrderController implements Initializable {
 
 
     // Minute Limit, use for auto-cancel booking and check booking-time
-    public static int minutesLimit = 1;
+    public static int minutesLimit = 30;
 
 
     // without chosen page, of course
