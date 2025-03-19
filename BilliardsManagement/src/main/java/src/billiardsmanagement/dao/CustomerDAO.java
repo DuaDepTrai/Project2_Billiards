@@ -13,7 +13,7 @@ public class CustomerDAO {
     private static final String PASS = ""; // Thay đổi mật khẩu
 
     public void addCustomer(Customer customer) {
-        String sql = "INSERT INTO customers (name, phone, total_playtime,, birthday address) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO customers (name, phone, total_playtime, birthday, address) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -34,16 +34,16 @@ public class CustomerDAO {
     }
 
     public void updateCustomer(Customer customer) {
-        String sql = "UPDATE customers SET name = ?, phone = ?, total_playtime = ?, birthday = ?, address = ? WHERE customer_id = ?";
+        String sql = "UPDATE customers SET name = ?, phone = ?, birthday = ?, address = ? WHERE customer_id = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, customer.getName());
             pstmt.setString(2, customer.getPhone());
-            pstmt.setDouble(3, customer.getTotalPlaytime());
-            pstmt.setDate(4, customer.getBirthday() != null ? new java.sql.Date(customer.getBirthday().getTime()) : null);
-            pstmt.setString(5, customer.getAddress());
-            pstmt.setInt(6, customer.getCustomerId());
+//            pstmt.setDouble(3, customer.getTotalPlaytime());
+            pstmt.setDate(3, customer.getBirthday() != null ? new java.sql.Date(customer.getBirthday().getTime()) : null);
+            pstmt.setString(4, customer.getAddress());
+            pstmt.setInt(5, customer.getCustomerId());
             pstmt.executeUpdate();
 
         } catch (SQLException e) {

@@ -52,6 +52,27 @@ public class AddUserController {
     public void initialize() {
         loadRoles();
         setupDatePickerFormat();
+
+        // Giới hạn ngày sinh: tối đa là ngày hiện tại, tối thiểu là 100 năm trước
+        txtBirthday.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+                LocalDate minDate = today.minusYears(100);
+
+                // Nếu ngày ngoài khoảng min/max thì disable
+                setDisable(date.isAfter(today) || date.isBefore(minDate));
+
+                // Tô màu cho ngày bị vô hiệu hóa
+                if (date.isAfter(today) || date.isBefore(minDate)) {
+                    setStyle("-fx-background-color: #ffcccc;");
+                }
+            }
+        });
+
+        // Đặt giá trị min/max cho DatePicker
+        txtBirthday.setValue(null);
     }
 
     private void loadRoles() {
