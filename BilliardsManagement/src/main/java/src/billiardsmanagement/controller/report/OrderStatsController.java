@@ -39,20 +39,42 @@
         private List<String> dateColumns = new ArrayList<>();
 
         public void initialize() {
-            // Cấu hình cột danh mục
+            List<String> dates = new ArrayList<>(); // Đặt trước khi sử dụng
+            // Configure category column
             colCategory.setCellValueFactory(data -> new SimpleStringProperty((String) data.getValue().get("category")));
             revenueTable.setItems(revenueData);
 
-            // Thêm các lựa chọn vào ComboBox
+            // Add options to ComboBox
             filterTypeComboBox.setItems(FXCollections.observableArrayList("Date Range", "Month", "Year"));
-            filterTypeComboBox.setValue("Date Range"); // Mặc định chọn Date Range
+            filterTypeComboBox.setValue("Date Range"); // Default to Date Range
             filterTypeComboBox.setOnAction(e -> updateFilterType());
 
-            // Gán giá trị cho ComboBox tháng và năm
+            // Set values for month and year ComboBox
             monthComboBox.setItems(FXCollections.observableArrayList(IntStream.rangeClosed(1, 12).boxed().toList()));
             int currentYear = LocalDate.now().getYear();
             yearComboBox.setItems(FXCollections.observableArrayList(IntStream.rangeClosed(2020, currentYear).boxed().toList()));
             yearOnlyComboBox.setItems(yearComboBox.getItems());
+
+// Set default values for DatePicker
+            LocalDate today = LocalDate.now();
+            startDatePicker.setValue(today);
+            endDatePicker.setValue(today);
+
+// Format revenue values to integer without decimal places in revenueTable
+            DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM");
+            for (String date : dates) {
+                dateColumns.add(date);
+                LocalDate localDate = LocalDate.parse(date);
+                String displayDate = localDate.format(displayFormatter);
+
+                TableColumn<Map<String, Object>, String> dateColumn = new TableColumn<>(displayDate);
+                dateColumn.setCellValueFactory(data -> {
+                    Double value = (Double) data.getValue().get(date);
+                    return new SimpleStringProperty(value != null ?
+                            NumberFormat.getIntegerInstance(new Locale("en", "US")).format(value) : "0");
+                });
+                revenueTable.getColumns().add(dateColumn);
+            }
 
             updateFilterType();
         }
@@ -74,18 +96,18 @@
         @FXML
         private void filterRevenue() {
             // Xóa mọi dữ liệu trong bảng chỉ khi có thay đổi bộ lọc
-            if (!revenueData.isEmpty()) { // Kiểm tra nếu bảng không rỗng
-                revenueData.clear(); // Xóa dữ liệu hiện tại trong revenueData
-                revenueTable.getItems().clear(); // Xóa tất cả các hàng trong bảng
-                revenueTable.getColumns().clear(); // Xóa tất cả các cột hiện tại
-                dateColumns.clear(); // Xóa các cột ngày cũ
+            if (!revenueData.isEmpty()) {
+                revenueData.clear();
+                revenueTable.getItems().clear();
+                revenueTable.getColumns().clear();
+                dateColumns.clear();
             }
 
             try (Connection conn = DatabaseConnection.getConnection()) {
                 // Lấy danh sách các ngày trong khoảng thời gian đã chọn
                 List<String> dates = fetchDatesInRange(conn);
 
-                // Tạo cột cho mỗi ngày
+                // Định dạng hiển thị ngày
                 DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM");
                 for (String date : dates) {
                     dateColumns.add(date);
@@ -96,7 +118,7 @@
                     dateColumn.setCellValueFactory(data -> {
                         Double value = (Double) data.getValue().get(date);
                         return new SimpleStringProperty(value != null ?
-                                NumberFormat.getInstance(new Locale("vi", "VN")).format(value) : "0.00");
+                                NumberFormat.getIntegerInstance(new Locale("vi", "VN")).format(value) : "0");
                     });
                     revenueTable.getColumns().add(dateColumn);
                 }
@@ -134,8 +156,12 @@
                     totalOrders = rs.getInt("total_orders");
                 }
 
-                // Định dạng tổng doanh thu
-                totalRevenueLabel.setText(NumberFormat.getInstance(new Locale("vi", "VN")).format(totalRevenue) + " VND");
+                // Định dạng số không có chữ số thập phân
+                NumberFormat numberFormat = NumberFormat.getInstance(new Locale("en", "US"));
+                numberFormat.setMaximumFractionDigits(0);
+                numberFormat.setGroupingUsed(true);
+
+                totalRevenueLabel.setText(numberFormat.format(totalRevenue) + " VNĐ");
                 totalOrdersLabel.setText(String.valueOf(totalOrders));
 
                 loadCharts(); // Cập nhật biểu đồ
@@ -417,8 +443,7 @@
 
                 // Thêm tooltip cho các phần của biểu đồ
                 for (PieChart.Data data : tablePieChart.getData()) {
-                    Tooltip tooltip = new Tooltip(String.format("%s: %.2f VND", data.getName(), data.getPieValue()));
-                    Tooltip.install(data.getNode(), tooltip);
+                    Tooltip tooltip = new Tooltip(String.format("%s: %.0f VNĐ", data.getName(), data.getPieValue()));
                 }
 
             } catch (SQLException e) {
@@ -482,8 +507,7 @@
 
                 // Thêm tooltip cho các phần của biểu đồ
                 for (PieChart.Data data : productPieChart.getData()) {
-                    Tooltip tooltip = new Tooltip(String.format("%s: %.2f VND", data.getName(), data.getPieValue()));
-                    Tooltip.install(data.getNode(), tooltip);
+                    Tooltip tooltip = new Tooltip(String.format("%s: %.0f VNĐ", data.getName(), data.getPieValue()));
                 }
 
             } catch (SQLException e) {
