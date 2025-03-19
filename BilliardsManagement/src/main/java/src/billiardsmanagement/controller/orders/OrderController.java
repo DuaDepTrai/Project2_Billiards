@@ -1022,7 +1022,7 @@ public class OrderController implements Initializable {
         }
 
         if (!selectedStatuses.isEmpty()) {
-            orderTable.setItems(OrderDAO.getOrdersByStatus(String.valueOf(selectedStatuses)));
+            orderTable.setItems(OrderDAO.getOrdersByStatus(selectedStatuses));
         } else {
             loadOrderList();
         }
