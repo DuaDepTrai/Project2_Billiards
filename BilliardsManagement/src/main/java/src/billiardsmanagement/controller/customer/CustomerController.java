@@ -101,9 +101,6 @@ public class CustomerController {
         customerForm.setVisible(false);
         updateForm.setVisible(false);
 
-        setupBirthdayPickerFormat();
-        setupUpdateBirthdayPickerFormat();
-
         // Giới hạn ngày sinh: tối đa là ngày hiện tại, tối thiểu là 100 năm trước
         birthdayPicker.setDayCellFactory(picker -> new DateCell() {
             @Override
@@ -142,6 +139,9 @@ public class CustomerController {
             }
         });
         updateBirthdayPicker.setValue(null);
+
+        setupBirthdayPickerFormat();
+        setupUpdateBirthdayPickerFormat();
     }
 
     private void setupBirthdayPickerFormat() {
@@ -166,10 +166,32 @@ public class CustomerController {
             }
         });
 
-        // Lắng nghe sự kiện khi người dùng nhập vào DatePicker
+        // Lắng nghe khi người dùng nhập vào DatePicker
         birthdayPicker.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            if (isValidDateFormat(newValue)) {
-                birthdayPicker.setValue(LocalDate.parse(newValue, formatter)); // Cập nhật giá trị DatePicker
+            if (newValue.length() == 10) { // Chỉ kiểm tra khi đủ 10 ký tự (dd/MM/yyyy)
+                if (isValidDateFormat(newValue)) {
+                    try {
+                        LocalDate date = LocalDate.parse(newValue, formatter);
+
+                        // Kiểm tra giới hạn min/max
+                        LocalDate today = LocalDate.now();
+                        LocalDate minDate = today.minusYears(100);
+
+                        if (date.isAfter(today) || date.isBefore(minDate)) {
+                            NotificationService.showNotification("Error", "Date must be between " +
+                                    minDate.format(formatter) + " and " + today.format(formatter), NotificationStatus.Error);
+                            birthdayPicker.getEditor().clear();
+                        } else {
+                            birthdayPicker.setValue(date); // Cập nhật giá trị DatePicker
+                        }
+
+                    } catch (Exception e) {
+                        birthdayPicker.getEditor().clear();
+                    }
+                } else {
+                    NotificationService.showNotification("Error", "Invalid date format (DD/MM/YYYY)", NotificationStatus.Error);
+                    birthdayPicker.getEditor().clear();
+                }
             }
         });
     }
@@ -196,10 +218,32 @@ public class CustomerController {
             }
         });
 
-        // Lắng nghe sự kiện khi người dùng nhập vào DatePicker
+        // Lắng nghe khi người dùng nhập vào DatePicker
         updateBirthdayPicker.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            if (isValidDateFormat(newValue)) {
-                updateBirthdayPicker.setValue(LocalDate.parse(newValue, formatter)); // Cập nhật giá trị DatePicker
+            if (newValue.length() == 10) { // Chỉ kiểm tra khi đủ 10 ký tự (dd/MM/yyyy)
+                if (isValidDateFormat(newValue)) {
+                    try {
+                        LocalDate date = LocalDate.parse(newValue, formatter);
+
+                        // Kiểm tra giới hạn min/max
+                        LocalDate today = LocalDate.now();
+                        LocalDate minDate = today.minusYears(100);
+
+                        if (date.isAfter(today) || date.isBefore(minDate)) {
+                            NotificationService.showNotification("Error", "Date must be between " +
+                                    minDate.format(formatter) + " and " + today.format(formatter), NotificationStatus.Error);
+                            updateBirthdayPicker.getEditor().clear();
+                        } else {
+                            updateBirthdayPicker.setValue(date); // Cập nhật giá trị DatePicker
+                        }
+
+                    } catch (Exception e) {
+                        updateBirthdayPicker.getEditor().clear();
+                    }
+                } else {
+                    NotificationService.showNotification("Error", "Invalid date format (DD/MM/YYYY)", NotificationStatus.Error);
+                    updateBirthdayPicker.getEditor().clear();
+                }
             }
         });
     }
@@ -543,12 +587,8 @@ public class CustomerController {
     }
 
     private boolean isValidDateFormat(String date) {
-        if (date == null || date.trim().isEmpty()) {
-            return false;
-        }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             LocalDate.parse(date, formatter);
             return true;
         } catch (Exception e) {

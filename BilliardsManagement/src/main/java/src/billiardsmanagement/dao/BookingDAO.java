@@ -223,25 +223,25 @@ public class BookingDAO {
                     }
 
                     // 4. Update total playtime for the customer
-                    String updateCustomerPlaytimeQuery = """
-                        UPDATE customers
-                        SET total_playtime = total_playtime + (
-                            SELECT SUM(TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time)) / 60.0
-                            FROM bookings b
-                            WHERE b.order_id = ?
-                        )
-                        WHERE customer_id = (
-                            SELECT customer_id FROM orders WHERE order_id = ?
-                        )""";
-
-                    try (PreparedStatement stmt4 = conn.prepareStatement(updateCustomerPlaytimeQuery)) {
-                        stmt4.setInt(1, orderId);
-                        stmt4.setInt(2, orderId);
-                        int rowsAffectedPlaytime = stmt4.executeUpdate();
-                        if (rowsAffectedPlaytime <= 0) {
-                            throw new SQLException("No total playtime was updated. Check the order ID and customer ID.");
-                        }
-                    }
+//                    String updateCustomerPlaytimeQuery = """
+//                        UPDATE customers
+//                        SET total_playtime = total_playtime + (
+//                            SELECT SUM(TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time)) / 60.0
+//                            FROM bookings b
+//                            WHERE b.order_id = ?
+//                        )
+//                        WHERE customer_id = (
+//                            SELECT customer_id FROM orders WHERE order_id = ?
+//                        )""";
+//
+//                    try (PreparedStatement stmt4 = conn.prepareStatement(updateCustomerPlaytimeQuery)) {
+//                        stmt4.setInt(1, orderId);
+//                        stmt4.setInt(2, orderId);
+//                        int rowsAffectedPlaytime = stmt4.executeUpdate();
+//                        if (rowsAffectedPlaytime <= 0) {
+//                            throw new SQLException("No total playtime was updated. Check the order ID and customer ID.");
+//                        }
+//                    }
                 }
             }
             conn.commit();
