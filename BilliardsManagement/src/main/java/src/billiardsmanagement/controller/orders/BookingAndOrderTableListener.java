@@ -4,11 +4,23 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.util.Duration;
 import javafx.scene.control.TableView;
 import src.billiardsmanagement.controller.poolTables.PoolTableController;
+import src.billiardsmanagement.dao.BookingDAO;
+import src.billiardsmanagement.dao.CustomerDAO;
+import src.billiardsmanagement.dao.OrderDAO;
 import src.billiardsmanagement.dao.PoolTableDAO;
 import src.billiardsmanagement.model.*;
+import src.billiardsmanagement.service.NotificationService;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class BookingAndOrderTableListener {
     private final ScheduledService<Void> scheduler;
@@ -17,8 +29,12 @@ public class BookingAndOrderTableListener {
     private ForEachOrderController forEachOrderController;
     private PoolTableDAO poolTableDAO = new PoolTableDAO();
     private PoolTableController poolTableController;
+
     private String cancelMultipleBookingInOrderNotification = "";
     private OrderController orderController;
+
+
+    private List<Booking> bookingScanList;
 
     public BookingAndOrderTableListener() {
         scheduler = new ScheduledService<>() {
@@ -27,7 +43,7 @@ public class BookingAndOrderTableListener {
                 return new Task<>() {
                     @Override
                     protected Void call() {
-                        Platform.runLater(BookingAndOrderTableListener.this::reloadData);
+                        reloadData();
                         return null;
                     }
                 };
@@ -44,12 +60,77 @@ public class BookingAndOrderTableListener {
         scheduler.cancel();
     }
 
-    private void reloadData(){
-        forEachOrderController.initializeForEachOrderButtonsAndInformation();
-        forEachOrderController.loadBookings();
-
-        orderController.initializeOrderController();
+    private void reloadData() {
+        Platform.runLater(this::scanBookings);
     }
+
+    private void scanBookings() {
+        List<Booking> bookingScanList = BookingDAO.getBookingsInTimeRange();
+        if (bookingScanList.isEmpty()) return;
+
+        if (!BookingDAO.cancelMultipleBookings(bookingScanList)) return;
+
+        // Store affected table names and order IDs for notifications
+        List<String> notificationMessages = new ArrayList<>();
+
+        bookingScanList.forEach(booking -> {
+            int orderId = booking.getOrderId();
+            String tableName = booking.getTableName();
+            int billNumber = OrderDAO.getOrderBillNo(orderId);
+
+            notificationMessages.add(
+                    "Ordered Booking in Table: " + tableName +
+                            " in Order Number: " + billNumber +
+                            " has been canceled due to exceeding time limit."
+            );
+
+            // Ensure these UI calls are done on JavaFX thread
+            Platform.runLater(() -> {
+                forEachOrderController.setOrderID(orderId);
+                forEachOrderController.setCustomerID(CustomerDAO.getCustomerIdByOrderId(orderId));
+                forEachOrderController.checkOrderStatus();
+                forEachOrderController.initializeForEachOrderButtonsAndInformation();
+            });
+        });
+
+        // Ensure UI actions are on JavaFX thread
+        Platform.runLater(() -> {
+            orderController.setRefreshNotificationShow(false);
+            orderController.refreshPage(new ActionEvent());
+            orderController.setRefreshNotificationShow(true);
+
+            poolTableController.handleViewAllTables();
+        });
+
+        // Show notifications one by one every 5 seconds
+        if (!notificationMessages.isEmpty()) {
+            Timer timer = new Timer();
+            AtomicInteger index = new AtomicInteger(0);
+
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    int i = index.getAndIncrement();
+                    if (i < notificationMessages.size()) {
+                        Platform.runLater(() -> { // Ensure UI updates run safely
+                            NotificationService.showNotification(
+                                    "Cancel Booking",
+                                    notificationMessages.get(i),
+                                    NotificationStatus.Information
+                            );
+                        });
+                    } else {
+                        timer.cancel(); // Stop when all messages are shown
+                    }
+                }
+            }, 0, 3000);
+        }
+
+        System.out.println("From BookingAndOrderTableListener: Finish Scan Bookings. "+bookingScanList.size() + " expired booking found ..");
+    }
+
+
+
 
 //    private void checkForNotifications() {
 //        String query = "SELECT * FROM notifications WHERE processed = 0 AND task = ? ORDER BY created_at DESC";
@@ -167,7 +248,15 @@ public class BookingAndOrderTableListener {
 //        }
 //    }
 
-    public void setForEachController(ForEachOrderController forEachOrderController) { this.forEachOrderController = forEachOrderController; }
-    public void setPoolTableController(PoolTableController poolTableController) { this.poolTableController = poolTableController; }
-    public void setOrderController(OrderController orderController) { this.orderController = orderController; }
+    public void setForEachController(ForEachOrderController forEachOrderController) {
+        this.forEachOrderController = forEachOrderController;
+    }
+
+    public void setPoolTableController(PoolTableController poolTableController) {
+        this.poolTableController = poolTableController;
+    }
+
+    public void setOrderController(OrderController orderController) {
+        this.orderController = orderController;
+    }
 }

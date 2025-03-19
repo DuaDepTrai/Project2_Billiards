@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<VBox alignment="CENTER" prefHeight="201.0" prefWidth="412.0" spacing="15" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.poolTables.PoolTableOrderInformationController">
+<VBox alignment="CENTER" prefHeight="201.0" prefWidth="412.0" stylesheets="@../css/poolTable.css" spacing="15" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.poolTables.PoolTableOrderInformationController">
 
     <padding>
         <Insets bottom="20" left="20" right="20" top="20" />
