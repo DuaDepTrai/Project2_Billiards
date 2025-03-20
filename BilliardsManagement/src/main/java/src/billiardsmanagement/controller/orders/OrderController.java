@@ -18,6 +18,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
@@ -86,12 +87,12 @@ public class OrderController implements Initializable {
     @FXML
     private ComboBox<String> statusComboBox;
     @FXML
-    private HBox filterContainer,tableCategoryContainer,orderStatusContainer;
+    private HBox filterContainer, tableCategoryContainer, orderStatusContainer;
     @FXML
     private Button filterDateButton;// Chứa bộ lọc
     private ObservableList<Order> orderList = FXCollections.observableArrayList();
     @FXML
-    DatePicker startDatePicker,endDatePicker;
+    DatePicker startDatePicker, endDatePicker;
     private int orderID;
 
     private final Connection conn = DatabaseConnection.getConnection();
@@ -100,7 +101,7 @@ public class OrderController implements Initializable {
     private final BookingDAO bookingDAO = new BookingDAO();
     private final Map<String, Integer> customerNameToIdMap = new HashMap<>();
     private final PoolTableDAO poolTableDAO = new PoolTableDAO();
-    
+
     private MainController mainController;
     private ForEachOrderController forEachOrderController;
     private Parent forEachOrderPage;
@@ -111,8 +112,9 @@ public class OrderController implements Initializable {
 
 
     // without chosen page, of course
-    public void setMainController(MainController mainController){
-        this.mainController = mainController;;
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+        ;
     }
 
     public TableView<Order> getOrderTable() {
@@ -161,7 +163,7 @@ public class OrderController implements Initializable {
             forEachOrderController.setInitialPhoneText(orderLatest.getCustomerPhone());
             forEachOrderController.initializeAllTables();
 
-            if(mainController!=null){
+            if (mainController != null) {
                 StackPane contentArea = mainController.getContentArea();
                 contentArea.getChildren().clear();
                 contentArea.getChildren().setAll(forEachOrderPage);
@@ -318,9 +320,6 @@ public class OrderController implements Initializable {
         });
 
 
-
-
-
         staffColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
         actionColumn.setCellFactory(column -> new TableCell<>() {
             private final HBox container = new HBox(10); // spacing = 10
@@ -392,7 +391,11 @@ public class OrderController implements Initializable {
         });
 
         orderTable.setOnMouseClicked(event -> {
-            showItem(event);
+            if (event.getClickCount() == 2) showItem();
+        });
+
+        orderTable.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) showItem();
         });
 //        orderTable.getColumns().forEach(column -> {
 //            column.setMinWidth(50); // Độ rộng tối thiểu
@@ -409,7 +412,7 @@ public class OrderController implements Initializable {
         setupFilters();
     }
 
-    public void initializeOrderController(){
+    public void initializeOrderController() {
         loadCustomerNameToIdMap();
         setUpSearchField();
         loadOrderList();
@@ -597,9 +600,9 @@ public class OrderController implements Initializable {
             }
         });
 
-        orderTable.setOnMouseClicked(event -> {
-            showItem(event);
-        });
+//        orderTable.setOnMouseClicked(event -> {
+//            showItem(event);
+//        });
 
         sttColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.05));
         customerNameColumn.prefWidthProperty().bind(orderTable.widthProperty().multiply(0.17));
@@ -632,7 +635,6 @@ public class OrderController implements Initializable {
         stage.setScene(new Scene(root));
         stage.show();
     }
-
 
 
     @FXML
@@ -732,52 +734,53 @@ public class OrderController implements Initializable {
 //        }
 //    }
 
-    private void showItem(MouseEvent mouseEvent) {
-        if (mouseEvent.getClickCount() == 2) {
-            Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
-            if (selectedOrder == null) {
-                return;
-            }
-
-            // Tải trang forEachOrder.fxml
-            try {
-                int totalRow = orderTable.getItems().size();
-                int selectedIndex = orderTable.getItems().indexOf(selectedOrder);
-                int billNo = totalRow - selectedIndex;
-
-                forEachOrderController.initializeAllTables();
-
-                forEachOrderController.setOrderID(selectedOrder.getOrderId());
-                forEachOrderController.setCustomerID(selectedOrder.getCustomerId());
-
-                forEachOrderController.setMainController(mainController, ChosenPage.ORDERS);
-                forEachOrderController.setBillNo(billNo);
-                forEachOrderController.setOrderDate(selectedOrder.getOrderDate());
-                forEachOrderController.setCurrentOrder(selectedOrder);
-                forEachOrderController.setInitialPhoneText(selectedOrder.getCustomerPhone());
-                forEachOrderController.setOrderController(this);
-                forEachOrderController.initializeAllTables();
-
-                // Cập nhật nội dung của contentArea trong MainController
-                if (mainController != null) {
-                    StackPane contentArea = mainController.getContentArea(); // Phương thức lấy contentArea
-                    contentArea.getChildren().clear();
-                    contentArea.getChildren().setAll(forEachOrderPage); // Xóa nội dung cũ và thêm trang mới
-                }
-
-                Platform.runLater(() -> {
-                    forEachOrderPage.requestFocus();
-                });
-
-                FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bookings/addBooking.fxml"));
-                Parent addBookingPage = loader1.load();
-                AddBookingController addBookingController = loader1.getController();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                NotificationService.showNotification("Error", "Failed to load order details.", NotificationStatus.Error);
-            }
+    //    private void showItem(MouseEvent mouseEvent) {
+    private void showItem() {
+//        if (mouseEvent.getClickCount() == 2) {
+        Order selectedOrder = orderTable.getSelectionModel().getSelectedItem();
+        if (selectedOrder == null) {
+            return;
         }
+
+        // Tải trang forEachOrder.fxml
+        try {
+            int totalRow = orderTable.getItems().size();
+            int selectedIndex = orderTable.getItems().indexOf(selectedOrder);
+            int billNo = totalRow - selectedIndex;
+
+            forEachOrderController.initializeAllTables();
+
+            forEachOrderController.setOrderID(selectedOrder.getOrderId());
+            forEachOrderController.setCustomerID(selectedOrder.getCustomerId());
+
+            forEachOrderController.setMainController(mainController, ChosenPage.ORDERS);
+            forEachOrderController.setBillNo(billNo);
+            forEachOrderController.setOrderDate(selectedOrder.getOrderDate());
+            forEachOrderController.setCurrentOrder(selectedOrder);
+            forEachOrderController.setInitialPhoneText(selectedOrder.getCustomerPhone());
+            forEachOrderController.setOrderController(this);
+            forEachOrderController.initializeAllTables();
+
+            // Cập nhật nội dung của contentArea trong MainController
+            if (mainController != null) {
+                StackPane contentArea = mainController.getContentArea(); // Phương thức lấy contentArea
+                contentArea.getChildren().clear();
+                contentArea.getChildren().setAll(forEachOrderPage); // Xóa nội dung cũ và thêm trang mới
+            }
+
+            Platform.runLater(() -> {
+                forEachOrderPage.requestFocus();
+            });
+
+            FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/orders/bookings/addBooking.fxml"));
+            Parent addBookingPage = loader1.load();
+            AddBookingController addBookingController = loader1.getController();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            NotificationService.showNotification("Error", "Failed to load order details.", NotificationStatus.Error);
+        }
+//        }
     }
 
     @FXML
@@ -856,7 +859,8 @@ public class OrderController implements Initializable {
                     NotificationStatus.Error);
         }
     }
-    private void filteredOrders(String searchItem){
+
+    private void filteredOrders(String searchItem) {
         ObservableList<Order> filteredList = FXCollections.observableArrayList();
         for (Order order : orderDAO.getAllOrders()) {
             if (order.getCustomerName().toLowerCase().contains(searchItem) ||
@@ -882,10 +886,10 @@ public class OrderController implements Initializable {
     }
 
     public ObservableList<Order> getOrderList() {
-        if(orderList.isEmpty()) System.out.println("From OrderController - getOrderList() : order List is empty.");
+        if (orderList.isEmpty()) System.out.println("From OrderController - getOrderList() : order List is empty.");
         return this.orderList;
     }
-    
+
     public void setOrderList(ObservableList<Order> orderList) {
         this.orderList = orderList;
     }
@@ -1027,10 +1031,12 @@ public class OrderController implements Initializable {
             loadOrderList();
         }
     }
+
     @FXML
     private Button refreshButton;
 
     private boolean isRefreshNotificationShow = true;
+
     @FXML
     public void refreshPage(ActionEvent event) {
         loadCustomerNameToIdMap(); // Làm mới danh sách tên khách hàng
@@ -1062,7 +1068,7 @@ public class OrderController implements Initializable {
         datePicker.setValue(null);
         categoryComboBox.getSelectionModel().clearSelection();
         statusComboBox.getSelectionModel().clearSelection();
-        if(isRefreshNotificationShow){
+        if (isRefreshNotificationShow) {
             NotificationService.showNotification("Refresh", "Page has been refreshed.", NotificationStatus.Information);
         }
     }

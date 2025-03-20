@@ -2,6 +2,7 @@ package src.billiardsmanagement.controller.orders;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -10,11 +11,15 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.stage.Stage;
 import src.billiardsmanagement.model.*;
 import src.billiardsmanagement.service.BillService;
+import src.billiardsmanagement.service.NotificationService;
+import src.billiardsmanagement.model.NotificationStatus;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 public class PaymentController {
     private int orderID;
@@ -54,18 +59,11 @@ public class PaymentController {
     public void printBill() {
         try {
             PrintBillController.printBill(BillService.getBillItems(orderID), bill);
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setHeaderText("");
-            alert.setContentText("The bill has been successfully printed.");
-            alert.showAndWait();
+            NotificationService.showNotification("Success", "The bill has been successfully printed.", NotificationStatus.Success);
             PrintBillController.cutPdfBill();
             PrintBillController.showPdfBillToScreen();
         } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText("An unexpected error occurred while printing the bill.");
-            alert.setContentText("Please try again later.");
-            alert.showAndWait();
+            logError("An unexpected error occurred while printing the bill: " + e.getMessage());
         }
     }
 
@@ -90,32 +88,78 @@ public class PaymentController {
         quantityColumn.setCellValueFactory(cellData -> {
             BillItem billItem = cellData.getValue();
             double quantity = billItem.getQuantity();
-            double formattedQuantity;
 
-            // return : Bill Item Type : StringProperty [value: Booking] ( what the fuck ? )
-            if (billItem.getItemType().contains("Booking")) {
-                formattedQuantity = Math.ceil(quantity * 10) / 10.0; // Round up to 1 decimal place
-                System.out.println("Booking Formatted Quantity = "+formattedQuantity);
-            } else {
-                formattedQuantity = Math.round(quantity); // Round to nearest integer
-                System.out.println("OrderItem rounded quantity = "+formattedQuantity);
-            }
+            double formattedQuantity = billItem.getItemType().contains("Booking")
+                    ? Math.ceil(quantity * 10) / 10.0  // Round up to 1 decimal place
+                    : Math.round(quantity);            // Round to nearest integer
 
-            return new SimpleObjectProperty<>(formattedQuantity); // Wrap in SimpleObjectProperty<Double>
+            return new SimpleObjectProperty<>(formattedQuantity);
         });
+
+        quantityColumn.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double quantity, boolean empty) {
+                super.updateItem(quantity, empty);
+
+                if (empty || quantity == null) {
+                    setText(null);
+                } else {
+                    String formattedText = getTableRow().getItem() != null &&
+                            getTableRow().getItem().getItemType().contains("Booking")
+                            ? String.format("%.1fh", quantity) // Display with "h" for Booking
+                            : String.format("%.0f", quantity); // Display as integer for others
+
+                    setText(formattedText);
+                    setAlignment(Pos.CENTER); // Align center
+                }
+            }
+        });
+
+        // Custom number formatter with dots as thousands separator
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        symbols.setGroupingSeparator('.');
+        DecimalFormat decimalFormat = new DecimalFormat("#,###", symbols);
 
         unitPriceColumn.setCellValueFactory(cellData ->
                 new SimpleObjectProperty<>(cellData.getValue().getUnitPrice()));
 
+        unitPriceColumn.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double price, boolean empty) {
+                super.updateItem(price, empty);
+
+                if (empty || price == null) {
+                    setText(null);
+                } else {
+                    setText(decimalFormat.format(price));
+                    setAlignment(Pos.CENTER_RIGHT); // Align right
+                }
+            }
+        });
+
         totalCostColumn.setCellValueFactory(cellData ->
                 new SimpleObjectProperty<>(cellData.getValue().getTotalPrice()));
 
+        totalCostColumn.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double total, boolean empty) {
+                super.updateItem(total, empty);
+
+                if (empty || total == null) {
+                    setText(null);
+                } else {
+                    setText(decimalFormat.format(total));
+                    setAlignment(Pos.CENTER_RIGHT); // Align right
+                }
+            }
+        });
+
         unitColumn.setCellValueFactory(new PropertyValueFactory<>("unit"));
 
+        billTable.getItems().clear();
         billTable.setItems(BillService.getBillItems(this.orderID));
         billNoLabel.setText(String.valueOf(billNo));
     }
-
     // Getter
     public int getOrderID() {
         return this.orderID;
@@ -135,26 +179,25 @@ public class PaymentController {
             stmt.setInt(1, orderID);
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
-                showAlert(Alert.AlertType.INFORMATION, "Payment Successful", "The order has been marked as Paid successfully!");
+                NotificationService.showNotification("Payment Successful", "The order has been marked as Paid successfully!", NotificationStatus.Success);
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.close();
             } else {
-                showAlert(Alert.AlertType.ERROR, "Payment Error", "Failed to update order status to Paid.");
+                logError("Failed to update order status to Paid.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logError("An error occurred while processing the payment: " + e.getMessage());
         }
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 
     public void setBillNo(int billNo) {
         this.billNo = billNo;
+    }
+
+    private void logError(String message) {
+        // Log the error (you can implement your logging mechanism here)
+        System.err.println("Error: " + message);
+        // Show an error notification, but only log the message
+        NotificationService.showNotification("Error", message, NotificationStatus.Error);
     }
 }

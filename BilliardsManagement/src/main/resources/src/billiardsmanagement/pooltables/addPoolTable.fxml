@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="207.0" prefWidth="331.0" stylesheets="@../css/poolTable.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.poolTables.AddPoolTableController">
+<AnchorPane prefHeight="219.0" prefWidth="331.0" stylesheets="@../css/poolTable.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.poolTables.AddPoolTableController">
     <children>
         <Label layoutX="82.0" layoutY="14.0" text="Add New Pool Table">
             <font>
@@ -16,8 +16,8 @@
         </Label>
         <TextField fx:id="addNameField" layoutX="56.0" layoutY="52.0" prefHeight="25.0" prefWidth="220.0" promptText="Enter Table Name" />
         <ComboBox fx:id="addCategoryCombo" layoutX="56.0" layoutY="104.0" prefWidth="220.0" promptText="Table Category" />
-        <Button fx:id="saveButton" layoutX="109.0" layoutY="162.0" mnemonicParsing="false" onAction="#handleAddTableSave" prefHeight="25.0" prefWidth="114.0" text="Create Table" />
+        <Button fx:id="saveButton" layoutX="109.0" layoutY="184.0" mnemonicParsing="false" onAction="#handleAddTableSave" prefHeight="25.0" prefWidth="114.0" text="Create Table" />
         <Label fx:id="notifyText" layoutX="56.0" layoutY="78.0" prefHeight="17.0" prefWidth="220.0" />
-        <Label fx:id="categoryNotify" layoutX="56.0" layoutY="130.0" prefHeight="17.0" prefWidth="220.0" />
+        <Label fx:id="categoryNotify" layoutX="56.0" layoutY="146.0" prefHeight="17.0" prefWidth="220.0" />
     </children>
 </AnchorPane>

@@ -286,7 +286,7 @@ public class PoolTableController {
                     controller.setForEachRoot(this.forEachRoot);
                     controller.initializeView();
 
-                    showPoolPopup(tableStack, root);
+                    showPoolPopup(tablesContainer, root);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -330,7 +330,7 @@ public class PoolTableController {
                 controller.setPoolTable(table);
                 controller.initializePoolInfo();
 
-                showPoolPopup(tableStack, root);
+                showPoolPopup(tablesContainer, root);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -357,11 +357,33 @@ public class PoolTableController {
 
         poolPopup.getContent().add(contentPane);
 
-        double xPos = container.localToScene(0, 0).getX();
-        double yPos = container.localToScene(0, 0).getY();
+        // Get the window from the container (any FXML element inside the scene)
+        Window window = poolTableMasterPane.getScene().getWindow();
 
-        poolPopup.setX(xPos);
-        poolPopup.setY(yPos);
+        // Get the window's center position
+//        double centerX = window.getX() + window.getWidth() / 2;
+//        double centerY = window.getY() + window.getHeight() / 2;
+        double centerX = window.getWidth() / 2;
+        double centerY = window.getHeight() / 2;
+
+        // Force layout calculation to get actual width & height
+        contentPane.applyCss();
+        contentPane.layout();
+
+        // Get the popup’s width and height from the content
+        double popupWidth = contentPane.getBoundsInLocal().getWidth();
+        double popupHeight = contentPane.getBoundsInLocal().getHeight();
+
+        // Ensure popup dimensions are known (JavaFX may return 0 if not fully rendered yet)
+        System.out.println("PoolTableController : popupWidth = "+popupWidth + " ; popupHeight = "+popupHeight);
+        if (popupWidth <= 0 || popupHeight <= 0) {
+            popupWidth = 300; // Default width
+            popupHeight = 200; // Default height
+        }
+
+// Set the popup position to be centered in the window
+        poolPopup.setX(centerX - (popupWidth / 2));
+        poolPopup.setY(centerY - (popupHeight / 2));
 
         FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.12), contentPane);
         fadeIn.setFromValue(0);
@@ -375,7 +397,7 @@ public class PoolTableController {
 
     }
 
-    public void showPoolPopupInTheMiddle(Parent container, Parent content) {
+    public void showPoolPopupInTheMiddle(Parent content) {
 
         this.poolPopup = new Popup();
         StackPane contentPane = new StackPane();
@@ -754,7 +776,7 @@ public class PoolTableController {
             controller.initializeCatePooltables();
 
             // Show popup in the middle
-            showPoolPopupInTheMiddle(poolTableMasterPane, root);
+            showPoolPopupInTheMiddle(root);
 
             // Add on hidden handler
             poolPopup.setOnHidden(e -> {
@@ -782,7 +804,7 @@ public class PoolTableController {
             controller.setCatePooltable(category);
 
             // Show popup in the middle
-            showPoolPopupInTheMiddle(poolTableMasterPane, root);
+            showPoolPopupInTheMiddle(root);
 
             // Add on hidden handler
             poolPopup.setOnHidden(e -> {
@@ -921,7 +943,7 @@ public class PoolTableController {
             controller.setPoolController(this);
             controller.initializeAddPoolTable();
 
-            showPoolPopupInTheMiddle(poolTableScrollPane, root);
+            showPoolPopupInTheMiddle(root);
 
             // Refresh the table list after dialog closes
             handleViewAllTables();
