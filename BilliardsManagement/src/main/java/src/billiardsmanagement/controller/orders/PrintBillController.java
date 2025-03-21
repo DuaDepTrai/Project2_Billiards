@@ -182,20 +182,24 @@ public class PrintBillController {
         // Create bills directory if it doesn't exist
         // This code will create a new directory in your disk with the path specified.
         // For example, D:\BilliardsManagement\src\main\bills
-        File billsDir = new File("\\src\\main\\bills");
+//        File billsDir = new File("/src/main/bills");
+        String baseDir = System.getProperty("user.dir") + "\\BilliardsManagement\\src\\main\\bills"; // Lưu vào thư mục "bills" trong thư mục gốc của ứng dụng
+        File billsDir = new File(baseDir);
+
         if (!billsDir.exists()) {
             billsDir.mkdirs();
         }
 
-        sb.append(billsDir.getAbsolutePath());
-        System.out.println(billsDir.getAbsolutePath());
+//        sb.append(billsDir.getAbsolutePath());
+//        System.out.println(billsDir.getAbsolutePath());
+        sb.append(baseDir);
         sb.append(File.separator);
+        String formattedDateTime = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH'h'mm").format(LocalDateTime.now());
+        sb.append(formattedDateTime);
+        sb.append("_");
         sb.append(handleCustomerName(bill.getCustomerName()));
         sb.append("_");
         sb.append(bill.getCustomerPhone());
-        sb.append("_");
-        String formattedDateTime = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH'h'mm").format(LocalDateTime.now());
-        sb.append(formattedDateTime);
         sb.append("_");
         sb.append(String.valueOf(System.currentTimeMillis()).substring(8));
         sb.append(".pdf");
@@ -209,11 +213,13 @@ public class PrintBillController {
         setCurrentBillName(billName);
 
         com.itextpdf.text.pdf.PdfWriter writer = com.itextpdf.text.pdf.PdfWriter.getInstance(document, new FileOutputStream(billName));
-        float widthInPoints = 70 * 2.83465f;  // Convert 70mm to points
+//        float widthInPoints = 70 * 2.83465f;  // Convert 70mm to points
+        float widthInPoints = 70 * 3.5f;  // Convert 70mm to points
         document.setPageSize(new com.itextpdf.text.RectangleReadOnly(widthInPoints, document.getPageSize().getHeight()));
         document.open();
 
-        Paragraph billTitle = new Paragraph("Bida Bill");
+        Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD);
+        Paragraph billTitle = new Paragraph("BILLIARDS BILL", titleFont);
         billTitle.setAlignment(Element.ALIGN_CENTER);
         document.add(billTitle);
 
@@ -271,8 +277,8 @@ public class PrintBillController {
         table.setWidths(columnWidths);
 
         // Adding headers to the table
-        Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9);   // Bold, size 12
-        Font cellFont = FontFactory.getFont(FontFactory.HELVETICA, 8);          // Regular, size 10
+        Font headerFont = FontFactory.getFont(FontFactory.TIMES_BOLD, 9);   // Bold, size 12
+        Font cellFont = FontFactory.getFont(FontFactory.TIMES, 8);          // Regular, size 10
 
         String[] headers = {"Item", "QT", "Unit", "Price", "Total"};
         for (String header : headers) {
