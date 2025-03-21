@@ -9,7 +9,6 @@ public class Product {
     private int categoryId; // ✅ Thêm categoryId
     private String category; // ✅ Thêm category
 
-
     public Product(int id, String name, int categoryId, String category, int quantity, double price, String unit) {
         this.id = id;
         this.name = name;

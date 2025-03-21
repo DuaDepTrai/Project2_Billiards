@@ -365,7 +365,6 @@ public class OrderController implements Initializable {
                         throw new RuntimeException(e);
                     }
 
-
                     PaymentController paymentController = paymentLoader.getController();
                     paymentController.setOrderID(orderId);
                     paymentController.setBillNo(billNo);
@@ -748,8 +747,6 @@ public class OrderController implements Initializable {
             int selectedIndex = orderTable.getItems().indexOf(selectedOrder);
             int billNo = totalRow - selectedIndex;
 
-            forEachOrderController.initializeAllTables();
-
             forEachOrderController.setOrderID(selectedOrder.getOrderId());
             forEachOrderController.setCustomerID(selectedOrder.getCustomerId());
 
@@ -1066,9 +1063,9 @@ public class OrderController implements Initializable {
         }
 
         NotificationService.showNotification("Refresh", "Page has been refreshed.", NotificationStatus.Information);
-        datePicker.setValue(null);
-        categoryComboBox.getSelectionModel().clearSelection();
-        statusComboBox.getSelectionModel().clearSelection();
+        if (datePicker != null) datePicker.setValue(null);
+        if (categoryComboBox != null) categoryComboBox.getSelectionModel().clearSelection();
+        if (statusComboBox != null) statusComboBox.getSelectionModel().clearSelection();
         if (isRefreshNotificationShow) {
             NotificationService.showNotification("Refresh", "Page has been refreshed.", NotificationStatus.Information);
         }

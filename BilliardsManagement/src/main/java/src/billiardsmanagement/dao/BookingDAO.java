@@ -155,7 +155,7 @@ public class BookingDAO {
                         ELSE booking_status
                     END,
                     timeplay = CASE
-                        WHEN booking_status = 'Playing' THEN TIMESTAMPDIFF(MINUTE, start_time, NOW()) / 60.0
+                        WHEN booking_status = 'Finish' OR booking_status = 'Playing' THEN TIMESTAMPDIFF(MINUTE, start_time, NOW()) / 60.0
                         ELSE timeplay
                     END
                 WHERE order_id = ?""";
@@ -775,6 +775,7 @@ public class BookingDAO {
             stmt.setTimestamp(3, newBooking.getStartTime()); // start_time
             stmt.setString(4, newBooking.getBookingStatus()); // booking_status
 
+            System.out.println("DEBUG : From BookingDAO, bookingStatus = "+newBooking.getBookingStatus());
             // Execute INSERT statement
             int rowsAffected = stmt.executeUpdate();
 

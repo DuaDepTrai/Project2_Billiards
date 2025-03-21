@@ -6,9 +6,14 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Login extends Application {
+
+    private static Stage primaryStage; // Store primary stage reference
+
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage stage) {
         try {
+            primaryStage = stage; // Assign primaryStage
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/users/login.fxml"));
             Scene scene = new Scene(loader.load());
             scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/main.css").toExternalForm());
@@ -23,7 +28,12 @@ public class Login extends Application {
         }
     }
 
+    public static Stage getPrimaryStage() {
+        return primaryStage; // Getter method to access primary stage
+    }
+
     public static void main(String[] args) {
         launch(args);
     }
 }
+

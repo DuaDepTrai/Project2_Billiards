@@ -629,7 +629,6 @@ public class ForEachOrderController {
         }
     }
 
-
     public void initializeForEachOrderButtonsAndInformation() {
         List<Customer> customerList = customerDAO.getInfoCustomer(customerID);
         Order order = OrderDAO.getOrderById(orderID);
@@ -654,41 +653,88 @@ public class ForEachOrderController {
         }
 
         if (customerList != null && !customerList.isEmpty() && order != null) {
+            double totalCost = order.getTotalCost();
+            String orderStatus = order.getOrderStatus();
+
             Customer customer = customerList.get(0);
             customerText.setText(customer.getName());
             phoneText.setText(customer.getPhone());
-            orderStatusText.setText(order.getOrderStatus());
-            if (order.getTotalCost() != 0.0) {
-                orderTotalCost.setText(formatTotal(order.getTotalCost()));
+            orderStatusText.setText(orderStatus);
+            System.out.println("From ForEachController, initializeForEachOrderButtonsAndInformation() : Order : " + order);
+
+            // setup total cost text
+            switch (orderStatus) {
+                case "Playing" -> orderTotalCost.setText("Calculating ...");
+                case "Ordered" -> orderTotalCost.setText("Pending ...");
+                case "Canceled" -> orderTotalCost.setText("No Charge");
+                case "Finished", "Paid" ->
+                        orderTotalCost.setText(totalCost > 0.0 ? formatTotal(totalCost) : "Zero Cost");
             }
+
+//            if (order.getTotalCost() > 0.0) {
+//                orderTotalCost.setText(formatTotal(order.getTotalCost()));
+//                System.out.println("-- Formatted total = " + formatTotal(order.getTotalCost()));
+//            }
             confirmSaveCustomer.setDisable(phoneText.getText().equalsIgnoreCase(initialPhoneText));
+
         }
 
         loadBookings();
-        if(currentOrder.getOrderStatus().equalsIgnoreCase("Finished")){
+        if (currentOrder.getOrderStatus().equalsIgnoreCase("Finished")) {
             disableAllActionButtons();
         }
         System.out.println("From ForEachOrderController, initializeForEachOrderButtonsAndInformation() has been called !");
     }
 
-    private void setupPhoneAutoCompletion() {
-//        if (phoneAutoCompletion != null) {
-//            phoneAutoCompletion.dispose();
-//        }
 
-        // Lấy danh sách customer từ database với cả phone và name
+    private final AtomicBoolean isFirstFocus = new AtomicBoolean(true);
+
+    private void setupPhoneAutoCompletion() {
+        if (phoneAutoCompletion != null) {
+            phoneAutoCompletion.dispose();
+            phoneText.setOnKeyPressed(null); // Remove previous event listener
+        }
+
+        List<String> phoneNumberList = CustomerDAO.getAllPhoneNumbers();
+
+        // Get customer list and prepare suggestions
         List<Customer> customers = customerDAO.getAllCustomers();
         List<String> suggestions = customers.stream()
                 .map(c -> c.getPhone() + " - " + c.getName())
                 .collect(Collectors.toList());
 
+        // Bind auto-completion
         phoneAutoCompletion = TextFields.bindAutoCompletion(phoneText, suggestions);
-        HandleTextFieldClick(phoneAutoCompletion, (ArrayList<String>) suggestions, phoneText);
+
+        // Ensure only one focus listener exists
+        phoneText.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue && isFirstFocus.get()) {  // First focus event
+                if (phoneText.getText() != null && !phoneText.getText().equalsIgnoreCase(initialPhoneText)) {
+                    isFirstFocus.set(false);
+                    return;
+                }
+
+                phoneText.setOnKeyPressed(event -> {
+                    if (event.getCode() == KeyCode.BACK_SPACE) {
+                        phoneText.clear();
+                        phoneText.setOnKeyPressed(null); // Remove listener after first backspace
+                        event.consume();
+                    }
+                });
+
+                isFirstFocus.set(false);
+            }
+            if (!newValue) {
+                isFirstFocus.set(true);
+            }
+        });
 
         phoneAutoCompletion.setHideOnEscape(true);
         phoneAutoCompletion.setOnAutoCompleted(autoCompletionEvent -> {
-            if(phoneText.getText()!=null && !phoneText.getText().equalsIgnoreCase(initialPhoneText) && customerText.getText() != null) {
+            confirmSaveCustomer.setDisable(true);
+            if (phoneText.getText() != null && !phoneText.getText().isBlank() && !phoneText.getText().equalsIgnoreCase(initialPhoneText) && customerText.getText() != null && !customerText.getText().isBlank()) {
                 updateCustomerInformation(new ActionEvent());
+                autoCompletionEvent.consume();
             }
             else {
                 NotificationService.showNotification("No Changes", "No changes were made in the customer information field.",
@@ -696,50 +742,27 @@ public class ForEachOrderController {
             }
         });
 
+        // Ensure only one text listener exists
         phoneText.textProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue!=null && newValue.equalsIgnoreCase(initialPhoneText)){
+            if(newValue==null || newValue.isBlank()){
                 confirmSaveCustomer.setDisable(true);
                 return;
             }
-            else confirmSaveCustomer.setDisable(false);
-            if (newValue != null && !newValue.isEmpty()) {
-                // Tách số điện thoại từ chuỗi gợi ý (vd: "0123456789 - John" -> "0123456789")
-                String phone = newValue.split(" - ")[0];
-                Customer customer = customerDAO.getCustomerByPhone(phone);
-                if (customer != null) {
-                    customerText.setText(customer.getName());
-                    phoneText.setText(customer.getPhone()); // Set lại chỉ số điện thoại
-                }
+            if (newValue.trim().equalsIgnoreCase(initialPhoneText) || phoneNumberList.contains(newValue.trim())) {
+                confirmSaveCustomer.setDisable(true);
+                return;
+            } else {
+                confirmSaveCustomer.setDisable(false);
+            }
+
+            String phone = newValue.split(" - ")[0];
+            Customer customer = customerDAO.getCustomerByPhone(phone);
+            if (customer != null) {
+                customerText.setText(customer.getName());
+                phoneText.setText(customer.getPhone());
             }
         });
     }
-
-    private final AtomicBoolean isFirstFocus = new AtomicBoolean(true);
-
-    public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text) {
-        text.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue && isFirstFocus.get()) {  // First focus event
-                if (text.getText() != null && !text.getText().equalsIgnoreCase(initialPhoneText)) {
-                    isFirstFocus.set(false);
-                    return;
-                }
-
-                // Listen for backspace key to clear the field only once
-                text.setOnKeyPressed(event -> {
-                    if (event.getCode() == KeyCode.BACK_SPACE) {
-                        text.clear();
-                        text.setOnKeyPressed(null); // Remove listener after first backspace
-                    }
-                });
-
-                isFirstFocus.set(false); // Prevents running again in the same focus session
-            }
-            if (!newValue) {
-                isFirstFocus.set(true); // Reset when losing focus
-            }
-        });
-    }
-
 
     //    public void addBooking(ActionEvent event) {
 //        if (orderStatusText.getText().equals("Paid")) {
@@ -849,6 +872,7 @@ public class ForEachOrderController {
             // Load bookings only when forEach Popup hidden to avoid multiple loading
             this.forEachPopup.setOnHidden(e -> {
                 loadBookings();
+                checkOrderStatus();
                 this.forEachPopup.setOnHidden(null); // this line is very important
             });
 
@@ -1137,6 +1161,7 @@ public class ForEachOrderController {
                             "Booking has been stopped and updated.",
                             NotificationStatus.Success);
                     loadBookings();
+                    checkOrderStatus();
                     BookingDAO.updateTableStatusAfterBooking(bookingId);
                 } else {
                     NotificationService.showNotification("Error",
@@ -1152,7 +1177,7 @@ public class ForEachOrderController {
     }
 
     public void checkBookingStatus() {
-        int minutesLimit = 1;
+        int minutesLimit = 30;
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID); // Lấy danh sách booking
 
         LocalDateTime now = LocalDateTime.now(); // Thời gian hiện tại
@@ -1235,6 +1260,7 @@ public class ForEachOrderController {
     }
 
 
+
     public void finishOrder(ActionEvent event) {
         try {
             // Get confirmation from user
@@ -1249,9 +1275,9 @@ public class ForEachOrderController {
                     double totalCost = OrderDAO.calculateOrderTotal(orderID);
                     boolean updateOrderSuccess = OrderDAO.updateOrderStatus(this.orderID, totalCost);
                     if (updateOrderSuccess) {
-                        NotificationService.showNotification("Finish This Order", "Finish order successfully. There's no booking in this table.", NotificationStatus.Information);
+                        NotificationService.showNotification("Finish This Order", "Finish order successfully. There's no booking in this table." , NotificationStatus.Information);
+                        checkOrderStatus();
                         initializeForEachOrderButtonsAndInformation();
-                        disableAllActionButtons();
                     } else {
                         NotificationService.showNotification("Error", "Failed to finish order.", NotificationStatus.Error);
                     }
@@ -1274,9 +1300,9 @@ public class ForEachOrderController {
                                 NotificationStatus.Success);
 
                         // Refresh the tables
+                        checkOrderStatus();
                         initializeForEachOrderButtonsAndInformation();
                         loadBookings();
-                        disableAllActionButtons();
                         if (poolTableController != null) poolTableController.handleViewAllTables();
                     } else {
                         NotificationService.showNotification("Error", "Failed to update order status.",
@@ -1319,39 +1345,66 @@ public class ForEachOrderController {
 
     public void checkOrderStatus() {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
-        if (bookings.size() == 1 && "Canceled".equalsIgnoreCase(bookings.get(0).getBookingStatus())) {
-            OrderDAO.updateStatusOrder(orderID, "Canceled");
-            initializeForEachOrderButtonsAndInformation();
-            System.out.println("✅ From ForEachOrder : Order updated to Canceled ; only 1 booking found.");
-            return;
-        }
 
-        if (bookings.size() > 1 && bookings.stream().allMatch(booking -> booking.getBookingStatus().equals("Canceled"))) {
-            OrderDAO.updateStatusOrder(orderID, "Canceled");
-//            BookingDAO.cancelAllBookings(orderID);
-            initializeForEachOrderButtonsAndInformation();
-            System.out.println("✅ From ForEachOrder : Order updated to Canceled ; all bookings are canceled.");
-            return;
-        }
+        if (bookings.size() == 1) {
+            String bookingStatus = bookings.get(0).getBookingStatus();
 
-        for (Booking booking : bookings) {
-            if (booking.getBookingStatus().equals("Playing")) {
-                OrderDAO.updateStatusOrder(orderID, "Playing");
+            if (bookingStatus.equals(String.valueOf(BookingStatus.Canceled))) {
+                OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Canceled));
                 initializeForEachOrderButtonsAndInformation();
-                System.out.println("Da chuyen order thanh playing");
-            } else if (!booking.getBookingStatus().equals("Finish") && (booking.getBookingStatus().equals("Ordered"))) {
-                OrderDAO.updateStatusOrder(orderID, "Ordered");
-                initializeForEachOrderButtonsAndInformation();
-                System.out.println("Da chuyen order thanh order");
-            } else if (booking.getBookingStatus().equals("Finish")) {
-                initializeForEachOrderButtonsAndInformation();
-                System.out.println("Da chuyen booking thanh Finish");
+                System.out.println("✅ From ForEachOrder: Order updated to Canceled; only 1 booking found.");
+                return;
             }
+
+            if (bookingStatus.equals(String.valueOf(BookingStatus.Playing))) {
+                OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Playing));
+                initializeForEachOrderButtonsAndInformation();
+                System.out.println("✅ From ForEachOrder: Order updated to Playing; only 1 booking found.");
+                return;
+            }
+
+            if (bookingStatus.equals(String.valueOf(BookingStatus.Ordered))) {
+                OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Ordered));
+                initializeForEachOrderButtonsAndInformation();
+                System.out.println("✅ From ForEachOrder: Order updated to Ordered; only 1 booking found.");
+                return;
+            }
+
+            if (bookingStatus.equals(String.valueOf(BookingStatus.Finish))) {
+                OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Finished));
+                initializeForEachOrderButtonsAndInformation();
+                disableAllActionButtons();
+                return;
+            }
+        }
+
+// Case: All bookings are canceled
+        if (bookings.size() > 1 && bookings.stream()
+                .allMatch(booking -> String.valueOf(BookingStatus.Canceled).equals(booking.getBookingStatus()))) {
+            OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Canceled));
+            initializeForEachOrderButtonsAndInformation();
+            System.out.println("✅ From ForEachOrder: Order updated to Canceled; all bookings are canceled.");
+            return;
+        }
+
+//        for (Booking booking : bookings) {
+//            if (booking.getBookingStatus().equals("Playing")) {
+//                OrderDAO.updateStatusOrder(orderID, "Playing");
+//                initializeForEachOrderButtonsAndInformation();
+//                System.out.println("Da chuyen order thanh playing");
+//            } else if (!booking.getBookingStatus().equals("Finish") && (booking.getBookingStatus().equals("Ordered"))) {
+//                OrderDAO.updateStatusOrder(orderID, "Ordered");
+//                initializeForEachOrderButtonsAndInformation();
+//                System.out.println("Da chuyen order thanh order");
+//            } else if (booking.getBookingStatus().equals("Finish")) {
+//                initializeForEachOrderButtonsAndInformation();
+//                System.out.println("Da chuyen booking thanh Finish");
+//            }
 //            else {
 //                OrderDAO.updateStatusOrder(orderID, "Canceled");
 //                System.out.println("Da chuyen order thanh canceled");
 //            }
-        }
+//        }
     }
 
     @FXML
@@ -1452,14 +1505,6 @@ public class ForEachOrderController {
             // Show unexpected error message
             NotificationService.showNotification("Error", "An error occurred while saving the customer. Please try again.", NotificationStatus.Error);
         }
-    }
-
-    private void showAlert(Alert.AlertType alertType, String title, String content) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
     }
 
     // Getters and Setters for selected items
@@ -1624,7 +1669,7 @@ public class ForEachOrderController {
         }
     }
 
-    public int getOrderID(){
+    public int getOrderID() {
         return this.orderID;
     }
 }

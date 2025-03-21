@@ -155,6 +155,60 @@ public class ProductDAO {
         return false;
     }
 
+    public static boolean replenishMultipleItems(List<OrderItem> orderItemList) {
+        String sqlSelect = "SELECT name FROM products p " +
+                "JOIN category cat ON p.category_id = cat.category_id " +
+                "WHERE cat.category_name = 'Cues For Rent'";
+        List<String> rentCueNameList = new ArrayList<>();
+
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            connection.setAutoCommit(false); // Start transaction
+
+            // Retrieve names of products in the specified category
+            try (PreparedStatement selectStatement = connection.prepareStatement(sqlSelect);
+                 ResultSet resultSet = selectStatement.executeQuery()) {
+
+                while (resultSet.next()) {
+                    rentCueNameList.add(resultSet.getString("name"));
+                }
+            }
+
+            boolean allReplenished = true;
+            int rentCuesCount = 0;
+
+            // Check orderItemList for matching items and replenish
+            for (OrderItem orderItem : orderItemList) {
+                if (rentCueNameList.contains(orderItem.getProductName())) {
+                    rentCuesCount++;
+                    boolean result = replenishItem(orderItem.getProductName(), orderItem.getQuantity());
+                    if (!result) {
+                        allReplenished = false; // If any replenishment fails
+                        break;
+                    }
+                }
+            }
+            if (rentCuesCount==0){
+                connection.rollback();
+                System.out.println("From ProductDAO - replenishMultipleItems() - Don't panic bro, there's just no rent cues in this Order. Nothing to update.");
+            }
+            else if (allReplenished) {
+                connection.commit(); // Commit the transaction if all succeeded
+                System.out.println("All items replenished successfully.");
+                return true;
+            }
+            else {
+                connection.rollback(); // Rollback if any item failed to replenish
+                System.err.println("-- ERROR -- From Product DAO - Replenishment failed for some items. Transaction rolled back.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("SQL error during replenishment: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error during replenishment: " + e.getMessage());
+        }
+        return false; // Return false if replenishment was not successful
+    }
+
 //    public static boolean replenishMultipleItems(ObservableList<RentCue> productNameList) {
 //        String sql = "UPDATE products SET quantity = quantity + 1 WHERE name = ?";
 //        Connection connection = DatabaseConnection.getConnection();
@@ -399,4 +453,5 @@ public class ProductDAO {
         }
         return "unit"; // Mặc định nếu không có đơn vị tính
     }
+
 }

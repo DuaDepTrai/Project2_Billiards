@@ -14,6 +14,7 @@ import javafx.util.Duration;
 import org.controlsfx.control.NotificationPane;
 import src.billiardsmanagement.controller.NotificationController;
 import src.billiardsmanagement.model.NotificationStatus;
+import src.billiardsmanagement.view.Login;
 
 public class NotificationService {
 
@@ -97,8 +98,12 @@ public class NotificationService {
                 notificationStage.setY(yPos);
             });
 
-            // setAlwaysOnTop
-            notificationStage.setAlwaysOnTop(true);
+            // setup the notification stage
+            notificationStage.initOwner(Login.getPrimaryStage()); // Attach to main window
+            notificationStage.initModality(Modality.NONE); // Prevent stealing focus
+            notificationStage.setAlwaysOnTop(true); // Keep it on top
+            notificationStage.setResizable(false);
+            notificationStage.setTitle("Notification");
 
             if (status == NotificationStatus.Error || status == NotificationStatus.Warning) {
                 TranslateTransition slideDown = new TranslateTransition(Duration.millis(350), root);

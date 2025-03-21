@@ -9,6 +9,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.stage.Stage;
+import src.billiardsmanagement.dao.OrderDAO;
+import src.billiardsmanagement.dao.OrderItemDAO;
+import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.model.*;
 import src.billiardsmanagement.service.BillService;
 import src.billiardsmanagement.service.NotificationService;
@@ -19,6 +22,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class PaymentController {
@@ -170,6 +175,21 @@ public class PaymentController {
         this.orderID = orderID;
     }
 
+
+    private String replenishRentCuesNotification = "";
+    private boolean replenishRentCues() {
+        List<OrderItem> orderItemList = OrderItemDAO.getForEachOrderItem(this.orderID);
+        if(orderItemList.isEmpty()) {
+            System.out.println("-- From Payment Controller, replenishRentCues() : No Order Item found for this Order Number : "+ OrderDAO.getOrderBillNo(this.orderID));
+        }
+        boolean success = ProductDAO.replenishMultipleItems(orderItemList);
+        if (success) {
+            replenishRentCuesNotification = "All Cues Rented in this Order have been returned successfully.";
+            return true;
+        }
+        return false;
+    }
+
     @FXML
     public void payOrder(ActionEvent event) {
         String query = "UPDATE orders SET order_status = 'Paid' WHERE order_id = ?";
@@ -179,7 +199,11 @@ public class PaymentController {
             stmt.setInt(1, orderID);
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
-                NotificationService.showNotification("Payment Successful", "The order has been marked as Paid successfully!", NotificationStatus.Success);
+                // This method must be called before NotificationService.showNotification()
+                // to ensure that the notification String has already been prepared.
+                // If this function is called after showNotification(), then the replenish rent cue notification will not show.
+                replenishRentCues();
+                NotificationService.showNotification("Payment Successful", "Order Number " + OrderDAO.getOrderBillNo(this.orderID) + " has been paid successfully!" + (replenishRentCuesNotification.isEmpty() ? "" : "\n" + replenishRentCuesNotification), NotificationStatus.Success);
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.close();
             } else {
@@ -198,6 +222,5 @@ public class PaymentController {
         // Log the error (you can implement your logging mechanism here)
         System.err.println("Error: " + message);
         // Show an error notification, but only log the message
-        NotificationService.showNotification("Error", message, NotificationStatus.Error);
     }
 }

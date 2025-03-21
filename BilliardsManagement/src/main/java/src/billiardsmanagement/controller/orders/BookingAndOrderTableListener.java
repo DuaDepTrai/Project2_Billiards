@@ -65,6 +65,7 @@ public class BookingAndOrderTableListener {
     }
 
     private void scanBookings() {
+        System.out.println("From BookingAndOrderTableListener: Start Scan Bookings ..");
         List<Booking> bookingScanList = BookingDAO.getBookingsInTimeRange();
         if (bookingScanList.isEmpty()) return;
 
@@ -90,6 +91,7 @@ public class BookingAndOrderTableListener {
                 forEachOrderController.setCustomerID(CustomerDAO.getCustomerIdByOrderId(orderId));
                 forEachOrderController.checkOrderStatus();
                 forEachOrderController.initializeForEachOrderButtonsAndInformation();
+                System.out.println("From BookingAndOrderTableListener: Update and Reload ForEachView ..");
             });
         });
 
@@ -98,11 +100,13 @@ public class BookingAndOrderTableListener {
             orderController.setRefreshNotificationShow(false);
             orderController.refreshPage(new ActionEvent());
             orderController.setRefreshNotificationShow(true);
+            System.out.println("From BookingAndOrderTableListener: Refresh Order Page ..");
 
             poolTableController.handleViewAllTables();
+            System.out.println("From BookingAndOrderTableListener: Refresh Pool Table Page ..");
         });
 
-        // Show notifications one by one every 5 seconds
+        // Show notifications one by one every 3 seconds
         if (!notificationMessages.isEmpty()) {
             Timer timer = new Timer();
             AtomicInteger index = new AtomicInteger(0);

@@ -49,13 +49,20 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class PoolTableController {
-    @FXML public MFXScrollPane availableTableScrollPane;
-    @FXML public MFXScrollPane catePooltablesScrollPane;
-    @FXML public Button addNewTableCategory;
-    @FXML public ScrollPane poolTableScrollPane;
-    @FXML public AnchorPane poolTableMasterPane;
-    @FXML private User currentUser; // Lưu user đang đăng nhập
-    @FXML private List<String> userPermissions = new ArrayList<>();
+    @FXML
+    public MFXScrollPane availableTableScrollPane;
+    @FXML
+    public MFXScrollPane catePooltablesScrollPane;
+    @FXML
+    public Button addNewTableCategory;
+    @FXML
+    public ScrollPane poolTableScrollPane;
+    @FXML
+    public AnchorPane poolTableMasterPane;
+    @FXML
+    private User currentUser; // Lưu user đang đăng nhập
+    @FXML
+    private List<String> userPermissions = new ArrayList<>();
 
     @FXML
     protected FlowPane tablesContainer;
@@ -78,9 +85,9 @@ public class PoolTableController {
     @FXML
     private TextField editNameField;
     @FXML
-    private ComboBox<String> editStatusCombo,filterTypeCombobox;
+    private ComboBox<String> editStatusCombo, filterTypeCombobox;
     @FXML
-    private HBox tableCategoryContainer,poolStatusContainer,filterContainer;
+    private HBox tableCategoryContainer, poolStatusContainer, filterContainer;
 
     protected List<PoolTable> tableList;
     protected ObservableList<PoolTable> availableTableList = FXCollections.observableArrayList();
@@ -273,7 +280,7 @@ public class PoolTableController {
                 try {
                     FXMLLoader loader = new FXMLLoader(
                             getClass().getResource("/src/billiardsmanagement/pooltables/poolTableOrderInformation.fxml"));
-                    Parent root = loader.load();
+                    Pane root = loader.load();
 
                     PoolTableOrderInformationController controller = loader.getController();
                     controller.setPoolTable(table);
@@ -319,7 +326,7 @@ public class PoolTableController {
             try {
                 FXMLLoader loader = new FXMLLoader(
                         getClass().getResource("/src/billiardsmanagement/pooltables/poolTableInfo.fxml"));
-                Parent root = loader.load();
+                Pane root = loader.load();
 
                 // Get the controller and set up the table info
                 PoolTableInfoController controller = loader.getController();
@@ -346,8 +353,7 @@ public class PoolTableController {
         FlowPane.setMargin(tableStack, new Insets(5));
     }
 
-    public void showPoolPopup(Parent container, Parent content) {
-
+    public void showPoolPopup(Parent container, Pane content) {
         this.poolPopup = new Popup();
         StackPane contentPane = new StackPane();
         contentPane.setStyle("-fx-background-color: white; -fx-padding: 10;");
@@ -357,33 +363,21 @@ public class PoolTableController {
 
         poolPopup.getContent().add(contentPane);
 
-        // Get the window from the container (any FXML element inside the scene)
-        Window window = poolTableMasterPane.getScene().getWindow();
+        Scene scene = tablesContainer.getScene();
+        double sceneWidth = scene.getWidth();
+        double sceneHeight = scene.getHeight();
 
-        // Get the window's center position
-//        double centerX = window.getX() + window.getWidth() / 2;
-//        double centerY = window.getY() + window.getHeight() / 2;
-        double centerX = window.getWidth() / 2;
-        double centerY = window.getHeight() / 2;
+        double popupWidth = content.getPrefWidth();
+        double popupHeight = content.getPrefHeight();
 
-        // Force layout calculation to get actual width & height
-        contentPane.applyCss();
-        contentPane.layout();
+        System.out.println("Pool Popup Width : " + popupWidth);
+        System.out.println("Pool Popup Height : " + popupHeight);
 
-        // Get the popup’s width and height from the content
-        double popupWidth = contentPane.getBoundsInLocal().getWidth();
-        double popupHeight = contentPane.getBoundsInLocal().getHeight();
+        double xPos = (sceneWidth - popupWidth) / 2;
+        double yPos = (sceneHeight - popupHeight) / 2;
 
-        // Ensure popup dimensions are known (JavaFX may return 0 if not fully rendered yet)
-        System.out.println("PoolTableController : popupWidth = "+popupWidth + " ; popupHeight = "+popupHeight);
-        if (popupWidth <= 0 || popupHeight <= 0) {
-            popupWidth = 300; // Default width
-            popupHeight = 200; // Default height
-        }
-
-// Set the popup position to be centered in the window
-        poolPopup.setX(centerX - (popupWidth / 2));
-        poolPopup.setY(centerY - (popupHeight / 2));
+        poolPopup.setX(xPos);
+        poolPopup.setY(yPos);
 
         FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.12), contentPane);
         fadeIn.setFromValue(0);
@@ -394,42 +388,43 @@ public class PoolTableController {
         poolPopup.show(tablesContainer.getScene().getWindow());
 
         fadeIn.play();
-
     }
 
-    public void showPoolPopupInTheMiddle(Parent content) {
+    public void showPoolPopupInTheMiddle(Pane content) {
+        poolPopup = new Popup();
 
-        this.poolPopup = new Popup();
         StackPane contentPane = new StackPane();
         contentPane.setStyle("-fx-background-color: white; -fx-padding: 10;");
         contentPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, null)));
         contentPane.getChildren().add(content);
 
-        // Set initial opacity to 0
-        contentPane.setOpacity(0);
-
         poolPopup.getContent().add(contentPane);
 
-        // Show the popup first to ensure dimensions are calculated correctly
-        poolPopup.show(poolTableMasterPane.getScene().getWindow());
+        Scene scene = tablesContainer.getScene();
+        double sceneWidth = scene.getWidth();
+        double sceneHeight = scene.getHeight();
 
-        // Calculate the center position relative to poolTableMasterPane
-        Bounds bounds = poolTableMasterPane.localToScreen(poolTableMasterPane.getBoundsInLocal());
-        double centerX = bounds.getMinX() + (bounds.getWidth() / 2);
-        double centerY = bounds.getMinY() + (bounds.getHeight() / 2);
+        double popupWidth = content.getPrefWidth();
+        double popupHeight = content.getPrefHeight();
 
-        // Position the popup in the center
-        poolPopup.setX(centerX - (contentPane.getWidth() / 2));
-        poolPopup.setY(centerY - (contentPane.getHeight() / 2));
+        System.out.println("Pool Popup Width : " + popupWidth);
+        System.out.println("Pool Popup Height : " + popupHeight);
+
+        double xPos = (sceneWidth - popupWidth) / 2;
+        double yPos = (sceneHeight - popupHeight) / 2;
+
+        poolPopup.setX(xPos);
+        poolPopup.setY(yPos);
 
         // Fade-in effect
         FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.25), contentPane);
         fadeIn.setFromValue(0);
         fadeIn.setToValue(1);
-        fadeIn.play();
 
         poolPopup.setAutoHide(true);
         poolPopup.setAutoFix(true);
+        poolPopup.show(tablesContainer.getScene().getWindow());
+        fadeIn.play();
     }
 
     public void hidePoolPopup() {
@@ -463,8 +458,8 @@ public class PoolTableController {
 
     private void showForEachOrderView(Order order, PoolTable currentTable) {
         try {
-            if(forEachOrderController == null || forEachRoot == null){
-                if(mainController!=null){
+            if (forEachOrderController == null || forEachRoot == null) {
+                if (mainController != null) {
                     mainController.initializeAllControllers();
                 }
             }
@@ -770,7 +765,7 @@ public class PoolTableController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/src/billiardsmanagement/catepooltables/addCatePooltable.fxml"));
-            Parent root = loader.load();
+            Pane root = loader.load();
 
             AddCategoryPooltableController controller = loader.getController();
             controller.initializeCatePooltables();
@@ -798,10 +793,16 @@ public class PoolTableController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/src/billiardsmanagement/catepooltables/updateCatePooltable.fxml"));
-            Parent root = loader.load();
+            Pane root = loader.load();
 
             UpdateCategoryPooltableController controller = loader.getController();
             controller.setCatePooltable(category);
+            List<String> currentNames = catePooltablesList.stream().map(CatePooltable::getName).toList();
+            List<String> currentShortNames = catePooltablesList.stream().map(CatePooltable::getShortName).toList();
+
+            controller.setCurrentCategoryNames(currentNames);
+            controller.setCurrentShortNames(currentShortNames);
+            controller.initializeUpdateCatePooltable();
 
             // Show popup in the middle
             showPoolPopupInTheMiddle(root);
@@ -854,7 +855,7 @@ public class PoolTableController {
                 // Call the DAO to delete the category
                 CatePooltableDAO.deleteCategory(category.getId());
 
-                NotificationService.showNotification("Delete Successfully", "Category "+category.getName()+" has been deleted successfully", NotificationStatus.Success);
+                NotificationService.showNotification("Delete Successfully", "Category " + category.getName() + " has been deleted successfully", NotificationStatus.Success);
 
                 // Refresh the category list after deletion
                 catePooltablesList.clear();
@@ -935,7 +936,7 @@ public class PoolTableController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/src/billiardsmanagement/pooltables/addPoolTable.fxml"));
-            Parent root = loader.load();
+            Pane root = loader.load();
 
             AddPoolTableController controller = loader.getController();
 
@@ -1221,7 +1222,8 @@ public class PoolTableController {
     private ComboBox<String> createComboBox(List<String> items) {
         return new ComboBox<>(FXCollections.observableArrayList(items));
     }
-    public void setUpFilter(){
+
+    public void setUpFilter() {
         if (filterTypeCombobox == null) { // Chỉ khởi tạo nếu chưa có
             filterTypeCombobox = createComboBox(Arrays.asList("Table Category", "Table Status"));
             filterTypeCombobox.setPromptText("Filter Type");
@@ -1261,12 +1263,13 @@ public class PoolTableController {
 
         String selectedFilter = filterTypeCombobox.getValue();
 
-        if("Table Category".equals(selectedFilter)){
+        if ("Table Category".equals(selectedFilter)) {
             filterContainer.getChildren().add(tableCategoryContainer);
-        }else{
+        } else {
             filterContainer.getChildren().add(poolStatusContainer);
         }
     }
+
     private void filterByCategory() {
         List<String> selectedCategories = new ArrayList<>();
         for (Node node : tableCategoryContainer.getChildren()) {

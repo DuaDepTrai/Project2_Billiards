@@ -45,6 +45,7 @@ public class PoolTableInfoController {
 //            updateButton.setDisable(true);
 //        }
         setupNameField();
+        updateButton.setDisable(true);
     }
 
     private void setupNameField() {

@@ -409,7 +409,7 @@ public class PoolTableOrderInformationController {
         try {
             // Implement add to order logic
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/pooltables/addTableToOrder.fxml"));
-            Parent root = loader.load();
+            Pane root = loader.load();
 
             AddTableToOrderController controller = loader.getController();
             controller.setCurrentTableId(currentTable.getTableId());
