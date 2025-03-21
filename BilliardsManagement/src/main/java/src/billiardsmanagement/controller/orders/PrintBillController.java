@@ -88,8 +88,8 @@ public class PrintBillController {
                     BufferedImage croppedBim = bim.getSubimage(trimX, trimY, trimWidth, trimHeight);
 
                     // Save the trimmed image as a PNG file
-                    File outputFile = new File(currentBillName + "-" + (page + 1) + ".png");
-                    ImageIO.write(croppedBim, "PNG", outputFile);
+                    File outputFile = new File(currentBillName + "-" + (page + 1) + ".jpg");
+                    ImageIO.write(croppedBim, "JPG", outputFile);
 
                     // Load the image file into a JavaFX Image
                     Image image = new Image(outputFile.toURI().toString());
@@ -182,12 +182,13 @@ public class PrintBillController {
         // Create bills directory if it doesn't exist
         // This code will create a new directory in your disk with the path specified.
         // For example, D:\BilliardsManagement\src\main\bills
-        File billsDir = new File("\\BilliardsManagement\\src\\main\\bills");
+        File billsDir = new File("\\src\\main\\bills");
         if (!billsDir.exists()) {
             billsDir.mkdirs();
         }
 
         sb.append(billsDir.getAbsolutePath());
+        System.out.println(billsDir.getAbsolutePath());
         sb.append(File.separator);
         sb.append(handleCustomerName(bill.getCustomerName()));
         sb.append("_");

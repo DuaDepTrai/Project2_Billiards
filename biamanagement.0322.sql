@@ -3,12 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 17, 2025 at 01:12 AM
+-- Generation Time: Mar 21, 2025 at 06:00 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
-DROP DATABASE biamanagement;
-CREATE DATABASE biamanagement;
-use biamanagement;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -51,7 +48,31 @@ INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end
 (58, 71, 41, '2025-03-15 17:36:36', '2025-03-16 17:22:31', NULL, 1781250, 'Finish'),
 (59, 71, 51, '2025-03-16 01:00:00', NULL, NULL, NULL, 'Canceled'),
 (60, 72, 33, '2025-03-15 17:37:03', '2025-03-16 17:23:26', NULL, 831833.33331, 'Finish'),
-(61, 74, 36, '2025-03-15 17:59:00', NULL, NULL, NULL, 'Canceled');
+(61, 74, 36, '2025-03-15 17:59:00', NULL, NULL, NULL, 'Canceled'),
+(62, 75, 43, '2025-03-17 17:12:00', '2025-03-19 17:04:52', NULL, 3589999.99995, 'Finish'),
+(63, 75, 44, '2025-03-17 17:12:03', '2025-03-19 17:04:52', NULL, 3589999.99995, 'Finish'),
+(64, 75, 45, '2025-03-17 17:12:06', '2025-03-19 17:04:52', NULL, 3589999.99995, 'Finish'),
+(65, 75, 46, '2025-03-17 17:12:10', '2025-03-19 17:04:52', NULL, 3589999.99995, 'Finish'),
+(66, 75, 31, '2025-03-17 17:42:20', '2025-03-19 17:04:52', NULL, 1657833.33331, 'Finish'),
+(67, 75, 34, '2025-03-17 17:42:24', '2025-03-19 17:04:52', NULL, 1657833.33331, 'Finish'),
+(68, 75, 35, '2025-03-17 17:42:28', '2025-03-19 17:04:52', NULL, 1657833.33331, 'Finish'),
+(69, 79, 36, '2025-03-19 02:29:06', NULL, NULL, NULL, 'Canceled'),
+(70, 80, 32, '2025-03-19 02:39:19', '2025-03-19 17:06:03', NULL, 505166.666655, 'Finish'),
+(71, 82, 38, '2025-03-19 16:59:00', NULL, NULL, NULL, 'Canceled'),
+(72, 83, 44, '2025-03-19 17:22:21', '2025-03-19 17:22:29', NULL, 0, 'Finish'),
+(73, 84, 51, '2025-03-19 17:59:00', NULL, NULL, NULL, 'Canceled'),
+(74, 85, 56, '2025-03-19 18:05:00', NULL, NULL, NULL, 'Canceled'),
+(75, 86, 47, '2025-03-19 18:15:00', NULL, NULL, NULL, 'Canceled'),
+(76, 87, 47, '2025-03-19 18:25:00', NULL, NULL, NULL, 'Canceled'),
+(77, 88, 46, '2025-03-19 18:25:00', NULL, NULL, NULL, 'Canceled'),
+(78, 89, 46, '2025-03-19 18:50:00', NULL, NULL, NULL, 'Canceled'),
+(79, 91, 32, '2025-03-19 19:30:00', NULL, NULL, NULL, 'Canceled'),
+(80, 92, 33, '2025-03-19 19:41:26', '2025-03-19 19:54:38', NULL, 7583.33331, 'Finish'),
+(81, 93, 44, '2025-03-19 19:41:39', '2025-03-19 19:54:30', NULL, 15000, 'Finish'),
+(82, 94, 46, '2025-03-19 19:45:00', NULL, NULL, NULL, 'Canceled'),
+(83, 96, 42, '2025-03-20 16:34:25', '2025-03-20 19:34:45', 3, 225000, 'Finish'),
+(84, 97, 42, '2025-03-20 16:45:00', NULL, NULL, NULL, 'Canceled'),
+(85, 100, 43, '2025-03-21 16:25:00', NULL, NULL, NULL, 'Canceled');
 
 --
 -- Triggers `bookings`
@@ -88,7 +109,7 @@ CREATE TRIGGER `update_total_playtime` AFTER UPDATE ON `bookings` FOR EACH ROW B
     IF COALESCE(OLD.timeplay, 0) <> COALESCE(NEW.timeplay, 0) THEN
         UPDATE customers c
         SET c.total_playtime = (
-            SELECT COALESCE(SUM(b.timeplay), 0)
+        SELECT COALESCE(SUM(b.timeplay), 0)
             FROM bookings b
             JOIN orders o ON b.order_id = o.order_id
             WHERE o.customer_id = c.customer_id
@@ -167,28 +188,28 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`, `birthday`, `address`) VALUES
-(1, 'Guest', '0999999999', 0.5, '1990-01-01', NULL),
-(2, 'Le Thi Mai', '0912345678', 0, '1990-01-01', NULL),
-(3, 'Tran Minh Tu', '0903456789', 0, '1990-01-01', NULL),
-(4, 'Phan Quoc Toan', '0856789012', 0, '1990-01-01', NULL),
-(5, 'Hoang Minh Thao', '0321234567', 0, '1990-01-01', NULL),
-(6, 'Nguyen Van Anh', '0708765432', 0, '1990-01-01', NULL),
-(7, 'Tran Thi Binh', '0562345678', 0, '1990-01-01', NULL),
-(8, 'Le Hoang Nam', '0593987654', 0, '1990-01-01', NULL),
-(9, 'Pham Thanh Tam', '0345678910', 0, '1990-01-01', NULL),
-(10, 'Dang Minh Duc', '0777123456', 0, '1990-01-01', NULL),
-(11, 'Bui Van Khoa', '0965123456', 0, '1990-01-01', NULL),
-(12, 'Hoang Thi Lan', '0946789012', 0, '1990-01-01', NULL),
-(13, 'Vo Quoc Bao', '0932345678', 0, '1990-01-01', NULL),
-(14, 'Doan Ngoc Hai', '0887654321', 0, '1990-01-01', NULL),
-(15, 'Truong Kim Ngan', '0813456789', 0, '1990-01-01', NULL),
-(16, 'Ngo Van Son', '0398765432', 0, '1990-01-01', NULL),
-(17, 'Luong Bao Chau', '0789123456', 0, '1990-01-01', NULL),
-(18, 'Phan Thanh Phong', '0582345678', 0, '1990-01-01', NULL),
-(19, 'Dinh Hai Dang', '0356789012', 0, '1990-01-01', NULL),
-(20, 'Cao Anh Tuan', '0765432189', 0, '1990-01-01', NULL),
-(21, 'Tran Van B', '9876543211', 0, '1990-01-01', NULL),
-(22, 'Nguyen Anh Tuan', '0987654321', 0, '1990-01-01', NULL);
+(1, 'Guest', '0999999999', 0.5, '1990-01-01', 'Ba Đình, Hà Nội'),
+(2, 'Le Thi Mai', '0912345678', 0, '1990-01-01', 'Hoàn Kiếm, Hà Nội'),
+(3, 'Tran Minh Tu', '0903456789', 0, '1990-01-01', 'Thanh Xuân, Hà Nội'),
+(4, 'Phan Quoc Toan', '0856789012', 0, '1990-01-01', 'Đống Đa, Hà Nội'),
+(5, 'Hoang Minh Thao', '0321234567', 0, '1990-01-01', 'Cầu Giấy, Hà Nội'),
+(6, 'Nguyen Van Anh', '0708765432', 0, '1990-01-01', 'Hoàng Mai, Hà Nội'),
+(7, 'Tran Thi Binh', '0562345678', 0, '1990-01-01', 'Hà Đông, Hà Nội'),
+(8, 'Le Hoang Nam', '0593987654', 0.2, '1990-01-01', 'Tây Hồ, Hà Nội'),
+(9, 'Pham Thanh Tam', '0345678910', 6, '1990-01-01', 'Nam Từ Liêm, Hà Nội'),
+(10, 'Dang Minh Duc', '0777123456', 0, '1990-01-01', 'Bắc Từ Liêm, Hà Nội'),
+(11, 'Bui Van Khoa', '0965123456', 0, '1990-01-01', 'Long Biên, Hà Nội'),
+(12, 'Hoang Thi Lan', '0946789012', 0, '1990-01-01', 'Ba Đình, Hà Nội'),
+(13, 'Vo Quoc Bao', '0932345678', 0, '1990-01-01', 'Hoàn Kiếm, Hà Nội'),
+(14, 'Doan Ngoc Hai', '0887654321', 0, '1990-01-01', 'Thanh Xuân, Hà Nội'),
+(15, 'Truong Kim Ngan', '0813456789', 0, '1990-01-01', 'Đống Đa, Hà Nội'),
+(16, 'Ngo Van Son', '0398765432', 0, '1990-01-01', 'Cầu Giấy, Hà Nội'),
+(17, 'Luong Bao Chau', '0789123456', 0, '1990-01-01', 'Hoàng Mai, Hà Nội'),
+(18, 'Phan Thanh Phong', '0582345678', 0, '1990-01-01', 'Hà Đông, Hà Nội'),
+(19, 'Dinh Hai Dang', '0356789012', 0.216666666, '1990-01-01', 'Tây Hồ, Hà Nội'),
+(20, 'Cao Anh Tuan', '0765432189', 0, '1990-01-01', 'Nam Từ Liêm, Hà Nội'),
+(21, 'Tran Van B', '9876543211', 0, '1990-01-01', 'Bắc Từ Liêm, Hà Nội'),
+(22, 'Nguyen Anh Tuan', '0987654321', 0, '1991-01-01', 'Long Biên, Hà Nội');
 
 -- --------------------------------------------------------
 
@@ -211,10 +232,36 @@ CREATE TABLE `orders` (
 
 INSERT INTO `orders` (`order_id`, `customer_id`, `user_id`, `total_cost`, `order_date`, `order_status`) VALUES
 (68, 1, 1, 16333.33331, '2025-03-13 23:43:18', 'Finished'),
-(71, 11, 1, 1781250, '2025-03-16 00:23:04', 'Finished'),
+(71, 11, 1, 1781250, '2025-03-16 00:23:04', 'Paid'),
 (72, 12, 1, 831833.33331, '2025-03-16 00:29:04', 'Paid'),
 (73, 22, 1, NULL, '2025-03-16 00:33:52', 'Canceled'),
-(74, 18, 1, NULL, '2025-03-16 00:58:05', 'Canceled');
+(74, 18, 1, NULL, '2025-03-16 00:58:05', 'Canceled'),
+(75, 8, 1, 19333499.999730002, '2025-03-17 23:35:13', 'Paid'),
+(76, 1, 1, NULL, '2025-03-17 23:35:29', 'Playing'),
+(77, 1, 1, NULL, '2025-03-17 23:36:02', 'Playing'),
+(78, 1, 1, NULL, '2025-03-17 23:47:36', 'Playing'),
+(79, 19, 1, NULL, '2025-03-19 09:29:04', 'Canceled'),
+(80, 1, 1, 505166.666655, '2025-03-19 09:39:15', 'Finished'),
+(81, 1, 1, NULL, '2025-03-19 09:48:02', 'Playing'),
+(82, 18, 1, NULL, '2025-03-19 23:55:19', 'Canceled'),
+(83, 7, 1, 20000, '2025-03-20 00:22:10', 'Finished'),
+(84, 19, 1, NULL, '2025-03-20 00:50:40', 'Canceled'),
+(85, 20, 1, NULL, '2025-03-20 01:03:51', 'Canceled'),
+(86, 20, 1, NULL, '2025-03-20 01:13:00', 'Canceled'),
+(87, 4, 1, NULL, '2025-03-20 01:20:41', 'Canceled'),
+(88, 6, 1, NULL, '2025-03-20 01:21:10', 'Canceled'),
+(89, 16, 1, NULL, '2025-03-20 01:45:18', 'Canceled'),
+(90, 9, 1, NULL, '2025-03-20 02:24:46', 'Playing'),
+(91, 16, 1, NULL, '2025-03-20 02:29:14', 'Canceled'),
+(92, 19, 1, 7583.33331, '2025-03-20 02:41:25', 'Paid'),
+(93, 8, 1, 15000, '2025-03-20 02:41:38', 'Paid'),
+(94, 14, 1, NULL, '2025-03-20 02:42:14', 'Canceled'),
+(95, 10, 1, 40000, '2025-03-20 23:31:15', 'Finished'),
+(96, 9, 1, 225000, '2025-03-20 23:32:01', 'Finished'),
+(97, 5, 1, NULL, '2025-03-20 23:40:52', 'Canceled'),
+(98, 1, 1, NULL, '2025-03-21 23:21:20', 'Playing'),
+(99, 20, 1, NULL, '2025-03-21 23:21:31', 'Playing'),
+(100, 16, 1, NULL, '2025-03-21 23:23:44', 'Canceled');
 
 -- --------------------------------------------------------
 
@@ -229,6 +276,14 @@ CREATE TABLE `orders_items` (
   `quantity` int(11) NOT NULL,
   `total` double DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `orders_items`
+--
+
+INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity`, `total`) VALUES
+(59, 83, 17, 1, 20000),
+(60, 95, 15, 1, 40000);
 
 -- --------------------------------------------------------
 
@@ -351,9 +406,9 @@ INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `q
 (12, 'Chips', 4, 20000, 'Bag', 50),
 (13, 'Nuts', 4, 30000, 'Bag', 50),
 (14, 'Popcorn', 4, 25000, 'Bag', 50),
-(15, 'Chocolate', 4, 40000, 'Bar', 50),
+(15, 'Chocolate', 4, 40000, 'Bar', 49),
 (16, 'Cookies Box', 4, 50000, 'Box', 50),
-(17, 'Coca Cola', 3, 20000, 'Can', 50),
+(17, 'Coca Cola', 3, 20000, 'Can', 49),
 (20, 'Uno', 5, 60000, 'Set', 30),
 (21, 'Poker Deck (Plastic Cards)', 5, 80000, 'Set', 30),
 (22, 'Poker Deck (Plastic Coated)', 5, 50000, 'Set', 30),
@@ -476,9 +531,9 @@ INSERT INTO `users` (`user_id`, `username`, `password`, `fullname`, `phone`, `ad
 (7, 'letan3', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Hồ Hiền', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 3, 'user.png'),
 (8, 'nvkho2', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Phạm Kiên', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 4, 'user.png'),
 (9, 'letan2', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Vũ Trà', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 3, 'user.png'),
-(10, 'nvkho3', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Lê Khánh', '0987654321', 'Hà Nội', '2025-01-01', '1990-06-15', 4, 'user.png'),
 (11, 'letan1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Phương Thảo', '0965438482', 'Hà Nội', '2025-03-02', '1997-12-09', 3, '366339749_258391096996728_4824303083280686790_n.jpg'),
-(14, 'nvkho1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Văn Dứa', '0979473639', 'Hà Nội', '2025-03-02', '2025-03-06', 4, 'user.png');
+(14, 'nvkho1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Văn Dứa', '0979473639', 'Hà Nội', '2025-03-02', '2021-12-01', 4, 'user.png'),
+(16, 'nvkho3', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Lê Khánh', '0986463456', 'Đống Đa, Hà Nội', '2025-03-19', '1990-03-20', 4, 'user.png');
 
 --
 -- Indexes for dumped tables
@@ -575,37 +630,37 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
 
 --
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `cate_pooltables`
 --
 ALTER TABLE `cate_pooltables`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
 
 --
 -- AUTO_INCREMENT for table `orders_items`
 --
 ALTER TABLE `orders_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -623,7 +678,7 @@ ALTER TABLE `pooltables`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -635,7 +690,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- Constraints for dumped tables
