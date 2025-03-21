@@ -1378,14 +1378,34 @@ public class ForEachOrderController {
             }
         }
 
-// Case: All bookings are canceled
-        if (bookings.size() > 1 && bookings.stream()
-                .allMatch(booking -> String.valueOf(BookingStatus.Canceled).equals(booking.getBookingStatus()))) {
-            OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Canceled));
-            initializeForEachOrderButtonsAndInformation();
-            System.out.println("✅ From ForEachOrder: Order updated to Canceled; all bookings are canceled.");
-            return;
+        // Case: All bookings are canceled
+        if (bookings.size() > 1) {
+            if(bookings.stream()
+                    .allMatch(booking -> String.valueOf(BookingStatus.Canceled).equals(booking.getBookingStatus()))){
+                OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Canceled));
+                initializeForEachOrderButtonsAndInformation();
+                System.out.println("✅ From ForEachOrder: Order updated to Canceled; all bookings are canceled.");
+            }
+            else if(bookings.stream().anyMatch(booking -> booking.getBookingStatus().equals(String.valueOf(BookingStatus.Playing))))
+            {
+                OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Playing));
+                initializeForEachOrderButtonsAndInformation();
+                System.out.println("✅ From ForEachOrder: Order updated to Playing ; there's booking remain playing.");
+            }
+            else if(bookings.stream().anyMatch(booking -> booking.getBookingStatus().equals(String.valueOf(BookingStatus.Ordered))))
+            {
+                OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Ordered));
+                initializeForEachOrderButtonsAndInformation();
+                System.out.println("✅ From ForEachOrder: Order updated to Playing ; there's booking remain playing.");
+            }
+            else if(bookings.stream().anyMatch(booking -> booking.getBookingStatus().equals(String.valueOf(BookingStatus.Finish))))
+            {
+                OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Finished));
+                initializeForEachOrderButtonsAndInformation();
+                System.out.println("✅ From ForEachOrder: Order updated to Playing ; there's booking remain playing.");
+            }
         }
+
 
 //        for (Booking booking : bookings) {
 //            if (booking.getBookingStatus().equals("Playing")) {
