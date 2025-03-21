@@ -976,23 +976,24 @@ public class OrderController implements Initializable {
         LocalDate endDate = endDatePicker.getValue();
 
         if (startDate == null || endDate == null) {
-            // Nếu một trong hai ngày bị rỗng, lấy đơn hàng theo ngày có sẵn
+            // If either date is empty, filter orders by the available date
             LocalDate filterDate = (startDate != null) ? startDate : endDate;
             orderTable.setItems(OrderDAO.getOrdersByDate(filterDate));
-            NotificationService.showNotification("Lọc đơn hàng", "Hiển thị đơn hàng theo ngày " + filterDate, NotificationStatus.Information);
+            NotificationService.showNotification("Order Filter", "Displaying orders for " + filterDate, NotificationStatus.Information);
             return;
         }
 
         if (startDate.isAfter(endDate)) {
-            // Hiển thị thông báo nếu ngày bắt đầu lớn hơn ngày kết thúc
-            NotificationService.showNotification("Lỗi chọn ngày", "Ngày bắt đầu không thể lớn hơn ngày kết thúc!", NotificationStatus.Warning);
+            // Show a warning if the start date is after the end date
+            NotificationService.showNotification("Date Selection Error", "The start date cannot be later than the end date!", NotificationStatus.Warning);
             return;
         }
 
-        // Nếu cả hai ngày hợp lệ, lấy dữ liệu theo khoảng ngày
+        // If both dates are valid, fetch data within the selected date range
         orderTable.setItems(OrderDAO.getOrdersByDateRange(startDate, endDate));
-        NotificationService.showNotification("Lọc đơn hàng", "Hiển thị đơn hàng từ " + startDate + " đến " + endDate, NotificationStatus.Success);
+        NotificationService.showNotification("Order Filter", "Displaying orders from " + startDate + " to " + endDate, NotificationStatus.Success);
     }
+
 
 
     private void filterByCategory() {

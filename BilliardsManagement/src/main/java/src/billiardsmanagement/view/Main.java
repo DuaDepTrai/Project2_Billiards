@@ -13,9 +13,9 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/main/main.fxml"));
         BorderPane root = loader.load();
 
-        Scene scene = new Scene(root, 800, 600);
-        scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/style.css").toExternalForm());
-        scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/main.css").toExternalForm());
+        Scene scene = new Scene(root, 2000, 1000);
+//        scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/style.css").toExternalForm());
+//        scene.getStylesheets().add(getClass().getResource("/src/billiardsmanagement/css/main.css").toExternalForm());
         primaryStage.setTitle("BILLIARDS MANAGEMENT");
         primaryStage.setScene(scene);
 
