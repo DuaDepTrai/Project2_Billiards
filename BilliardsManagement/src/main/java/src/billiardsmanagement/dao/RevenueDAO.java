@@ -1,53 +1,102 @@
 package src.billiardsmanagement.dao;
 
-import src.billiardsmanagement.model.DatabaseConnection;
-import src.billiardsmanagement.model.Order;
-import src.billiardsmanagement.model.Revenue;
-import src.billiardsmanagement.model.RevenueService;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
+import src.billiardsmanagement.model.DatabaseConnection;;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RevenueDAO {
-    private Connection connection;
 
-    public RevenueDAO() {
-        this.connection = DatabaseConnection.getConnection(); // Lấy kết nối từ DatabaseConnection
-    }
-
-    // Chèn dữ liệu Revenue vào bảng revenue
-    public boolean insertRevenue(Revenue revenue) {
-        String sql = "INSERT INTO revenue (date, total_revenue, total_orders, total_customers, description) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setDate(1, java.sql.Date.valueOf(revenue.getDate()));
-            stmt.setDouble(2, revenue.getTotal_revenue());
-            stmt.setInt(3, revenue.getTotal_orders());
-            stmt.setInt(4, revenue.getTotal_customers());
-            stmt.setString(5, revenue.getDescription()); // Thêm description
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-    public boolean existsByDate(LocalDate date) {
-        String sql = "SELECT COUNT(*) FROM revenue WHERE date = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setDate(1, java.sql.Date.valueOf(date));
+    // 1. Lấy tổng số đơn hàng và tổng doanh thu trong khoảng thời gian
+    public static RevenueSummary getTotalRevenue(String fromDate, String toDate) {
+        String query = "SELECT COUNT(order_id) AS totalOrders, SUM(total_cost) AS totalRevenue " +
+                "FROM orders WHERE order_status = 'Paid' " +
+                "AND order_date BETWEEN ? AND ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, fromDate);
+            stmt.setString(2, toDate);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1) > 0;
+                return new RevenueSummary(rs.getInt("totalOrders"), rs.getDouble("totalRevenue"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
+        return new RevenueSummary(0, 0);
     }
 
+    // 2. Lấy doanh thu theo ngày/tuần/tháng/năm
+    public static List<RevenueByDate> getRevenueByDate(String groupBy, String fromDate, String toDate) {
+        String dateFormat = switch (groupBy) {
+            case "day" -> "DATE(order_date)";
+            case "week" -> "YEARWEEK(order_date)";
+            case "month" -> "DATE_FORMAT(order_date, '%Y-%m')";
+            case "year" -> "YEAR(order_date)";
+            default -> "DATE(order_date)";
+        };
 
-    // Tạo Revenue từ danh sách Order và chèn vào bảng revenue
+        String query = "SELECT " + dateFormat + " AS period, SUM(total_cost) AS revenue " +
+                "FROM orders WHERE order_status = 'Paid' " +
+                "AND order_date BETWEEN ? AND ? GROUP BY period ORDER BY period ASC";
 
+        List<RevenueByDate> revenues = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, fromDate);
+            stmt.setString(2, toDate);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                revenues.add(new RevenueByDate(rs.getString("period"), rs.getDouble("revenue")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return revenues;
+    }
+
+    // 3. Lấy doanh thu theo nhóm bàn
+    public static List<RevenueByCategory> getRevenueByTableGroup(String fromDate, String toDate) {
+        String query = "SELECT p.name AS category, SUM(b.total) AS revenue " +
+                "FROM bookings b JOIN pooltables p ON b.table_id = p.table_id " +
+                "WHERE b.booking_status = 'Finished' AND b.start_time BETWEEN ? AND ? " +
+                "GROUP BY p.name";
+
+        List<RevenueByCategory> revenues = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, fromDate);
+            stmt.setString(2, toDate);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                revenues.add(new RevenueByCategory(rs.getString("category"), rs.getDouble("revenue")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return revenues;
+    }
+
+    // 4. Lấy doanh thu theo nhóm sản phẩm
+    public static List<RevenueByCategory> getRevenueByProductGroup(String fromDate, String toDate) {
+        String query = "SELECT c.name AS category, SUM(oi.total) AS revenue " +
+                "FROM order_items oi JOIN products p ON oi.product_id = p.product_id " +
+                "JOIN categories c ON p.category_id = c.category_id " +
+                "WHERE oi.order_id IN (SELECT order_id FROM orders WHERE order_status = 'Paid' " +
+                "AND order_date BETWEEN ? AND ?) GROUP BY c.name";
+
+        List<RevenueByCategory> revenues = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, fromDate);
+            stmt.setString(2, toDate);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                revenues.add(new RevenueByCategory(rs.getString("category"), rs.getDouble("revenue")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return revenues;
+    }
 }

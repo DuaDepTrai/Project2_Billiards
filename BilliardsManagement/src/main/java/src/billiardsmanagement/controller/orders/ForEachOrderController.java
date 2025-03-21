@@ -11,6 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -46,10 +47,7 @@ import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -210,6 +208,8 @@ public class ForEachOrderController {
     private PoolTable selectedTable;
     private PoolTableController poolTableController;
     private OrderController orderController;
+
+    private List<Button> createdOrderItemButtons = new ArrayList<>();
 
 
     public void loadBookings() {
@@ -451,6 +451,7 @@ public class ForEachOrderController {
         }
 
         // Set cell factory for action column
+
         orderItemActionColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(Void item, boolean empty) {
@@ -599,34 +600,35 @@ public class ForEachOrderController {
     }
 
     private void handleTabTraversal(KeyEvent event) {
-        switch (event.getCode()) {
-            case TAB -> {
-                if (event.isShiftDown()) { // Shift + Tab (reverse order)
-                    if (customerText.isFocused()) {
+        if (event.getCode() == KeyCode.TAB) {
+            if (event.isShiftDown()) { // Shift + Tab (reverse order)
+                if (customerText.isFocused()) {
+                    if (!confirmSaveCustomer.isDisabled()) {
                         confirmSaveCustomer.requestFocus();
-                        event.consume();
-                    } else if (phoneText.isFocused()) {
-                        customerText.requestFocus();
-                        event.consume();
-                    } else if (confirmSaveCustomer.isFocused()) {
+                    } else {
                         phoneText.requestFocus();
-                        event.consume();
                     }
-                } else { // Normal Tab (forward order)
-                    if (customerText.isFocused()) {
-                        phoneText.requestFocus();
-                        event.consume();
-                    } else if (phoneText.isFocused()) {
+                } else if (phoneText.isFocused()) {
+                    customerText.requestFocus();
+                } else if (confirmSaveCustomer.isFocused()) {
+                    phoneText.requestFocus();
+                }
+            } else { // Normal Tab (forward order)
+                if (customerText.isFocused()) {
+                    phoneText.requestFocus();
+                } else if (phoneText.isFocused()) {
+                    if (!confirmSaveCustomer.isDisabled()) {
                         confirmSaveCustomer.requestFocus();
-                        event.consume();
-                    } else if (confirmSaveCustomer.isFocused()) {
+                    } else {
                         customerText.requestFocus();
-                        event.consume();
                     }
+                } else if (confirmSaveCustomer.isFocused()) {
+                    customerText.requestFocus();
                 }
             }
         }
     }
+
 
     public void initializeForEachOrderButtonsAndInformation() {
         List<Customer> customerList = customerDAO.getInfoCustomer(customerID);
@@ -663,13 +665,16 @@ public class ForEachOrderController {
         }
 
         loadBookings();
+        if(currentOrder.getOrderStatus().equalsIgnoreCase("Finished")){
+            disableAllActionButtons();
+        }
         System.out.println("From ForEachOrderController, initializeForEachOrderButtonsAndInformation() has been called !");
     }
 
     private void setupPhoneAutoCompletion() {
-        if (phoneAutoCompletion != null) {
-            phoneAutoCompletion.dispose();
-        }
+//        if (phoneAutoCompletion != null) {
+//            phoneAutoCompletion.dispose();
+//        }
 
         // Lấy danh sách customer từ database với cả phone và name
         List<Customer> customers = customerDAO.getAllCustomers();
@@ -713,22 +718,28 @@ public class ForEachOrderController {
 
     public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text) {
         text.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue && isFirstFocus.get()) {
-                System.out.println("initialPhoneText: " + initialPhoneText);
-                if(text.getText()!=null && !text.getText().equalsIgnoreCase(initialPhoneText)){
+            if (newValue && isFirstFocus.get()) {  // First focus event
+                if (text.getText() != null && !text.getText().equalsIgnoreCase(initialPhoneText)) {
                     isFirstFocus.set(false);
                     return;
                 }
-                else{
-                    text.setText("");
-                    isFirstFocus.set(false); // Prevents this from running again
-                }
+
+                // Listen for backspace key to clear the field only once
+                text.setOnKeyPressed(event -> {
+                    if (event.getCode() == KeyCode.BACK_SPACE) {
+                        text.clear();
+                        text.setOnKeyPressed(null); // Remove listener after first backspace
+                    }
+                });
+
+                isFirstFocus.set(false); // Prevents running again in the same focus session
             }
-            if(!newValue){
-                isFirstFocus.set(true);
+            if (!newValue) {
+                isFirstFocus.set(true); // Reset when losing focus
             }
         });
     }
+
 
     //    public void addBooking(ActionEvent event) {
 //        if (orderStatusText.getText().equals("Paid")) {
@@ -1186,6 +1197,44 @@ public class ForEachOrderController {
         return decimalFormat.format(total);
     }
 
+    public void disableAllActionButtons() {
+        Platform.runLater(() -> {
+            for (int rowIndex = 0; rowIndex < orderItemsTable.getItems().size(); rowIndex++) {
+                TableRow<OrderItem> row = getTableRowAt(rowIndex);
+                if (row != null) {
+                    List<Node> cells = row.lookupAll(".table-cell").stream().toList();
+                    if (cells.size() > 5) { // Ensure the column index exists (6th column → index 5)
+                        TableCell<OrderItem, Void> cell = (TableCell<OrderItem, Void>) cells.get(5);
+                        if (cell != null) {
+                            System.out.println("Disabling button in row " + rowIndex);
+                            HBox actionBox = (HBox) cell.getGraphic();
+                            if (actionBox != null) {
+                                for (Node buttonNode : actionBox.getChildren()) {
+                                    if (buttonNode instanceof Button) {
+                                        ((Button) buttonNode).setDisable(true);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // ✅ Method to Get the TableRow Correctly (Without Lookup Issues)
+    private TableRow<OrderItem> getTableRowAt(int rowIndex) {
+        for (Node node : orderItemsTable.lookupAll(".table-row-cell")) {
+            if (node instanceof TableRow<?> row) {
+                if (row.getIndex() == rowIndex) {
+                    return (TableRow<OrderItem>) row;
+                }
+            }
+        }
+        return null;
+    }
+
+
     public void finishOrder(ActionEvent event) {
         try {
             // Get confirmation from user
@@ -1202,6 +1251,7 @@ public class ForEachOrderController {
                     if (updateOrderSuccess) {
                         NotificationService.showNotification("Finish This Order", "Finish order successfully. There's no booking in this table.", NotificationStatus.Information);
                         initializeForEachOrderButtonsAndInformation();
+                        disableAllActionButtons();
                     } else {
                         NotificationService.showNotification("Error", "Failed to finish order.", NotificationStatus.Error);
                     }
@@ -1226,6 +1276,7 @@ public class ForEachOrderController {
                         // Refresh the tables
                         initializeForEachOrderButtonsAndInformation();
                         loadBookings();
+                        disableAllActionButtons();
                         if (poolTableController != null) poolTableController.handleViewAllTables();
                     } else {
                         NotificationService.showNotification("Error", "Failed to update order status.",

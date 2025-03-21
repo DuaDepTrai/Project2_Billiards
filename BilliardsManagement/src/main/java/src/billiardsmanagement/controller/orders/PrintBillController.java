@@ -36,10 +36,13 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Queue;
 
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -213,6 +216,12 @@ public class PrintBillController {
         billTitle.setAlignment(Element.ALIGN_CENTER);
         document.add(billTitle);
 
+        // Formatter
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        symbols.setGroupingSeparator('.'); // Use dot (.) as the thousands separator
+        DecimalFormat decimalFormat = new DecimalFormat("#,###", symbols); // Format pattern
+
+
         Chunk billTimesChunk = new Chunk("Date : " + formattedDateTime);
         billTimesChunk.setFont(billTimeFont);
         Paragraph billTimesPara = new Paragraph(billTimesChunk);
@@ -237,7 +246,8 @@ public class PrintBillController {
         customerPhonePara.setAlignment(Element.ALIGN_LEFT);
         document.add(customerPhonePara);
 
-        Chunk totalPaymentValueChunk = new Chunk("Total Payment: " + Math.round(bill.getTotalCost()));
+        String formattedTotalCost = decimalFormat.format(bill.getTotalCost());
+        Chunk totalPaymentValueChunk = new Chunk("Total Payment: " + formattedTotalCost);
         totalPaymentValueChunk.setFont(customerDetailFont);
         // Set line height to 20% of font size, and align text fully in width
         totalPaymentValueChunk.setLineHeight(1.2f);
@@ -312,20 +322,22 @@ public class PrintBillController {
             table.addCell(cell);
             System.out.println("Get Unit = "+billItem.getUnit());
 
+            String formattedUnitPrice = decimalFormat.format(billItem.getUnitPrice());
             cell = new PdfPCell();
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             cell.setVerticalAlignment(Element.ALIGN_CENTER);
             cell.setPaddingTop(3.0f);
             cell.setPaddingBottom(3.0f);
-            cell.addElement(new Phrase(String.valueOf(Math.round(billItem.getUnitPrice())), cellFont));
+            cell.addElement(new Phrase(formattedUnitPrice, cellFont));
             table.addCell(cell);
 
+            String formattedTotalPrice = decimalFormat.format(billItem.getTotalPrice());
             cell = new PdfPCell();
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             cell.setVerticalAlignment(Element.ALIGN_CENTER);
             cell.setPaddingTop(3.0f);
             cell.setPaddingBottom(3.0f);
-            cell.addElement(new Phrase(String.valueOf(Math.round(billItem.getTotalPrice())), cellFont));
+            cell.addElement(new Phrase(formattedTotalPrice, cellFont));
             table.addCell(cell);
         }
 

@@ -40,7 +40,7 @@ public class ProductStatsController {
                     "GROUP BY p.product_id ORDER BY sold DESC LIMIT 10";
 
             XYChart.Series<String, Number> series = new XYChart.Series<>();
-            series.setName("Top 10 bán chạy");
+            series.setName("Top 10 best sale");
 
             try (PreparedStatement stmt = conn.prepareStatement(topQuery);
                  ResultSet rs = stmt.executeQuery()) {

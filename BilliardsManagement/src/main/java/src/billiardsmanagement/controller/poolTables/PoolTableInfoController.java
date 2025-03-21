@@ -39,11 +39,11 @@ public class PoolTableInfoController {
         setupCategoryComboBox();
 
         // Setup Validate Inline
-        if(currentTable.getStatus().equalsIgnoreCase("Available")){
-            notifyLabel.setText("Enter a new name for this table");
-            notifyLabel.setStyle("-fx-text-fill: #FF9D23;"); // Red color
-            updateButton.setDisable(true);
-        }
+//        if(currentTable.getStatus().equalsIgnoreCase("Available")){
+//            notifyLabel.setText("Enter a new name for this table");
+//            notifyLabel.setStyle("-fx-text-fill: #FF9D23;"); // Red color
+//            updateButton.setDisable(true);
+//        }
         setupNameField();
     }
 

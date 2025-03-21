@@ -17,13 +17,13 @@
 
     public class OrderStatsController {
         @FXML
-        private DatePicker startDatePicker, endDatePicker;
+        private DatePicker startDatePicker, endDatePicker,datePicker;
         @FXML
         private ComboBox<Integer> monthComboBox, yearComboBox, yearOnlyComboBox;
         @FXML
         private ComboBox<String> filterTypeComboBox;
         @FXML
-        private HBox dateRangeBox, monthBox, yearBox;
+        private HBox dateRangeBox, monthBox, yearBox,dateBox;
         @FXML
         private Label totalRevenueLabel, totalOrdersLabel;
         @FXML
@@ -39,49 +39,46 @@
         private List<String> dateColumns = new ArrayList<>();
 
         public void initialize() {
-            List<String> dates = new ArrayList<>(); // Đặt trước khi sử dụng
-            // Configure category column
+            // Cấu hình cột danh mục
             colCategory.setCellValueFactory(data -> new SimpleStringProperty((String) data.getValue().get("category")));
             revenueTable.setItems(revenueData);
 
-            // Add options to ComboBox
-            filterTypeComboBox.setItems(FXCollections.observableArrayList("Date Range", "Month", "Year"));
-            filterTypeComboBox.setValue("Date Range"); // Default to Date Range
+            // Thêm tùy chọn cho ComboBox lọc
+            filterTypeComboBox.setItems(FXCollections.observableArrayList("Date","Date Range", "Month", "Year"));
+            filterTypeComboBox.setValue("Date"); // Mặc định là Date Range
             filterTypeComboBox.setOnAction(e -> updateFilterType());
 
-            // Set values for month and year ComboBox
+            // Thiết lập giá trị cho ComboBox tháng & năm
             monthComboBox.setItems(FXCollections.observableArrayList(IntStream.rangeClosed(1, 12).boxed().toList()));
             int currentYear = LocalDate.now().getYear();
             yearComboBox.setItems(FXCollections.observableArrayList(IntStream.rangeClosed(2020, currentYear).boxed().toList()));
             yearOnlyComboBox.setItems(yearComboBox.getItems());
 
-// Set default values for DatePicker
+            // Thiết lập giá trị mặc định cho DatePicker
             LocalDate today = LocalDate.now();
+            datePicker.setValue(today);
             startDatePicker.setValue(today);
             endDatePicker.setValue(today);
 
-// Format revenue values to integer without decimal places in revenueTable
-            DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM");
-            for (String date : dates) {
-                dateColumns.add(date);
-                LocalDate localDate = LocalDate.parse(date);
-                String displayDate = localDate.format(displayFormatter);
+            // Tự động lọc doanh thu khi thay đổi ngày
+            datePicker.valueProperty().addListener((observable, oldValue, newValue) -> filterRevenue());
+            startDatePicker.valueProperty().addListener((obs, oldDate, newDate) -> filterRevenue());
+            endDatePicker.valueProperty().addListener((obs, oldDate, newDate) -> filterRevenue());
 
-                TableColumn<Map<String, Object>, String> dateColumn = new TableColumn<>(displayDate);
-                dateColumn.setCellValueFactory(data -> {
-                    Double value = (Double) data.getValue().get(date);
-                    return new SimpleStringProperty(value != null ?
-                            NumberFormat.getIntegerInstance(new Locale("en", "US")).format(value) : "0");
-                });
-                revenueTable.getColumns().add(dateColumn);
-            }
+            // Tự động lọc khi thay đổi tháng hoặc năm
+            monthComboBox.valueProperty().addListener((obs, oldMonth, newMonth) -> filterRevenue());
+            yearComboBox.valueProperty().addListener((obs, oldYear, newYear) -> filterRevenue());
+            yearOnlyComboBox.valueProperty().addListener((obs, oldYear, newYear) -> filterRevenue());
 
-            updateFilterType();
+            updateFilterType(); // Cập nhật giao diện lọc ban đầu
         }
+
 
         @FXML
         private void updateFilterType() {
             String selectedFilter = filterTypeComboBox.getValue();
+            dateBox.setVisible("Date".equals(selectedFilter));
+            dateBox.setManaged("Date".equals(selectedFilter));
 
             dateRangeBox.setVisible("Date Range".equals(selectedFilter));
             dateRangeBox.setManaged("Date Range".equals(selectedFilter));
@@ -102,7 +99,7 @@
                 revenueTable.getColumns().clear();
                 dateColumns.clear();
             }
-
+            System.out.println("Hello");
             try (Connection conn = DatabaseConnection.getConnection()) {
                 // Lấy danh sách các ngày trong khoảng thời gian đã chọn
                 List<String> dates = fetchDatesInRange(conn);
@@ -177,9 +174,15 @@
             String sql = "";
             PreparedStatement stmt;
             String selectedFilter = filterTypeComboBox.getValue();
-            if ("Date Range".equals(selectedFilter)) {
+            if("Date".equals(selectedFilter)) {
                 sql = "SELECT DISTINCT DATE(order_date) AS date FROM orders " +
-                        "WHERE order_status = 'Paid' AND order_date BETWEEN ? AND ? ORDER BY date";
+                        "WHERE order_status = 'Paid' AND DATE(order_date) = DATE(?) ORDER BY date";
+                stmt = conn.prepareStatement(sql);
+                stmt.setString(1, datePicker.getValue().toString()); // selectedDatePicker là
+            }
+            else if ("Date Range".equals(selectedFilter)) {
+                sql = "SELECT DISTINCT DATE(order_date) AS date FROM orders " +
+                        "WHERE order_status = 'Paid' AND DATE(order_date) >= DATE(?) AND DATE(order_date) <= DATE(?) ORDER BY date";
                 stmt = conn.prepareStatement(sql);
                 stmt.setString(1, startDatePicker.getValue().toString());
                 stmt.setString(2, endDatePicker.getValue().toString());
