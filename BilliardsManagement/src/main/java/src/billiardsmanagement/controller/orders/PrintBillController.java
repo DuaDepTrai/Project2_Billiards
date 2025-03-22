@@ -20,6 +20,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.apache.pdfbox.Loader;
 import src.billiardsmanagement.model.Bill;
@@ -69,6 +70,9 @@ public class PrintBillController {
         // Use ScrollPane if the bill's length exceeds the scene
         ScrollPane scrollPane = new ScrollPane(box);
         scrollPane.setFitToWidth(true);
+        // Restrict horizontal scrolling
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
         try {
             if (!currentBillName.isEmpty()) {
@@ -96,7 +100,7 @@ public class PrintBillController {
                     ImageView imageView = new ImageView(image);
 
                     // Set ImageView properties to fit the scene
-                    imageView.setFitWidth(300); // Set desired width
+                    imageView.setFitWidth(310); // Set desired width
                     imageView.setPreserveRatio(true); // Preserve aspect ratio
                     imageView.setSmooth(true); // Enable smoothing
 
@@ -119,7 +123,8 @@ public class PrintBillController {
             ap.getChildren().add(cancelButton);
 
             stage.setTitle("PDF Bill Invoice");
-            stage.setScene(new Scene(scrollPane, 300, 500));
+            // best bill scene size
+            stage.setScene(new Scene(scrollPane, 310, 540));
             stage.showAndWait();
         } catch (Exception e) {
             e.printStackTrace();
@@ -154,6 +159,13 @@ public class PrintBillController {
         float minY = yCoords.stream().min(Float::compare).orElse(0f);
         float maxY = yCoords.stream().max(Float::compare).orElse(page.getPageSize().getHeight());
 
+
+// Ensure minimum height of 10 cm (283.465 points)
+        float minHeight = 283.465f;
+        if ((maxY - minY) < minHeight) {
+            minY = Math.max(maxY - minHeight, 0); // Adjust minY to ensure minHeight
+        }
+
         // Padding
         float padding = 30;
         minY = Math.max(minY - padding, 0); // top-padding of the bill
@@ -178,7 +190,7 @@ public class PrintBillController {
         Document document = new Document();
 
         StringBuilder sb = new StringBuilder();
-        
+
         // Create bills directory if it doesn't exist
         // This code will create a new directory in your disk with the path specified.
         // For example, D:\BilliardsManagement\src\main\bills
@@ -213,8 +225,8 @@ public class PrintBillController {
         setCurrentBillName(billName);
 
         com.itextpdf.text.pdf.PdfWriter writer = com.itextpdf.text.pdf.PdfWriter.getInstance(document, new FileOutputStream(billName));
-//        float widthInPoints = 70 * 2.83465f;  // Convert 70mm to points
-        float widthInPoints = 70 * 3.5f;  // Convert 70mm to points
+        float widthInPoints = 70 * 2.83465f;  // Convert 70mm to points
+//        float widthInPoints = 70 * 3.5f;  // Convert 70mm to points
         document.setPageSize(new com.itextpdf.text.RectangleReadOnly(widthInPoints, document.getPageSize().getHeight()));
         document.open();
 
@@ -237,30 +249,32 @@ public class PrintBillController {
 
         Font customerDetailFont = new Font(Font.FontFamily.TIMES_ROMAN, 9, Font.NORMAL);
 
-        Chunk customerNameValueChunk = new Chunk("Customer Name: " + bill.getCustomerName() + "\n");
-        customerNameValueChunk.setFont(customerDetailFont);
-        // Set line height to 20% of font size, and align text fully in width
-        customerNameValueChunk.setLineHeight(1.2f);
-        Paragraph customerNamePara = new Paragraph(customerNameValueChunk);
+// Customer Name
+        Paragraph customerNamePara = new Paragraph("Customer Name: " + bill.getCustomerName(), customerDetailFont);
         customerNamePara.setAlignment(Element.ALIGN_LEFT);
+        customerNamePara.setIndentationLeft(0f); // Ensure no left indent
+        customerNamePara.setLeading(0, 1.2f); // Force line height properly
+        customerNamePara.setSpacingBefore(4);
+        customerNamePara.setSpacingAfter(0);
         document.add(customerNamePara);
 
-        Chunk customerPhoneValueChunk = new Chunk("Phone: " + bill.getCustomerPhone() + "\n");
-        customerPhoneValueChunk.setFont(customerDetailFont);
-        // Set line height to 20% of font size, and align text fully in width
-        customerPhoneValueChunk.setLineHeight(1.2f);
-        Paragraph customerPhonePara = new Paragraph(customerPhoneValueChunk);
+// Customer Phone
+        Paragraph customerPhonePara = new Paragraph("Phone: " + bill.getCustomerPhone(), customerDetailFont);
         customerPhonePara.setAlignment(Element.ALIGN_LEFT);
+        customerPhonePara.setIndentationLeft(0f);
+        customerPhonePara.setLeading(0, 1.2f);
+        customerPhonePara.setSpacingBefore(2);
+        customerPhonePara.setSpacingAfter(0);
         document.add(customerPhonePara);
 
+// Total Payment
         String formattedTotalCost = decimalFormat.format(bill.getTotalCost());
-        Chunk totalPaymentValueChunk = new Chunk("Total Payment: " + formattedTotalCost);
-        totalPaymentValueChunk.setFont(customerDetailFont);
-        // Set line height to 20% of font size, and align text fully in width
-        totalPaymentValueChunk.setLineHeight(1.2f);
-        Paragraph totalPaymentPara = new Paragraph(totalPaymentValueChunk);
-        totalPaymentPara.setFont(customerDetailFont);
+        Paragraph totalPaymentPara = new Paragraph("Total Payment: " + formattedTotalCost, customerDetailFont);
         totalPaymentPara.setAlignment(Element.ALIGN_LEFT);
+        totalPaymentPara.setIndentationLeft(0f);
+        totalPaymentPara.setLeading(0, 1.2f);
+        totalPaymentPara.setSpacingBefore(2);
+        totalPaymentPara.setSpacingAfter(4);
         document.add(totalPaymentPara);
 
         // Create table for bill details
@@ -311,11 +325,10 @@ public class PrintBillController {
             double quantity = billItem.getQuantity();
             String roundedQuantity;
             // SimpleStringProperty return the whole string "StringProperty [value: Booking]" what the fuck
-            if(billItem.getItemType().contains("Booking")){
+            if (billItem.getItemType().contains("Booking")) {
                 roundedQuantity = String.format("%.1f", Math.ceil(quantity * 10) / 10.0) + "h"; // Rounds to 1 decimal place
-            }
-            else {
-                roundedQuantity = String.valueOf((int)Math.round(quantity)); // Removes decimals for OrderItem
+            } else {
+                roundedQuantity = String.valueOf((int) Math.round(quantity)); // Removes decimals for OrderItem
             }
             cell.addElement(new Phrase(roundedQuantity, cellFont));
             table.addCell(cell);
@@ -327,7 +340,7 @@ public class PrintBillController {
             cell.setPaddingBottom(3.0f);
             cell.addElement(new Phrase(String.valueOf(billItem.getUnit()), cellFont));
             table.addCell(cell);
-            System.out.println("Get Unit = "+billItem.getUnit());
+            System.out.println("Get Unit = " + billItem.getUnit());
 
             String formattedUnitPrice = decimalFormat.format(billItem.getUnitPrice());
             cell = new PdfPCell();

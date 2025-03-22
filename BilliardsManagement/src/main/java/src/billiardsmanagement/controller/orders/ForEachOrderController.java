@@ -1561,6 +1561,7 @@ public class ForEachOrderController {
             if (success) {
                 NotificationService.showNotification("Success", "Order updated successfully", NotificationStatus.Success);
                 initialPhoneText = phoneNumber;
+                confirmSaveCustomer.setDisable(true);
                 loadOrderList();
                 return true;
             } else {

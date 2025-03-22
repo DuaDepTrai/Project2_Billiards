@@ -40,9 +40,15 @@ public class CustomerDAO {
 
             pstmt.setString(1, customer.getName());
             pstmt.setString(2, customer.getPhone());
-//            pstmt.setDouble(3, customer.getTotalPlaytime());
             pstmt.setDate(3, customer.getBirthday() != null ? new java.sql.Date(customer.getBirthday().getTime()) : null);
-            pstmt.setString(4, customer.getAddress());
+
+            // Set address to NULL if empty or null
+            if (customer.getAddress() == null || customer.getAddress().trim().isEmpty()) {
+                pstmt.setNull(4, Types.VARCHAR);
+            } else {
+                pstmt.setString(4, customer.getAddress());
+            }
+
             pstmt.setInt(5, customer.getCustomerId());
             pstmt.executeUpdate();
 
@@ -50,6 +56,7 @@ public class CustomerDAO {
             e.printStackTrace();
         }
     }
+
 
     public void removeCustomer(int customerId) {
         String sql = "DELETE FROM customers WHERE customer_id = ?";

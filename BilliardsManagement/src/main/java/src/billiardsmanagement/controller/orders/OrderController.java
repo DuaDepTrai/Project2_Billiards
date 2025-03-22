@@ -565,6 +565,9 @@ public class OrderController implements Initializable {
                     int selectedIndex = getIndex(); // Lấy chỉ số hàng
                     int billNo = totalRow - selectedIndex;
                     int orderId = selectedOrder.getOrderId();
+
+
+
                     FXMLLoader paymentLoader = new FXMLLoader(
                             getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
                     Parent paymentRoot = null;
@@ -573,7 +576,6 @@ public class OrderController implements Initializable {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-
 
                     PaymentController paymentController = paymentLoader.getController();
                     paymentController.setOrderID(orderId);
