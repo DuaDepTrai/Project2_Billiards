@@ -47,8 +47,6 @@ public class BookingDAO {
         return bookings;
     }
 
-
-
     public static Booking getBookingByTableIdAndOrderId(int orderId, int tableId) {
         String query = "SELECT * FROM bookings WHERE order_id = ? AND table_id = ? ORDER BY start_time DESC LIMIT 1";
         Booking booking = new Booking(); // Create an empty Booking object

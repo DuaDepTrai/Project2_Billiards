@@ -4,16 +4,22 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="100.0" prefWidth="331.0" style="-fx-padding: 10;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.items.AddOrderItemController">
-    <Label layoutX="17.0" layoutY="27.0" text="Product Name: " />
-    <TextField fx:id="productNameAutoCompleteText" layoutX="134.0" layoutY="22.0" style="-fx-pref-width: 170.0;" />
+<AnchorPane prefHeight="196.0" prefWidth="331.0" style="-fx-padding: 10;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.items.AddOrderItemController">
+    <Label layoutX="17.0" layoutY="57.0" text="Product Name: " />
+    <TextField fx:id="productNameAutoCompleteText" layoutX="134.0" layoutY="52.0" style="-fx-pref-width: 170.0;" />
 
     <!-- <TextField fx:id="promotionNameAutoCompleteText" layoutX="134.0" layoutY="94.0" style="-fx-pref-width: 170.0;" /> -->
 
-    <Label layoutX="17.0" layoutY="85.0" text="Quantity: " />
-    <TextField fx:id="quantityTextField" layoutX="134.0" layoutY="81.0" prefWidth="170.0" />
+    <Label layoutX="17.0" layoutY="105.0" text="Quantity: " />
+    <TextField fx:id="quantityTextField" layoutX="134.0" layoutY="101.0" prefWidth="170.0" />
 
-    <Button layoutX="116.0" layoutY="136.0" onAction="#saveOrderItem" text="Add Order Item" />
+    <Button layoutX="104.0" layoutY="154.0" onAction="#saveOrderItem" prefHeight="25.0" prefWidth="123.0" text="Add Order Item" />
+   <Label layoutX="104.0" layoutY="11.0" text="Add New Item">
+      <font>
+         <Font name="System Bold" size="18.0" />
+      </font>
+   </Label>
 <!--    <Label layoutX="17.0" layoutY="98.0" text="Promotion Name" />-->
 </AnchorPane>

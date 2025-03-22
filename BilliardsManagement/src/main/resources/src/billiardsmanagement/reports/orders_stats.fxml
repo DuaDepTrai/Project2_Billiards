@@ -38,7 +38,7 @@
                     <ComboBox fx:id="yearOnlyComboBox"/>
                 </HBox>
 
-                <Button text="Apply Filter" onAction="#filterRevenue" styleClass="filter-btn"/>
+<!--                <Button text="Apply Filter" onAction="#filterRevenue" styleClass="filter-btn"/>-->
             </HBox>
         </VBox>
     </top>

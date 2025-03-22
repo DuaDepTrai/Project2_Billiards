@@ -25,7 +25,6 @@ import java.util.List;
 import java.sql.Date;
 
 
-
 public class CustomerController {
     @FXML
     private TextField addressField;
@@ -37,7 +36,7 @@ public class CustomerController {
     private DatePicker updateBirthdayPicker;
 
     @FXML
-    private TableColumn<User,Integer> sttColumn;
+    private TableColumn<User, Integer> sttColumn;
     @FXML
     private TableView<Customer> customerTableView;
     @FXML
@@ -375,23 +374,26 @@ public class CustomerController {
     @FXML
     private void handleSaveCustomer(ActionEvent event) {
         try {
-            String name = nameField.getText().trim();
-            String phone = phoneField.getText().trim();
+            String name = nameField.getText();
+            String phone = phoneField.getText();
             LocalDate birthday = birthdayPicker.getValue();
-            String address = addressField.getText().trim();
+            String address = addressField.getText();
 
-            // Kiểm tra nếu ngày sinh trống hoặc sai định dạng
-            String birthdayStr = birthdayPicker.getEditor().getText().trim();
-            if (birthday == null || !isValidDateFormat(birthdayStr)) {
-                NotificationService.showNotification("Error", "Date must be in the format DD/MM/YYYY.",
-                        NotificationStatus.Error);
+            // Ensure null values don't cause errors with trim()
+            name = (name != null) ? name.trim() : "";
+            phone = (phone != null) ? phone.trim() : "";
+            address = (address != null && !address.trim().isEmpty()) ? address.trim() : null;
+
+            // Check if the birthday is empty or invalid
+            String birthdayStr = birthdayPicker.getEditor().getText();
+            if (birthdayStr != null && !birthdayStr.trim().isEmpty() && (birthday == null || !isValidDateFormat(birthdayStr.trim()))) {
+                NotificationService.showNotification("Error", "Date must be in the format DD/MM/YYYY.", NotificationStatus.Error);
                 return;
             }
 
             // Validate input
             if (name.isEmpty() || phone.isEmpty()) {
-                NotificationService.showNotification("Error", "Please fill in all required fields",
-                        NotificationStatus.Error);
+                NotificationService.showNotification("Error", "Please fill in all required fields", NotificationStatus.Error);
                 return;
             }
 
@@ -403,36 +405,34 @@ public class CustomerController {
 
             // Check if phone exists
             if (customerDAO.isPhoneExists(phone)) {
-                NotificationService.showNotification("Error", "This phone number already exists",
-                        NotificationStatus.Error);
+                NotificationService.showNotification("Error", "This phone number already exists", NotificationStatus.Error);
                 return;
             }
 
-            // Chuyển đổi LocalDate sang java.sql.Date để lưu vào database
-            Date sqlBirthday = Date.valueOf(birthday);
-
+            // Convert birthday if valid
+            Date sqlBirthday = (birthdayStr != null && !birthdayStr.trim().isEmpty() && birthday != null) ? Date.valueOf(birthday) : null;
 
             // Create and save customer
             Customer customer = new Customer();
             customer.setName(name);
             customer.setPhone(phone);
-//            customer.setTotalPlaytime(0.0); // Set initial playtime to 0
             customer.setBirthday(sqlBirthday);
-            customer.setAddress(address);
+            if (address != null) {
+                customer.setAddress(address);
+            }
 
             customerDAO.addCustomer(customer);
-            NotificationService.showNotification("Success", "Customer added successfully",
-                    NotificationStatus.Success);
+            NotificationService.showNotification("Success", "Customer added successfully", NotificationStatus.Success);
 
             // Hide form and refresh table
             customerForm.setVisible(false);
             refreshTable();
 
         } catch (Exception e) {
-            NotificationService.showNotification("Error", "An error occurred: " + e.getMessage(),
-                    NotificationStatus.Error);
+            NotificationService.showNotification("Error", "An error occurred: " + e.getMessage(), NotificationStatus.Error);
         }
     }
+
 
     @FXML
     private void handleCancelAdd(ActionEvent event) {
@@ -455,28 +455,31 @@ public class CustomerController {
         try {
             Customer selectedCustomer = customerTableView.getSelectionModel().getSelectedItem();
             if (selectedCustomer == null) {
-                NotificationService.showNotification("Error", "Please select a customer to update",
-                        NotificationStatus.Error);
+                NotificationService.showNotification("Error", "Please select a customer to update", NotificationStatus.Error);
                 return;
             }
 
-            String name = updateNameField.getText().trim();
-            String phone = updatePhoneField.getText().trim();
-            LocalDate birthday = updateBirthdayPicker.getValue();
-            String address = updateAddressField.getText().trim();
+            String name = updateNameField.getText();
+            String phone = updatePhoneField.getText();
 
-            // Kiểm tra nếu ngày sinh trống hoặc sai định dạng
-            String birthdayStr = updateBirthdayPicker.getEditor().getText().trim();
-            if (birthday == null || !isValidDateFormat(birthdayStr)) {
-                NotificationService.showNotification("Error", "Date must be in the format DD/MM/YYYY.",
-                        NotificationStatus.Error);
+            LocalDate birthday = updateBirthdayPicker.getValue();
+            String address = updateAddressField.getText();
+
+            // Ensure null values don't cause errors with trim()
+            name = (name != null) ? name.trim() : "";
+            phone = (phone != null) ? phone.trim() : "";
+            address = (address != null && !address.trim().isEmpty()) ? address.trim() : null;
+
+            // Check if the birthday is empty or invalid
+            String birthdayStr = updateBirthdayPicker.getEditor().getText();
+            if (birthdayStr != null && !birthdayStr.trim().isEmpty() && (birthday == null || !isValidDateFormat(birthdayStr.trim()))) {
+                NotificationService.showNotification("Error", "Date must be in the format DD/MM/YYYY.", NotificationStatus.Error);
                 return;
             }
 
             // Validate input
             if (name.isEmpty() || phone.isEmpty()) {
-                NotificationService.showNotification("Error", "Name and phone number are required",
-                        NotificationStatus.Error);
+                NotificationService.showNotification("Error", "Name and phone number are required", NotificationStatus.Error);
                 return;
             }
 
@@ -488,23 +491,23 @@ public class CustomerController {
 
             // Check if phone exists and it's not the current customer's phone
             if (!phone.equals(selectedCustomer.getPhone()) && customerDAO.isPhoneExists(phone)) {
-                NotificationService.showNotification("Error", "This phone number already exists",
-                        NotificationStatus.Error);
+                NotificationService.showNotification("Error", "This phone number already exists", NotificationStatus.Error);
                 return;
             }
-
-            // Chuyển đổi LocalDate sang java.sql.Date để lưu vào database
-            Date sqlBirthday = Date.valueOf(birthday);
-
 
             // Update customer object
             selectedCustomer.setName(name);
             selectedCustomer.setPhone(phone);
-            // Keep the existing playtime value
-//            double currentPlaytime = selectedCustomer.getTotalPlaytime();
-//            selectedCustomer.setTotalPlaytime(currentPlaytime);
-            selectedCustomer.setBirthday(sqlBirthday);
-            selectedCustomer.setAddress(address);
+
+            // Only set birthday if it's valid and not empty
+            if (birthdayStr != null && !birthdayStr.trim().isEmpty() && birthday != null) {
+                selectedCustomer.setBirthday(Date.valueOf(birthday));
+            }
+
+            // Only set address if it's not empty
+            if (address != null) {
+                selectedCustomer.setAddress(address);
+            }
 
             // Save to database
             customerDAO.updateCustomer(selectedCustomer);
@@ -514,14 +517,13 @@ public class CustomerController {
 
             // Refresh table and show success message
             refreshTable();
-            NotificationService.showNotification("Success", "Customer updated successfully",
-                    NotificationStatus.Success);
+            NotificationService.showNotification("Success", "Customer updated successfully", NotificationStatus.Success);
 
         } catch (Exception e) {
-            NotificationService.showNotification("Error", "Failed to update customer: " + e.getMessage(),
-                    NotificationStatus.Error);
+            e.printStackTrace();
         }
     }
+
 
     @FXML
     private void handleRemoveCustomer() {
