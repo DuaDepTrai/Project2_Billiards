@@ -735,8 +735,7 @@ public class ForEachOrderController {
             if (phoneText.getText() != null && !phoneText.getText().isBlank() && !phoneText.getText().equalsIgnoreCase(initialPhoneText) && customerText.getText() != null && !customerText.getText().isBlank()) {
                 updateCustomerInformation(new ActionEvent());
                 autoCompletionEvent.consume();
-            }
-            else {
+            } else {
                 NotificationService.showNotification("No Changes", "No changes were made in the customer information field.",
                         NotificationStatus.Warning);
             }
@@ -744,7 +743,7 @@ public class ForEachOrderController {
 
         // Ensure only one text listener exists
         phoneText.textProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue==null || newValue.isBlank()){
+            if (newValue == null || newValue.isBlank()) {
                 confirmSaveCustomer.setDisable(true);
                 return;
             }
@@ -796,7 +795,7 @@ public class ForEachOrderController {
 //        }
 //    }
 
-    public void showForEachPopup(Parent content) {
+    public void showForEachPopup(Pane content) {
         // Ensure the content is not null
         if (content == null) {
             throw new IllegalArgumentException("Content cannot be null");
@@ -823,8 +822,8 @@ public class ForEachOrderController {
             double sceneWidth = scene.getWidth();
             double sceneHeight = scene.getHeight();
 
-            double popupWidth = forEachPopup.getWidth();
-            double popupHeight = forEachPopup.getHeight();
+            double popupWidth = content.getPrefWidth();
+            double popupHeight = content.getPrefHeight();
 
             double xPos = (sceneWidth - popupWidth) / 2;
             double yPos = (sceneHeight - popupHeight) / 2;
@@ -853,21 +852,16 @@ public class ForEachOrderController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/src/billiardsmanagement/orders/bookings/addBooking.fxml"));
-            Parent root = loader.load();
-
-            // Create a StackPane and add the Parent root to it
-            StackPane addBookingStackPane = new StackPane();
-            addBookingStackPane.getChildren().add(root);
+            AnchorPane pane = loader.load();
 
             // Retrieve the controller before showing the popup
             AddBookingController addBookingController = loader.getController();
             addBookingController.setForEachPopup(this.forEachPopup);
-            addBookingController.setAddBookingStackPane(addBookingStackPane);
             addBookingController.setOrderId(this.orderID);
             addBookingController.initializeAddBooking();
 
             // Show the Popup using the provided method
-            showForEachPopup(addBookingStackPane);
+            showForEachPopup(pane);
 
             // Load bookings only when forEach Popup hidden to avoid multiple loading
             this.forEachPopup.setOnHidden(e -> {
@@ -934,6 +928,7 @@ public class ForEachOrderController {
                         "Start playing on this table successfully.", NotificationStatus.Success);
                 loadBookings(); // Tải lại danh sách booking sau khi cập nhật
                 checkOrderStatus();
+                initializeForEachOrderButtonsAndInformation();
                 if (poolTableController != null) poolTableController.handleViewAllTables();
             } else {
                 NotificationService.showNotification("Update Failed",
@@ -1260,68 +1255,73 @@ public class ForEachOrderController {
     }
 
 
-
     public void finishOrder(ActionEvent event) {
-        try {
-            // Get confirmation from user
-            Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmAlert.setTitle("Confirm Finish Order");
-            confirmAlert.setHeaderText("Are you sure you want to finish this order?");
-            confirmAlert.setContentText("This will finish all bookings and update the order status.");
+        // Create a new VBox for the confirmation popup
+        VBox confirmationPane = new VBox();
+        confirmationPane.setStyle("-fx-background-color: white; -fx-padding: 20;");
+        confirmationPane.setSpacing(10); // Space between the label and button
 
-            Optional<ButtonType> result = confirmAlert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
+        // Create a label to ask for confirmation
+        Label confirmationLabel = new Label("Do you want to finish this order?");
+        confirmationLabel.setStyle("-fx-font-size: 14px;");
+
+        // Create a button for confirmation
+        Button confirmButton = new Button("Confirm Finish Order");
+        confirmButton.setOnAction(e -> {
+            try {
+                // Logic to finish the order
                 if (bookingPoolTable.getItems().isEmpty()) {
                     double totalCost = OrderDAO.calculateOrderTotal(orderID);
                     boolean updateOrderSuccess = OrderDAO.updateOrderStatus(this.orderID, totalCost);
                     if (updateOrderSuccess) {
-                        NotificationService.showNotification("Finish This Order", "Finish order successfully. There's no booking in this table." , NotificationStatus.Information);
-                        checkOrderStatus();
+                        // Log success to console
+                        NotificationService.showNotification("Success", "Finish order successfully. There's no booking in this table.", NotificationStatus.Success);                        checkOrderStatus();
                         initializeForEachOrderButtonsAndInformation();
                     } else {
-                        NotificationService.showNotification("Error", "Failed to finish order.", NotificationStatus.Error);
+                        // Log error to console with funny icon
+                        System.err.println("😱 Error: Failed to finish order.");
                     }
+                    hideForEachPopup();
                     return;
                 }
 
                 // Finish all bookings
                 boolean finishAllSuccess = BookingDAO.finishAllBookings(this.orderID);
-
                 if (finishAllSuccess) {
-                    // Calculate total cost
                     double totalCost = OrderDAO.calculateOrderTotal(orderID);
-                    // Update order status and total cost
                     boolean updateOrderSuccess = OrderDAO.updateOrderStatus(this.orderID, totalCost);
-
                     if (updateOrderSuccess) {
-                        // Show success message
-                        NotificationService.showNotification("Success",
-                                "Order has been finished successfully! Total cost: " + formatTotal(totalCost),
-                                NotificationStatus.Success);
-
-                        // Refresh the tables
-                        checkOrderStatus();
+                        // Log success to console
+                        NotificationService.showNotification("Success", "Order has been finished successfully! Total cost: " + formatTotal(totalCost), NotificationStatus.Success);                        checkOrderStatus();
                         initializeForEachOrderButtonsAndInformation();
                         loadBookings();
                         if (poolTableController != null) poolTableController.handleViewAllTables();
                     } else {
-                        NotificationService.showNotification("Error", "Failed to update order status.",
-                                NotificationStatus.Error);
+                        // Log error to console with funny icon
+                        System.err.println("😱 Error: Failed to update order status.");
                     }
                 } else {
-                    NotificationService.showNotification("Error", "Failed to finish all bookings.",
-                            NotificationStatus.Error);
+                    // Log error to console with funny icon
+                    System.err.println("😱 Error: Failed to finish all bookings.");
                 }
                 loadOrderList();
+                hideForEachPopup();
                 finishOrderButton.setDisable(true);
                 addBookingButton.setDisable(true);
                 addOrderItemButton.setDisable(true);
+            } catch (Exception ex) {
+                // Log the exception to console with a funny icon
+                System.err.println("🤦‍♂️ Oops! Something went wrong: " + ex.getMessage());
+                ex.printStackTrace(); // Still print the stack trace for debugging
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            NotificationService.showNotification("Error", "Failed to finish order: " + e.getMessage(),
-                    NotificationStatus.Error);
-        }
+        });
+
+        // Add the label and button to the VBox
+        confirmationPane.getChildren().addAll(confirmationLabel, confirmButton);
+        confirmationPane.setAlignment(Pos.CENTER);
+
+        // Show the confirmation popup
+        showForEachPopup(confirmationPane);
     }
 
     // Giả sử bạn có phương thức refreshOrderDetails để cập nhật giao diện
@@ -1380,26 +1380,20 @@ public class ForEachOrderController {
 
         // Case: All bookings are canceled
         if (bookings.size() > 1) {
-            if(bookings.stream()
-                    .allMatch(booking -> String.valueOf(BookingStatus.Canceled).equals(booking.getBookingStatus()))){
+            if (bookings.stream()
+                    .allMatch(booking -> String.valueOf(BookingStatus.Canceled).equals(booking.getBookingStatus()))) {
                 OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Canceled));
                 initializeForEachOrderButtonsAndInformation();
                 System.out.println("✅ From ForEachOrder: Order updated to Canceled; all bookings are canceled.");
-            }
-            else if(bookings.stream().anyMatch(booking -> booking.getBookingStatus().equals(String.valueOf(BookingStatus.Playing))))
-            {
+            } else if (bookings.stream().anyMatch(booking -> booking.getBookingStatus().equals(String.valueOf(BookingStatus.Playing)))) {
                 OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Playing));
                 initializeForEachOrderButtonsAndInformation();
                 System.out.println("✅ From ForEachOrder: Order updated to Playing ; there's booking remain playing.");
-            }
-            else if(bookings.stream().anyMatch(booking -> booking.getBookingStatus().equals(String.valueOf(BookingStatus.Ordered))))
-            {
+            } else if (bookings.stream().anyMatch(booking -> booking.getBookingStatus().equals(String.valueOf(BookingStatus.Ordered)))) {
                 OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Ordered));
                 initializeForEachOrderButtonsAndInformation();
                 System.out.println("✅ From ForEachOrder: Order updated to Playing ; there's booking remain playing.");
-            }
-            else if(bookings.stream().anyMatch(booking -> booking.getBookingStatus().equals(String.valueOf(BookingStatus.Finish))))
-            {
+            } else if (bookings.stream().anyMatch(booking -> booking.getBookingStatus().equals(String.valueOf(BookingStatus.Finish)))) {
                 OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Finished));
                 initializeForEachOrderButtonsAndInformation();
                 System.out.println("✅ From ForEachOrder: Order updated to Playing ; there's booking remain playing.");
