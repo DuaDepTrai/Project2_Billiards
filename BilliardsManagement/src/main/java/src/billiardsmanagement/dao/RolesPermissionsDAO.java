@@ -126,5 +126,18 @@ public class RolesPermissionsDAO {
         }
     }
 
-
+    public boolean isRoleInUse(int roleId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM users WHERE role_id = ?";
+        try (Connection connection = TestDBConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, roleId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1) > 0; // Trả về true nếu có ít nhất 1 user đang sử dụng role này
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+    }
 }

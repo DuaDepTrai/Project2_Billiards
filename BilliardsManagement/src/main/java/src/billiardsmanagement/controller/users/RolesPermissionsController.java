@@ -179,14 +179,21 @@ public class RolesPermissionsController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == buttonYes) {
-            removeRole(role);
+            removeRole(role); // Gọi phương thức xóa đã có kiểm tra role
         }
     }
 
     private void removeRole(Role role) {
         try {
+            // Kiểm tra xem role có đang được sử dụng không
+            if (rolesPermissionsDAO.isRoleInUse(role.getRoleId())) {
+                showAlert("Cannot Remove Role", "This role is assigned to one or more users and cannot be removed.");
+                return;
+            }
+
+            // Nếu không có user nào sử dụng role này, tiến hành xóa
             rolesPermissionsDAO.removeRole(role.getRoleId());
-            refreshTable(); // Gọi lại loadRoles() ngay lập tức
+            refreshTable(); // Cập nhật lại danh sách vai trò sau khi xóa
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -270,5 +277,13 @@ public class RolesPermissionsController {
 
     public void setCurrentUser(User user) {
         this.currentUser = user;
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

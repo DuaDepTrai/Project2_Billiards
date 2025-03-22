@@ -208,8 +208,19 @@ public class AddUserController {
             ResultSet checkResult = checkStmt.executeQuery();
 
             if (checkResult.next() && checkResult.getInt(1) > 0) {
-                showAlert("Duplicate Username", "Username already exists. Please choose a different username.");
+                showAlert("Duplicate Username", "This username already exists.");
                 return; // Dừng lại nếu username đã tồn tại
+            }
+
+            // Kiểm tra phone đã tồn tại hay chưa
+            String checkPhoneSql = "SELECT COUNT(*) FROM users WHERE phone = ?";
+            PreparedStatement checkStmt1 = connection.prepareStatement(checkPhoneSql);
+            checkStmt1.setString(1, phone);
+            ResultSet checkResult1 = checkStmt1.executeQuery();
+
+            if (checkResult1.next() && checkResult1.getInt(1) > 0) {
+                showAlert("Duplicate Phone", "This phone number already exists.");
+                return; // Dừng lại nếu phone number đã tồn tại
             }
 
             // Get role_id from role name

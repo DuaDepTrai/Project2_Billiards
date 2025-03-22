@@ -20,10 +20,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -242,14 +239,27 @@ public class UpdateUserController {
 
         try (Connection connection = TestDBConnection.getConnection()) {
             // Kiểm tra username đã tồn tại hay chưa
-            String checkUsernameSql = "SELECT COUNT(*) FROM users WHERE username = ?";
+            String checkUsernameSql = "SELECT COUNT(*) FROM users WHERE username = ? AND user_id != ?";
             PreparedStatement checkStmt = connection.prepareStatement(checkUsernameSql);
             checkStmt.setString(1, username);
+            checkStmt.setInt(2, userId); // Loại trừ user đang update
             ResultSet checkResult = checkStmt.executeQuery();
 
-            if (checkResult.next() && checkResult.getInt(1) > 1) {
-                showAlert("Duplicate Username", "Username already exists. Please choose a different username.");
-                return; // Dừng lại nếu username đã tồn tại
+            if (checkResult.next() && checkResult.getInt(1) > 0) {
+                showAlert("Duplicate Username", "This username already exists.");
+                return;
+            }
+
+            // Kiểm tra số điện thoại đã tồn tại chưa
+            String checkPhoneSql = "SELECT COUNT(*) FROM users WHERE phone = ? AND user_id != ?";
+            PreparedStatement checkPhoneStmt = connection.prepareStatement(checkPhoneSql);
+            checkPhoneStmt.setString(1, phone);
+            checkPhoneStmt.setInt(2, userId); // Loại trừ user hiện tại
+            ResultSet checkPhoneResult = checkPhoneStmt.executeQuery();
+
+            if (checkPhoneResult.next() && checkPhoneResult.getInt(1) > 0) {
+                showAlert("Duplicate Phone Number", "This phone number already exists.");
+                return;
             }
 
             String getRoleSql = "SELECT role_id FROM roles WHERE role_name = ?";
@@ -295,6 +305,14 @@ public class UpdateUserController {
             System.out.println("User updated successfully!");
             Stage stage = (Stage) txtUsername.getScene().getWindow();
             stage.close();
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            if (e.getMessage().contains("users_unique_1")) { // Kiểm tra lỗi cụ thể từ MySQL
+                showAlert("Duplicate Entry", "Phone number already exists. Please use a different one.");
+            } else {
+                showAlert("Database Error", "An error occurred: " + e.getMessage());
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

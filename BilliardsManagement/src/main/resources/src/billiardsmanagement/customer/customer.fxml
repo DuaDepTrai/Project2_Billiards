@@ -58,7 +58,7 @@
 
             <HBox spacing="10">
                 <Button fx:id="updateCustomerBtn" mnemonicParsing="false" onAction="#handleUpdateCustomer" prefWidth="95.0" styleClass="update-button" text="Update" />
-                <Button fx:id="removeCustomerBtn" mnemonicParsing="false" onAction="#handleRemoveCustomer" prefWidth="95.0" styleClass="remove-button" text="Remove" />
+<!--                <Button fx:id="removeCustomerBtn" mnemonicParsing="false" onAction="#handleRemoveCustomer" prefWidth="95.0" styleClass="remove-button" text="Remove" />-->
             </HBox>
         </VBox>
 

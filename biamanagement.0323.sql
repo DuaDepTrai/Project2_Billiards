@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 21, 2025 at 06:00 PM
+-- Generation Time: Mar 22, 2025 at 08:10 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -11,9 +11,6 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-DROP DATABASE biamanagement;
-CREATE DATABASE biamanagement;
-USE biamanagement;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -191,28 +188,28 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`customer_id`, `name`, `phone`, `total_playtime`, `birthday`, `address`) VALUES
-(1, 'Guest', '0999999999', 0.5, '1990-01-01', 'Ba Đình, Hà Nội'),
-(2, 'Le Thi Mai', '0912345678', 0, '1990-01-01', 'Hoàn Kiếm, Hà Nội'),
-(3, 'Tran Minh Tu', '0903456789', 0, '1990-01-01', 'Thanh Xuân, Hà Nội'),
-(4, 'Phan Quoc Toan', '0856789012', 0, '1990-01-01', 'Đống Đa, Hà Nội'),
-(5, 'Hoang Minh Thao', '0321234567', 0, '1990-01-01', 'Cầu Giấy, Hà Nội'),
-(6, 'Nguyen Van Anh', '0708765432', 0, '1990-01-01', 'Hoàng Mai, Hà Nội'),
-(7, 'Tran Thi Binh', '0562345678', 0, '1990-01-01', 'Hà Đông, Hà Nội'),
-(8, 'Le Hoang Nam', '0593987654', 0.2, '1990-01-01', 'Tây Hồ, Hà Nội'),
-(9, 'Pham Thanh Tam', '0345678910', 6, '1990-01-01', 'Nam Từ Liêm, Hà Nội'),
-(10, 'Dang Minh Duc', '0777123456', 0, '1990-01-01', 'Bắc Từ Liêm, Hà Nội'),
-(11, 'Bui Van Khoa', '0965123456', 0, '1990-01-01', 'Long Biên, Hà Nội'),
-(12, 'Hoang Thi Lan', '0946789012', 0, '1990-01-01', 'Ba Đình, Hà Nội'),
-(13, 'Vo Quoc Bao', '0932345678', 0, '1990-01-01', 'Hoàn Kiếm, Hà Nội'),
-(14, 'Doan Ngoc Hai', '0887654321', 0, '1990-01-01', 'Thanh Xuân, Hà Nội'),
-(15, 'Truong Kim Ngan', '0813456789', 0, '1990-01-01', 'Đống Đa, Hà Nội'),
-(16, 'Ngo Van Son', '0398765432', 0, '1990-01-01', 'Cầu Giấy, Hà Nội'),
-(17, 'Luong Bao Chau', '0789123456', 0, '1990-01-01', 'Hoàng Mai, Hà Nội'),
-(18, 'Phan Thanh Phong', '0582345678', 0, '1990-01-01', 'Hà Đông, Hà Nội'),
-(19, 'Dinh Hai Dang', '0356789012', 0.216666666, '1990-01-01', 'Tây Hồ, Hà Nội'),
-(20, 'Cao Anh Tuan', '0765432189', 0, '1990-01-01', 'Nam Từ Liêm, Hà Nội'),
-(21, 'Tran Van B', '9876543211', 0, '1990-01-01', 'Bắc Từ Liêm, Hà Nội'),
-(22, 'Nguyen Anh Tuan', '0987654321', 0, '1991-01-01', 'Long Biên, Hà Nội');
+(1, 'Guest', '0999999999', 0.5, '1990-01-01', 'Ba Dinh, Hanoi'),
+(2, 'Le Thi Mai', '0912345678', 0, '1990-01-01', 'Hoan Kiem, Hanoi'),
+(3, 'Tran Minh Tu', '0903456789', 0, '1990-01-01', 'Thanh Xuan, Hanoi'),
+(4, 'Phan Quoc Toan', '0856789012', 0, '1990-01-01', 'Dong Da, Hanoi'),
+(5, 'Hoang Minh Thao', '0321234567', 0, '1990-01-01', 'Cau Giay, Hanoi'),
+(6, 'Nguyen Van Anh', '0708765432', 0, '1990-01-01', 'Hoang Mai, Hanoi'),
+(7, 'Tran Thi Binh', '0562345678', 0, '1990-01-01', 'Ha Dong, Hanoi'),
+(8, 'Le Hoang Nam', '0593987654', 0.2, '1990-01-01', 'Tay Ho, Hanoi'),
+(9, 'Pham Thanh Tam', '0345678910', 6, '1990-01-01', 'Nam Tu Liem, Hanoi'),
+(10, 'Dang Minh Duc', '0777123456', 0, '1990-01-01', 'Bac Tu Liem, Hanoi'),
+(11, 'Bui Van Khoa', '0965123456', 0, '1990-01-01', 'Long Bien, Hanoi'),
+(12, 'Hoang Thi Lan', '0946789012', 0, '1990-01-01', 'Ba Dinh, Hanoi'),
+(13, 'Vo Quoc Bao', '0932345678', 0, '1990-01-01', 'Hoan Kiem, Hanoi'),
+(14, 'Doan Ngoc Hai', '0887654321', 0, '1990-01-01', 'Thanh Xuan, Hanoi'),
+(15, 'Truong Kim Ngan', '0813456789', 0, '1990-01-01', 'Dong Da, Hanoi'),
+(16, 'Ngo Van Son', '0398765432', 0, '1990-01-01', 'Cau Giay, Hanoi'),
+(17, 'Luong Bao Chau', '0789123456', 0, '1990-01-01', 'Hoang Mai, Hanoi'),
+(18, 'Phan Thanh Phong', '0582345678', 0, '1990-01-01', 'Ha Dong, Hanoi'),
+(19, 'Dinh Hai Dang', '0356789012', 0.216666666, '1990-01-01', 'Tay Ho, Hanoi'),
+(20, 'Cao Anh Tuan', '0765432189', 0, '1990-01-01', 'Nam Tu Liem, Hanoi'),
+(21, 'Tran Van B', '9876543211', 0, '1990-01-01', 'Bac Tu Liem, Hanoi'),
+(22, 'Nguyen Anh Tuan', '0987654321', 0, '1991-01-01', 'Long Bien, Hanoi');
 
 -- --------------------------------------------------------
 
@@ -264,7 +261,8 @@ INSERT INTO `orders` (`order_id`, `customer_id`, `user_id`, `total_cost`, `order
 (97, 5, 1, NULL, '2025-03-20 23:40:52', 'Canceled'),
 (98, 1, 1, NULL, '2025-03-21 23:21:20', 'Playing'),
 (99, 20, 1, NULL, '2025-03-21 23:21:31', 'Playing'),
-(100, 16, 1, NULL, '2025-03-21 23:23:44', 'Canceled');
+(100, 16, 1, NULL, '2025-03-21 23:23:44', 'Canceled'),
+(101, 18, 1, 230000, '2025-03-22 02:25:15', 'Finished');
 
 -- --------------------------------------------------------
 
@@ -286,7 +284,12 @@ CREATE TABLE `orders_items` (
 
 INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity`, `total`) VALUES
 (59, 83, 17, 1, 20000),
-(60, 95, 15, 1, 40000);
+(60, 95, 15, 1, 40000),
+(61, 101, 12, 1, 20000),
+(62, 101, 15, 1, 40000),
+(63, 101, 17, 1, 20000),
+(64, 101, 16, 1, 50000),
+(65, 101, 5, 1, 100000);
 
 -- --------------------------------------------------------
 
@@ -399,19 +402,19 @@ CREATE TABLE `products` (
 
 INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `quantity`) VALUES
 (4, 'Standard Cue - For Rent', 2, 50000, 'Piece', 20),
-(5, 'Deluxe Cue - For Rent', 2, 100000, 'Piece', 20),
+(5, 'Deluxe Cue - For Rent', 2, 100000, 'Piece', 19),
 (6, 'Professional Cue - For Rent', 2, 150000, 'Piece', 20),
 (7, 'Soda', 3, 15000, 'Can', 50),
 (8, 'Juice', 3, 25000, 'Can', 50),
 (9, 'Water', 3, 10000, 'Bottle', 50),
 (10, 'Coffee', 3, 30000, 'Cup', 50),
 (11, 'Tea', 3, 20000, 'Cup', 50),
-(12, 'Chips', 4, 20000, 'Bag', 50),
+(12, 'Chips', 4, 20000, 'Bag', 49),
 (13, 'Nuts', 4, 30000, 'Bag', 50),
 (14, 'Popcorn', 4, 25000, 'Bag', 50),
-(15, 'Chocolate', 4, 40000, 'Bar', 49),
-(16, 'Cookies Box', 4, 50000, 'Box', 50),
-(17, 'Coca Cola', 3, 20000, 'Can', 49),
+(15, 'Chocolate', 4, 40000, 'Bar', 48),
+(16, 'Cookies Box', 4, 50000, 'Box', 49),
+(17, 'Coca Cola', 3, 20000, 'Can', 48),
 (20, 'Uno', 5, 60000, 'Set', 30),
 (21, 'Poker Deck (Plastic Cards)', 5, 80000, 'Set', 30),
 (22, 'Poker Deck (Plastic Coated)', 5, 50000, 'Set', 30),
@@ -526,17 +529,17 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `username`, `password`, `fullname`, `phone`, `address`, `hire_date`, `birthday`, `role_id`, `image_path`) VALUES
-(1, 'admin', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Administrator', '0961886965', 'Hà Nội', '2025-01-01', '1992-01-01', 1, 'manager.png'),
-(2, 'hieu', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyễn Văn Hiếu', '0961886965', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'manager.png'),
-(3, 'quan', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Lưu Minh Quân', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'manager.png'),
-(4, 'manh', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyễn Đức Mạnh', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'trancung.jpg'),
-(6, 'long', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyễn Việt Long', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 2, 'manager.png'),
-(7, 'letan3', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Hồ Hiền', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 3, 'user.png'),
-(8, 'nvkho2', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Phạm Kiên', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 4, 'user.png'),
-(9, 'letan2', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Vũ Trà', '0987654321', 'Hà Nội', '2025-01-01', '1992-01-01', 3, 'user.png'),
-(11, 'letan1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Phương Thảo', '0965438482', 'Hà Nội', '2025-03-02', '1997-12-09', 3, '366339749_258391096996728_4824303083280686790_n.jpg'),
-(14, 'nvkho1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Văn Dứa', '0979473639', 'Hà Nội', '2025-03-02', '2021-12-01', 4, 'user.png'),
-(16, 'nvkho3', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Lê Khánh', '0986463456', 'Đống Đa, Hà Nội', '2025-03-19', '1990-03-20', 4, 'user.png');
+(1, 'admin', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Administrator', '0961886965', 'Hanoi', '2025-01-01', '1992-01-01', 1, 'manager.png'),
+(2, 'hieu', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyen Van Hieu', '0961886966', 'Hanoi', '2025-01-01', '1992-01-01', 2, 'manager.png'),
+(3, 'quan', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Luu Minh Quan', '0987654322', 'Hanoi', '2025-01-01', '1992-01-01', 2, 'manager.png'),
+(4, 'manh', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyen Duc Manh', '0987654323', 'Hanoi', '2025-01-01', '1992-01-01', 2, 'trancung.jpg'),
+(6, 'long', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyen Viet Long', '0987654324', 'Hanoi', '2025-01-01', '1992-01-01', 2, 'manager.png'),
+(7, 'letan3', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Ho Hien', '0987654325', 'Hanoi', '2025-01-01', '1992-01-01', 3, 'telesales.png'),
+(8, 'nvkho2', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Pham Kien', '0987654326', 'Hanoi', '2025-01-01', '1992-01-01', 4, 'user.png'),
+(9, 'letan2', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Vu Thi Tra', '0987654327', 'Hanoi', '2025-01-01', '1992-01-01', 3, 'user.png'),
+(11, 'letan1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Phuong Thao', '0965438482', 'Hanoi', '2025-03-02', '1997-12-09', 3, '366339749_258391096996728_4824303083280686790_n.jpg'),
+(14, 'nvkho1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Van Dua', '0979473639', 'Hanoi', '2025-03-02', '2021-12-01', 4, 'user.png'),
+(16, 'nvkho3', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Le Khanh', '0986463456', 'Hanoi', '2025-03-19', '1990-03-20', 4, 'user.png');
 
 --
 -- Indexes for dumped tables
@@ -623,6 +626,7 @@ ALTER TABLE `role_permission`
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
   ADD UNIQUE KEY `users_unique` (`username`),
+  ADD UNIQUE KEY `users_unique_1` (`phone`),
   ADD KEY `users_roles_FK` (`role_id`);
 
 --
@@ -657,13 +661,13 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
 
 --
 -- AUTO_INCREMENT for table `orders_items`
 --
 ALTER TABLE `orders_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -687,13 +691,13 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- Constraints for dumped tables

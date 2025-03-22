@@ -171,7 +171,7 @@ public class UserController {
         return column -> new TableCell<>() {
             private final HBox container = new HBox(10);
             private final Button editButton = new Button();
-            private final Button deleteButton = new Button();
+//            private final Button deleteButton = new Button();
 
             {
                 FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
@@ -179,23 +179,23 @@ public class UserController {
                 editButton.setGraphic(editIcon);
                 editButton.getStyleClass().add("action-button");
 
-                FontAwesomeIconView deleteIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
-                deleteIcon.setSize("16");
-                deleteButton.setGraphic(deleteIcon);
-                deleteButton.getStyleClass().add("action-button");
+//                FontAwesomeIconView deleteIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
+//                deleteIcon.setSize("16");
+//                deleteButton.setGraphic(deleteIcon);
+//                deleteButton.getStyleClass().add("action-button");
 
                 container.setAlignment(Pos.CENTER);
-                container.getChildren().addAll(editButton, deleteButton);
+                container.getChildren().addAll(editButton);
 
                 editButton.setOnAction(event -> {
                     User user = getTableView().getItems().get(getIndex());
                     openUpdateWindow(user);
                 });
 
-                deleteButton.setOnAction(event -> {
-                    User user = getTableView().getItems().get(getIndex());
-                    confirmAndRemoveUser(user);
-                });
+//                deleteButton.setOnAction(event -> {
+//                    User user = getTableView().getItems().get(getIndex());
+//                    confirmAndRemoveUser(user);
+//                });
             }
 
             @Override

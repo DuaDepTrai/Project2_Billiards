@@ -106,8 +106,8 @@ public class ProductController2 {
         FontAwesomeIconView updateCategoryIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
         updateCategoryIcon.setGlyphSize(16);
 
-        FontAwesomeIconView removeCategoryIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
-        removeCategoryIcon.setGlyphSize(16);
+//        FontAwesomeIconView removeCategoryIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
+//        removeCategoryIcon.setGlyphSize(16);
 
         Button addProductButton = new Button();
         addProductButton.setGraphic(addProductIcon);
@@ -121,18 +121,19 @@ public class ProductController2 {
         updateCategoryButton.setOnAction(event -> handleUpdateCategory(category));
         updateCategoryButton.setVisible(userPermissions.contains("update_product_category"));
 
-        Button removeCategoryButton = new Button();
-        removeCategoryButton.setGraphic(removeCategoryIcon);
-        removeCategoryButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
-        removeCategoryButton.setOnAction(event -> handleRemoveCategory(category));
-        removeCategoryButton.setVisible(userPermissions.contains("remove_product_category"));
+//        Button removeCategoryButton = new Button();
+//        removeCategoryButton.setGraphic(removeCategoryIcon);
+//        removeCategoryButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
+//        removeCategoryButton.setOnAction(event -> handleRemoveCategory(category));
+//        removeCategoryButton.setVisible(userPermissions.contains("remove_product_category"));
 
         HBox headerBox = new HBox();
         headerBox.setSpacing(10);
         headerBox.setAlignment(Pos.CENTER_LEFT);
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        headerBox.getChildren().addAll(categoryLabel, spacer, addProductButton, updateCategoryButton, removeCategoryButton);
+        headerBox.getChildren().addAll(categoryLabel, spacer, addProductButton, updateCategoryButton);
+//        headerBox.getChildren().addAll(categoryLabel, spacer, addProductButton, updateCategoryButton, removeCategoryButton);
 
         TableView<Product> tableView = new TableView<>();
         tableView.setPrefSize(750, 300);
@@ -207,11 +208,11 @@ public class ProductController2 {
 
         tableView.getColumns().addAll(nameColumn, quantityColumn, priceColumn, unitColumn, actionColumn);
 //        tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        nameColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.35)); // 30% tổng chiều rộng bảng
+        nameColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.40)); // 30% tổng chiều rộng bảng
         quantityColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.15)); // 15%
         priceColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.15)); // 20%
         unitColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.15)); // 15%
-        actionColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.16)); // 20%
+        actionColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.11)); // 20%
 
         tableView.setPlaceholder(new Label("No products available in this category."));
 
@@ -232,7 +233,7 @@ public class ProductController2 {
             private final HBox container = new HBox(10);
             private final Button stockUpButton = new Button();
             private final Button editButton = new Button();
-            private final Button deleteButton = new Button();
+//            private final Button deleteButton = new Button();
 
             {
                 FontAwesomeIconView stockUpIcon = new FontAwesomeIconView(FontAwesomeIcon.ARROW_CIRCLE_UP);
@@ -245,13 +246,14 @@ public class ProductController2 {
                 editButton.setGraphic(editIcon);
                 editButton.getStyleClass().add("action-button");
 
-                FontAwesomeIconView deleteIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
-                deleteIcon.setSize("14");
-                deleteButton.setGraphic(deleteIcon);
-                deleteButton.getStyleClass().add("action-button");
+//                FontAwesomeIconView deleteIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
+//                deleteIcon.setSize("14");
+//                deleteButton.setGraphic(deleteIcon);
+//                deleteButton.getStyleClass().add("action-button");
 
                 container.setAlignment(Pos.CENTER);
-                container.getChildren().addAll(stockUpButton, editButton, deleteButton);
+                container.getChildren().addAll(stockUpButton, editButton);
+//                container.getChildren().addAll(stockUpButton, editButton, deleteButton);
 
                 stockUpButton.setOnAction(event -> {
                     Product product = getTableView().getItems().get(getIndex());
@@ -263,15 +265,15 @@ public class ProductController2 {
                     openUpdateWindow(product);
                 });
 
-                deleteButton.setOnAction(event -> {
-                    Product product = getTableView().getItems().get(getIndex());
-                    confirmAndRemoveProduct(product, getTableView());
-                });
+//                deleteButton.setOnAction(event -> {
+//                    Product product = getTableView().getItems().get(getIndex());
+//                    confirmAndRemoveProduct(product, getTableView());
+//                });
 
                 // Kiểm tra quyền và ẩn các nút nếu không có quyền tương ứng
                 stockUpButton.setVisible(permissions.contains("stock_up_product"));
                 editButton.setVisible(permissions.contains("update_product"));
-                deleteButton.setVisible(permissions.contains("remove_product"));
+//                deleteButton.setVisible(permissions.contains("remove_product"));
 
             }
 
@@ -281,7 +283,8 @@ public class ProductController2 {
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    HBox buttons = new HBox(5, stockUpButton, editButton, deleteButton);
+                    HBox buttons = new HBox(5, stockUpButton, editButton);
+//                    HBox buttons = new HBox(5, stockUpButton, editButton, deleteButton);
                     setGraphic(buttons);
                 }
             }
