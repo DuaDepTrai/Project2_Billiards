@@ -109,6 +109,7 @@ public class AddBookingController {
     }
 
     public void handleTextFieldClick(AutoCompletionBinding<String> auto, List<String> list, TextField text) {
+        auto.setVisibleRowCount(7);
         text.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) { // When the text field gains focus
                 auto.setUserInput(" "); // Set user input to a space

@@ -997,10 +997,9 @@ public class ForEachOrderController {
 
             AddOrderItemController addOrderItemController = loader.getController();
             addOrderItemController.setOrderId(orderID);
-            Stage stage = new Stage();
-            stage.setTitle("Add a new Order Item");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
+
+            // Show as a popup instead of a Stage
+            showForEachPopup((Pane) root);
 
             loadOrderDetail();
         } catch (IOException e) {
@@ -1008,6 +1007,7 @@ public class ForEachOrderController {
             NotificationService.showNotification("Error", "Failed to load Add Booking form.", NotificationStatus.Error);
         }
     }
+
 
     public void updateOrderItem(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {

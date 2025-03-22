@@ -2,6 +2,7 @@ package src.billiardsmanagement.controller.orders;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -21,6 +22,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
@@ -106,6 +108,7 @@ public class OrderController implements Initializable {
     private ForEachOrderController forEachOrderController;
     private Parent forEachOrderPage;
 
+    private Popup orderPopup;
 
     // Minute Limit, use for auto-cancel booking and check booking-time
     public static int minutesLimit = 30;
@@ -411,6 +414,54 @@ public class OrderController implements Initializable {
         setupFilters();
     }
 
+    public void showOrderPopup(Pane content) {
+        // Ensure the content is not null
+        if (content == null) {
+            throw new IllegalArgumentException("Content cannot be null");
+        }
+
+        // Initialize orderPopup if it's null
+        if (this.orderPopup == null) {
+            this.orderPopup = new Popup();
+        } else if (this.orderPopup.isShowing()) {
+            this.orderPopup.hide();
+        }
+
+        Platform.runLater(() -> {
+            StackPane contentPane = new StackPane();
+            contentPane.setStyle("-fx-background-color: white; -fx-padding: 10;");
+            contentPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, null)));
+            contentPane.getChildren().add(content);
+
+            // Clear existing content before adding new content
+            orderPopup.getContent().clear();
+            orderPopup.getContent().add(contentPane);
+
+            Scene scene = orderTable.getScene();
+            double sceneWidth = scene.getWidth();
+            double sceneHeight = scene.getHeight();
+
+            double popupWidth = content.getPrefWidth();
+            double popupHeight = content.getPrefHeight();
+
+            double xPos = (sceneWidth - popupWidth) / 2;
+            double yPos = (sceneHeight - popupHeight) / 2;
+
+            orderPopup.setX(xPos);
+            orderPopup.setY(yPos);
+
+            FadeTransition fadeIn = new FadeTransition(javafx.util.Duration.seconds(0.16), contentPane);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+
+            orderPopup.setAutoHide(true);
+            orderPopup.setAutoFix(true);
+            orderPopup.show(scene.getWindow());
+
+            fadeIn.play();
+        });
+    }
+
     public void initializeOrderController() {
         loadCustomerNameToIdMap();
         setUpSearchField();
@@ -546,7 +597,6 @@ public class OrderController implements Initializable {
                 // Add buttons to container
                 container.setAlignment(Pos.CENTER);
                 container.getChildren().addAll(printBtn);
-                // Add button actions
                 printBtn.setOnAction(event -> {
                     Order selectedOrder = getTableView().getItems().get(getIndex());
                     if (selectedOrder == null) {
@@ -565,9 +615,6 @@ public class OrderController implements Initializable {
                     int selectedIndex = getIndex(); // Lấy chỉ số hàng
                     int billNo = totalRow - selectedIndex;
                     int orderId = selectedOrder.getOrderId();
-
-
-
                     FXMLLoader paymentLoader = new FXMLLoader(
                             getClass().getResource("/src/billiardsmanagement/bills/finalBill.fxml"));
                     Parent paymentRoot = null;
