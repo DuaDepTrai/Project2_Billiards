@@ -885,57 +885,70 @@ public class ForEachOrderController {
                     NotificationStatus.Error);
             return;
         }
-        // Lấy booking được chọn
+
         Booking selectedBooking = currentBookingSelected;
-        // Kiểm tra xem có booking nào được chọn không
         if (selectedBooking == null) {
-            NotificationService.showNotification("You haven't choose a Booking.", "Please select a Booking !",
+            NotificationService.showNotification("You haven't chosen a Booking.", "Please select a Booking !",
                     NotificationStatus.Warning);
             return;
         }
 
-        // Kiểm tra trạng thái booking
         if ("Finish".equals(selectedBooking.getBookingStatus())) {
-            System.out.println("Status finish");
             NotificationService.showNotification("Can't Update Status",
                     "Cannot update the status of a booking that is already finished.", NotificationStatus.Error);
             return;
         }
 
         if ("Playing".equals(selectedBooking.getBookingStatus())) {
-            System.out.println("Status playing");
             NotificationService.showNotification("Can't Update Status",
-                    "Cannot update the status of a booking that is already finished.", NotificationStatus.Error);
+                    "Cannot update the status of a booking that is already started.", NotificationStatus.Error);
             return;
         }
 
-        // Xác định trạng thái mới
         String newTableStatus = "Playing";
         String newBookingStatus = "playing";
 
-        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmationAlert.setTitle("Confirm Start Playing");
-        confirmationAlert.setHeaderText("Confirm start playing on this table ?");
+        // Create a VBox for the popup content
+        VBox confirmationPane = new VBox();
+        confirmationPane.setStyle("-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 8;");
+        confirmationPane.setSpacing(10);
 
-        Optional<ButtonType> result = confirmationAlert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        Label confirmationLabel = new Label("Confirm start playing on this table?");
+        confirmationLabel.setStyle("-fx-font-size: 14px;");
+
+        Button confirmButton = new Button("Confirm");
+        confirmButton.setOnAction(e -> {
             boolean updateSuccess = BookingDAO.updateBooking(selectedBooking.getBookingId(),
                     selectedBooking.getOrderId(), selectedBooking.getTableId(), newTableStatus);
 
-            // Kiểm tra kết quả cập nhật và hiển thị thông báo
             if (updateSuccess) {
                 NotificationService.showNotification("Start Playing Successful",
                         "Start playing on this table successfully.", NotificationStatus.Success);
-                loadBookings(); // Tải lại danh sách booking sau khi cập nhật
-                checkOrderStatus();
-                initializeForEachOrderButtonsAndInformation();
-                if (poolTableController != null) poolTableController.handleViewAllTables();
+                hideForEachPopup();
+                forEachPopup.setOnHidden(ev -> {
+                    loadBookings();
+                    checkOrderStatus();
+                    initializeForEachOrderButtonsAndInformation();
+                    if(this.poolTableController != null) poolTableController.handleViewAllTables();
+                });
             } else {
-                NotificationService.showNotification("Update Failed",
-                        "Failed to update the booking status. Please try again.", NotificationStatus.Error);
+                System.err.println("😱💔 Update Failed: Failed to update the booking status. Please try again. 🤷‍♂️");
+                hideForEachPopup();
             }
-        }
+        });
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(e -> hideForEachPopup());
+
+        HBox buttonContainer = new HBox(10, confirmButton, cancelButton);
+        buttonContainer.setAlignment(Pos.CENTER);
+
+        confirmationPane.getChildren().addAll(confirmationLabel, buttonContainer);
+        confirmationPane.setAlignment(Pos.CENTER);
+
+        showForEachPopup(confirmationPane);
     }
+
 
     public void deleteBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
@@ -997,11 +1010,15 @@ public class ForEachOrderController {
 
             AddOrderItemController addOrderItemController = loader.getController();
             addOrderItemController.setOrderId(orderID);
+            addOrderItemController.setForEachPopup(this.forEachPopup);
 
             // Show as a popup instead of a Stage
             showForEachPopup((Pane) root);
 
-            loadOrderDetail();
+            forEachPopup.setOnHidden(e -> {
+                loadOrderDetail();
+                forEachPopup.setOnHidden(null);
+            });
         } catch (IOException e) {
             e.printStackTrace();
             NotificationService.showNotification("Error", "Failed to load Add Booking form.", NotificationStatus.Error);
@@ -1037,13 +1054,13 @@ public class ForEachOrderController {
                     .setOrderItemList(orderItemsTable.getItems().stream().map(OrderItem::getProductName).toList());
             updateOrderItemController.initializeOrderItem();
 
-            Stage stage = new Stage();
-            stage.setTitle("Update Order Item");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
+            showForEachPopup((Pane) root);
 
             // Refresh the table after update
-            loadOrderDetail();
+            forEachPopup.setOnHidden(e -> {
+                loadOrderDetail();
+                forEachPopup.setOnHidden(null);
+            });
         } catch (Exception e) {
             e.printStackTrace();
             NotificationService.showNotification("Error",

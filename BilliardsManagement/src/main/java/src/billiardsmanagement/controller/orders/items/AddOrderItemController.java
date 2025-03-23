@@ -3,6 +3,7 @@ package src.billiardsmanagement.controller.orders.items;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import javafx.stage.Window;
@@ -38,6 +39,7 @@ public class AddOrderItemController {
     private Stage stage;
     private Window window;
     protected Map<String, String> productCategoryMap;
+    public Popup forEachPopup;
 
     @FXML
     public void initialize() {
@@ -144,7 +146,7 @@ public class AddOrderItemController {
                         ProductDAO.dispatchItem(selectedProductName, quantity);
                         NotificationService.showNotification("Success", "Order item updated successfully!",
                                 NotificationStatus.Success);
-                        closeWindow();
+                        if (this.forEachPopup != null) forEachPopup.hide();
                         return;
                     }
                 }
@@ -165,7 +167,8 @@ public class AddOrderItemController {
                 ProductDAO.dispatchItem(selectedProductName, quantity);
                 NotificationService.showNotification("Success", "New order item added successfully!",
                         NotificationStatus.Success);
-                closeWindow();
+                if (this.forEachPopup != null) forEachPopup.hide();
+
             } else {
                 throw new Exception("Failed to add order item. Please try again.");
             }
@@ -178,13 +181,8 @@ public class AddOrderItemController {
         }
     }
 
-    private void closeWindow() {
-        Stage stage = (Stage) productNameAutoCompleteText.getScene().getWindow();
-        stage.close();
-    }
-
     public void HandleTextFieldClick(AutoCompletionBinding<String> auto, ArrayList<String> list, TextField text,
-            ArrayList<String> trimmedList) {
+                                     ArrayList<String> trimmedList) {
         auto.setOnAutoCompleted(autoCompletionEvent -> {
             String finalText = autoCompletionEvent.getCompletion();
             text.setText(finalText.trim().split("/")[0].trim());
@@ -226,5 +224,9 @@ public class AddOrderItemController {
 
     public void setStage(Stage stage) {
         this.stage = stage;
+    }
+
+    public void setForEachPopup(Popup forEachPopup) {
+        this.forEachPopup = forEachPopup;
     }
 }
