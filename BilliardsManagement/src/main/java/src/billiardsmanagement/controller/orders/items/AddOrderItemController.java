@@ -55,7 +55,7 @@ public class AddOrderItemController {
 
             productNameTrimmed.add(str.trim());
             str = str + "  / " + quant + " in stock";
-            productList.add(str);
+            if(quant>0) productList.add(str);
         }
 
         AutoCompletionBinding<String> productNameAutoBinding = TextFields

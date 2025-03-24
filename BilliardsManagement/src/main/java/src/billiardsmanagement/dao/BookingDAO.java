@@ -418,7 +418,7 @@ public class BookingDAO {
         return bookings;
     }
 
-    public static boolean stopBooking(int bookingId, Timestamp startTime, int poolTableId) throws SQLException {
+    public static boolean stopBooking(int bookingId, Timestamp startTime, int poolTableId) {
         Connection conn = DatabaseConnection.getConnection();
         if (conn == null) return false;
 
@@ -480,9 +480,16 @@ public class BookingDAO {
             conn.commit();
             return true;
         } catch (SQLException e) {
-            if (conn != null) conn.rollback();
-            throw e;
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
         }
+        return false;
     }
 
     // Used for canceling multiple bookings at once. Returns true if all bookings were canceled successfully.

@@ -223,4 +223,8 @@ public class PaymentController {
         System.err.println("Error: " + message);
         // Show an error notification, but only log the message
     }
+
+    public void disablePayOrderButton(){
+        payOrder.setDisable(true);
+    }
 }

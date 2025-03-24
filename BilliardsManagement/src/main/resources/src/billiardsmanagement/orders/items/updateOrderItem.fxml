@@ -7,8 +7,7 @@
 
 <AnchorPane prefHeight="177.0" prefWidth="347.0" style="-fx-padding: 5;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.billiardsmanagement.controller.orders.items.UpdateOrderItemController">
    <children>
-      <Button layoutX="78.0" layoutY="123.0" mnemonicParsing="false" onAction="#updateOrderItem" text="Confirm Update" />
-      <Button layoutX="196.0" layoutY="123.0" mnemonicParsing="false" onAction="#handleCancel" text="Cancel" />
+      <Button fx:id="confirmUpdateItemButton" layoutX="94.0" layoutY="123.0" mnemonicParsing="false" onAction="#updateOrderItem" prefHeight="25.0" prefWidth="160.0" text="Confirm Update" />
       <Label layoutX="32.0" layoutY="82.0" text="Quantity" />
 <!--      <Label layoutX="32.0" layoutY="128.0" text="Promotion" />-->
       <Label layoutX="32.0" layoutY="39.0" text="Product Name" />

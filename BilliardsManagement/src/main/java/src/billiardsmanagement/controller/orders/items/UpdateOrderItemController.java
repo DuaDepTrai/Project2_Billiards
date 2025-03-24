@@ -2,9 +2,10 @@ package src.billiardsmanagement.controller.orders.items;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.Node;
-import javafx.stage.Stage;
+import javafx.stage.Popup;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.dao.OrderItemDAO;
@@ -12,6 +13,7 @@ import src.billiardsmanagement.dao.ProductDAO;
 // import src.billiardsmanagement.dao.PromotionDAO;
 import src.billiardsmanagement.model.OrderItem;
 import src.billiardsmanagement.model.Pair;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +21,7 @@ import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
 
 public class UpdateOrderItemController {
+    public Button confirmUpdateItemButton;
     @FXML
     private TextField quantityTextField;
     private int currentQuantity;
@@ -36,36 +39,45 @@ public class UpdateOrderItemController {
     private List<String> productTrimmedList;
     private List<String> currentItemList;
 
-//    protected Map<String, String> productCategoryMap;
+    //    protected Map<String, String> productCategoryMap;
     private String initialProductName;
 //    private String initialPromotionName;
 
     private AutoCompletionBinding<String> productNameAutoBinding;
+    private Popup forEachPopup;
     // private AutoCompletionBinding<String> promotionNameAutoBinding;
 
+
     public void initializeOrderItem() {
+        confirmUpdateItemButton.setDisable(true);
 //        productCategoryMap = CategoryDAO.getProductAndCategoryUnitMap();
         productTrimmedList = new ArrayList<>();
         ArrayList<String> productList = new ArrayList<>();
-        List<Pair<String,Integer>> productQuantityList = ProductDAO.getAllProductNameAndQuantity();
+        List<Pair<String, Integer>> productQuantityList = ProductDAO.getAllProductNameAndQuantity();
         if (productQuantityList.isEmpty()) {
             System.out.println("Unexpected error: Product List is null!");
         } else {
-            for (Pair<String,Integer> p : productQuantityList) {
+            for (Pair<String, Integer> p : productQuantityList) {
                 String prn = p.getFirstValue();
                 int quant = p.getSecondValue();
                 if (!currentItemList.contains(prn)) {
                     productTrimmedList.add(prn);
-                    prn += "  / " + quant + " in stock" ;
-                    productList.add(prn);
+                    prn += "  / " + quant + " in stock";
+                    if (quant > 0) productList.add(prn);
                 }
             }
+
+            productTrimmedList.add(initialProductName);
 
             AutoCompletionBinding<String> productNameAutoBinding = TextFields
                     .bindAutoCompletion(productNameAutoCompleteText, productList);
             HandleTextFieldClick(productNameAutoBinding, productTrimmedList, productNameAutoCompleteText, initialProductName);
             productNameAutoBinding.setVisibleRowCount(7);
             productNameAutoBinding.setHideOnEscape(true);
+
+            quantityTextField.textProperty().addListener(obs -> {
+                updateButtonStatus();
+            });
 
             // ArrayList<String> pList = (ArrayList<String>)
             // PromotionDAO.getAllPromotionsNameByList();
@@ -97,11 +109,26 @@ public class UpdateOrderItemController {
         }
     }
 
+    public void updateButtonStatus() {
+        try {
+            double quant = Integer.parseInt(quantityTextField.getText());
+            if(productNameAutoCompleteText.getText()!=null){
+                confirmUpdateItemButton.setDisable(productNameAutoCompleteText.getText().trim().equalsIgnoreCase(initialProductName) && quant == currentQuantity && currentItemList.contains(productNameAutoCompleteText.getText().trim()));
+            }
+        } catch (Exception e) {
+            confirmUpdateItemButton.setDisable(true);
+        }
+    }
+
     public void HandleTextFieldClick(AutoCompletionBinding<String> auto, List<String> list, TextField text,
-            String name) {
+                                     String name) {
         auto.setOnAutoCompleted(autoCompletionEvent -> {
             String finalText = autoCompletionEvent.getCompletion();
             text.setText(finalText.trim().split("/")[0].trim());
+        });
+
+        text.textProperty().addListener(observable -> {
+            updateButtonStatus();
         });
 
         text.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -130,6 +157,7 @@ public class UpdateOrderItemController {
     public void setOrderItemDetails(OrderItem item) {
         if (item != null) {
             initialProductName = item.getProductName();
+            System.out.println("From UpdateOrderItem - initialProductName = " + initialProductName);
             orderItemId = item.getOrderItemId();
             productNameAutoCompleteText.setText(initialProductName);
             quantityTextField.setText(String.valueOf(item.getQuantity()));
@@ -146,8 +174,10 @@ public class UpdateOrderItemController {
             if (productName == null || productName.trim().isEmpty()) {
                 throw new IllegalArgumentException("Please select a product!");
             }
-            
-            if (!productTrimmedList.contains(productName)) {
+
+            System.out.println("From UpdateOrderItem - Product Name = "+productName);
+
+            if (!productTrimmedList.contains(productName.trim())) {
                 throw new IllegalArgumentException(
                         "The product you provided is not found. Check your input and try again!");
             }
@@ -162,7 +192,7 @@ public class UpdateOrderItemController {
                 }
 
                 // update the old item
-                if(productName.equalsIgnoreCase(initialProductName)){
+                if (productName.equalsIgnoreCase(initialProductName)) {
                     if (requestQuantity < currentQuantity) {
                         int replenishAmount = currentQuantity - requestQuantity;
                         ProductDAO.replenishItem(productName, replenishAmount);
@@ -177,7 +207,7 @@ public class UpdateOrderItemController {
                     }
                 }
                 // trying to change item ?
-                else{
+                else {
                     ProductDAO.replenishItem(initialProductName, currentQuantity);
                     ProductDAO.dispatchItem(productName, requestQuantity);
                 }
@@ -235,10 +265,9 @@ public class UpdateOrderItemController {
             NotificationService.showNotification("Success", "Order item updated successfully!",
                     NotificationStatus.Success);
 
-            Node source = (Node) event.getSource();
-            Stage stage = (Stage) source.getScene().getWindow();
-            stage.close();
-
+            if (this.forEachPopup != null) {
+                forEachPopup.hide();
+            }
         } catch (IllegalArgumentException e) {
             NotificationService.showNotification("Error", e.getMessage(), NotificationStatus.Error);
         } catch (Exception e) {
@@ -246,13 +275,6 @@ public class UpdateOrderItemController {
             NotificationService.showNotification("Error", "An unexpected error occurred! Please try again later!",
                     NotificationStatus.Error);
         }
-    }
-
-    @FXML
-    public void handleCancel(ActionEvent event) {
-        Node source = (Node) event.getSource();
-        Stage stage = (Stage) source.getScene().getWindow();
-        stage.close();
     }
 
     public int getOrderId() {
@@ -271,8 +293,12 @@ public class UpdateOrderItemController {
         this.currentQuantity = currentQuantity;
     }
 
-    public void setOrderItemList(List<String> list){
+    public void setOrderItemList(List<String> list) {
         this.currentItemList = new ArrayList<>();
         currentItemList.addAll(list);
+    }
+
+    public void setForEachPopup(Popup forEachPopup) {
+        this.forEachPopup = forEachPopup;
     }
 }

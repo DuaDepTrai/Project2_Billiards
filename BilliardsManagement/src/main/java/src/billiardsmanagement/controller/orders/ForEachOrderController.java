@@ -170,7 +170,7 @@ public class ForEachOrderController {
     private String orderPageChosen = "OrderPage";
     private String poolTablePageChosen = "PoolTablePage";
 
-    private Popup forEachPopup;
+    private Popup forEachPopup = new Popup();
     private StackPane contentArea;
 
     public void setMainController(MainController mainController, ChosenPage mainControllerChosenPage) {
@@ -637,6 +637,7 @@ public class ForEachOrderController {
         String status = currentOrder != null ? currentOrder.getOrderStatus() : orderStatusText.getText();
         if (status.equalsIgnoreCase("Finished") || status.equalsIgnoreCase("Canceled")
                 || status.equalsIgnoreCase("Paid")) {
+            disableAllActionButtons();
             finishOrderButton.setDisable(true);
             addOrderItemButton.setDisable(true);
             addBookingButton.setDisable(true);
@@ -805,6 +806,7 @@ public class ForEachOrderController {
         if (this.forEachPopup == null) {
             this.forEachPopup = new Popup();
         } else if (this.forEachPopup.isShowing()) {
+            this.forEachPopup.setOnHidden(null);
             this.forEachPopup.hide();
         }
 
@@ -924,16 +926,8 @@ public class ForEachOrderController {
             if (updateSuccess) {
                 NotificationService.showNotification("Start Playing Successful",
                         "Start playing on this table successfully.", NotificationStatus.Success);
-                hideForEachPopup();
-                forEachPopup.setOnHidden(ev -> {
-                    loadBookings();
-                    checkOrderStatus();
-                    initializeForEachOrderButtonsAndInformation();
-                    if(this.poolTableController != null) poolTableController.handleViewAllTables();
-                });
             } else {
                 System.err.println("😱💔 Update Failed: Failed to update the booking status. Please try again. 🤷‍♂️");
-                hideForEachPopup();
             }
         });
 
@@ -946,55 +940,81 @@ public class ForEachOrderController {
         confirmationPane.getChildren().addAll(confirmationLabel, buttonContainer);
         confirmationPane.setAlignment(Pos.CENTER);
 
+        forEachPopup.setOnHidden(ev -> {
+            loadBookings();
+            checkOrderStatus();
+            initializeForEachOrderButtonsAndInformation();
+            if(this.poolTableController != null) poolTableController.handleViewAllTables();
+            forEachPopup.setOnHidden(null);
+        });
+
         showForEachPopup(confirmationPane);
     }
 
 
     public void deleteBooking(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
-            NotificationService.showNotification("Error", "Cannot add booking with status 'Paid'.",
-                    NotificationStatus.Error);
+            NotificationService.showNotification("Error", "Cannot delete booking with status 'Paid'.", NotificationStatus.Error);
             return;
         }
+
         Booking selectedBooking = currentBookingSelected;
 
         if (selectedBooking == null) {
-            NotificationService.showNotification("No Selection", "Please select a booking to delete.",
-                    NotificationStatus.Error);
-            return;
-        }
-        if (selectedBooking.getBookingStatus().equals("Finish")) {
-            NotificationService.showNotification("Can't Delete", "Bookings marked as 'finish' cannot be deleted",
-                    NotificationStatus.Error);
+            NotificationService.showNotification("No Selection", "Please select a booking to delete.", NotificationStatus.Error);
             return;
         }
 
-        if (selectedBooking.getBookingStatus().equals("Playing")) {
-            NotificationService.showNotification("Can't Delete", "Bookings marked as 'playing' cannot be deleted.",
-                    NotificationStatus.Error);
+        if ("Finish".equals(selectedBooking.getBookingStatus())) {
+            NotificationService.showNotification("Can't Delete", "Bookings marked as 'Finish' cannot be deleted.", NotificationStatus.Error);
             return;
         }
-        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmationAlert.setTitle("Delete Confirmation");
-        confirmationAlert.setHeaderText("Are you sure you want to delete this booking?");
-        confirmationAlert.setContentText("This action cannot be undone.");
 
-        Optional<ButtonType> result = confirmationAlert.showAndWait();
+        if ("Playing".equals(selectedBooking.getBookingStatus())) {
+            NotificationService.showNotification("Can't Delete", "Bookings marked as 'Playing' cannot be deleted.", NotificationStatus.Error);
+            return;
+        }
 
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        // Create a VBox for the popup content
+        VBox confirmationPane = new VBox();
+        confirmationPane.setStyle("-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 8;");
+        confirmationPane.setSpacing(10);
+
+        Label confirmationLabel = new Label("Are you sure you want to delete this booking?");
+        confirmationLabel.setStyle("-fx-font-size: 14px;");
+
+        Button confirmButton = new Button("Confirm");
+        confirmButton.setOnAction(e -> {
             boolean success = bookingDAO.deleteBooking(selectedBooking.getBookingId());
 
             if (success) {
-                NotificationService.showNotification("Success", "Booking deleted successfully.",
-                        NotificationStatus.Success);
-                loadBookings();
-                if (poolTableController != null) poolTableController.handleViewAllTables();
+                NotificationService.showNotification("Success", "Booking deleted successfully.", NotificationStatus.Success);
             } else {
-                NotificationService.showNotification("Error", "Failed to delete the booking.",
-                        NotificationStatus.Error);
+                NotificationService.showNotification("Error", "Failed to delete the booking.", NotificationStatus.Error);
             }
-        }
+
+            hideForEachPopup();
+        });
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(e -> hideForEachPopup());
+
+        HBox buttonContainer = new HBox(10, confirmButton, cancelButton);
+        buttonContainer.setAlignment(Pos.CENTER);
+
+        confirmationPane.getChildren().addAll(confirmationLabel, buttonContainer);
+        confirmationPane.setAlignment(Pos.CENTER);
+
+        // Ensure data reloads after the popup is closed
+        forEachPopup.setOnHidden(ev -> {
+            loadBookings();
+            if (poolTableController != null) poolTableController.handleViewAllTables();
+            forEachPopup.setOnHidden(null);
+        });
+
+        showForEachPopup(confirmationPane);
     }
+
 
     public void addOrderItem(ActionEvent event) {
         if (orderStatusText.getText().equals("Paid")) {
@@ -1052,6 +1072,7 @@ public class ForEachOrderController {
             updateOrderItemController.setOrderItemDetails(selectedItem);
             updateOrderItemController
                     .setOrderItemList(orderItemsTable.getItems().stream().map(OrderItem::getProductName).toList());
+            updateOrderItemController.setForEachPopup(this.forEachPopup);
             updateOrderItemController.initializeOrderItem();
 
             showForEachPopup((Pane) root);
@@ -1160,33 +1181,53 @@ public class ForEachOrderController {
         Timestamp startTime = selectedBooking.getStartTime();
         int poolTableId = selectedBooking.getTableId();
 
-        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmationAlert.setTitle("Confirm Stop Booking");
-        confirmationAlert.setHeaderText("This booking will be stopped. Are you sure?");
+        // Create a popup
+        VBox popupContent = new VBox();
+        popupContent.setStyle("-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 8;");
+        popupContent.setSpacing(10);
+        popupContent.setAlignment(Pos.CENTER);
 
-        Optional<ButtonType> result = confirmationAlert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                boolean success = BookingDAO.stopBooking(bookingId, startTime, poolTableId);
-                if (success) {
-                    NotificationService.showNotification("Success",
-                            "Booking has been stopped and updated.",
-                            NotificationStatus.Success);
-                    loadBookings();
-                    checkOrderStatus();
-                    BookingDAO.updateTableStatusAfterBooking(bookingId);
-                } else {
-                    NotificationService.showNotification("Error",
-                            "Failed to stop booking due to invalid data.",
-                            NotificationStatus.Error);
-                }
-            } catch (SQLException e) {
+        Label confirmationLabel = new Label("Confirm stopping this booking?");
+        confirmationLabel.setStyle("-fx-font-size: 14px;");
+
+        Button confirmButton = new Button("Confirm");
+        confirmButton.setOnAction(e -> {
+            boolean success = BookingDAO.stopBooking(bookingId, startTime, poolTableId);
+            if (success) {
+                NotificationService.showNotification("Success",
+                        "Booking has been stopped and updated.",
+                        NotificationStatus.Success);
+                loadBookings();
+                checkOrderStatus();
+                BookingDAO.updateTableStatusAfterBooking(bookingId);
+            } else {
                 NotificationService.showNotification("Error",
-                        "Failed to stop booking: " + e.getMessage(),
+                        "Failed to stop booking due to invalid data.",
                         NotificationStatus.Error);
             }
-        }
+            hideForEachPopup();
+        });
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(e -> hideForEachPopup());
+
+        HBox buttonContainer = new HBox(10, confirmButton, cancelButton);
+        buttonContainer.setAlignment(Pos.CENTER);
+
+        popupContent.getChildren().addAll(confirmationLabel, buttonContainer);
+
+        // Clear existing listeners when popup closes
+        forEachPopup.setOnHidden(ev -> {
+            loadBookings();
+            checkOrderStatus();
+            initializeForEachOrderButtonsAndInformation();
+            if (this.poolTableController != null) poolTableController.handleViewAllTables();
+            forEachPopup.setOnHidden(null); // Clear event handlers
+        });
+
+        showForEachPopup(popupContent);
     }
+
 
     public void checkBookingStatus() {
         int minutesLimit = 30;
@@ -1442,42 +1483,68 @@ public class ForEachOrderController {
     public void cancelBooking(ActionEvent actionEvent) {
         Booking selectedBooking = currentBookingSelected;
         if (selectedBooking == null) {
-            NotificationService.showNotification("Error Cancel Booking", "You haven't choose a booking to cancel !",
-                    NotificationStatus.Error);
+            NotificationService.showNotification("Error Cancel Booking", "You haven't chosen a booking to cancel!", NotificationStatus.Error);
             return;
         }
 
-        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Cancel Booking Confirmation");
-        confirmAlert.setHeaderText("Are you sure you want to cancel this booking?");
-        confirmAlert.setContentText("This action cannot be undone.");
+        // Create a VBox for the popup content
+        VBox confirmationPane = new VBox();
+        confirmationPane.setStyle("-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 8;");
+        confirmationPane.setSpacing(10);
 
-        Optional<ButtonType> result = confirmAlert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        Label confirmationLabel = new Label("Are you sure you want to cancel this booking?");
+        confirmationLabel.setStyle("-fx-font-size: 14px;");
+
+        Button confirmButton = new Button("Confirm");
+        confirmButton.setOnAction(e -> {
             System.out.println("From ForEachOrderController : Cancel Booking Called");
             boolean success = BookingDAO.cancelBooking(selectedBooking.getBookingId());
+
             if (success) {
-//                BookingDAO.updateTableStatusAfterBooking(selectedBooking.getBookingId());
                 NotificationService.showNotification("Cancel Booking Success",
-                        "Booking in Table : " + selectedBooking.getTableName() + " has been cancelled successfully!",
+                        "Booking in Table: " + selectedBooking.getTableName() + " has been cancelled successfully!",
                         NotificationStatus.Success);
+
                 loadBookings();
                 if (poolTableController != null) poolTableController.handleViewAllTables();
-                if (orderController == null)
-                    System.out.println("❌ From ForEachOrderController : orderController is null. Cannot call loadOrderList()");
-                else {
+
+                if (orderController == null) {
+                    System.out.println("❌ From ForEachOrderController: orderController is null. Cannot call loadOrderList()");
+                } else {
                     orderController.loadOrderList();
                     checkOrderStatus();
-                    System.out.println("✅ From ForEachOrderController, cancelBooking() : loadOrderList() called from orderController non-null");
-                    System.out.println("✅ From ForEachOrderController, cancelBooking() : checkOrderStatus() called");
+                    System.out.println("✅ From ForEachOrderController, cancelBooking(): loadOrderList() called from orderController non-null");
+                    System.out.println("✅ From ForEachOrderController, cancelBooking(): checkOrderStatus() called");
                 }
             } else {
                 NotificationService.showNotification("Error Cancel Booking",
-                        "An unexpected error happens when cancelling this booking. Please try again later !",
+                        "An unexpected error happened while cancelling this booking. Please try again later!",
                         NotificationStatus.Error);
             }
-        }
+
+            hideForEachPopup();
+        });
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(e -> hideForEachPopup());
+
+        HBox buttonContainer = new HBox(10, confirmButton, cancelButton);
+        buttonContainer.setAlignment(Pos.CENTER);
+
+        confirmationPane.getChildren().addAll(confirmationLabel, buttonContainer);
+        confirmationPane.setAlignment(Pos.CENTER);
+
+        // Ensure actions are run after the popup is closed
+        forEachPopup.setOnHidden(ev -> {
+            checkOrderStatus();
+            loadBookings();
+            if (poolTableController != null) poolTableController.handleViewAllTables();
+            forEachPopup.setOnHidden(null);
+        });
+
+        showForEachPopup(confirmationPane);
     }
+
 
     public void setBillNo(int billNo) {
         this.billNo = billNo;
