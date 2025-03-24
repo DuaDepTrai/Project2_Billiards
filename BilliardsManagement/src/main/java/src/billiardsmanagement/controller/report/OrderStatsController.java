@@ -38,6 +38,7 @@ public class OrderStatsController {
     private final ObservableList<Map<String, Object>> revenueData = FXCollections.observableArrayList();
     private List<String> dateColumns = new ArrayList<>();
 
+
     public void initialize() {
         // Cấu hình cột danh mục
         colCategory.setCellValueFactory(data -> new SimpleStringProperty((String) data.getValue().get("category")));
@@ -78,7 +79,6 @@ public class OrderStatsController {
 
         updateFilterType(); // Cập nhật giao diện lọc ban đầu
     }
-
 
     @FXML
     private void updateFilterType() {

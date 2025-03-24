@@ -1,25 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 
-<?import javafx.scene.text.Font?>
 <?import javafx.geometry.Insets?>
-<BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="src.billiardsmanagement.controller.products2.ProductController2"
-            prefHeight="609.0" prefWidth="1001.0"
-            stylesheets="@../css/poolTable.css">
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="609.0" prefWidth="1001.0" stylesheets="@../css/poolTable.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="src.billiardsmanagement.controller.products2.ProductController2">
     <center>
         <StackPane>
             <padding>
-                <Insets left="30" right="30"/>
+                <Insets left="30" right="30" />
             </padding>
-            <VBox spacing="10" alignment="CENTER" >
+            <VBox alignment="CENTER" spacing="10">
                 <HBox alignment="CENTER_LEFT" spacing="10" styleClass="header">
-                    <Region HBox.hgrow="ALWAYS"/> <!-- Đẩy btnAddNewCategory về bên phải -->
-                    <TextField fx:id="searchField" styleClass="search-field" prefWidth="200.0" promptText="Search by name..."/>
-                    <Button fx:id="btnAddNewCategory" mnemonicParsing="false" prefHeight="26.0" prefWidth="153.0"
-                            styleClass="add-button" text="Add Category" textAlignment="CENTER" textFill="WHITE">
+                    <Region HBox.hgrow="ALWAYS" /> <!-- Đẩy btnAddNewCategory về bên phải -->
+                    <TextField fx:id="searchField" prefWidth="200.0" promptText="Search by name..." styleClass="search-field" />
+                    <Button fx:id="btnAddNewCategory" mnemonicParsing="false" prefHeight="26.0" prefWidth="153.0" styleClass="add-button" text="Add Category" textAlignment="CENTER" textFill="WHITE">
                         <font>
                             <Font size="13.0" />
                         </font>
@@ -30,12 +35,12 @@
                 <ScrollPane fitToWidth="true">
                     <GridPane fx:id="gridPane" maxWidth="Infinity">
                         <columnConstraints>
-                            <ColumnConstraints percentWidth="50"/>
-                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50" />
+                            <ColumnConstraints percentWidth="50" />
                         </columnConstraints>
                         <rowConstraints>
-                            <RowConstraints percentHeight="30"/>
-                            <RowConstraints percentHeight="30"/>
+                            <RowConstraints percentHeight="30" />
+                            <RowConstraints percentHeight="30" />
                         </rowConstraints>
                     </GridPane>
                 </ScrollPane>

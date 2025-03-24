@@ -69,7 +69,7 @@
             <columns>
                 <TableColumn fx:id="sttColumn" text="No" />
                 <TableColumn fx:id="nameCol" text="Customer Name" />
-                <TableColumn fx:id="phoneCol" text="Phone No" />
+                <TableColumn fx:id="phoneCol" text="Phone Number" />
                 <TableColumn fx:id="totalPlaytimeCol" text="Total Playtime" />
                 <TableColumn fx:id="birthdayCol" text="Birthday" />
                 <TableColumn fx:id="addressCol" text="Address" />
