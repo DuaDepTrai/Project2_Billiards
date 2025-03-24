@@ -1,7 +1,9 @@
 package src.billiardsmanagement.dao;
 
 import src.billiardsmanagement.model.DatabaseConnection;
+import src.billiardsmanagement.model.NotificationStatus;
 import src.billiardsmanagement.model.OrderItem;
+import src.billiardsmanagement.service.NotificationService;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -35,6 +37,30 @@ public class OrderItemDAO {
             return false;
         }
     }
+
+    public static boolean removeOrderItem(int orderId, OrderItem orderItem) {
+        String sql = "DELETE FROM orders_items WHERE order_id = ? AND order_item_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, orderId);
+            stmt.setInt(2, orderItem.getOrderItemId());
+
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                return true;
+            } else {
+                System.err.println("❌ Error: No rows affected, order item not found.");
+                return false;
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ SQL Error: " + e.getMessage());
+            return false;
+        }
+    }
+
 
     public static boolean addOrderItem(OrderItem orderItem) {
         try (Connection con = DatabaseConnection.getConnection()) {

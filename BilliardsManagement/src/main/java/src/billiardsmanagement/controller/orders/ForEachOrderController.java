@@ -10,6 +10,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -289,6 +290,7 @@ public class ForEachOrderController {
                     case "Ordered":
                         // Play Icon
                         FontAwesomeIconView playIcon = new FontAwesomeIconView(FontAwesomeIcon.PLAY);
+                        playIcon.setStyle("-fx-font-family: 'FontAwesome';");
                         playIcon.prefWidth(14); // Set icon size
                         playIcon.prefHeight(14); // Set icon size
                         Button playButton = new Button();
@@ -302,6 +304,7 @@ public class ForEachOrderController {
 
                         // Cancel Icon
                         FontAwesomeIconView cancelIcon = new FontAwesomeIconView(FontAwesomeIcon.TIMES);
+                        cancelIcon.setStyle("-fx-font-family: 'FontAwesome';");
                         cancelIcon.prefWidth(14);
                         cancelIcon.prefHeight(14);
                         Button cancelButton = new Button();
@@ -319,6 +322,7 @@ public class ForEachOrderController {
                     case "Playing":
                         // Stop Icon
                         FontAwesomeIconView stopIcon = new FontAwesomeIconView(FontAwesomeIcon.STOP);
+                        stopIcon.setStyle("-fx-font-family: 'FontAwesome';");
                         stopIcon.prefWidth(14);
                         stopIcon.prefHeight(14);
                         Button stopButton = new Button();
@@ -335,6 +339,7 @@ public class ForEachOrderController {
                     case "Canceled":
                         // Delete Icon
                         FontAwesomeIconView deleteIcon = new FontAwesomeIconView(FontAwesomeIcon.TRASH);
+                        deleteIcon.setStyle("-fx-font-family: 'FontAwesome';");
                         deleteIcon.prefWidth(14);
                         deleteIcon.prefHeight(14);
                         Button deleteButton = new Button();
@@ -462,29 +467,62 @@ public class ForEachOrderController {
                 }
 
                 OrderItem orderItem = getTableView().getItems().get(getIndex());
-                HBox actionBox = new HBox();
-                actionBox.setAlignment(Pos.CENTER); // Center horizontally
+                HBox actionBox = new HBox(5); // Added spacing between buttons
+                actionBox.setAlignment(Pos.CENTER);
                 actionBox.getStyleClass().add("action-hbox");
 
                 // Edit Icon
                 FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
-                editIcon.prefWidth(14); // Set icon size
-                editIcon.prefHeight(14); // Set icon size
+                // This is an example of how to fix if icons not showing.
+                // Just add : -fx-font-family: 'FontAwesome'; and everything gonna works fine.
+                editIcon.setStyle("-fx-font-family: 'FontAwesome';-fx-font-size: 14px;"); // Set icon size
                 Button editButton = new Button();
                 editButton.setGraphic(editIcon);
-                editButton.setMinSize(17, 17); // Set button size
-                editButton.setAlignment(Pos.CENTER); // Center the icon in the button
+                editButton.setMinSize(17, 17);
+                editButton.setAlignment(Pos.CENTER);
                 editButton.setOnMouseClicked(e -> {
                     setCurrentOrderItemSelected(orderItem);
                     updateOrderItem(new ActionEvent());
                 });
 
-                actionBox.getChildren().add(editButton);
+                // Reset / Return Icon
+                FontAwesomeIconView resetIcon = new FontAwesomeIconView(FontAwesomeIcon.REFRESH);
+                resetIcon.setStyle("-fx-font-family: 'FontAwesome';-fx-font-size: 14px;");
+                Button resetButton = new Button();
+                resetButton.setGraphic(resetIcon);
+                resetButton.setMinSize(17, 17);
+                resetButton.setAlignment(Pos.CENTER);
 
-                setAlignment(Pos.CENTER); // Center the entire cell content
+                resetButton.setOnMouseClicked(e -> {
+                    setCurrentOrderItemSelected(orderItem);
+
+                    VBox confirmationBox = new VBox(10);
+                    confirmationBox.setAlignment(Pos.CENTER);
+                    confirmationBox.setPadding(new Insets(15));
+
+                    Label messageLabel = new Label("Are you sure you want to return this item?");
+                    messageLabel.setWrapText(true);
+                    messageLabel.setStyle("-fx-font-size: 14px;");
+
+                    Button confirmButton = new Button("Confirm");
+                    confirmButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-pref-width: 150.0;");
+                    confirmButton.setOnAction(event -> {
+                        returnOrderItem(orderItem);
+                        hideForEachPopup();
+                    });
+
+                    confirmationBox.getChildren().addAll(messageLabel, confirmButton);
+
+                    showForEachPopup(confirmationBox);
+                });
+
+                actionBox.getChildren().addAll(editButton, resetButton);
+
+                setAlignment(Pos.CENTER);
                 setGraphic(actionBox);
             }
         });
+
 
         //
         sttOrderItemColumn.setCellValueFactory(this::orderItemCall);
@@ -795,6 +833,20 @@ public class ForEachOrderController {
 //            NotificationService.showNotification("Error!", "Cannot add Load Booking form !", NotificationStatus.Error);
 //        }
 //    }
+
+    public boolean returnOrderItem(OrderItem orderItem) {
+        boolean success = ProductDAO.replenishItem(orderItem.getProductName(), orderItem.getQuantity()) && OrderItemDAO.removeOrderItem(this.orderID, orderItem);;
+        if (success) {
+            NotificationService.showNotification("Success",
+                    orderItem.getProductName() + " has been successfully returned.",
+                    NotificationStatus.Success);
+            loadOrderDetail();
+        } else {
+            System.err.println("❌ Error: Failed to return order item - " + orderItem.getProductName());
+        }
+        return success;
+    }
+
 
     public void showForEachPopup(Pane content) {
         // Ensure the content is not null
