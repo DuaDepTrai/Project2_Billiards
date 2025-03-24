@@ -757,6 +757,7 @@ public class PoolTableController {
             System.out.println("DEBUG: " + userPermissions);
             editButton.setVisible(userPermissions.contains("update_pool_category"));
             deleteButton.setVisible(userPermissions.contains("remove_pool_category"));
+            deleteButton.setVisible(false);
         });
         catePooltablesScrollPane.setContent(categoryContent);
     }
