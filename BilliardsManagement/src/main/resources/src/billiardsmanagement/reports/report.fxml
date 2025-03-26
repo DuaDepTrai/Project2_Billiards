@@ -6,7 +6,8 @@
 
 <BorderPane fx:id="mainPane" prefHeight="700.0" prefWidth="1000.0"
             xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="src.billiardsmanagement.controller.report.ReportController">
+            fx:controller="src.billiardsmanagement.controller.report.ReportController"
+            stylesheets="@../css/report.css">
     <center>
         <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE">
             <tabs>

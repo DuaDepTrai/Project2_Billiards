@@ -38,8 +38,8 @@ public class OrderStatsController {
     private final ObservableList<Map<String, Object>> revenueData = FXCollections.observableArrayList();
     private List<String> dateColumns = new ArrayList<>();
 
-
     public void initialize() {
+        revenueTable.getColumns().clear();
         // Cấu hình cột danh mục
         colCategory.setCellValueFactory(data -> new SimpleStringProperty((String) data.getValue().get("category")));
         revenueTable.setItems(revenueData);
@@ -80,6 +80,7 @@ public class OrderStatsController {
         updateFilterType(); // Cập nhật giao diện lọc ban đầu
     }
 
+
     @FXML
     private void updateFilterType() {
         String selectedFilter = filterTypeComboBox.getValue();
@@ -101,15 +102,14 @@ public class OrderStatsController {
 
     @FXML
     private void filterRevenue() {
-        // Xóa mọi dữ liệu trong bảng chỉ khi có thay đổi bộ lọc
-        if (!revenueData.isEmpty()) {
-            revenueData.clear();
-            revenueTable.getColumns().clear();
-            dateColumns.clear();
+        // Always completely clear the table data and columns
+        revenueData.clear();
+        revenueTable.getItems().clear(); // Explicitly clear table items
+        revenueTable.getColumns().clear();
+        dateColumns.clear();
 
-            // IMPORTANT: Re-add the category column first
-            revenueTable.getColumns().add(colCategory);
-        }
+        // Re-add the category column first
+        revenueTable.getColumns().add(colCategory);
 
         System.out.println("Filtering revenue data...");
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -137,13 +137,13 @@ public class OrderStatsController {
                     System.err.println("Lỗi khi phân tích ngày: " + date);
                     e.printStackTrace();
                 }
-
             }
 
             // Lấy dữ liệu doanh thu theo danh mục và ngày
             Map<String, Map<String, Double>> categoryRevenueByDate = fetchCategoryRevenueByDate(conn, dates);
 
-            // Tạo dữ liệu cho bảng
+            // Tạo dữ liệu mới cho bảng
+            ObservableList<Map<String, Object>> newData = FXCollections.observableArrayList();
             for (Map.Entry<String, Map<String, Double>> entry : categoryRevenueByDate.entrySet()) {
                 Map<String, Object> row = new HashMap<>();
                 row.put("category", entry.getKey());
@@ -154,11 +154,12 @@ public class OrderStatsController {
                     row.put(date, revenue);
                 }
 
-                revenueData.add(row);
+                newData.add(row);
             }
 
-            // Cập nhật bảng với dữ liệu mới
-            revenueTable.setItems(revenueData);
+            // Set the table items with the new data
+            revenueTable.setItems(newData);
+            revenueData.setAll(newData); // Update the revenueData collection
 
             // Tính tổng doanh thu và số lượng đơn hàng
             double totalRevenue = 0;
@@ -181,6 +182,11 @@ public class OrderStatsController {
             totalRevenueLabel.setText(numberFormat.format(totalRevenue) + " VNĐ");
             totalOrdersLabel.setText(String.valueOf(totalOrders));
 
+            // Clear and reload charts
+            revenueBarChart.getData().clear();
+            tablePieChart.getData().clear();
+            productPieChart.getData().clear();
+
             loadCharts(); // Cập nhật biểu đồ
 
         } catch (SQLException e) {
@@ -188,50 +194,27 @@ public class OrderStatsController {
         }
     }
 
-
     private List<String> fetchDatesInRange(Connection conn) throws SQLException {
         List<String> dates = new ArrayList<>();
         String sql = "";
         PreparedStatement stmt;
         String selectedFilter = filterTypeComboBox.getValue();
+
         if("Date".equals(selectedFilter)) {
-            sql = "SELECT DISTINCT DATE(order_date) AS date FROM orders " +
-                    "WHERE order_status = 'Paid' AND DATE(order_date) = DATE(?) ORDER BY date";
-            stmt = conn.prepareStatement(sql);
-            stmt.setString(1, datePicker.getValue().toString()); // selectedDatePicker là
-
-            ResultSet rs = stmt.executeQuery();
-            boolean hasData = false;
-            while (rs.next()) {
-                dates.add(rs.getString("date"));
-                hasData = true;
-            }
-
-            // If no data found for the date, add it anyway
-            if (!hasData) {
-                dates.add(datePicker.getValue().toString());
-                System.out.println("No data found for date, adding selected date: " + datePicker.getValue());
-            }
+            // For Date filter, only return the selected date
+            // No need to query the database for dates
+            dates.add(datePicker.getValue().toString());
+            System.out.println("Date filter: Adding only selected date: " + datePicker.getValue());
             return dates;
         }
         else if ("Date Range".equals(selectedFilter)) {
             if (startDatePicker.getValue().isEqual(endDatePicker.getValue())) {
-                // Trường hợp ngày đơn
-                sql = "SELECT DISTINCT DATE(order_date) AS date " +
-                        "FROM orders " +
-                        "WHERE order_status = 'Paid' AND DATE(order_date) = DATE(?) " +
-                        "ORDER BY date";
-                String checkSql = "SELECT COUNT(*) FROM orders WHERE order_status = 'Paid' AND DATE(order_date) = DATE(?)";
-                PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-                checkStmt.setString(1, startDatePicker.getValue().toString());
-                ResultSet checkRs = checkStmt.executeQuery();
-                if (checkRs.next()) {
-                    System.out.println("Số lượng đơn hàng cho ngày này: " + checkRs.getInt(1));
-                }
-                stmt = conn.prepareStatement(sql);
-                stmt.setString(1, startDatePicker.getValue().toString());
+                // Single date case
+                dates.add(startDatePicker.getValue().toString());
+                System.out.println("Date Range (single date): Adding only selected date: " + startDatePicker.getValue());
+                return dates;
             } else {
-                // Trường hợp khoảng ngày
+                // Date range case
                 sql = "SELECT DISTINCT DATE(order_date) AS date FROM orders " +
                         "WHERE order_status = 'Paid' AND DATE(order_date) >= DATE(?) AND DATE(order_date) <= DATE(?) ORDER BY date";
 
@@ -239,21 +222,6 @@ public class OrderStatsController {
                 stmt.setString(1, startDatePicker.getValue().toString());
                 stmt.setString(2, endDatePicker.getValue().toString());
             }
-
-            // If no dates were found but we have a valid date selected, add it manually
-            ResultSet rs = stmt.executeQuery();
-            boolean hasData = false;
-            while (rs.next()) {
-                dates.add(rs.getString("date"));
-                hasData = true;
-            }
-
-            // If no data found for single date case, add the selected date anyway
-            if (!hasData && startDatePicker.getValue().isEqual(endDatePicker.getValue())) {
-                dates.add(startDatePicker.getValue().toString());
-                System.out.println("No data found for date, adding selected date: " + startDatePicker.getValue());
-            }
-            return dates;
         } else if ("Month".equals(selectedFilter)) {
             sql = "SELECT DISTINCT DATE(order_date) AS date FROM orders " +
                     "WHERE order_status = 'Paid' AND MONTH(order_date) = ? AND YEAR(order_date) = ? ORDER BY date";
@@ -266,10 +234,16 @@ public class OrderStatsController {
             stmt = conn.prepareStatement(sql);
             stmt.setInt(1, yearOnlyComboBox.getValue());
         }
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next()) {
-            dates.add(rs.getString("date"));
+
+        // Only execute SQL query for non-single date filters
+        if (!"Date".equals(selectedFilter) &&
+                !("Date Range".equals(selectedFilter) && startDatePicker.getValue().isEqual(endDatePicker.getValue()))) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                dates.add(rs.getString("date"));
+            }
         }
+
         return dates;
     }
 
