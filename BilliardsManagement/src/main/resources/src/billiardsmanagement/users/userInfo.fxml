@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="src.billiardsmanagement.controller.users.UserInfoController"
+      spacing="20" alignment="CENTER" style="-fx-padding: 20;">
+
+    <!-- Dòng "Account Information" căn giữa -->
+    <Label text="Account Information" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+    <!-- Khoảng cách giữa "Account Information" và thông tin bên dưới -->
+    <Region prefHeight="5"/>
+
+    <HBox spacing="20">
+        <!-- Avatar (Bên trái) -->
+        <ImageView fx:id="imgAvatar" fitWidth="180" fitHeight="180" style="-fx-border-radius: 50%;" />
+
+        <!-- Thông tin người dùng (Bên phải) -->
+        <VBox spacing="10" alignment="CENTER_LEFT">
+            <Label fx:id="lblUsername"/>
+            <Label fx:id="lblFullname"/>
+            <Label fx:id="lblPhone"/>
+            <Label fx:id="lblBirthday"/>
+            <Label fx:id="lblAddress"/>
+            <Label fx:id="lblHireDate"/>
+            <Label fx:id="lblRole"/>
+        </VBox>
+    </HBox>
+
+</VBox>

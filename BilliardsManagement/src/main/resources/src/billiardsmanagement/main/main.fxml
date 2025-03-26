@@ -91,8 +91,13 @@
                     <VBox>
                         <Label fx:id="usernameLabel" text="Andrew" styleClass="user-name"/>
                         <Label fx:id="roleLabel" text="admin" styleClass="user-role"/>
-                        <Label fx:id="logoutLabel" text="Logout" styleClass="user-logout"
-                               onMouseClicked="#handleLogout"/>
+                        <HBox>
+                            <Label fx:id="userInfoLabel" text="User Information" styleClass="user-logout"
+                                   onMouseClicked="#handleAccInfo"/>
+                            <Label text=" | "/>
+                            <Label fx:id="logoutLabel" text="Logout" styleClass="user-logout"
+                                   onMouseClicked="#handleLogout"/>
+                        </HBox>
                     </VBox>
                 </HBox>
             </HBox>

@@ -20,6 +20,7 @@ import src.billiardsmanagement.controller.poolTables.*;
 import src.billiardsmanagement.controller.products2.ProductController2;
 import src.billiardsmanagement.controller.users.RolesPermissionsController;
 import src.billiardsmanagement.controller.users.UserController;
+import src.billiardsmanagement.controller.users.UserInfoController;
 import src.billiardsmanagement.model.TestDBConnection;
 import src.billiardsmanagement.model.User;
 
@@ -48,15 +49,8 @@ public class MainController {
     private Label roleLabel;
     @FXML
     private Label logoutLabel;
-//    @FXML
-//    private void onLogoutHover() {
-//        logoutLabel.setStyle("-fx-text-fill: darkblue; -fx-underline: true; -fx-cursor: hand;");
-//    }
-//
-//    @FXML
-//    private void onLogoutExit() {
-//        logoutLabel.setStyle("-fx-text-fill: white; -fx-underline: true; -fx-cursor: hand;");
-//    }
+    @FXML
+    private Label userInfoLabel;
 
     @FXML
     private ImageView avatarImageView;
@@ -80,23 +74,6 @@ public class MainController {
     private Parent forEachOrderPage;
     private FXMLLoader forEachOrderLoader;
 
-    //
-//    private void loadNavbar() {
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/navbar.fxml"));
-//            VBox navbar = loader.load();
-//            NavbarController navbarController = loader.getController();
-//            navbarContainer.getChildren().setAll(navbar);
-//
-//            // Lấy controller của Navbar
-//
-//            // Truyền contentArea vào NavbarController
-//            navbarController.setContentArea(contentArea);
-//            mainContainer.setLeft(navbar);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
     private User loggedInUser;
 
     public void setLoggedInUser(User user) {
@@ -163,6 +140,30 @@ public class MainController {
             throw new RuntimeException(e);
         }
         return roleName;
+    }
+
+    @FXML
+    private void handleAccInfo() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/users/userInfo.fxml"));
+            Parent root = loader.load();
+
+            UserInfoController controller = loader.getController();
+            if (controller == null) {
+                System.err.println("❌ Lỗi: Không lấy được controller từ FXML!");
+                return;
+            }
+
+            controller.setUser(loggedInUser);
+//            System.out.println(loggedInUser.getPhone());
+            Stage stage = new Stage();
+            stage.setTitle("User Information");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -352,9 +353,6 @@ public class MainController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products2/products2.fxml"));
         BorderPane productPage = loader.load();
 
-//        FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/products/products.fxml"));
-//        AnchorPane productPage = loader.load();
-
         ProductController2 productController = loader.getController();
         productController.setLoggedInUser(loggedInUser);
         System.out.println("🔹 Truyền user vào ProductController: " + (loggedInUser != null ? loggedInUser.getUsername() : "null"));
@@ -388,9 +386,6 @@ public class MainController {
         // Hiển thị giao diện Users trong contentArea
         contentArea.getChildren().setAll(usersPage);
 
-        // Lấy controller của Users và truyền MainController vào
-//        UserController userController = loader.getController();
-//        userController.setMainController(this);
     }
 
 
@@ -398,10 +393,6 @@ public class MainController {
     public void showRolesPermissionsPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/users/rolesPermissions.fxml"));
         AnchorPane rolesPermissionsPage = loader.load();
-
-        // Lấy controller của RolesPermissions và truyền MainController vào
-//        RolesPermissionsController rolesPermissionsController = loader.getController();
-//        rolesPermissionsController.setMainController(this);
 
         RolesPermissionsController roleperController = loader.getController();
         roleperController.setCurrentUser(loggedInUser);
@@ -420,15 +411,6 @@ public class MainController {
 
     @FXML
     public void showPoolTablePage() throws IOException, SQLException {
-
-        // Get the controller and pass the logged-in user if needed
-//        src.billiardsmanagement.controller.poolTables.PoolTableController poolTableController = loader.getController();
-//        if (poolTableController != null) {
-//            // poolTableController.setLoggedInUser(loggedInUser); // Assuming you have a method to set the user
-//        } else {
-//            System.out.println("Error: Unable to retrieve PoolTableController!");
-//        }
-
         if (poolTableLoader != null && poolTablePane != null && poolTableController != null) {
             poolTableController.setCurrentUser(loggedInUser);
             poolTableController.setUser(loggedInUser);

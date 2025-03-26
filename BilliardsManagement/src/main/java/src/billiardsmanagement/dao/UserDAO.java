@@ -37,6 +37,17 @@ public class UserDAO {
                 String image_path = resultSet.getString("image_path");
 
                 users.add(new User(user_id, username, password, role, fullname, phone, birthday, address, hire_date, image_path));
+
+                System.out.println("📌 Debug: User Data");
+                System.out.println("Username: " + username);
+                System.out.println("Full Name: " + fullname);
+                System.out.println("Role: " + role);
+                System.out.println("Phone: " + phone);
+                System.out.println("Birthday: " + birthday);
+                System.out.println("Address: " + address);
+                System.out.println("Hire Date: " + hire_date);
+                System.out.println("Image Path: " + image_path);
+
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -125,13 +136,6 @@ public class UserDAO {
                         resultSet.getDate("hire_date"),
                         resultSet.getString("image_path")
                 );
-
-                // Debug kiểm tra dữ liệu lấy từ database
-                System.out.println("🔍 Debug: User lấy từ DB:");
-                System.out.println("🆔 ID: " + user.getId());
-                System.out.println("👤 Username: " + user.getUsername());
-                System.out.println("📛 Fullname: " + user.getFullname());
-                System.out.println("📷 Avatar: " + user.getImagePath());
 
                 return user;
 
