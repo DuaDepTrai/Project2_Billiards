@@ -1,7 +1,12 @@
 package src.billiardsmanagement.controller.users;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 import src.billiardsmanagement.dao.UserDAO;
 import src.billiardsmanagement.model.User;
 import javafx.fxml.FXML;
@@ -22,6 +27,8 @@ public class UserInfoController implements Initializable {
     private Label lblUsername, lblFullname, lblPhone, lblBirthday, lblAddress, lblHireDate, lblRole;
     @FXML
     private ImageView imgAvatar;
+    @FXML
+    private Button btnChangeUserInfo;
 
     private UserDAO userDAO = new UserDAO();
     private User user;
@@ -29,6 +36,7 @@ public class UserInfoController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        btnChangeUserInfo.setOnAction(event -> handleChangeUserInfo());
     }
 
     public void setUser(User user)  {
@@ -55,11 +63,11 @@ public class UserInfoController implements Initializable {
 
         lblUsername.setText("Username: " + user.getUsername());
         lblFullname.setText("Full Name: " + formatString(user.getFullname()));
+        lblRole.setText("Role: " + roleName);
         lblPhone.setText("Phone: " + formatString(user.getPhone()));
         lblBirthday.setText("Birthday: " + formatDate(user.getBirthday()));
         lblAddress.setText("Address: " + formatString(user.getAddress()));
-        lblHireDate.setText("Hire Date: " + formatDate(user.getHireDate()));
-        lblRole.setText("Role: " + roleName);
+        lblHireDate.setText("Start working: " + formatDate(user.getHireDate()));
         setAvatar(user.getImagePath());
 
     }
@@ -87,4 +95,21 @@ public class UserInfoController implements Initializable {
         }
     }
 
+    @FXML
+    private void handleChangeUserInfo() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/users/changeUserInfo.fxml"));
+            Parent root = loader.load();
+            ChangeUserInfoController controller = loader.getController();
+            controller.setUserData(user);
+
+            Stage stage = new Stage();
+            stage.setTitle("Change User Info");
+            stage.setScene(new Scene(root));
+            stage.show();
+//            stage.setOnHidden(event -> refreshTable());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

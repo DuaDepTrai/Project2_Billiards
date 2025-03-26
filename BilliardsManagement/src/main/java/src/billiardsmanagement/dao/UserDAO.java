@@ -76,7 +76,7 @@ public class UserDAO {
         }
     }
 
-    // Phương thức để cập nhật thông tin sản phẩm
+    // Phương thức để cập nhật thông tin user
     public void updateUser(int user_id, String username, String password, int role_id, String fullname, String phone, Date birthday, String address, String imagePath) throws SQLException {
         String sql = "UPDATE users SET username = ?, password = ?, role_id = ?, fullname = ?, phone = ?, birthday = ?, address = ?, image_path = ? WHERE user_id = ?";
         try (Connection connection = TestDBConnection.getConnection();
@@ -91,6 +91,25 @@ public class UserDAO {
             statement.setString(7, address);
             statement.setString(8, imagePath);
             statement.setInt(9, user_id);
+            statement.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Phương thức Change User Information
+    public void changeUserInfo(int user_id, String password, String fullname, String phone, Date birthday, String address, String imagePath) throws SQLException {
+        String sql = "UPDATE users SET password = ?, fullname = ?, phone = ?, birthday = ?, address = ?, image_path = ? WHERE user_id = ?";
+        try (Connection connection = TestDBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, password);
+            statement.setString(2, fullname);
+            statement.setString(3, phone);
+            statement.setDate(4, birthday);
+            statement.setString(5, address);
+            statement.setString(6, imagePath);
+            statement.setInt(7, user_id);
             statement.executeUpdate();
         } catch (Exception e) {
             throw new RuntimeException(e);

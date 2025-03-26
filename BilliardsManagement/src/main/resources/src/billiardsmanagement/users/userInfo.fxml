@@ -7,30 +7,33 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Region?>
 
+<?import javafx.scene.control.Button?>
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
       fx:controller="src.billiardsmanagement.controller.users.UserInfoController"
-      spacing="20" alignment="CENTER" style="-fx-padding: 20;">
+      spacing="20" alignment="CENTER" style="-fx-padding: 20; -fx-font-size: 16px;" prefWidth="650">
 
     <!-- Dòng "Account Information" căn giữa -->
-    <Label text="Account Information" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+    <Label text="USER INFORMATION" style="-fx-font-size: 28px; -fx-font-weight: bold;"/>
 
     <!-- Khoảng cách giữa "Account Information" và thông tin bên dưới -->
-    <Region prefHeight="5"/>
+<!--    <Region prefHeight="5"/>-->
 
     <HBox spacing="20">
         <!-- Avatar (Bên trái) -->
-        <ImageView fx:id="imgAvatar" fitWidth="180" fitHeight="180" style="-fx-border-radius: 50%;" />
+        <ImageView fx:id="imgAvatar" fitWidth="240" fitHeight="240" style="-fx-border-radius: 50%;" />
 
         <!-- Thông tin người dùng (Bên phải) -->
         <VBox spacing="10" alignment="CENTER_LEFT">
             <Label fx:id="lblUsername"/>
             <Label fx:id="lblFullname"/>
+            <Label fx:id="lblRole"/>
             <Label fx:id="lblPhone"/>
             <Label fx:id="lblBirthday"/>
             <Label fx:id="lblAddress"/>
             <Label fx:id="lblHireDate"/>
-            <Label fx:id="lblRole"/>
         </VBox>
     </HBox>
+
+    <Button fx:id="btnChangeUserInfo" text="Change Information" prefWidth="220"/>
 
 </VBox>

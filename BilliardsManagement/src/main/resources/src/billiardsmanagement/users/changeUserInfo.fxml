@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" alignment="CENTER" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="src.billiardsmanagement.controller.users.ChangeUserInfoController"
+      prefWidth="500" prefHeight="500">
+
+    <Label text="Change User Information" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="10" alignment="CENTER_LEFT">
+        <Label text="Fullname:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <TextField fx:id="txtFullname" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Password:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <PasswordField fx:id="txtPassword" GridPane.rowIndex="1" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Re-Password:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <PasswordField fx:id="txtRePassword" GridPane.rowIndex="2" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Phone:" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <TextField fx:id="txtPhone" GridPane.rowIndex="3" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Birthday:" GridPane.rowIndex="4" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <DatePicker fx:id="txtBirthday" GridPane.rowIndex="4" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Address:" GridPane.rowIndex="5" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <TextField fx:id="txtAddress" GridPane.rowIndex="5" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <Label text="Upload Image:" GridPane.rowIndex="6" GridPane.columnIndex="0" style="-fx-padding: 0 0 0 40;"/>
+        <Button text="Upload" onAction="#handleUploadImage" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+        <Label fx:id="lblImagePath" text="No file selected" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Update" onAction="#handleUpdate" prefWidth="100"/>
+        <Button text="Cancel" onAction="#handleCancel" prefWidth="100"/>
+    </HBox>
+</VBox>
