@@ -1,8 +1,16 @@
 package src.billiardsmanagement.controller.poolTables;
 
+import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.controlsfx.control.textfield.TextFields;
 import src.billiardsmanagement.dao.PoolTableDAO;
 import src.billiardsmanagement.dao.CatePooltableDAO;
@@ -10,6 +18,7 @@ import src.billiardsmanagement.model.PoolTable;
 import src.billiardsmanagement.model.CatePooltable;
 import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
+
 import java.util.List;
 
 public class PoolTableInfoController {
@@ -33,6 +42,9 @@ public class PoolTableInfoController {
     private PoolTableController poolTableController;
     private List<String> currentTableNameList;
     private List<String> catePooltableShortNameList;
+    private Popup poolInfoPopup = new Popup();
+    private FlowPane tablesContainer;
+
 
     public void initializePoolInfo() {
         poolTableDAO = new PoolTableDAO();
@@ -46,7 +58,6 @@ public class PoolTableInfoController {
 //        }
         setupNameField();
         updateButton.setDisable(true);
-        removeButton.setVisible(false);
     }
 
     private void setupNameField() {
@@ -56,7 +67,7 @@ public class PoolTableInfoController {
                 .map(str -> str + " ")// Trim any extra spaces
                 .distinct() // Ensure unique names
                 .toList();
-        
+
         TextFields.bindAutoCompletion(nameField, suggestionList);
 
         nameField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -65,12 +76,11 @@ public class PoolTableInfoController {
                 notifyLabel.setText("Please enter a name for the table.");
                 notifyLabel.setStyle("-fx-text-fill: #DB2B3D;"); // Red color
                 updateButton.setDisable(true);
-            } else if (newValue.equalsIgnoreCase(currentTable.getName())){
+            } else if (newValue.equalsIgnoreCase(currentTable.getName())) {
                 notifyLabel.setText("Nothing changed in table name.");
                 notifyLabel.setStyle("-fx-text-fill: #FF9D23;"); // Red color
                 updateButton.setDisable(true);
-            }
-            else if (currentTableNameList.contains(newValue)) {
+            } else if (currentTableNameList.contains(newValue)) {
                 // Provide feedback for existing name
                 notifyLabel.setText("This table name already exists!");
                 notifyLabel.setStyle("-fx-text-fill: #DB2B3D;"); // Red color
@@ -199,28 +209,111 @@ public class PoolTableInfoController {
         }
     }
 
+    public void showPoolInfoPopup(Pane content) {
+        if (poolInfoPopup == null) poolInfoPopup = new Popup();
+        if (poolInfoPopup.isShowing()) poolInfoPopup.hide();
+
+        StackPane contentPane = new StackPane();
+        contentPane.setStyle("-fx-background-color: white; -fx-padding: 10;");
+        contentPane.setBorder(new Border(new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, null, null)));
+        contentPane.getChildren().add(content);
+
+        poolInfoPopup.getContent().add(contentPane);
+
+        Scene scene = tablesContainer.getScene();
+        double sceneWidth = scene.getWidth();
+        double sceneHeight = scene.getHeight();
+
+        double popupWidth = content.getPrefWidth();
+        double popupHeight = content.getPrefHeight();
+
+        System.out.println("Pool Popup Width : " + popupWidth);
+        System.out.println("Pool Popup Height : " + popupHeight);
+
+        double xPos = (sceneWidth - popupWidth) / 2;
+        double yPos = (sceneHeight - popupHeight) / 2;
+
+        poolInfoPopup.setX(xPos);
+        poolInfoPopup.setY(yPos);
+
+        // Fade-in effect
+        FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.25), contentPane);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+
+        poolInfoPopup.setAutoHide(true);
+        poolInfoPopup.setAutoFix(true);
+        poolInfoPopup.show(tablesContainer.getScene().getWindow());
+        fadeIn.play();
+    }
+
+
     @FXML
     private void handleRemove() {
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmation.setTitle("Confirm Deletion");
-        confirmation.setHeaderText("Delete Pool Table");
-        confirmation.setContentText("Are you sure you want to delete this pool table?");
+        VBox popupContent = new VBox(15);
+        popupContent.setPadding(new Insets(20));
+        popupContent.setAlignment(Pos.CENTER);
 
-        if (confirmation.showAndWait().get() == ButtonType.OK) {
+        Label confirmationLabel = new Label("Are you sure you want to\ndelete this pool table?");
+        confirmationLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        HBox buttonContainer = new HBox(10);
+        buttonContainer.setAlignment(Pos.CENTER);
+
+        Button confirmButton = new Button("Confirm");
+        confirmButton.setStyle("-fx-background-color: #ff5555; -fx-text-fill: white;");
+        confirmButton.setPrefWidth(130.0);
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setStyle("-fx-background-color: #cccccc; -fx-text-fill: black;");
+
+        // Handle Cancel Button
+        cancelButton.setOnAction(event -> {
+            poolInfoPopup.hide();
+            poolTableController.getCurrentPoolPopup().hide();
+        });
+
+        // Handle Confirm Button
+        confirmButton.setOnAction(event -> {
             try {
-                poolTableDAO.removeTable(currentTable.getTableId());
-                NotificationService.showNotification("Success", "Pool table removed successfully",
-                        NotificationStatus.Success);
-                if (poolTableController != null) {
-                    poolTableController.hidePoolPopup();
-                    poolTableController.resetTableListAndTableNameList();
-                    poolTableController.handleViewAllTables();
+                // Check for poolTableController
+                if (poolTableController == null) {
+                    System.out.println("\033[1;31m" + "🔥 Error: poolTableController is null! 🔥" + "\033[0m" + " 🤦‍♂️😂💥");
+                } else {
+                    // If not null, show the poolTableController object
+                    System.out.println("\033[1;32m" + "✅ poolTableController is initialized: " + poolTableController.toString() + " ✅" + "\033[0m" + " 😄🎉");
                 }
+
+                // Check for poolInfoPopup
+                if (poolInfoPopup == null) {
+                    System.out.println("\033[1;31m" + "🔥 Error: poolInfoPopup is null! 🔥" + "\033[0m" + " 🤷‍♂️🤣💥");
+                } else {
+                    // If not null, show the poolInfoPopup object
+                    System.out.println("\033[1;32m" + "✅ poolInfoPopup is initialized: " + poolInfoPopup.toString() + " ✅" + "\033[0m" + " 😄🎊");
+                }
+
+                poolTableDAO.removeTable(currentTable.getTableId());
+                NotificationService.showNotification("Success", "Pool table " + currentTable.getName() + " removed successfully",
+                        NotificationStatus.Success);
             } catch (Exception e) {
-                NotificationService.showNotification("Error", "Failed to remove pool table: " + e.getMessage(),
-                        NotificationStatus.Error);
+                System.out.println("\033[1;31m" + "From PoolTableInfoController, handleRemove():" + "\033[0m" + " ❌ Error: Something went wrong! 🤦‍♂️😂");
+                System.out.println("❌ Error: Failed to DELETE the pool table ‍♂️😂");
             }
+        });
+
+        if (poolInfoPopup != null) {
+            poolInfoPopup.setOnHidden(e -> {
+                poolTableController.handleViewAllTables();
+                poolTableController.resetTableNameList();
+                System.out.println("\033[1;32m" + "From PoolTableInfoController, handleViewAllTables():" + "\033[0m" + " ✅ Successfully executed handleViewAllTables! 🎊");
+                poolInfoPopup.setOnHidden(null);
+            });
         }
+
+        buttonContainer.getChildren().addAll(confirmButton, cancelButton);
+        popupContent.getChildren().addAll(confirmationLabel, buttonContainer);
+
+        showPoolInfoPopup(popupContent);
     }
 
     public void setPoolTableController(PoolTableController poolTableController) {
@@ -231,9 +324,13 @@ public class PoolTableInfoController {
         this.currentTableNameList = tableNameList;
     }
 
-    public void setCatePooltableComboBox(List<CatePooltable> catePooltableComboBox){
+    public void setCatePooltableComboBox(List<CatePooltable> catePooltableComboBox) {
         this.categoryComboBox.getItems().clear();
         this.categoryComboBox.getItems().addAll(catePooltableComboBox);
+    }
+
+    public void setTablesContainer(FlowPane tablesContainer) {
+        this.tablesContainer = tablesContainer;
     }
 
 }

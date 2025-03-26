@@ -182,6 +182,14 @@ public class PoolTableController {
         setUpFilter();
     }
 
+    public void resetTableNameList(){
+        tableList = poolTableDAO.getAllTables();
+        tableNameList = this.tableList.stream()
+                .map(PoolTable::getName)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+    }
+
     public void setUser(User user) throws SQLException {
         this.currentUser = user;
         if (user != null) {
@@ -261,92 +269,97 @@ public class PoolTableController {
         // Add the label to the container
         textContainer.getChildren().addAll(tableShortNameLabel, tableNumberLabel, statusLabel);
 
-        // Create hover buttons container
-        VBox hoverButtons = new VBox();
-        hoverButtons.getStyleClass().add("hover-buttons");
-        hoverButtons.setPrefSize(100, 135);
-        hoverButtons.setAlignment(Pos.CENTER);
-        hoverButtons.setSpacing(2);
+        if(!table.getCatePooltableName().equals(String.valueOf(InactivePool.Inactive))){
+            // Create hover buttons container
+            VBox hoverButtons = new VBox();
+            hoverButtons.getStyleClass().add("hover-buttons");
+            hoverButtons.setPrefSize(100, 135);
+            hoverButtons.setAlignment(Pos.CENTER);
+            hoverButtons.setSpacing(2);
 
-        // Create Order button
-        Button createOrderButton = new Button("Order Info");
-        createOrderButton.getStyleClass().add("hover-button");
-        createOrderButton.setMaxWidth(Double.MAX_VALUE);
-        createOrderButton.setPrefHeight(60);
-        createOrderButton.setWrapText(true);
-        createOrderButton.setStyle("-fx-font-size: 12px;");
-        createOrderButton.setOnAction(e -> {
-            if (table.getStatus().equalsIgnoreCase("Available")) {
+            // Create Order button
+            Button createOrderButton = new Button("Order Info");
+            createOrderButton.getStyleClass().add("hover-button");
+            createOrderButton.setMaxWidth(Double.MAX_VALUE);
+            createOrderButton.setPrefHeight(60);
+            createOrderButton.setWrapText(true);
+            createOrderButton.setStyle("-fx-font-size: 12px;");
+            createOrderButton.setOnAction(e -> {
+                if (table.getStatus().equalsIgnoreCase("Available")) {
+                    try {
+                        FXMLLoader loader = new FXMLLoader(
+                                getClass().getResource("/src/billiardsmanagement/pooltables/poolTableOrderInformation.fxml"));
+                        Pane root = loader.load();
+
+                        PoolTableOrderInformationController controller = loader.getController();
+                        controller.setPoolTable(table);
+                        controller.setPoolTableController(this);
+                        controller.setTablesContainer(tableStack);
+                        controller.setOrderController(this.orderController);
+                        controller.setMainController(this.mainController);
+
+                        controller.setForEachOrderController(this.forEachOrderController);
+                        controller.setForEachRoot(this.forEachRoot);
+                        controller.initializeView();
+
+                        showPoolPopup(tablesContainer, root);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                } else {
+                    int orderId = BookingDAO.getTheLatestOrderByTableId(table.getTableId());
+                    Booking latestBooking = BookingDAO.getBookingByTableIdAndOrderId(orderId, table.getTableId());
+                    System.out.println("Latest Booking : " + latestBooking);
+                    System.out.println("Order ID = " + orderId);
+                    System.out.println("Status : " + latestBooking.getBookingStatus());
+                    if (latestBooking.getBookingStatus() != null && (latestBooking.getBookingStatus().equalsIgnoreCase("Playing") || latestBooking.getBookingStatus().equalsIgnoreCase("Ordered"))) {
+                        Order currentOrder = OrderDAO.getOrderById(orderId);
+                        showForEachOrderView(currentOrder, table);
+                    } else {
+                        NotificationService.showNotification("Error",
+                                "This table is not booked yet, so that there's no Order associated with this table.",
+                                NotificationStatus.Error);
+                    }
+                }
+            });
+
+            // Info button
+            Button infoButton = new Button("Pool Info");
+            infoButton.getStyleClass().add("hover-button");
+            infoButton.setMaxWidth(Double.MAX_VALUE);
+            infoButton.setPrefHeight(60);
+            infoButton.setWrapText(true);
+            infoButton.setStyle("-fx-font-size: 12px;");
+//        infoButton.setOnAction(e -> openTableInfoDialog(table));
+            infoButton.setOnAction(e -> {
                 try {
                     FXMLLoader loader = new FXMLLoader(
-                            getClass().getResource("/src/billiardsmanagement/pooltables/poolTableOrderInformation.fxml"));
+                            getClass().getResource("/src/billiardsmanagement/pooltables/poolTableInfo.fxml"));
                     Pane root = loader.load();
 
-                    PoolTableOrderInformationController controller = loader.getController();
-                    controller.setPoolTable(table);
+                    // Get the controller and set up the table info
+                    PoolTableInfoController controller = loader.getController();
                     controller.setPoolTableController(this);
-                    controller.setTablesContainer(tableStack);
-                    controller.setOrderController(this.orderController);
-                    controller.setMainController(this.mainController);
+                    controller.setTablesContainer(this.tablesContainer);
 
-                    controller.setForEachOrderController(this.forEachOrderController);
-                    controller.setForEachRoot(this.forEachRoot);
-                    controller.initializeView();
+                    // setCatePooltableComboBox must be called before setPoolTable() !
+                    controller.setCatePooltableComboBox(catePooltablesList);
+                    controller.setTableNameList(tableNameList);
+                    controller.setPoolTable(table);
+                    controller.initializePoolInfo();
 
                     showPoolPopup(tablesContainer, root);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-            } else {
-                int orderId = BookingDAO.getTheLatestOrderByTableId(table.getTableId());
-                Booking latestBooking = BookingDAO.getBookingByTableIdAndOrderId(orderId, table.getTableId());
-                System.out.println("Latest Booking : " + latestBooking);
-                System.out.println("Order ID = " + orderId);
-                System.out.println("Status : " + latestBooking.getBookingStatus());
-                if (latestBooking.getBookingStatus() != null && (latestBooking.getBookingStatus().equalsIgnoreCase("Playing") || latestBooking.getBookingStatus().equalsIgnoreCase("Ordered"))) {
-                    Order currentOrder = OrderDAO.getOrderById(orderId);
-                    showForEachOrderView(currentOrder, table);
-                } else {
-                    NotificationService.showNotification("Error",
-                            "This table is not booked yet, so that there's no Order associated with this table.",
-                            NotificationStatus.Error);
-                }
-            }
-        });
+            });
 
-        // Info button
-        Button infoButton = new Button("Pool Info");
-        infoButton.getStyleClass().add("hover-button");
-        infoButton.setMaxWidth(Double.MAX_VALUE);
-        infoButton.setPrefHeight(60);
-        infoButton.setWrapText(true);
-        infoButton.setStyle("-fx-font-size: 12px;");
-//        infoButton.setOnAction(e -> openTableInfoDialog(table));
-        infoButton.setOnAction(e -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/src/billiardsmanagement/pooltables/poolTableInfo.fxml"));
-                Pane root = loader.load();
-
-                // Get the controller and set up the table info
-                PoolTableInfoController controller = loader.getController();
-                controller.setPoolTableController(this);
-                // setCatePooltableComboBox must be called before setPoolTable() !
-                controller.setCatePooltableComboBox(catePooltablesList);
-                controller.setTableNameList(tableNameList);
-                controller.setPoolTable(table);
-                controller.initializePoolInfo();
-
-                showPoolPopup(tablesContainer, root);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
-
-        hoverButtons.getChildren().addAll(createOrderButton, infoButton);
-
-        // Add elements to stack
-        tableStack.getChildren().addAll(bgImage, textContainer, hoverButtons);
+            hoverButtons.getChildren().addAll(createOrderButton, infoButton);
+            tableStack.getChildren().addAll(bgImage, textContainer, hoverButtons);
+        }
+        else{
+            tableStack.getChildren().addAll(bgImage,textContainer);
+        }
 
         // Add to container with reduced margin
         tablesContainer.getChildren().add(tableStack);
@@ -1280,8 +1293,9 @@ public class PoolTableController {
         }
 
         if (!selectedCategories.isEmpty()) {
+            List<PoolTable> fullyTableList = PoolTableDAO.getFullTableList();
             // Create a filtered list based on selected categories
-            List<PoolTable> filteredList = tableList.stream()
+            List<PoolTable> filteredList = fullyTableList.stream()
                     .filter(table -> selectedCategories.contains(table.getCatePooltableName()))
                     .collect(Collectors.toList());
 

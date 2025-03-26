@@ -14,7 +14,8 @@ public class PoolTableDAO {
                 "c.name as cate_name, c.price, c.shortName " +
                 "FROM pooltables p " +
                 "JOIN cate_pooltables c ON p.cate_id = c.id " +
-                "WHERE p.status = 'Available'"; // Filter for available tables
+                "WHERE p.status = 'Available'" + // Filter for available tables
+                "AND c.name <> 'Inactive'";
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -38,40 +39,45 @@ public class PoolTableDAO {
     }
 
     public static PoolTable getSpecificTable(int tableId) {
-        PoolTable table = null; // Initialize as null
-        String query = "SELECT * FROM pool_tables WHERE table_id = ?"; // Adjust table name as needed
+        PoolTable table = null;
+        String query = "SELECT p.table_id, p.name, p.status, p.cate_id, " +
+                "c.name as cate_name, c.price, c.shortName " +
+                "FROM pooltables p " +
+                "JOIN cate_pooltables c ON p.cate_id = c.id " +
+                "WHERE p.table_id = ? " +
+                "AND c.name <> 'Inactive'"; // Exclude inactive categories
 
-        try {
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement pr = con.prepareStatement(query);
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pr = con.prepareStatement(query)) {
+
             pr.setInt(1, tableId);
             ResultSet rs = pr.executeQuery();
 
             if (rs.next()) {
-                // Create a PoolTable object using the retrieved data
                 table = new PoolTable(
                         rs.getInt("table_id"),
                         rs.getString("name"),
                         rs.getString("status"),
-                        rs.getInt("cate_id")
+                        rs.getInt("cate_id"),
+                        rs.getString("cate_name"),
+                        rs.getString("shortName"),
+                        rs.getDouble("price")
                 );
             } else {
-                throw new Exception("No table found with tableId = " + tableId);
+                throw new Exception("No active table found with tableId = " + tableId);
             }
         } catch (Exception e) {
-            e.printStackTrace(); // Handle exceptions appropriately
+            e.printStackTrace();
         }
-
-        return table; // Return the retrieved PoolTable object or null
+        return table;
     }
 
-
-    public List<PoolTable> getAllTables() {
+    public static List<PoolTable> getFullTableList() {
         List<PoolTable> tables = new ArrayList<>();
         String query = "SELECT p.table_id, p.name, p.status, p.cate_id, " +
                 "c.name as cate_name, c.price, c.shortName " +
                 "FROM pooltables p " +
-                "JOIN cate_pooltables c ON p.cate_id = c.id";
+                "JOIN cate_pooltables c ON p.cate_id = c.id ";
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -85,6 +91,37 @@ public class PoolTableDAO {
                 String cateName = rs.getString("cate_name");
                 String shortName = rs.getString("shortName");
                 double price = rs.getDouble("price");
+
+                PoolTable newTable = new PoolTable(tableId, name, status, cateId, cateName, shortName, price);
+                tables.add(newTable);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return tables;
+    }
+
+    public List<PoolTable> getAllTables() {
+        List<PoolTable> tables = new ArrayList<>();
+        String query = "SELECT p.table_id, p.name, p.status, p.cate_id, " +
+                "c.name as cate_name, c.price, c.shortName " +
+                "FROM pooltables p " +
+                "JOIN cate_pooltables c ON p.cate_id = c.id " +
+                "WHERE c.name <> 'Inactive'"; // Exclude inactive categories
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                int tableId = rs.getInt("table_id");
+                String name = rs.getString("name");
+                String status = rs.getString("status");
+                int cateId = rs.getInt("cate_id");
+                String cateName = rs.getString("cate_name");
+                String shortName = rs.getString("shortName");
+                double price = rs.getDouble("price");
+
                 PoolTable newTable = new PoolTable(tableId, name, status, cateId, cateName, shortName, price);
                 tables.add(newTable);
             }
@@ -100,12 +137,13 @@ public class PoolTableDAO {
                 "c.name as cate_name, c.price, c.shortName " +
                 "FROM pooltables p " +
                 "JOIN cate_pooltables c ON p.cate_id = c.id " +
-                "WHERE c.name = ?";
+                "WHERE c.name = ? " +
+                "AND c.name <> 'Inactive' "; // Exclude inactive categories
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
-            pstmt.setString(1, cateName); // Gán giá trị lọc theo tên loại bàn
+            pstmt.setString(1, cateName);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     int tableId = rs.getInt("table_id");
@@ -124,6 +162,7 @@ public class PoolTableDAO {
         }
         return tables;
     }
+
 
     public int addTable(PoolTable table) {
         String query = "INSERT INTO pooltables (name, status, cate_id) VALUES (?, ?, ?)";
@@ -163,16 +202,29 @@ public class PoolTableDAO {
     }
 
     public void removeTable(int tableId) {
-        String query = "DELETE FROM pooltables WHERE table_id = ?";
+        String getInactiveCateIdQuery = "SELECT id FROM cate_pooltables WHERE name = 'Inactive' LIMIT 1";
+        String updateTableQuery = "UPDATE pooltables SET cate_id = ? WHERE table_id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, tableId);
-            pstmt.executeUpdate();
+             PreparedStatement getCateStmt = conn.prepareStatement(getInactiveCateIdQuery);
+             ResultSet rs = getCateStmt.executeQuery()) {
+
+            if (rs.next()) {
+                int inactiveCateId = rs.getInt("id");
+
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateTableQuery)) {
+                    updateStmt.setInt(1, inactiveCateId);
+                    updateStmt.setInt(2, tableId);
+                    updateStmt.executeUpdate();
+                }
+            } else {
+                System.err.println("Error: No 'Inactive' category found in cate_pooltables.");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 
     public PoolTable getTableById(int tableId) {
         PoolTable table = null;

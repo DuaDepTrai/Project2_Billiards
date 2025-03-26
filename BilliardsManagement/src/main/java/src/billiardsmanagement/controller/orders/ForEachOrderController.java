@@ -330,8 +330,9 @@ public class ForEachOrderController {
                         stopButton.setMinSize(17, 17);
                         stopButton.setAlignment(Pos.CENTER); // Center the icon in the button
                         stopButton.setOnMouseClicked(e -> {
-                            setCurrentBookingSelected(booking);
-                            stopBooking(new ActionEvent());
+//                            setCurrentBookingSelected(booking);
+//                            stopBooking(new ActionEvent());
+                            finishOrder(new ActionEvent());
                         });
                         actionBox.getChildren().add(stopButton);
                         break;
@@ -461,67 +462,117 @@ public class ForEachOrderController {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                    return;
-                }
-
-                OrderItem orderItem = getTableView().getItems().get(getIndex());
-                HBox actionBox = new HBox(5); // Added spacing between buttons
-                actionBox.setAlignment(Pos.CENTER);
-                actionBox.getStyleClass().add("action-hbox");
-
-                // Edit Icon
-                FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
-                // This is an example of how to fix if icons not showing.
-                // Just add : -fx-font-family: 'FontAwesome'; and everything gonna works fine.
-                editIcon.setStyle("-fx-font-family: 'FontAwesome';-fx-font-size: 14px;"); // Set icon size
-                Button editButton = new Button();
-                editButton.setGraphic(editIcon);
-                editButton.setMinSize(17, 17);
-                editButton.setAlignment(Pos.CENTER);
-                editButton.setOnMouseClicked(e -> {
-                    setCurrentOrderItemSelected(orderItem);
-                    updateOrderItem(new ActionEvent());
-                });
-
-                // Reset / Return Icon
-                FontAwesomeIconView resetIcon = new FontAwesomeIconView(FontAwesomeIcon.REFRESH);
-                resetIcon.setStyle("-fx-font-family: 'FontAwesome';-fx-font-size: 14px;");
-                Button resetButton = new Button();
-                resetButton.setGraphic(resetIcon);
-                resetButton.setMinSize(17, 17);
-                resetButton.setAlignment(Pos.CENTER);
-
-                resetButton.setOnMouseClicked(e -> {
-                    setCurrentOrderItemSelected(orderItem);
-
-                    VBox confirmationBox = new VBox(10);
-                    confirmationBox.setAlignment(Pos.CENTER);
-                    confirmationBox.setPadding(new Insets(15));
-
-                    Label messageLabel = new Label("Are you sure you want to return this item?");
-                    messageLabel.setWrapText(true);
-                    messageLabel.setStyle("-fx-font-size: 14px;");
-
-                    Button confirmButton = new Button("Confirm");
-                    confirmButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-pref-width: 150.0;");
-                    confirmButton.setOnAction(event -> {
-                        returnOrderItem(orderItem);
-                        hideForEachPopup();
-                    });
-
-                    confirmationBox.getChildren().addAll(messageLabel, confirmButton);
-
-                    showForEachPopup(confirmationBox);
-                });
-
-                actionBox.getChildren().addAll(editButton, resetButton);
-
-                setAlignment(Pos.CENTER);
-                setGraphic(actionBox);
+                setGraphic(null); // Remove any existing graphics
             }
         });
+
+        Order order = OrderDAO.getOrderByIdStatic(this.orderID);
+        if(order.getOrderStatus().equals(String.valueOf(OrderStatus.Finished)) || order.getOrderStatus().equals(String.valueOf(OrderStatus.Canceled)) || order.getOrderStatus().equals(String.valueOf(OrderStatus.Paid))){
+            orderItemActionColumn.setCellFactory(column -> new TableCell<>() {
+                @Override
+                protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                        return;
+                    }
+
+                    HBox actionBox = new HBox(5); // Added spacing between buttons
+                    actionBox.setAlignment(Pos.CENTER);
+                    actionBox.getStyleClass().add("action-hbox");
+
+                    // Edit Icon
+                    FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
+                    editIcon.setStyle("-fx-font-family: 'FontAwesome';-fx-font-size: 14px;");
+                    Button editButton = new Button();
+                    editButton.setGraphic(editIcon);
+                    editButton.setMinSize(17, 17);
+                    editButton.setAlignment(Pos.CENTER);
+                    editButton.setDisable(true); // Disabled to prevent interaction
+
+                    // Reset / Return Icon
+                    FontAwesomeIconView resetIcon = new FontAwesomeIconView(FontAwesomeIcon.REFRESH);
+                    resetIcon.setStyle("-fx-font-family: 'FontAwesome';-fx-font-size: 14px;");
+                    Button resetButton = new Button();
+                    resetButton.setGraphic(resetIcon);
+                    resetButton.setMinSize(17, 17);
+                    resetButton.setAlignment(Pos.CENTER);
+                    resetButton.setDisable(true); // Disabled to prevent interaction
+
+                    actionBox.getChildren().addAll(editButton, resetButton);
+
+                    setAlignment(Pos.CENTER);
+                    setGraphic(actionBox);
+                }
+            });
+        }
+        else{
+            orderItemActionColumn.setCellFactory(column -> new TableCell<>() {
+                @Override
+                protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                        return;
+                    }
+
+                    OrderItem orderItem = getTableView().getItems().get(getIndex());
+                    HBox actionBox = new HBox(5); // Added spacing between buttons
+                    actionBox.setAlignment(Pos.CENTER);
+                    actionBox.getStyleClass().add("action-hbox");
+
+                    // Edit Icon
+                    FontAwesomeIconView editIcon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL);
+                    // This is an example of how to fix if icons not showing.
+                    // Just add : -fx-font-family: 'FontAwesome'; and everything gonna works fine.
+                    editIcon.setStyle("-fx-font-family: 'FontAwesome';-fx-font-size: 14px;"); // Set icon size
+                    Button editButton = new Button();
+                    editButton.setGraphic(editIcon);
+                    editButton.setMinSize(17, 17);
+                    editButton.setAlignment(Pos.CENTER);
+                    editButton.setOnMouseClicked(e -> {
+                        setCurrentOrderItemSelected(orderItem);
+                        updateOrderItem(new ActionEvent());
+                    });
+
+                    // Reset / Return Icon
+                    FontAwesomeIconView resetIcon = new FontAwesomeIconView(FontAwesomeIcon.REFRESH);
+                    resetIcon.setStyle("-fx-font-family: 'FontAwesome';-fx-font-size: 14px;");
+                    Button resetButton = new Button();
+                    resetButton.setGraphic(resetIcon);
+                    resetButton.setMinSize(17, 17);
+                    resetButton.setAlignment(Pos.CENTER);
+
+                    resetButton.setOnMouseClicked(e -> {
+                        setCurrentOrderItemSelected(orderItem);
+
+                        VBox confirmationBox = new VBox(10);
+                        confirmationBox.setAlignment(Pos.CENTER);
+                        confirmationBox.setPadding(new Insets(15));
+
+                        Label messageLabel = new Label("Are you sure you want to return this item?");
+                        messageLabel.setWrapText(true);
+                        messageLabel.setStyle("-fx-font-size: 14px;");
+
+                        Button confirmButton = new Button("Confirm");
+                        confirmButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-pref-width: 150.0;");
+                        confirmButton.setOnAction(event -> {
+                            returnOrderItem(orderItem);
+                            hideForEachPopup();
+                        });
+
+                        confirmationBox.getChildren().addAll(messageLabel, confirmButton);
+
+                        showForEachPopup(confirmationBox);
+                    });
+
+                    actionBox.getChildren().addAll(editButton, resetButton);
+
+                    setAlignment(Pos.CENTER);
+                    setGraphic(actionBox);
+                }
+            });
+        }
 
 
         //
@@ -693,6 +744,7 @@ public class ForEachOrderController {
 
         if (customerList != null && !customerList.isEmpty() && order != null) {
             double totalCost = order.getTotalCost();
+            System.out.println("\033[1;34m" + "💰 Total Cost: " + totalCost + "\033[0m" + " 😄🎉");
             String orderStatus = order.getOrderStatus();
 
             Customer customer = customerList.get(0);
@@ -1327,30 +1379,35 @@ public class ForEachOrderController {
         return decimalFormat.format(total);
     }
 
+//    public void disableAllActionButtons() {
+//        Platform.runLater(() -> {
+//            for (int rowIndex = 0; rowIndex < orderItemsTable.getItems().size(); rowIndex++) {
+//                TableRow<OrderItem> row = getTableRowAt(rowIndex);
+//                if (row != null) {
+//                    List<Node> cells = row.lookupAll(".table-cell").stream().toList();
+//                    if (cells.size() > 5) { // Ensure the column index exists (6th column → index 5)
+//                        TableCell<OrderItem, Void> cell = (TableCell<OrderItem, Void>) cells.get(5);
+//                        if (cell != null) {
+//                            System.out.println("Disabling button in row " + rowIndex);
+//                            HBox actionBox = (HBox) cell.getGraphic();
+//                            if (actionBox != null) {
+//                                for (Node buttonNode : actionBox.getChildren()) {
+//                                    if (buttonNode instanceof Button) {
+//                                        ((Button) buttonNode).setDisable(true);
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        });
+//    }
+
     public void disableAllActionButtons() {
-        Platform.runLater(() -> {
-            for (int rowIndex = 0; rowIndex < orderItemsTable.getItems().size(); rowIndex++) {
-                TableRow<OrderItem> row = getTableRowAt(rowIndex);
-                if (row != null) {
-                    List<Node> cells = row.lookupAll(".table-cell").stream().toList();
-                    if (cells.size() > 5) { // Ensure the column index exists (6th column → index 5)
-                        TableCell<OrderItem, Void> cell = (TableCell<OrderItem, Void>) cells.get(5);
-                        if (cell != null) {
-                            System.out.println("Disabling button in row " + rowIndex);
-                            HBox actionBox = (HBox) cell.getGraphic();
-                            if (actionBox != null) {
-                                for (Node buttonNode : actionBox.getChildren()) {
-                                    if (buttonNode instanceof Button) {
-                                        ((Button) buttonNode).setDisable(true);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        });
+        // something here
     }
+
 
     // ✅ Method to Get the TableRow Correctly (Without Lookup Issues)
     private TableRow<OrderItem> getTableRowAt(int rowIndex) {
@@ -1392,6 +1449,7 @@ public class ForEachOrderController {
                         System.err.println("😱 Error: Failed to finish order.");
                     }
                     hideForEachPopup();
+                    initializeOrderDetailColumn();
                     return;
                 }
 
@@ -1405,6 +1463,8 @@ public class ForEachOrderController {
                         NotificationService.showNotification("Success", "Order has been finished successfully! Total cost: " + formatTotal(totalCost), NotificationStatus.Success);                        checkOrderStatus();
                         initializeForEachOrderButtonsAndInformation();
                         loadBookings();
+                        initializeOrderDetailColumn();
+                        System.out.println("Order Status = "+orderStatusText.getText());
                         if (poolTableController != null) poolTableController.handleViewAllTables();
                     } else {
                         // Log error to console with funny icon
@@ -1455,6 +1515,11 @@ public class ForEachOrderController {
 
     public void checkOrderStatus() {
         List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID);
+        Order order = OrderDAO.getOrderByIdStatic(orderID);
+
+        if(order.getOrderStatus().equals("Paid") || order.getOrderStatus().equals("Canceled")){
+            return;
+        }
 
         if (bookings.size() == 1) {
             String bookingStatus = bookings.get(0).getBookingStatus();

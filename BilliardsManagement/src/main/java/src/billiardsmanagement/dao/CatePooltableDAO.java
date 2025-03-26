@@ -13,7 +13,7 @@ public class CatePooltableDAO {
     // CRUD operations for cate_pooltables
     public static List<CatePooltable> getAllCategories() {
         List<CatePooltable> categories = new ArrayList<>();
-        String query = "SELECT * FROM cate_pooltables";
+        String query = "SELECT * FROM cate_pooltables WHERE name <> 'Inactive'"; // Exclude inactive categories
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -21,17 +21,17 @@ public class CatePooltableDAO {
 
             while (rs.next()) {
                 categories.add(new CatePooltable(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getString("shortName"),
-                    rs.getDouble("price")
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("shortName"),
+                        rs.getDouble("price")
                 ));
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            NotificationService.showNotification("Database Error", 
-                "Failed to fetch categories: " + e.getMessage(), 
-                NotificationStatus.Error);
+            NotificationService.showNotification("Database Error",
+                    "Failed to fetch categories: " + e.getMessage(),
+                    NotificationStatus.Error);
         }
         return categories;
     }
@@ -136,7 +136,7 @@ public class CatePooltableDAO {
         String query = "SELECT p.table_id, p.name, p.status, cp.name AS category_name, cp.price " +
                 "FROM pooltables p " +
                 "JOIN cate_pooltables cp ON cp.id = p.cate_id " +
-                "WHERE p.cate_id = ?";
+                "WHERE p.cate_id = ? AND cp.name <> 'Inactive'"; // Exclude inactive categories
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
