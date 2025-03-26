@@ -155,10 +155,11 @@ public class ProductDAO {
         return false;
     }
 
+    private static int categoryId = 2;
     public static boolean replenishMultipleItems(List<OrderItem> orderItemList) {
         String sqlSelect = "SELECT name FROM products p " +
                 "JOIN category cat ON p.category_id = cat.category_id " +
-                "WHERE cat.category_name = 'Cues For Rent'";
+                "WHERE cat.category_id = ?";
         List<String> rentCueNameList = new ArrayList<>();
 
         try (Connection connection = DatabaseConnection.getConnection()) {
