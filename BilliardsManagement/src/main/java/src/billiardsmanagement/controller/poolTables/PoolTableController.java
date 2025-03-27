@@ -97,7 +97,7 @@ public class PoolTableController {
     protected ArrayList<CatePooltable> catePooltablesList;
     protected OrderDAO orderDAO = new OrderDAO();
 
-    private Popup poolPopup;
+    private Popup poolPopup = new Popup();
     private Popup oldPopup;
     private boolean isPoolPopupShowing = false;
     private OrderController orderController;
@@ -770,7 +770,6 @@ public class PoolTableController {
             System.out.println("DEBUG: " + userPermissions);
             editButton.setVisible(userPermissions.contains("update_pool_category"));
             deleteButton.setVisible(userPermissions.contains("remove_pool_category"));
-            deleteButton.setVisible(false);
         });
         catePooltablesScrollPane.setContent(categoryContent);
     }
@@ -839,7 +838,6 @@ public class PoolTableController {
     }
 
     private void showDeleteCategoryDialog(CatePooltable category) {
-        // Create a confirmation alert
         List<PoolTable> existedTables = CatePooltableDAO.getTablesByCategory(category.getId());
         if (!existedTables.isEmpty()) {
             NotificationService.showNotification(
@@ -850,28 +848,41 @@ public class PoolTableController {
             return;
         }
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Delete Category");
-        alert.setHeaderText("Are you sure you want to delete this category?");
-        alert.setContentText("Category: " + category.getName());
+        // Create VBox
+        Label askLabel = new Label("Are you sure you want to delete this category?");
+        askLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
-        // Set button types for the alert
-        ButtonType deleteButtonType = new ButtonType("Delete");
-        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-        alert.getButtonTypes().setAll(deleteButtonType, cancelButtonType);
+        Button confirmButton = new Button("Delete");
+        confirmButton.setPrefWidth(130.0);
+        confirmButton.setStyle("-fx-background-color: red; -fx-text-fill: white;");
 
-        // Show the alert and wait for a response
-        Optional<ButtonType> result = alert.showAndWait();
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setStyle("-fx-background-color: gray; -fx-text-fill: white;");
 
-        // Check if the user clicked the delete button
-        if (result.isPresent() && result.get() == deleteButtonType) {
+        HBox buttonBox = new HBox(10, confirmButton, cancelButton);
+        buttonBox.setAlignment(Pos.CENTER);
+
+        VBox vbox = new VBox(15, askLabel, buttonBox);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setPadding(new Insets(10));
+
+        // Create Pane and add VBox to it
+        StackPane popupPane = new StackPane(vbox);
+//        vbox.setLayoutX(50); // Adjust layout as needed
+//        vbox.setLayoutY(30);
+
+        // Handle delete button click
+        confirmButton.setOnAction(event -> {
             try {
-                // Call the DAO to delete the category
                 CatePooltableDAO.deleteCategory(category.getId());
 
-                NotificationService.showNotification("Delete Successfully", "Category " + category.getName() + " has been deleted successfully", NotificationStatus.Success);
+                NotificationService.showNotification(
+                        "Delete Successfully",
+                        "Category " + category.getName() + " has been deleted successfully",
+                        NotificationStatus.Success
+                );
 
-                // Refresh the category list after deletion
+                // Refresh category list
                 catePooltablesList.clear();
                 catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
                 initializeCategoryList();
@@ -879,11 +890,16 @@ public class PoolTableController {
                 initializePoolTableController();
             } catch (Exception e) {
                 e.printStackTrace();
-                NotificationService.showNotification("Error", "Failed to delete category: " + e.getMessage(),
-                        NotificationStatus.Error);
+                System.out.println("\033[1;31m" + "❌ Oops! We hit a snag! 😱 Failed to DELETE CATEGORY POOLTABLE: " + e.getMessage() + " 🤦‍♂️🤷‍♀️" + "\033[0m");
             }
-        }
+        });
+
+        // Handle cancel button click
+        cancelButton.setOnAction(event -> this.poolPopup.hide()); // Hide on cancel
+        // Show popup in the middle
+        showPoolPopupInTheMiddle(popupPane);
     }
+
 
     @FXML
     public void handleViewAllTables() {

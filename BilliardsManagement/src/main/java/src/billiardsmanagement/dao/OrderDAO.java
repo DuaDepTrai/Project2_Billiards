@@ -217,29 +217,29 @@ public class OrderDAO {
     public static ObservableList<Order> getOrdersByDate(LocalDate selectedDate) {
         ObservableList<Order> orders = FXCollections.observableArrayList();
         String query = """
-        SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
-               o.total_cost, o.order_date, o.order_status, u.user_id, u.fullname AS user_name, r.role_name,
-               GROUP_CONCAT(
-                   CONCAT(
-                       CASE 
-                           WHEN p.name LIKE 'Standard %' THEN 'STD' 
-                           WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
-                           WHEN p.name LIKE 'VIP %' THEN 'VIP' 
-                           ELSE p.name 
-                       END, 
-                       SUBSTRING_INDEX(p.name, ' ', -1)
-                   ) SEPARATOR ', '
-               ) AS currentTableName
-        FROM orders o
-        JOIN customers c ON o.customer_id = c.customer_id
-        JOIN users u ON o.user_id = u.user_id
-        JOIN roles r ON u.role_id = r.role_id
-        LEFT JOIN bookings b ON o.order_id = b.order_id
-        LEFT JOIN pooltables p ON b.table_id = p.table_id
-        WHERE DATE(o.order_date) = ?
-        GROUP BY o.order_id
-        ORDER BY o.order_date DESC
-    """;
+                    SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
+                           o.total_cost, o.order_date, o.order_status, u.user_id, u.fullname AS user_name, r.role_name,
+                           GROUP_CONCAT(
+                               CONCAT(
+                                   CASE 
+                                       WHEN p.name LIKE 'Standard %' THEN 'STD' 
+                                       WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
+                                       WHEN p.name LIKE 'VIP %' THEN 'VIP' 
+                                       ELSE p.name 
+                                   END, 
+                                   SUBSTRING_INDEX(p.name, ' ', -1)
+                               ) SEPARATOR ', '
+                           ) AS currentTableName
+                    FROM orders o
+                    JOIN customers c ON o.customer_id = c.customer_id
+                    JOIN users u ON o.user_id = u.user_id
+                    JOIN roles r ON u.role_id = r.role_id
+                    LEFT JOIN bookings b ON o.order_id = b.order_id
+                    LEFT JOIN pooltables p ON b.table_id = p.table_id
+                    WHERE DATE(o.order_date) = ?
+                    GROUP BY o.order_id
+                    ORDER BY o.order_date DESC
+                """;
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -306,7 +306,7 @@ public class OrderDAO {
         ObservableList<Order> orders = FXCollections.observableArrayList();
 
         if (categories.isEmpty()) {
-             // Nếu không chọn gì, hiển thị tất cả
+            // Nếu không chọn gì, hiển thị tất cả
         }
 
         // Tạo dấu ? tương ứng với số lượng danh mục bàn cần lọc
@@ -368,8 +368,6 @@ public class OrderDAO {
         }
         return orders;
     }
-
-
 
 
     public static ObservableList<Order> getOrdersByStatus(List<String> statuses) {
@@ -439,8 +437,6 @@ public class OrderDAO {
     }
 
 
-
-
     // Không cần khai báo URL, USER, PASSWORD nữa, vì đã có trong DatabaseConnection
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
@@ -504,10 +500,9 @@ public class OrderDAO {
             // Set các giá trị vào PreparedStatement
             stmt.setInt(1, newOrder.getCustomerId()); // customer_id
             stmt.setInt(2, newOrder.getUserId()); // user_id
-            if(newOrder.getOrderDate() != null) {
-                stmt.setTimestamp(3,Timestamp.valueOf(newOrder.getOrderDate())); // order_date
-            }
-            else stmt.setTimestamp(3,Timestamp.valueOf(LocalDateTime.now()));
+            if (newOrder.getOrderDate() != null) {
+                stmt.setTimestamp(3, Timestamp.valueOf(newOrder.getOrderDate())); // order_date
+            } else stmt.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
 
             // Thực thi câu lệnh INSERT
             int rowsAffected = stmt.executeUpdate();
@@ -633,20 +628,11 @@ public class OrderDAO {
     public static double calculateOrderTotal(int orderId) {
         double total = 0;
         String query = """
-                    SELECT COALESCE(SUM(
-                        CASE 
-                            WHEN b.total IS NOT NULL THEN b.total 
-                            ELSE 0 
-                        END +
-                        CASE 
-                            WHEN oi.total IS NOT NULL THEN oi.total
-                            ELSE 0 
-                        END
-                    ), 0) as total_cost
+                    SELECT COALESCE(SUM(DISTINCT b.total), 0) + COALESCE(SUM(DISTINCT oi.total), 0) AS total_cost
                     FROM orders o
                     LEFT JOIN bookings b ON o.order_id = b.order_id
                     LEFT JOIN orders_items oi ON o.order_id = oi.order_id
-                    WHERE o.order_id = ?
+                    WHERE o.order_id = ?;
                 """;
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -761,29 +747,29 @@ public class OrderDAO {
     public static ObservableList<Order> getOrdersByDateRange(LocalDate startDate, LocalDate endDate) {
         ObservableList<Order> orders = FXCollections.observableArrayList();
         String query = """
-        SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
-               o.total_cost, o.order_date, o.order_status, u.user_id, u.fullname AS user_name, r.role_name,
-               GROUP_CONCAT(
-                   CONCAT(
-                       CASE 
-                           WHEN p.name LIKE 'Standard %' THEN 'STD' 
-                           WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
-                           WHEN p.name LIKE 'VIP %' THEN 'VIP' 
-                           ELSE p.name 
-                       END, 
-                       SUBSTRING_INDEX(p.name, ' ', -1)
-                   ) SEPARATOR ', '
-               ) AS currentTableName
-        FROM orders o
-        JOIN customers c ON o.customer_id = c.customer_id
-        JOIN users u ON o.user_id = u.user_id
-        JOIN roles r ON u.role_id = r.role_id
-        LEFT JOIN bookings b ON o.order_id = b.order_id
-        LEFT JOIN pooltables p ON b.table_id = p.table_id
-        WHERE DATE(o.order_date) BETWEEN ? AND ?
-        GROUP BY o.order_id
-        ORDER BY o.order_date DESC
-    """;
+                    SELECT o.order_id, o.customer_id, c.name AS customer_name, c.phone AS customer_phone, 
+                           o.total_cost, o.order_date, o.order_status, u.user_id, u.fullname AS user_name, r.role_name,
+                           GROUP_CONCAT(
+                               CONCAT(
+                                   CASE 
+                                       WHEN p.name LIKE 'Standard %' THEN 'STD' 
+                                       WHEN p.name LIKE 'Deluxe %' THEN 'DLX' 
+                                       WHEN p.name LIKE 'VIP %' THEN 'VIP' 
+                                       ELSE p.name 
+                                   END, 
+                                   SUBSTRING_INDEX(p.name, ' ', -1)
+                               ) SEPARATOR ', '
+                           ) AS currentTableName
+                    FROM orders o
+                    JOIN customers c ON o.customer_id = c.customer_id
+                    JOIN users u ON o.user_id = u.user_id
+                    JOIN roles r ON u.role_id = r.role_id
+                    LEFT JOIN bookings b ON o.order_id = b.order_id
+                    LEFT JOIN pooltables p ON b.table_id = p.table_id
+                    WHERE DATE(o.order_date) BETWEEN ? AND ?
+                    GROUP BY o.order_id
+                    ORDER BY o.order_date DESC
+                """;
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {

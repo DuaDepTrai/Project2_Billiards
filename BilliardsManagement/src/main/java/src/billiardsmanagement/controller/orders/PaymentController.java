@@ -198,19 +198,28 @@ public class PaymentController {
 
             stmt.setInt(1, orderID);
             int rowsAffected = stmt.executeUpdate();
+            System.out.println("\033[1;32m" + "From PaymentController: Rows affected = " + rowsAffected + " 🟢" + "\033[0m");
+
             if (rowsAffected > 0) {
-                // This method must be called before NotificationService.showNotification()
-                // to ensure that the notification String has already been prepared.
-                // If this function is called after showNotification(), then the replenish rent cue notification will not show.
                 replenishRentCues();
-                NotificationService.showNotification("Payment Successful", "Order Number " + OrderDAO.getOrderBillNo(this.orderID) + " has been paid successfully!" + (replenishRentCuesNotification.isEmpty() ? "" : "\n" + replenishRentCuesNotification), NotificationStatus.Success);
+                System.out.println("\033[1;32m" + "From PaymentController: Rent cues replenished. 🎉🎊" + "\033[0m");
+
+                NotificationService.showNotification("Payment Successful",
+                        "Order Number " + OrderDAO.getOrderBillNo(this.orderID) +
+                                " has been paid successfully! 🎉" +
+                                (replenishRentCuesNotification.isEmpty() ? "" : "\n" + replenishRentCuesNotification),
+                        NotificationStatus.Success);
+
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.close();
+                System.out.println("\033[1;32m" + "From PaymentController: Payment notification displayed and stage closed. 🎊🟢" + "\033[0m");
             } else {
                 logError("Failed to update order status to Paid.");
+                System.out.println("\033[1;32m" + "From PaymentController: Failed to update order status to Paid. 😞" + "\033[0m");
             }
         } catch (SQLException e) {
             logError("An error occurred while processing the payment: " + e.getMessage());
+            System.out.println("\033[1;32m" + "From PaymentController: An error occurred while processing the payment: " + e.getMessage() + " 😱💔" + "\033[0m");
         }
     }
 

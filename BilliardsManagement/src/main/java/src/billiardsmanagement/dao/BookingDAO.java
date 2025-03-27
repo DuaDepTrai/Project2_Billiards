@@ -139,109 +139,89 @@ public class BookingDAO {
         try {
             conn.setAutoCommit(false);
 
-            // 1. Update all bookings
-            String updateBookingsQuery = """
-                UPDATE bookings
-                SET
-                    end_time = CASE
-                        WHEN booking_status = 'Playing' THEN NOW()
-                        ELSE end_time
-                    END,
-                    booking_status = CASE
-                        WHEN booking_status = 'Playing' THEN 'Finish'
-                        WHEN booking_status = 'Ordered' THEN 'Canceled'
-                        ELSE booking_status
-                    END,
-                    timeplay = CASE
-                        WHEN booking_status = 'Finish' OR booking_status = 'Playing' THEN TIMESTAMPDIFF(MINUTE, start_time, NOW()) / 60.0
-                        ELSE timeplay
-                    END
-                WHERE order_id = ?""";
+            // 1. Calculate total cost for bookings (WHEN booking_status = 'Playing')
+            String updateBookingCostQuery = """
+            UPDATE bookings b
+            JOIN pooltables p ON b.table_id = p.table_id
+            JOIN cate_pooltables c ON p.cate_id = c.id
+            SET b.total = CASE
+                WHEN b.booking_status = 'Playing' THEN (TIMESTAMPDIFF(MINUTE, b.start_time, NOW()) / 60.0) * c.price
+                ELSE b.total
+            END
+            WHERE b.order_id = ?""";
 
-            try (PreparedStatement stmt = conn.prepareStatement(updateBookingsQuery)) {
-                stmt.setInt(1, orderId);
-                int rowsAffected = stmt.executeUpdate();
+            try (PreparedStatement stmt1 = conn.prepareStatement(updateBookingCostQuery)) {
+                stmt1.setInt(1, orderId);
+                int rowsAffectedCost = stmt1.executeUpdate();
+                if (rowsAffectedCost <= 0) {
+                    throw new SQLException("No total cost was calculated. Check the order ID.");
+                }
+            }
+
+            // 2. Update all bookings
+            String updateBookingsQuery = """
+            UPDATE bookings
+            SET
+                end_time = CASE
+                    WHEN booking_status = 'Playing' THEN NOW()
+                    ELSE end_time
+                END,
+                booking_status = CASE
+                    WHEN booking_status = 'Playing' THEN 'Finish'
+                    WHEN booking_status = 'Ordered' THEN 'Canceled'
+                    ELSE booking_status
+                END,
+                timeplay = CASE
+                    WHEN booking_status = 'Playing' THEN TIMESTAMPDIFF(MINUTE, start_time, NOW()) / 60.0
+                    ELSE timeplay
+                END
+            WHERE order_id = ?""";
+
+            try (PreparedStatement stmt2 = conn.prepareStatement(updateBookingsQuery)) {
+                stmt2.setInt(1, orderId);
+                int rowsAffected = stmt2.executeUpdate();
                 if (rowsAffected <= 0) {
                     throw new SQLException("No bookings were updated. Check the order ID.");
                 }
+            }
 
-                // 2. Calculate total for bookings
-                String updateBookingCostQuery = """
-                    UPDATE bookings b
-                    JOIN pooltables p ON b.table_id = p.table_id
-                    JOIN cate_pooltables c ON p.cate_id = c.id
-                    SET b.total = CASE
-                        WHEN b.booking_status = 'Finish' THEN (TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time) / 60.0) * c.price
-                        ELSE b.total
-                    END
-                    WHERE b.order_id = ?""";
+            // 3. Update pool table status to 'available'
+            String updatePooltablesQuery = """
+            UPDATE pooltables
+            SET status = 'available'
+            WHERE table_id IN (
+                SELECT table_id FROM bookings WHERE order_id = ?
+            )""";
 
-                try (PreparedStatement stmt2 = conn.prepareStatement(updateBookingCostQuery)) {
-                    stmt2.setInt(1, orderId);
-                    int rowsAffectedCost = stmt2.executeUpdate();
-                    if (rowsAffectedCost <= 0) {
-                        throw new SQLException("No total cost was calculated. Check the order ID.");
-                    }
-
-                    // 3. Update pool table status to 'available'
-                    String updatePooltablesQuery = """
-                        UPDATE pooltables
-                        SET status = 'available'
-                        WHERE table_id IN (
-                            SELECT table_id FROM bookings
-                            WHERE order_id = ?
-                        )""";
-
-                    try (PreparedStatement stmt3 = conn.prepareStatement(updatePooltablesQuery)) {
-                        stmt3.setInt(1, orderId);
-                        int rowsAffectedTables = stmt3.executeUpdate();
-                        if (rowsAffectedTables <= 0) {throw new SQLException("No pool tables were updated to available. Check the order ID.");
-                        }
-                    }
-
-                    // 4. Update total playtime for the customer
-                    String updateCustomerPlaytimeQuery = """
-                        UPDATE customers
-                        SET total_playtime = total_playtime + (
-                            SELECT SUM(TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time)) / 60.0
-                            FROM bookings b
-                            WHERE b.order_id = ?
-                        )
-                        WHERE customer_id = (
-                            SELECT customer_id FROM orders WHERE order_id = ?
-                        )""";
-
-                    try (PreparedStatement stmt4 = conn.prepareStatement(updateCustomerPlaytimeQuery)) {
-                        stmt4.setInt(1, orderId);
-                        stmt4.setInt(2, orderId);
-                        int rowsAffectedPlaytime = stmt4.executeUpdate();
-                        if (rowsAffectedPlaytime <= 0) {
-                            throw new SQLException("No total playtime was updated. Check the order ID and customer ID.");
-                        }
-                    }
-
-                    // 4. Update total playtime for the customer
-//                    String updateCustomerPlaytimeQuery = """
-//                        UPDATE customers
-//                        SET total_playtime = total_playtime + (
-//                            SELECT SUM(TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time)) / 60.0
-//                            FROM bookings b
-//                            WHERE b.order_id = ?
-//                        )
-//                        WHERE customer_id = (
-//                            SELECT customer_id FROM orders WHERE order_id = ?
-//                        )""";
-//
-//                    try (PreparedStatement stmt4 = conn.prepareStatement(updateCustomerPlaytimeQuery)) {
-//                        stmt4.setInt(1, orderId);
-//                        stmt4.setInt(2, orderId);
-//                        int rowsAffectedPlaytime = stmt4.executeUpdate();
-//                        if (rowsAffectedPlaytime <= 0) {
-//                            throw new SQLException("No total playtime was updated. Check the order ID and customer ID.");
-//                        }
-//                    }
+            try (PreparedStatement stmt3 = conn.prepareStatement(updatePooltablesQuery)) {
+                stmt3.setInt(1, orderId);
+                int rowsAffectedTables = stmt3.executeUpdate();
+                if (rowsAffectedTables <= 0) {
+                    throw new SQLException("No pool tables were updated to available. Check the order ID.");
                 }
             }
+
+            // 4. Update total playtime for the customer
+            String updateCustomerPlaytimeQuery = """
+            UPDATE customers
+            SET total_playtime = total_playtime + (
+                SELECT SUM(TIMESTAMPDIFF(MINUTE, b.start_time, b.end_time)) / 60.0
+                FROM bookings b
+                WHERE b.order_id = ?
+            )
+            WHERE customer_id = (
+                SELECT customer_id FROM orders WHERE order_id = ?
+            )""";
+
+            try (PreparedStatement stmt4 = conn.prepareStatement(updateCustomerPlaytimeQuery)) {
+                stmt4.setInt(1, orderId);
+                stmt4.setInt(2, orderId);
+                int rowsAffectedPlaytime = stmt4.executeUpdate();
+                if (rowsAffectedPlaytime <= 0) {
+                    throw new SQLException("No total playtime was updated. Check the order ID and customer ID.");
+                }
+            }
+
             conn.commit();
             return true;
         } catch (SQLException e) {
@@ -264,6 +244,7 @@ public class BookingDAO {
             }
         }
     }
+
 
     public static boolean finishOrder(int orderId) {
         Connection conn = DatabaseConnection.getConnection();

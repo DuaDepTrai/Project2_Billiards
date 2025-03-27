@@ -330,9 +330,9 @@ public class ForEachOrderController {
                         stopButton.setMinSize(17, 17);
                         stopButton.setAlignment(Pos.CENTER); // Center the icon in the button
                         stopButton.setOnMouseClicked(e -> {
-//                            setCurrentBookingSelected(booking);
-//                            stopBooking(new ActionEvent());
-                            finishOrder(new ActionEvent());
+                            setCurrentBookingSelected(booking);
+                            stopBooking(new ActionEvent());
+
                         });
                         actionBox.getChildren().add(stopButton);
                         break;
@@ -1527,29 +1527,20 @@ public class ForEachOrderController {
             if (bookingStatus.equals(String.valueOf(BookingStatus.Canceled))) {
                 OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Canceled));
                 initializeForEachOrderButtonsAndInformation();
+                initializeOrderDetailColumn();
                 System.out.println("✅ From ForEachOrder: Order updated to Canceled; only 1 booking found.");
-                return;
-            }
-
-            if (bookingStatus.equals(String.valueOf(BookingStatus.Playing))) {
+            } else if (bookingStatus.equals(String.valueOf(BookingStatus.Playing))) {
                 OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Playing));
                 initializeForEachOrderButtonsAndInformation();
                 System.out.println("✅ From ForEachOrder: Order updated to Playing; only 1 booking found.");
-                return;
-            }
-
-            if (bookingStatus.equals(String.valueOf(BookingStatus.Ordered))) {
+            } else if (bookingStatus.equals(String.valueOf(BookingStatus.Ordered))) {
                 OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Ordered));
                 initializeForEachOrderButtonsAndInformation();
                 System.out.println("✅ From ForEachOrder: Order updated to Ordered; only 1 booking found.");
-                return;
-            }
-
-            if (bookingStatus.equals(String.valueOf(BookingStatus.Finish))) {
+            } else if (bookingStatus.equals(String.valueOf(BookingStatus.Finish))) {
                 OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Finished));
                 initializeForEachOrderButtonsAndInformation();
-                disableAllActionButtons();
-                return;
+                initializeOrderDetailColumn();
             }
         }
 
@@ -1559,6 +1550,7 @@ public class ForEachOrderController {
                     .allMatch(booking -> String.valueOf(BookingStatus.Canceled).equals(booking.getBookingStatus()))) {
                 OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Canceled));
                 initializeForEachOrderButtonsAndInformation();
+                initializeOrderDetailColumn();
                 System.out.println("✅ From ForEachOrder: Order updated to Canceled; all bookings are canceled.");
             } else if (bookings.stream().anyMatch(booking -> booking.getBookingStatus().equals(String.valueOf(BookingStatus.Playing)))) {
                 OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Playing));
@@ -1571,29 +1563,23 @@ public class ForEachOrderController {
             } else if (bookings.stream().anyMatch(booking -> booking.getBookingStatus().equals(String.valueOf(BookingStatus.Finish)))) {
                 OrderDAO.updateStatusOrder(orderID, String.valueOf(OrderStatus.Finished));
                 initializeForEachOrderButtonsAndInformation();
+                initializeOrderDetailColumn();
                 System.out.println("✅ From ForEachOrder: Order updated to Playing ; there's booking remain playing.");
             }
         }
 
+        if(order.getOrderStatus().equals("Finished")){
+            boolean finishAllSuccess =  BookingDAO.finishAllBookings(this.orderID);
+            double totalCost = OrderDAO.calculateOrderTotal(orderID);
+            boolean updateOrderSuccess = OrderDAO.updateOrderStatus(this.orderID, totalCost);
 
-//        for (Booking booking : bookings) {
-//            if (booking.getBookingStatus().equals("Playing")) {
-//                OrderDAO.updateStatusOrder(orderID, "Playing");
-//                initializeForEachOrderButtonsAndInformation();
-//                System.out.println("Da chuyen order thanh playing");
-//            } else if (!booking.getBookingStatus().equals("Finish") && (booking.getBookingStatus().equals("Ordered"))) {
-//                OrderDAO.updateStatusOrder(orderID, "Ordered");
-//                initializeForEachOrderButtonsAndInformation();
-//                System.out.println("Da chuyen order thanh order");
-//            } else if (booking.getBookingStatus().equals("Finish")) {
-//                initializeForEachOrderButtonsAndInformation();
-//                System.out.println("Da chuyen booking thanh Finish");
-//            }
-//            else {
-//                OrderDAO.updateStatusOrder(orderID, "Canceled");
-//                System.out.println("Da chuyen order thanh canceled");
-//            }
-//        }
+            if(finishAllSuccess && updateOrderSuccess && totalCost > 0.0){
+                initializeForEachOrderButtonsAndInformation();
+                loadBookings();
+                loadOrderList();
+                initializeOrderDetailColumn();
+            }
+        }
     }
 
     @FXML

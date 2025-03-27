@@ -46,7 +46,6 @@ public class ProductDAO {
     }
 
 
-
     // Phương thức để lấy tất cả sản phẩm
     public List<Product> getAllProducts() {
         List<Product> products = new ArrayList<>();
@@ -155,11 +154,11 @@ public class ProductDAO {
         return false;
     }
 
-    private static int categoryId = 2;
+
     public static boolean replenishMultipleItems(List<OrderItem> orderItemList) {
         String sqlSelect = "SELECT name FROM products p " +
                 "JOIN category cat ON p.category_id = cat.category_id " +
-                "WHERE cat.category_id = ?";
+                "WHERE cat.category_id = 2";
         List<String> rentCueNameList = new ArrayList<>();
 
         try (Connection connection = DatabaseConnection.getConnection()) {
@@ -182,22 +181,23 @@ public class ProductDAO {
                 if (rentCueNameList.contains(orderItem.getProductName())) {
                     rentCuesCount++;
                     boolean result = replenishItem(orderItem.getProductName(), orderItem.getQuantity());
+                    if (result)
+                        System.out.println("\033[1;32m" + "✅ Rent Cue Replenished: " + orderItem.getProductName() + " (Quantity: " + orderItem.getQuantity() + ")" + "\033[0m" + " 🎉😄");
                     if (!result) {
+                        System.err.println("\033[1;31m" + "❌ Failed to replenish: " + orderItem.getProductName() + " (Quantity: " + orderItem.getQuantity() + ")" + "\033[0m" + " 😱");
                         allReplenished = false; // If any replenishment fails
                         break;
                     }
                 }
             }
-            if (rentCuesCount==0){
+            if (rentCuesCount == 0) {
                 connection.rollback();
                 System.out.println("From ProductDAO - replenishMultipleItems() - Don't panic bro, there's just no rent cues in this Order. Nothing to update.");
-            }
-            else if (allReplenished) {
+            } else if (allReplenished) {
                 connection.commit(); // Commit the transaction if all succeeded
                 System.out.println("All items replenished successfully.");
                 return true;
-            }
-            else {
+            } else {
                 connection.rollback(); // Rollback if any item failed to replenish
                 System.err.println("-- ERROR -- From Product DAO - Replenishment failed for some items. Transaction rolled back.");
             }
@@ -439,7 +439,7 @@ public class ProductDAO {
         return null;
     }
 
-    public static String  getProductUnitById(int productId){
+    public static String getProductUnitById(int productId) {
 
         String query = "SELECT unit FROM products WHERE product_id= ?";
         try (Connection conn = DatabaseConnection.getConnection();
