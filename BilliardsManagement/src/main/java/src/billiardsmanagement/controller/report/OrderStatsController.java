@@ -520,6 +520,8 @@ public class OrderStatsController {
                             "GROUP BY cp.name";
                     stmt = conn.prepareStatement(sql);
                     stmt.setString(1, startDatePicker.getValue().toString());
+                    System.out.println("\033[1;32m" + "🎉 Run on Single Date Case" + " 🎊" + "\033[0m");
+
                 } else {
                     // Date range case
                     sql = "SELECT cp.name AS table_type, SUM(b.total) AS revenue " +
@@ -532,25 +534,34 @@ public class OrderStatsController {
                     stmt = conn.prepareStatement(sql);
                     stmt.setString(1, startDatePicker.getValue().toString());
                     stmt.setString(2, endDatePicker.getValue().toString());
+                    System.out.println("\033[1;32m" + "🎉 Run on Date Range Case" + " 🎊" + "\033[0m");
+
                 }
             }else if ("Month".equals(selectedFilter)) {
                 // Check if month and year values are not null
                 if (monthComboBox.getValue() == null || yearComboBox.getValue() == null) {
                     return; // Skip if values are not set
                 }
-                sql = "SELECT c.category_name, SUM(oi.total) AS revenue " +
-                        "FROM orders_items oi " +
-                        "JOIN products p ON oi.product_id = p.product_id " +
-                        "JOIN category c ON p.category_id = c.category_id " +
-                        "JOIN orders o ON oi.order_id = o.order_id " +
+//                sql = "SELECT c.category_name, SUM(oi.total) AS revenue " +
+//                        "FROM orders_items oi " +
+//                        "JOIN products p ON oi.product_id = p.product_id " +
+//                        "JOIN category c ON p.category_id = c.category_id " +
+//                        "JOIN orders o ON oi.order_id = o.order_id " +
+//                        "WHERE o.order_status = 'Paid' AND MONTH(o.order_date) = ? AND YEAR(o.order_date) = ? " +
+//                        "GROUP BY c.category_name";
+                sql = "SELECT cp.name AS table_type, SUM(b.total) AS revenue " +
+                        "FROM bookings b " +
+                        "JOIN pooltables pt ON b.table_id = pt.table_id " +
+                        "JOIN cate_pooltables cp ON pt.cate_id = cp.id " +
+                        "JOIN orders o ON b.order_id = o.order_id " +
                         "WHERE o.order_status = 'Paid' AND MONTH(o.order_date) = ? AND YEAR(o.order_date) = ? " +
-                        "GROUP BY c.category_name";
+                        "GROUP BY cp.name";
+
                 stmt = conn.prepareStatement(sql);
                 stmt.setInt(1, monthComboBox.getValue());
                 stmt.setInt(2, yearComboBox.getValue());
-                stmt = conn.prepareStatement(sql);
-                stmt.setInt(1, monthComboBox.getValue());
-                stmt.setInt(2, yearComboBox.getValue());
+                System.out.println("\033[1;32m" + "🎉 Run on Month Filter" + " 🎊" + "\033[0m");
+
             } else { // Lọc theo Năm
                 // Check if year value is not null
                 if (yearOnlyComboBox.getValue() == null) {
@@ -565,9 +576,11 @@ public class OrderStatsController {
                         "GROUP BY cp.name";
                 stmt = conn.prepareStatement(sql);
                 stmt.setInt(1, yearOnlyComboBox.getValue());
+                System.out.println("\033[1;32m" + "🎉 Run on Year Filter" + " 🎊" + "\033[0m");
             }
 
             ResultSet rs = stmt.executeQuery();
+            System.out.println("\033[1;32m" + "🎉 Year Got = " + yearOnlyComboBox.getValue() + " 🎊" + "\033[0m");
 
             while (rs.next()) {
                 String tableType = rs.getString("table_type");

@@ -1,9 +1,7 @@
 package src.billiardsmanagement.controller.poolTables.catepooltables;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import src.billiardsmanagement.dao.CatePooltableDAO;
 import src.billiardsmanagement.model.CatePooltable;
@@ -11,6 +9,7 @@ import src.billiardsmanagement.model.NotificationStatus;
 import src.billiardsmanagement.service.NotificationService;
 
 import java.util.List;
+import java.util.Optional;
 
 public class UpdateCategoryPooltableController {
     @FXML
@@ -131,28 +130,37 @@ public class UpdateCategoryPooltableController {
         String shortName = shortNameField.getText().trim();
         String priceStr = priceField.getText().trim();
 
-        try {
-            double price = Double.parseDouble(priceStr);
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirmation");
+        confirmAlert.setHeaderText("Please Confirm");
+        confirmAlert.setContentText("Are you sure you want to proceed with the category name : " + name);
 
-            // Update the category
-            catePooltable.setName(name);
-            catePooltable.setShortName(shortName);
-            catePooltable.setPrice(price);
-            CatePooltableDAO.updateCategory(catePooltable);
+        Optional<ButtonType> result = confirmAlert.showAndWait();
 
-            NotificationService.showNotification("Success",
-                    "Category updated successfully!",
-                    NotificationStatus.Success);
-            // Close the popup
+        if (result.isPresent() && result.get() == ButtonType.OK){
+            try {
+                double price = Double.parseDouble(priceStr);
 
-        } catch (NumberFormatException e) {
-            NotificationService.showNotification("Error",
-                    "Invalid price format",
-                    NotificationStatus.Error);
-        } catch (Exception e) {
-            NotificationService.showNotification("Error",
-                    "Failed to update category: " + e.getMessage(),
-                    NotificationStatus.Error);
+                // Update the category
+                catePooltable.setName(name);
+                catePooltable.setShortName(shortName);
+                catePooltable.setPrice(price);
+                CatePooltableDAO.updateCategory(catePooltable);
+
+                NotificationService.showNotification("Success",
+                        "Category updated successfully!",
+                        NotificationStatus.Success);
+                // Close the popup
+
+            } catch (NumberFormatException e) {
+                NotificationService.showNotification("Error",
+                        "Invalid price format",
+                        NotificationStatus.Error);
+            } catch (Exception e) {
+                NotificationService.showNotification("Error",
+                        "Failed to update category: " + e.getMessage(),
+                        NotificationStatus.Error);
+            }
         }
     }
 

@@ -20,6 +20,7 @@ import src.billiardsmanagement.service.NotificationService;
 import src.billiardsmanagement.model.NotificationStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 public class PoolTableInfoController {
     @FXML
@@ -175,33 +176,43 @@ public class PoolTableInfoController {
             String name = nameField.getText().trim();
             CatePooltable selectedCategory = categoryComboBox.getValue();
 
-            // Validate input
-            if (name.isEmpty()) {
-                NotificationService.showNotification("Error", "Table name cannot be empty", NotificationStatus.Error);
-                return;
+            Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmAlert.setTitle("Confirmation");
+            confirmAlert.setHeaderText("Please Confirm");
+            confirmAlert.setContentText("Are you sure you want to proceed with the name: " + name + " and category: " + selectedCategory + "?");
+
+            Optional<ButtonType> result = confirmAlert.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK){
+                // Validate input
+                if (name.isEmpty()) {
+                    NotificationService.showNotification("Error", "Table name cannot be empty", NotificationStatus.Error);
+                    return;
+                }
+
+                if (selectedCategory == null) {
+                    NotificationService.showNotification("Error", "Please select a category", NotificationStatus.Error);
+                    return;
+                }
+
+                // Update table properties
+                currentTable.setName(name);
+                currentTable.setCatePooltableId(selectedCategory.getId());
+                currentTable.setCatePooltableName(selectedCategory.getName());
+                currentTable.setPrice(selectedCategory.getPrice()); // Also update the price based on the new category
+
+                // Update in database
+                poolTableDAO.updateTable(currentTable);
+                NotificationService.showNotification("Success", "Pool table updated successfully",
+                        NotificationStatus.Success);
+
+                if (poolTableController != null) {
+                    poolTableController.hidePoolPopup();
+                    poolTableController.resetTableListAndTableNameList();
+                    poolTableController.handleViewAllTables();
+                }
             }
 
-            if (selectedCategory == null) {
-                NotificationService.showNotification("Error", "Please select a category", NotificationStatus.Error);
-                return;
-            }
-
-            // Update table properties
-            currentTable.setName(name);
-            currentTable.setCatePooltableId(selectedCategory.getId());
-            currentTable.setCatePooltableName(selectedCategory.getName());
-            currentTable.setPrice(selectedCategory.getPrice()); // Also update the price based on the new category
-
-            // Update in database
-            poolTableDAO.updateTable(currentTable);
-            NotificationService.showNotification("Success", "Pool table updated successfully",
-                    NotificationStatus.Success);
-
-            if (poolTableController != null) {
-                poolTableController.hidePoolPopup();
-                poolTableController.resetTableListAndTableNameList();
-                poolTableController.handleViewAllTables();
-            }
 
         } catch (Exception e) {
             NotificationService.showNotification("Error", "Failed to update pool table: " + e.getMessage(),
