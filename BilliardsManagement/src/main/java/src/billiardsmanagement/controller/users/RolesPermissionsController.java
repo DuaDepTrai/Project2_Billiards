@@ -214,7 +214,7 @@ public class RolesPermissionsController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/users/editRole.fxml"));
             Parent root = loader.load();
 
-            EditRoleController controller = loader.getController();
+            UpdateRoleController controller = loader.getController();
             controller.setRole(selectedRole);
 
             Stage stage = new Stage();

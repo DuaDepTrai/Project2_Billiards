@@ -108,7 +108,23 @@ public class UpdateCategoryController {
             return;
         }
 
-        categoryDAO.updateCategory(categoryId, newCategoryName);
+        // Hiển thị hộp thoại xác nhận trước khi cập nhật
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Update");
+        alert.setHeaderText("Are you sure you want to update this category?");
+        alert.setContentText("Current Category: " + categoryName + "\nNew Name: " + newCategoryName);
+
+        ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(buttonYes, buttonNo);
+
+        // Hiển thị Alert và lấy kết quả người dùng chọn
+        alert.showAndWait().ifPresent(result -> {
+            if (result == buttonYes) {
+                categoryDAO.updateCategory(categoryId, newCategoryName);
+            }
+        });
+
         closeWindow();
     }
 

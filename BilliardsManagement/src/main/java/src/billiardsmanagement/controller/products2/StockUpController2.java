@@ -3,9 +3,7 @@ package src.billiardsmanagement.controller.products2;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.model.Product;
 
@@ -62,7 +60,21 @@ public class StockUpController2 {
             return;
         }
 
-        updateStock(selectedProduct.getId(), quantityToAdd);
+        // Hiển thị hộp thoại xác nhận trước khi cập nhật
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Stock Up");
+        alert.setHeaderText("Are you sure you want to stock up this product?");
+        alert.setContentText("Product: " + selectedProduct.getName() + "\nQuantity: " + quantityToAdd);
+
+        ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(buttonYes, buttonNo);
+
+        alert.showAndWait().ifPresent(result -> {
+            if (result == buttonYes) {
+                updateStock(selectedProduct.getId(), quantityToAdd);
+            }
+        });
     }
 
     private void updateStock(int productId, int quantityToAdd) {

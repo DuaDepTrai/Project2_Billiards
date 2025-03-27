@@ -1,8 +1,7 @@
 package src.billiardsmanagement.controller.products2;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.model.Product;
@@ -60,25 +59,40 @@ public class UpdateProductController2 {
             return;
         }
 
-        try (Connection connection = TestDBConnection.getConnection()) {
-            // Get category_id from category name
-            String getCategorySql = "SELECT category_id FROM category WHERE category_name = ?";
-            PreparedStatement categoryStmt = connection.prepareStatement(getCategorySql);
-            categoryStmt.setString(1, category);
-            ResultSet resultSet = categoryStmt.executeQuery();
-            int categoryId = resultSet.next() ? resultSet.getInt("category_id") : 0;
+        // Hiển thị hộp thoại xác nhận trước khi cập nhật
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Update");
+        alert.setHeaderText("Are you sure you want to update this product?");
+        alert.setContentText("Product: " + name);
 
-            // Cập nhật thông tin sản phẩm
-            productDAO.updateProduct(productId, name, categoryId, Double.parseDouble(price), unit, Integer.parseInt(quantity));
+        ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(buttonYes, buttonNo);
 
-            System.out.println("Product updated successfully!");
+        // Hiển thị Alert và lấy kết quả người dùng chọn
+        alert.showAndWait().ifPresent(result -> {
+            if (result == buttonYes) {
+                try (Connection connection = TestDBConnection.getConnection()) {
+                    // Lấy category_id từ category name
+                    String getCategorySql = "SELECT category_id FROM category WHERE category_name = ?";
+                    PreparedStatement categoryStmt = connection.prepareStatement(getCategorySql);
+                    categoryStmt.setString(1, category);
+                    ResultSet resultSet = categoryStmt.executeQuery();
+                    int categoryId = resultSet.next() ? resultSet.getInt("category_id") : 0;
 
-            // Đóng cửa sổ Update Product
-            Stage stage = (Stage) txtName.getScene().getWindow();
-            stage.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+                    // Cập nhật thông tin sản phẩm
+                    productDAO.updateProduct(productId, name, categoryId, Double.parseDouble(price), unit, Integer.parseInt(quantity));
+
+                    System.out.println("Product updated successfully!");
+
+                    // Đóng cửa sổ Update Product sau khi cập nhật thành công
+                    Stage stage = (Stage) txtName.getScene().getWindow();
+                    stage.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @FXML

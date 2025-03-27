@@ -3,9 +3,7 @@ package src.billiardsmanagement.controller.products2;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.ProductDAO;
 import src.billiardsmanagement.model.TestDBConnection;
@@ -51,6 +49,7 @@ public class AddProductController2 {
     public void setCategoryName(String categoryName) {
         lblCategory.setText(categoryName);
     }
+
     @FXML
     private void handleAdd() {
         String name = txtName.getText();
@@ -64,25 +63,42 @@ public class AddProductController2 {
             return;
         }
 
-        try (Connection connection = TestDBConnection.getConnection()) {
-            // Get category_id from category name
-            String getCategorySql = "SELECT category_id FROM category WHERE category_name = ?";
-            PreparedStatement categoryStmt = connection.prepareStatement(getCategorySql);
-            categoryStmt.setString(1, category);
-            ResultSet resultSet = categoryStmt.executeQuery();
-            int categoryId = resultSet.next() ? resultSet.getInt("category_id") : 0;
+        // Hiển thị hộp thoại xác nhận trước khi cập nhật
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Add Product");
+        alert.setHeaderText("Are you sure you want to add this product?");
+        alert.setContentText("Product: " + name);
 
-            // Thêm sản phẩm mới
-            productDAO.addProduct(name, categoryId, Double.parseDouble(price), unit, Integer.parseInt(quantity));
+        ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(buttonYes, buttonNo);
 
-            System.out.println("Product added successfully!");
+        // Hiển thị Alert và lấy kết quả người dùng chọn
+        alert.showAndWait().ifPresent(result -> {
+            if (result == buttonYes) {
+                try (Connection connection = TestDBConnection.getConnection()) {
+                    // Get category_id from category name
+                    String getCategorySql = "SELECT category_id FROM category WHERE category_name = ?";
+                    PreparedStatement categoryStmt = connection.prepareStatement(getCategorySql);
+                    categoryStmt.setString(1, category);
+                    ResultSet resultSet = categoryStmt.executeQuery();
+                    int categoryId = resultSet.next() ? resultSet.getInt("category_id") : 0;
 
-            // Đóng cửa sổ Add Product
-            Stage stage = (Stage) txtName.getScene().getWindow();
-            stage.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+                    // Thêm sản phẩm mới
+                    productDAO.addProduct(name, categoryId, Double.parseDouble(price), unit, Integer.parseInt(quantity));
+
+                    System.out.println("Product added successfully!");
+
+                    // Đóng cửa sổ Add Product
+                    Stage stage = (Stage) txtName.getScene().getWindow();
+                    stage.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
     }
 
     @FXML

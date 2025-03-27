@@ -1,9 +1,13 @@
 package src.billiardsmanagement.controller.users;
 
+import io.github.palexdev.materialfx.utils.SwingFXUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.UserDAO;
@@ -13,6 +17,8 @@ import src.billiardsmanagement.model.TestDBConnection;
 import src.billiardsmanagement.model.UserSession;
 import src.billiardsmanagement.service.NotificationService;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -258,7 +264,29 @@ public class ChangeUserInfoController {
                 }
             }
 
-            userDAO.changeUserInfo(userId, hashedPassword, fullname, phone, sqlBirthday, address, finalImageName);
+            final String imageNameToSave = finalImageName;
+
+            // Hiển thị hộp thoại xác nhận trước khi thêm user
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Update User Information");
+            alert.setHeaderText("Are you sure you want to update this user?");
+            alert.setContentText("Full Name: " + fullname);
+
+            ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+            alert.getButtonTypes().setAll(buttonYes, buttonNo);
+
+            alert.showAndWait().ifPresent(result -> {
+                if (result == buttonYes) {
+                    try {
+                        userDAO.changeUserInfo(userId, hashedPassword, fullname, phone, sqlBirthday, address, imageNameToSave);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+
+//            userDAO.changeUserInfo(userId, hashedPassword, fullname, phone, sqlBirthday, address, finalImageName);
 
             System.out.println("User updated successfully!");
             Stage stage = (Stage) txtFullname.getScene().getWindow();
@@ -285,10 +313,55 @@ public class ChangeUserInfoController {
 
         File file = fileChooser.showOpenDialog(txtFullname.getScene().getWindow());
         if (file != null) {
-            uploadedImagePath = file.getAbsolutePath(); // Lưu đường dẫn file nguồn
-            lblImagePath.setText(file.getName()); // Hiển thị tên file trong giao diện
-            System.out.println("Selected file: " + uploadedImagePath);
+            try {
+                // Đọc ảnh gốc
+                Image originalImage = new Image(file.toURI().toString());
+
+                // Xử lý crop ảnh thành tỷ lệ 1:1
+                Image croppedImage = cropToSquare(originalImage);
+
+                // Lưu ảnh sau khi crop
+                File savedFile = saveCroppedImage(croppedImage, file.getName());
+
+                // Cập nhật đường dẫn ảnh đã lưu
+                uploadedImagePath = savedFile.getAbsolutePath();
+                lblImagePath.setText(savedFile.getName());
+
+                System.out.println("Cropped and saved image: " + uploadedImagePath);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    private Image cropToSquare(Image image) {
+        double width = image.getWidth();
+        double height = image.getHeight();
+        double size = Math.min(width, height); // Lấy kích thước nhỏ nhất để tạo hình vuông
+
+        double x = (width - size) / 2;  // Tính toạ độ X bắt đầu crop
+        double y = (height - size) / 2; // Tính toạ độ Y bắt đầu crop
+
+        PixelReader pixelReader = image.getPixelReader();
+        WritableImage croppedImage = new WritableImage(pixelReader, (int) x, (int) y, (int) size, (int) size);
+
+        return croppedImage;
+    }
+
+    private File saveCroppedImage(Image image, String originalFileName) throws IOException {
+        File directory = new File("cropped_images"); // Thư mục lưu ảnh crop
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+
+        String outputFileName = "cropped_" + originalFileName;
+        File outputFile = new File(directory, outputFileName);
+
+        // Lưu ảnh dưới dạng PNG
+        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
+        ImageIO.write(bufferedImage, "png", outputFile);
+
+        return outputFile;
     }
 
     private void showError(String message) {

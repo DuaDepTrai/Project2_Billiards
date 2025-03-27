@@ -3,8 +3,7 @@ package src.billiardsmanagement.controller.category;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.CategoryDAO;
@@ -56,8 +55,24 @@ public class AddCategoryController {
 //            }
 //        }
 
+        // Hiển thị hộp thoại xác nhận trước khi cập nhật
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Add Category");
+        alert.setHeaderText("Are you sure you want to update this category?");
+        alert.setContentText("Category: " + name);
+
+        ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+        alert.getButtonTypes().setAll(buttonYes, buttonNo);
+
+        // Hiển thị Alert và lấy kết quả người dùng chọn
+        alert.showAndWait().ifPresent(result -> {
+            if (result == buttonYes) {
+                categoryDAO.addCategory(name);
+            }
+        });
+
         // Thêm danh mục mới vào DB
-        categoryDAO.addCategory(name);
         System.out.println("Category added successfully!");
 
         // Tìm controller của CategoryController và gọi refreshTable()

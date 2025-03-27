@@ -3,10 +3,7 @@ package src.billiardsmanagement.controller.users;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import src.billiardsmanagement.dao.RolesPermissionsDAO;
@@ -23,6 +20,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Optional;
 
 public class AddRoleController {
     @FXML
@@ -50,15 +48,26 @@ public class AddRoleController {
                 showAlert("Duplicate Role", "Role already exists. Please choose a different Role name.");
                 return; // Dừng lại nếu role đã tồn tại
             }
+            // Hiển thị hộp thoại xác nhận
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Add Role");
+            alert.setHeaderText("Are you sure you want to add this role?");
+            alert.setContentText("Role Name: " + rolename);
 
-            // Thêm role mới
-            rolespermissionsDAO.addRole(rolename);
+            ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+            alert.getButtonTypes().setAll(buttonYes, buttonNo);
 
-            System.out.println("Role added successfully!");
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == buttonYes) {
+                // Thêm role mới
+                rolespermissionsDAO.addRole(rolename);
+                System.out.println("Role added successfully!");
 
-            // Đóng cửa sổ Add Role
-            Stage stage = (Stage) txtRolename.getScene().getWindow();
-            stage.close();
+                // Đóng cửa sổ Add Role
+                Stage stage = (Stage) txtRolename.getScene().getWindow();
+                stage.close();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
