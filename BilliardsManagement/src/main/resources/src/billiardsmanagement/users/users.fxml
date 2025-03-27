@@ -17,7 +17,7 @@
 
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="header" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0">
         <Region HBox.hgrow="ALWAYS"/>
-        <TextField fx:id="searchText" prefHeight="26.0" prefWidth="200.0" promptText="Search by username, fullname..." styleClass="search-field" />
+        <TextField fx:id="searchText" prefHeight="26.0" prefWidth="200.0" promptText="Search by name/phone..." styleClass="search-field" />
         <!--        <Button fx:id="searchButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" styleClass="search-button" />-->
         <Button fx:id="btnAddNewUser" layoutX="628.0" layoutY="13.0" mnemonicParsing="false" prefWidth="153.0" styleClass="add-button" text="Add New User" textAlignment="CENTER" textFill="WHITE" AnchorPane.rightAnchor="20.0">
             <font>

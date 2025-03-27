@@ -382,7 +382,8 @@ public class UserController {
     private void filterUsers(String searchItem) throws SQLException {
         ObservableList<User> filteredList = FXCollections.observableArrayList();
         for (User user : userDAO.getAllUsers()) {
-            if (user.getFullname().toLowerCase().contains(searchItem) ||
+            if (user.getUsername().toLowerCase().contains(searchItem) ||
+                    user.getFullname().toLowerCase().contains(searchItem) ||
                    user.getPhone().contains(searchItem)) {
                 filteredList.add(user);
             }
