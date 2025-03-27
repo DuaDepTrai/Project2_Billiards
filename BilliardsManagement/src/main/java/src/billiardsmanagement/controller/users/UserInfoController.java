@@ -37,6 +37,15 @@ public class UserInfoController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         btnChangeUserInfo.setOnAction(event -> handleChangeUserInfo());
+
+        // Cho phép xuống dòng khi nội dung quá dài
+        lblUsername.setWrapText(true);
+        lblFullname.setWrapText(true);
+        lblPhone.setWrapText(true);
+        lblBirthday.setWrapText(true);
+        lblAddress.setWrapText(true);
+        lblHireDate.setWrapText(true);
+        lblRole.setWrapText(true);
     }
 
     public void setUser(User user)  {

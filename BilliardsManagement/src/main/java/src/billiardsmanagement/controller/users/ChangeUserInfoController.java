@@ -258,7 +258,6 @@ public class ChangeUserInfoController {
                 }
             }
 
-
             userDAO.changeUserInfo(userId, hashedPassword, fullname, phone, sqlBirthday, address, finalImageName);
 
             System.out.println("User updated successfully!");
