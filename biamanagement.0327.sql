@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 22, 2025 at 08:10 PM
+-- Generation Time: Mar 27, 2025 at 05:19 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -72,7 +72,8 @@ INSERT INTO `bookings` (`booking_id`, `order_id`, `table_id`, `start_time`, `end
 (82, 94, 46, '2025-03-19 19:45:00', NULL, NULL, NULL, 'Canceled'),
 (83, 96, 42, '2025-03-20 16:34:25', '2025-03-20 19:34:45', 3, 225000, 'Finish'),
 (84, 97, 42, '2025-03-20 16:45:00', NULL, NULL, NULL, 'Canceled'),
-(85, 100, 43, '2025-03-21 16:25:00', NULL, NULL, NULL, 'Canceled');
+(85, 100, 43, '2025-03-21 16:25:00', NULL, NULL, NULL, 'Canceled'),
+(86, 78, 45, '2025-03-24 19:55:13', NULL, NULL, NULL, 'Playing');
 
 --
 -- Triggers `bookings`
@@ -166,7 +167,8 @@ CREATE TABLE `cate_pooltables` (
 INSERT INTO `cate_pooltables` (`id`, `name`, `shortName`, `price`) VALUES
 (1, 'Standard Pool', 'STD', 35000),
 (2, 'Deluxe Pool', 'DLX', 75000),
-(3, 'VIP Pool', 'VIP', 100000);
+(3, 'VIP Pool', 'VIP', 100000),
+(4, 'Inactive', 'Inactive', 0);
 
 -- --------------------------------------------------------
 
@@ -289,7 +291,9 @@ INSERT INTO `orders_items` (`order_item_id`, `order_id`, `product_id`, `quantity
 (62, 101, 15, 1, 40000),
 (63, 101, 17, 1, 20000),
 (64, 101, 16, 1, 50000),
-(65, 101, 5, 1, 100000);
+(65, 101, 5, 1, 100000),
+(66, 78, 5, 1, 100000),
+(67, 99, 17, 1, 20000);
 
 -- --------------------------------------------------------
 
@@ -364,7 +368,7 @@ INSERT INTO `pooltables` (`cate_id`, `table_id`, `name`, `status`) VALUES
 (2, 42, 'Deluxe 02', 'Available'),
 (2, 43, 'Deluxe 03', 'Available'),
 (2, 44, 'Deluxe 04', 'Available'),
-(2, 45, 'Deluxe 05', 'Available'),
+(2, 45, 'Deluxe 05', 'Playing'),
 (2, 46, 'Deluxe 06', 'Available'),
 (2, 47, 'Deluxe 07', 'Available'),
 (2, 48, 'Deluxe 08', 'Available'),
@@ -402,7 +406,7 @@ CREATE TABLE `products` (
 
 INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `quantity`) VALUES
 (4, 'Standard Cue - For Rent', 2, 50000, 'Piece', 20),
-(5, 'Deluxe Cue - For Rent', 2, 100000, 'Piece', 19),
+(5, 'Deluxe Cue - For Rent', 2, 100000, 'Piece', 18),
 (6, 'Professional Cue - For Rent', 2, 150000, 'Piece', 20),
 (7, 'Soda', 3, 15000, 'Can', 50),
 (8, 'Juice', 3, 25000, 'Can', 50),
@@ -414,7 +418,7 @@ INSERT INTO `products` (`product_id`, `name`, `category_id`, `price`, `unit`, `q
 (14, 'Popcorn', 4, 25000, 'Bag', 50),
 (15, 'Chocolate', 4, 40000, 'Bar', 48),
 (16, 'Cookies Box', 4, 50000, 'Box', 49),
-(17, 'Coca Cola', 3, 20000, 'Can', 48),
+(17, 'Coca Cola', 3, 20000, 'Can', 47),
 (20, 'Uno', 5, 60000, 'Set', 30),
 (21, 'Poker Deck (Plastic Cards)', 5, 80000, 'Set', 30),
 (22, 'Poker Deck (Plastic Coated)', 5, 50000, 'Set', 30),
@@ -529,8 +533,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `username`, `password`, `fullname`, `phone`, `address`, `hire_date`, `birthday`, `role_id`, `image_path`) VALUES
-(1, 'admin', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Administrator', '0961886965', 'Hanoi', '2025-01-01', '1992-01-01', 1, 'manager.png'),
-(2, 'hieu', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyen Van Hieu', '0961886966', 'Hanoi', '2025-01-01', '1992-01-01', 2, 'manager.png'),
+(1, 'admin', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Administrator', '0961886965', '19 Le Thanh Nghi, Bach Khoa, Hai Ba Trung, Hanoi', '2025-01-01', '1992-01-01', 1, 'hoang-sao-2.jpg'),
+(2, 'hieu', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyen Van Hieu', '0961886999', 'Hanoi', '2025-01-01', '1992-01-01', 2, 'reyes.jpg'),
 (3, 'quan', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Luu Minh Quan', '0987654322', 'Hanoi', '2025-01-01', '1992-01-01', 2, 'manager.png'),
 (4, 'manh', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyen Duc Manh', '0987654323', 'Hanoi', '2025-01-01', '1992-01-01', 2, 'trancung.jpg'),
 (6, 'long', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Nguyen Viet Long', '0987654324', 'Hanoi', '2025-01-01', '1992-01-01', 2, 'manager.png'),
@@ -538,8 +542,9 @@ INSERT INTO `users` (`user_id`, `username`, `password`, `fullname`, `phone`, `ad
 (8, 'nvkho2', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Pham Kien', '0987654326', 'Hanoi', '2025-01-01', '1992-01-01', 4, 'user.png'),
 (9, 'letan2', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Vu Thi Tra', '0987654327', 'Hanoi', '2025-01-01', '1992-01-01', 3, 'user.png'),
 (11, 'letan1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Phuong Thao', '0965438482', 'Hanoi', '2025-03-02', '1997-12-09', 3, '366339749_258391096996728_4824303083280686790_n.jpg'),
-(14, 'nvkho1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Van Dua', '0979473639', 'Hanoi', '2025-03-02', '2021-12-01', 4, 'user.png'),
-(16, 'nvkho3', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Le Khanh', '0986463456', 'Hanoi', '2025-03-19', '1990-03-20', 4, 'user.png');
+(14, 'nvkho1', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Van Dua', '0979473666', 'Hanoi', '2025-03-02', '2021-12-01', 4, 'user.png'),
+(16, 'nvkho3', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Le Khanh', '0986463456', 'Hanoi', '2025-03-19', '1990-03-20', 4, 'user.png'),
+(20, 'letan4', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'le tan test', '0913215634', 'Hanoi', '2025-03-27', '2000-01-01', 3, 'user.png');
 
 --
 -- Indexes for dumped tables
@@ -637,7 +642,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87;
 
 --
 -- AUTO_INCREMENT for table `category`
@@ -667,7 +672,7 @@ ALTER TABLE `orders`
 -- AUTO_INCREMENT for table `orders_items`
 --
 ALTER TABLE `orders_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -697,7 +702,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- Constraints for dumped tables
