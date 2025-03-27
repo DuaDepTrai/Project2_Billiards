@@ -128,33 +128,30 @@ public class OrderController implements Initializable {
     @FXML
     public void addOrder(ActionEvent actionEvent) {
         try {
-            // Lấy thông tin user hiện tại từ UserSession
+            // Show confirmation dialog
+            if (!showConfirmationAlert("Confirm Add Order", "Are you sure you want to create a new order?")) {
+                return; // User clicked Cancel
+            }
+
+            // Existing code...
             UserSession userSession = UserSession.getInstance();
             if (userSession.getUserId() == 0) {
                 throw new IllegalArgumentException("No user is currently logged in.");
             }
 
-            // Tạo order mới với customer_id mặc định là 1
             Order newOrder = new Order();
             newOrder.setCustomerId(1);
             newOrder.setUserId(userSession.getUserId());
 
-            // Lưu order vào database
             orderDAO.addOrder(newOrder);
 
-            // Lấy order mới nhất của khách hàng có ID = 1
             Order orderLatest = orderDAO.getLatestOrderByCustomerId(1);
             int orderId = orderLatest.getOrderId();
             int totalRow = orderTable.getItems().size();
             int selectedIndex = orderTable.getItems().indexOf(newOrder);
             int billNo = totalRow - selectedIndex;
-            System.out.println(orderId);
-            loadOrderList();
 
-//            Stage stage = new Stage();
-//            stage.setTitle("Order Detail");
-//            stage.setScene(new Scene(forEachOrderPage));
-//            stage.show();
+            loadOrderList();
 
             forEachOrderController.setOrderID(orderId);
             forEachOrderController.setMainController(this.mainController, ChosenPage.ORDERS);
@@ -163,7 +160,6 @@ public class OrderController implements Initializable {
             forEachOrderController.setBillNo(billNo);
             forEachOrderController.setOrderDate(orderLatest.getOrderDate());
             forEachOrderController.setInitialPhoneText(orderLatest.getCustomerPhone());
-            forEachOrderController.setInitialPhoneText(orderLatest.getCustomerPhone());
             forEachOrderController.initializeAllTables();
 
             if (mainController != null) {
@@ -171,6 +167,10 @@ public class OrderController implements Initializable {
                 contentArea.getChildren().clear();
                 contentArea.getChildren().setAll(forEachOrderPage);
             }
+
+            // Hide the window if needed
+            // ((Node)(actionEvent.getSource())).getScene().getWindow().hide();
+
         } catch (IllegalArgumentException e) {
             NotificationService.showNotification("Validation Error", e.getMessage(), NotificationStatus.Error);
         } catch (Exception e) {
@@ -348,6 +348,12 @@ public class OrderController implements Initializable {
                                 NotificationStatus.Error);
                         return;
                     }
+
+                    // Add confirmation dialog
+                    if (!showConfirmationAlert("Confirm Print", "Are you sure you want to print this order?")) {
+                        return; // User clicked Cancel
+                    }
+
                     if (!"Finished".equals(selectedOrder.getOrderStatus())
                             && !"Paid".equals(selectedOrder.getOrderStatus())) {
                         NotificationService.showNotification("Access Denied",
@@ -355,8 +361,10 @@ public class OrderController implements Initializable {
                                 NotificationStatus.Error);
                         return;
                     }
+
+                    // Rest of your existing code...
                     int totalRow = orderTable.getItems().size();
-                    int selectedIndex = getIndex(); // Lấy chỉ số hàng
+                    int selectedIndex = getIndex();
                     int billNo = totalRow - selectedIndex;
                     int orderId = selectedOrder.getOrderId();
                     FXMLLoader paymentLoader = new FXMLLoader(
@@ -378,6 +386,9 @@ public class OrderController implements Initializable {
                     stage.setScene(new Scene(paymentRoot));
                     stage.setOnHidden(e -> loadOrderList());
                     stage.show();
+
+                    // Hide the current window if needed
+                    // ((Node)(event.getSource())).getScene().getWindow().hide();
                 });
             }
 
@@ -1076,6 +1087,21 @@ public class OrderController implements Initializable {
 
     public void setRefreshNotificationShow(boolean refreshNotificationShow) {
         isRefreshNotificationShow = refreshNotificationShow;
+    }
+
+    private boolean showConfirmationAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        ButtonType buttonTypeYes = new ButtonType("Confirm");
+        ButtonType buttonTypeNo = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == buttonTypeYes;
     }
 
 }
