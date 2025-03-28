@@ -179,7 +179,7 @@ public class PoolTableInfoController {
             Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
             confirmAlert.setTitle("Confirmation");
             confirmAlert.setHeaderText("Please Confirm");
-            confirmAlert.setContentText("Are you sure you want to proceed with the name: " + name + " and category: " + selectedCategory + "?");
+            confirmAlert.setContentText("Are you sure you want to proceed with the name: " + name + ", category: " + selectedCategory.getName() + "?");
 
             Optional<ButtonType> result = confirmAlert.showAndWait();
 

@@ -3,6 +3,7 @@ package src.billiardsmanagement.controller.poolTables.catepooltables;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
+import src.billiardsmanagement.controller.poolTables.PoolTableController;
 import src.billiardsmanagement.dao.CatePooltableDAO;
 import src.billiardsmanagement.model.CatePooltable;
 import src.billiardsmanagement.model.NotificationStatus;
@@ -124,6 +125,8 @@ public class UpdateCategoryPooltableController {
 //        validatePrice(String.valueOf(catePooltable.getPrice()));
     }
 
+    private PoolTableController poolTableController;
+
     @FXML
     private void handleConfirm() {
         String name = cateNameField.getText().trim();
@@ -133,11 +136,11 @@ public class UpdateCategoryPooltableController {
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Confirmation");
         confirmAlert.setHeaderText("Please Confirm");
-        confirmAlert.setContentText("Are you sure you want to proceed with the category name : " + name);
+        confirmAlert.setContentText("Are you sure you want to proceed with the category name : " + name + ", shortName : "+shortName + ", and price : "+priceStr);
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
 
-        if (result.isPresent() && result.get() == ButtonType.OK){
+        if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 double price = Double.parseDouble(priceStr);
 
@@ -151,7 +154,10 @@ public class UpdateCategoryPooltableController {
                         "Category updated successfully!",
                         NotificationStatus.Success);
                 // Close the popup
-
+                poolTableController.catePooltablesList.clear();
+                poolTableController.catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
+                poolTableController.initializeCategoryList();
+                poolTableController.handleViewAllTables();
             } catch (NumberFormatException e) {
                 NotificationService.showNotification("Error",
                         "Invalid price format",
@@ -170,6 +176,10 @@ public class UpdateCategoryPooltableController {
 
     public void setCurrentShortNames(List<String> shortNames) {
         this.currentShortNames = shortNames;
+    }
+
+    public void setPoolTableController(PoolTableController poolTableController) {
+        this.poolTableController = poolTableController;
     }
 
 } 

@@ -94,7 +94,7 @@ public class PoolTableController {
     protected ObservableList<PoolTable> orderedTableList = FXCollections.observableArrayList();
     protected ObservableList<PoolTable> playingTableList = FXCollections.observableArrayList();
     protected PoolTableDAO poolTableDAO = new PoolTableDAO();
-    protected ArrayList<CatePooltable> catePooltablesList;
+    public ArrayList<CatePooltable> catePooltablesList;
     protected OrderDAO orderDAO = new OrderDAO();
 
     private Popup poolPopup = new Popup();
@@ -709,7 +709,7 @@ public class PoolTableController {
         return content;
     }
 
-    private void initializeCategoryList() {
+    public void initializeCategoryList() {
         VBox categoryContent = new VBox(5);
         categoryContent.setPadding(new Insets(10));
 
@@ -815,20 +815,21 @@ public class PoolTableController {
 
             controller.setCurrentCategoryNames(currentNames);
             controller.setCurrentShortNames(currentShortNames);
+            controller.setPoolTableController(this);
             controller.initializeUpdateCatePooltable();
 
             // Show popup in the middle
             showPoolPopupInTheMiddle(root);
 
             // Add on hidden handler
-            poolPopup.setOnHidden(e -> {
-                // Refresh categories after dialog closes
-                catePooltablesList.clear();
-                catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
-                initializeCategoryList();
-                updateStatusLists();
-                initializePoolTableController();
-            });
+//            poolPopup.setOnHidden(e -> {
+//                // Refresh categories after dialog closes
+//                catePooltablesList.clear();
+//                catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
+//                initializeCategoryList();
+//                updateStatusLists();
+//                initializePoolTableController();
+//            });
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -883,6 +884,7 @@ public class PoolTableController {
                 );
 
                 // Refresh category list
+
                 catePooltablesList.clear();
                 catePooltablesList.addAll(CatePooltableDAO.getAllCategories());
                 initializeCategoryList();
