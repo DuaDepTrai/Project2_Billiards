@@ -129,9 +129,9 @@ public class OrderController implements Initializable {
     public void addOrder(ActionEvent actionEvent) {
         try {
             // Show confirmation dialog
-            if (!showConfirmationAlert("Confirm Add Order", "Are you sure you want to create a new order?")) {
-                return; // User clicked Cancel
-            }
+//            if (!showConfirmationAlert("Confirm Add Order", "Are you sure you want to create a new order?")) {
+//                return; // User clicked Cancel
+//            }
 
             // Existing code...
             UserSession userSession = UserSession.getInstance();
