@@ -20,10 +20,9 @@ import java.io.Console;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-//import java.util.Date;
 import java.util.List;
 import java.sql.Date;
-
+import java.util.Optional;
 
 public class CustomerController {
     @FXML
@@ -178,7 +177,8 @@ public class CustomerController {
 
                         if (date.isAfter(today) || date.isBefore(minDate)) {
                             NotificationService.showNotification("Error", "Date must be between " +
-                                    minDate.format(formatter) + " and " + today.format(formatter), NotificationStatus.Error);
+                                            minDate.format(formatter) + " and " + today.format(formatter),
+                                    NotificationStatus.Error);
                             birthdayPicker.getEditor().clear();
                         } else {
                             birthdayPicker.setValue(date); // Cập nhật giá trị DatePicker
@@ -188,7 +188,8 @@ public class CustomerController {
                         birthdayPicker.getEditor().clear();
                     }
                 } else {
-                    NotificationService.showNotification("Error", "Invalid date format (DD/MM/YYYY)", NotificationStatus.Error);
+                    NotificationService.showNotification("Error", "Invalid date format (DD/MM/YYYY)",
+                            NotificationStatus.Error);
                     birthdayPicker.getEditor().clear();
                 }
             }
@@ -230,7 +231,8 @@ public class CustomerController {
 
                         if (date.isAfter(today) || date.isBefore(minDate)) {
                             NotificationService.showNotification("Error", "Date must be between " +
-                                    minDate.format(formatter) + " and " + today.format(formatter), NotificationStatus.Error);
+                                            minDate.format(formatter) + " and " + today.format(formatter),
+                                    NotificationStatus.Error);
                             updateBirthdayPicker.getEditor().clear();
                         } else {
                             updateBirthdayPicker.setValue(date); // Cập nhật giá trị DatePicker
@@ -240,7 +242,8 @@ public class CustomerController {
                         updateBirthdayPicker.getEditor().clear();
                     }
                 } else {
-                    NotificationService.showNotification("Error", "Invalid date format (DD/MM/YYYY)", NotificationStatus.Error);
+                    NotificationService.showNotification("Error", "Invalid date format (DD/MM/YYYY)",
+                            NotificationStatus.Error);
                     updateBirthdayPicker.getEditor().clear();
                 }
             }
@@ -248,14 +251,12 @@ public class CustomerController {
     }
 
     private void setupTableColumns() {
-        sttColumn.setCellValueFactory(cellData ->
-                new ReadOnlyObjectWrapper<>(customerTableView.getItems().indexOf(cellData.getValue()) + 1)
-        );
+        sttColumn.setCellValueFactory(
+                cellData -> new ReadOnlyObjectWrapper<>(customerTableView.getItems().indexOf(cellData.getValue()) + 1));
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         phoneCol.setCellValueFactory(new PropertyValueFactory<>("phone"));
         totalPlaytimeCol.setCellValueFactory(new PropertyValueFactory<>("totalPlaytime"));
         addressCol.setCellValueFactory(new PropertyValueFactory<>("address"));
-
 
         // Format total playtime to show 2 decimal places
         totalPlaytimeCol.setCellFactory(column -> new TableCell<Customer, Double>() {
@@ -290,14 +291,14 @@ public class CustomerController {
         sttColumn.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.05)); // 5% tổng chiều rộng
         nameCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.25)); // 5% tổng chiều rộng
         phoneCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.1)); // 5% tổng chiều rộng
-        totalPlaytimeCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.1)); // 5% tổng chiều rộng
+        totalPlaytimeCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.1)); // 5% tổng chiều
+        // rộng
         birthdayCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.1)); // 5% tổng chiều rộng
         addressCol.prefWidthProperty().bind(customerTableView.widthProperty().multiply(0.38)); // 5% tổng chiều rộng
 
         // Căn trái
         nameCol.setStyle("-fx-alignment: CENTER-LEFT;");
         addressCol.setStyle("-fx-alignment: CENTER-LEFT;");
-
 
         // Căn giữa
         sttColumn.setStyle("-fx-alignment: CENTER;");
@@ -328,14 +329,16 @@ public class CustomerController {
                 // Show update form with current values
                 updateNameField.setText(newSelection.getName());
                 updatePhoneField.setText(newSelection.getPhone());
-//                updatePlaytimeLabel.setText(String.format("%.2f", newSelection.getTotalPlaytime()));
+                // updatePlaytimeLabel.setText(String.format("%.2f",
+                // newSelection.getTotalPlaytime()));
 
                 // Xử lý birthday
                 java.sql.Date birthday = (java.sql.Date) newSelection.getBirthday();
                 if (birthday != null) {
                     LocalDate localDate = birthday.toLocalDate(); // Chuyển java.sql.Date -> LocalDate
                     updateBirthdayPicker.setValue(localDate);
-                    updateBirthdayPicker.getEditor().setText(localDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                    updateBirthdayPicker.getEditor()
+                            .setText(localDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 } else {
                     updateBirthdayPicker.setValue(null);
                     updateBirthdayPicker.getEditor().clear();
@@ -361,7 +364,7 @@ public class CustomerController {
             phoneField.clear();
             birthdayPicker.setValue(null);
             addressField.clear();
-//            playtimeLabel.setText("0.00");
+            // playtimeLabel.setText("0.00");
 
             // Hide update form if visible
             updateForm.setVisible(false);
@@ -386,14 +389,17 @@ public class CustomerController {
 
             // Check if the birthday is empty or invalid
             String birthdayStr = birthdayPicker.getEditor().getText();
-            if (birthdayStr != null && !birthdayStr.trim().isEmpty() && (birthday == null || !isValidDateFormat(birthdayStr.trim()))) {
-                NotificationService.showNotification("Error", "Date must be in the format DD/MM/YYYY.", NotificationStatus.Error);
+            if (birthdayStr != null && !birthdayStr.trim().isEmpty()
+                    && (birthday == null || !isValidDateFormat(birthdayStr.trim()))) {
+                NotificationService.showNotification("Error", "Date must be in the format DD/MM/YYYY.",
+                        NotificationStatus.Error);
                 return;
             }
 
             // Validate input
             if (name.isEmpty() || phone.isEmpty()) {
-                NotificationService.showNotification("Error", "Please fill in all required fields", NotificationStatus.Error);
+                NotificationService.showNotification("Error", "Please fill in all required fields",
+                        NotificationStatus.Error);
                 return;
             }
 
@@ -405,41 +411,62 @@ public class CustomerController {
 
             // Check if phone exists
             if (customerDAO.isPhoneExists(phone)) {
-                NotificationService.showNotification("Error", "This phone number already exists", NotificationStatus.Error);
+                NotificationService.showNotification("Error", "This phone number already exists",
+                        NotificationStatus.Error);
                 return;
             }
 
-            // Convert birthday if valid
-            Date sqlBirthday = (birthdayStr != null && !birthdayStr.trim().isEmpty() && birthday != null) ? Date.valueOf(birthday) : null;
+            // Show confirmation dialog
+            Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmAlert.setTitle("Confirm Add Customer");
+            confirmAlert.setHeaderText("Are you sure you want to add this customer?");
+            confirmAlert.setContentText("Name: " + name + "\n" +
+                    "Phone: " + phone + "\n" +
+                    "Birthday: "
+                    + (birthday != null ? birthday.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Not specified")
+                    + "\n" +
+                    "Address: " + (address != null ? address : "Not specified"));
 
-            // Create and save customer
-            Customer customer = new Customer();
-            customer.setName(name);
-            customer.setPhone(phone);
-            customer.setBirthday(sqlBirthday);
-            if (address != null) {
-                customer.setAddress(address);
+            ButtonType buttonConfirm = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
+            ButtonType buttonCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            confirmAlert.getButtonTypes().setAll(buttonConfirm, buttonCancel);
+
+            Optional<ButtonType> result = confirmAlert.showAndWait();
+            if (result.isPresent() && result.get() == buttonConfirm) {
+                // Convert birthday if valid
+                Date sqlBirthday = (birthdayStr != null && !birthdayStr.trim().isEmpty() && birthday != null)
+                        ? Date.valueOf(birthday)
+                        : null;
+
+                // Create and save customer
+                Customer customer = new Customer();
+                customer.setName(name);
+                customer.setPhone(phone);
+                customer.setBirthday(sqlBirthday);
+                if (address != null) {
+                    customer.setAddress(address);
+                }
+
+                customerDAO.addCustomer(customer);
+                NotificationService.showNotification("Success", "Customer added successfully",
+                        NotificationStatus.Success);
+
+                // Hide form and refresh table
+                customerForm.setVisible(false);
+                refreshTable();
             }
-
-            customerDAO.addCustomer(customer);
-            NotificationService.showNotification("Success", "Customer added successfully", NotificationStatus.Success);
-
-            // Hide form and refresh table
-            customerForm.setVisible(false);
-            refreshTable();
-
         } catch (Exception e) {
-            NotificationService.showNotification("Error", "An error occurred: " + e.getMessage(), NotificationStatus.Error);
+            NotificationService.showNotification("Error", "An error occurred: " + e.getMessage(),
+                    NotificationStatus.Error);
         }
     }
-
 
     @FXML
     private void handleCancelAdd(ActionEvent event) {
         // Clear form fields
         nameField.clear();
         phoneField.clear();
-//        playtimeLabel.setText("0.00");
+        // playtimeLabel.setText("0.00");
         birthdayPicker.setValue(null);
         addressField.clear();
 
@@ -455,13 +482,13 @@ public class CustomerController {
         try {
             Customer selectedCustomer = customerTableView.getSelectionModel().getSelectedItem();
             if (selectedCustomer == null) {
-                NotificationService.showNotification("Error", "Please select a customer to update", NotificationStatus.Error);
+                NotificationService.showNotification("Error", "Please select a customer to update",
+                        NotificationStatus.Error);
                 return;
             }
 
             String name = updateNameField.getText();
             String phone = updatePhoneField.getText();
-
             LocalDate birthday = updateBirthdayPicker.getValue();
             String address = updateAddressField.getText();
 
@@ -472,14 +499,17 @@ public class CustomerController {
 
             // Check if the birthday is empty or invalid
             String birthdayStr = updateBirthdayPicker.getEditor().getText();
-            if (birthdayStr != null && !birthdayStr.trim().isEmpty() && (birthday == null || !isValidDateFormat(birthdayStr.trim()))) {
-                NotificationService.showNotification("Error", "Date must be in the format DD/MM/YYYY.", NotificationStatus.Error);
+            if (birthdayStr != null && !birthdayStr.trim().isEmpty()
+                    && (birthday == null || !isValidDateFormat(birthdayStr.trim()))) {
+                NotificationService.showNotification("Error", "Date must be in the format DD/MM/YYYY.",
+                        NotificationStatus.Error);
                 return;
             }
 
             // Validate input
             if (name.isEmpty() || phone.isEmpty()) {
-                NotificationService.showNotification("Error", "Name and phone number are required", NotificationStatus.Error);
+                NotificationService.showNotification("Error", "Name and phone number are required",
+                        NotificationStatus.Error);
                 return;
             }
 
@@ -491,39 +521,71 @@ public class CustomerController {
 
             // Check if phone exists and it's not the current customer's phone
             if (!phone.equals(selectedCustomer.getPhone()) && customerDAO.isPhoneExists(phone)) {
-                NotificationService.showNotification("Error", "This phone number already exists", NotificationStatus.Error);
+                NotificationService.showNotification("Error", "This phone number already exists",
+                        NotificationStatus.Error);
                 return;
             }
 
-            // Update customer object
-            selectedCustomer.setName(name);
-            selectedCustomer.setPhone(phone);
+            // Show confirmation dialog
+            Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmAlert.setTitle("Confirm Update Customer");
+            confirmAlert.setHeaderText("Are you sure you want to update this customer?");
+            confirmAlert.setContentText("Current Information:\n" +
+                    "Name: " + selectedCustomer.getName() + "\n" +
+                    "Phone: " + selectedCustomer.getPhone() + "\n" +
+                    "Birthday: "
+                    + (selectedCustomer.getBirthday() != null
+                    ? new SimpleDateFormat("dd/MM/yyyy").format(selectedCustomer.getBirthday())
+                    : "Not specified")
+                    + "\n" +
+                    "Address: "
+                    + (selectedCustomer.getAddress() != null ? selectedCustomer.getAddress() : "Not specified") + "\n\n"
+                    +
+                    "New Information:\n" +
+                    "Name: " + name + "\n" +
+                    "Phone: " + phone + "\n" +
+                    "Birthday: "
+                    + (birthday != null ? birthday.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Not specified")
+                    + "\n" +
+                    "Address: " + (address != null ? address : "Not specified"));
 
-            // Only set birthday if it's valid and not empty
-            if (birthdayStr != null && !birthdayStr.trim().isEmpty() && birthday != null) {
-                selectedCustomer.setBirthday(Date.valueOf(birthday));
+            ButtonType buttonConfirm = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
+            ButtonType buttonCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            confirmAlert.getButtonTypes().setAll(buttonConfirm, buttonCancel);
+
+            Optional<ButtonType> result = confirmAlert.showAndWait();
+            if (result.isPresent() && result.get() == buttonConfirm) {
+                // Update customer object
+                selectedCustomer.setName(name);
+                selectedCustomer.setPhone(phone);
+
+                // Only set birthday if it's valid and not empty
+                if (birthdayStr != null && !birthdayStr.trim().isEmpty() && birthday != null) {
+                    selectedCustomer.setBirthday(Date.valueOf(birthday));
+                }
+
+                // Only set address if it's not empty
+                if (address != null) {
+                    selectedCustomer.setAddress(address);
+                }
+
+                // Save to database
+                customerDAO.updateCustomer(selectedCustomer);
+
+                // Hide update form
+                updateForm.setVisible(false);
+
+                // Refresh table and show success message
+                refreshTable();
+                NotificationService.showNotification("Success", "Customer updated successfully",
+                        NotificationStatus.Success);
             }
-
-            // Only set address if it's not empty
-            if (address != null) {
-                selectedCustomer.setAddress(address);
-            }
-
-            // Save to database
-            customerDAO.updateCustomer(selectedCustomer);
-
-            // Hide update form
-            updateForm.setVisible(false);
-
-            // Refresh table and show success message
-            refreshTable();
-            NotificationService.showNotification("Success", "Customer updated successfully", NotificationStatus.Success);
-
         } catch (Exception e) {
             e.printStackTrace();
+            NotificationService.showNotification("Error", "Failed to update customer: " + e.getMessage(),
+                    NotificationStatus.Error);
         }
     }
-
 
     @FXML
     private void handleRemoveCustomer() {

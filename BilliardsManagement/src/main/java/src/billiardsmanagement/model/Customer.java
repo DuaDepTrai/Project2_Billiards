@@ -74,4 +74,16 @@ public class Customer {
     public void setAddress(String address) {
         this.address = address;
     }
+
+    @Override
+    public String toString() {
+        return "Customer {" +
+                "👤 customerId=" + customerId +
+                ", 🏷️ name='" + name + '\'' +
+                ", 📞 phone='" + phone + '\'' +
+                ", ⏰ totalPlaytime=" + totalPlaytime +
+                " hours, 🎂 birthday=" + birthday +
+                ", 🏡 address='" + address + '\'' +
+                '}';
+    }
 }
