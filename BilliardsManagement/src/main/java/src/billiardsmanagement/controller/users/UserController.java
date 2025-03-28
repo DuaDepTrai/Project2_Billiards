@@ -1,9 +1,11 @@
 package src.billiardsmanagement.controller.users;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -27,7 +29,13 @@ import javafx.geometry.Pos;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -38,7 +46,7 @@ import java.text.SimpleDateFormat;
 
 public class UserController {
     @FXML
-    private TableColumn<User,Integer> sttColumn;
+    private TableColumn<User, Integer> sttColumn;
     @FXML
     private TableView<User> tableUsers;
     @FXML
@@ -225,13 +233,22 @@ public class UserController {
                     avatarView.setPreserveRatio(true);
                     avatarView.getStyleClass().add("avatar-image"); // Áp dụng CSS
 
-
                     // Đường dẫn trong resources (KHÔNG có "/src/")
                     String avatarPath = "/src/billiardsmanagement/images/avatars/" + user.getImagePath();
                     URL imageUrl = getClass().getResource(avatarPath);
 
+                    if (imageUrl == null) {
+                        System.out.println("\u001B[31m" + "🤔 Oops! Looks like we can't find the avatar! Did the user run away? 🏃‍♂️💨" + "\u001B[0m");
+                    }
+
                     if (imageUrl != null) {
-                        avatarView.setImage(new Image(imageUrl.toExternalForm()));
+                        String trueImageUrl = imageUrl.toExternalForm();
+
+                        Platform.runLater(() -> {
+                            avatarView.setImage(null); // Clear cache
+                            avatarView.setImage(new Image(trueImageUrl, false)); // Force immediate reload
+                        });
+
                     } else {
                         URL defaultImageUrl = getClass().getResource("/src/billiardsmanagement/images/avatars/user.png");
                         if (defaultImageUrl != null) {
@@ -241,10 +258,112 @@ public class UserController {
                         }
                     }
 
+                    System.out.println("\u001B[31m" + "🤔 User " + user.getUsername()+ ", image path : "+user.getImagePath() + " 🏃‍♂️💨" + "\u001B[0m");
                     setGraphic(avatarView);
                 }
             }
         };
+    }
+
+    private void copyImageToTarget(String imageName, URL sourceUrl) {
+        try {
+            // Define the target directory (inside /target)
+            Path targetDir = Paths.get("target/classes/billiardsmanagement/images/avatars/");
+            Path targetPath = targetDir.resolve(imageName);
+
+            // Ensure directory exists before copying
+            if (!Files.exists(targetDir)) {
+                Files.createDirectories(targetDir);
+            }
+
+            // Convert URL to Path (requires URI conversion)
+            Path sourcePath = Paths.get(sourceUrl.toURI());
+
+            // Copy image to target folder (overwrite if exists)
+            Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            System.out.println("✅ Image successfully copied to target: " + targetPath);
+        } catch (IOException | IllegalArgumentException e) {
+            System.out.println("❌ Error copying image to target: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("❌ Unexpected error: " + e.getMessage());
+        }
+    }
+
+    private void transferAvatarToTarget(User user, File newImageFile, ImageView avatarView) {
+        // 1️⃣ Transfer image in background
+        Task<Void> transferTask = new Task<>() {
+            protected Void call() throws Exception {
+                Path targetDir = Paths.get("target/classes/src/billiardsmanagement/images/avatars");
+                Path sourcePath = newImageFile.toPath();
+
+                // Ensure directory exists before copying
+                if (!Files.exists(targetDir)) {
+                    Files.createDirectories(targetDir);
+                }
+
+                // Generate a unique filename if necessary
+                String fileName = newImageFile.getName();
+                Path targetPath = targetDir.resolve(fileName);
+                int counter = 1;
+
+                // Check if file already exists, and rename if needed
+                while (Files.exists(targetPath)) {
+                    String nameWithoutExt = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
+                    String extension = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf('.')) : "";
+                    String newFileName = nameWithoutExt + "_" + counter + extension;
+                    targetPath = targetDir.resolve(newFileName);
+                    counter++;
+                }
+
+                // Print source and target paths with funny icons
+                System.out.println("\u001B[34m" + "🔍 Checking source path: " + sourcePath + " 🚀" + "\u001B[0m");
+                System.out.println("\u001B[33m" + "🏁 Target path ready: " + targetPath + " 🎯" + "\u001B[0m");
+
+                // Copy image to target folder (ensuring it's a new file)
+                Files.copy(sourcePath, targetPath);
+
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                Platform.runLater(() -> {
+                    // 2️⃣ Update user avatar path in database
+                    user.setImagePath(newImageFile.getName());
+
+                    // 3️⃣ Reload avatar immediately
+                    refreshAvatar(user, avatarView);
+                });
+            }
+
+            @Override
+            protected void failed() {
+                getException().printStackTrace();
+            }
+        };
+
+        new Thread(transferTask).start();
+    }
+
+    private void refreshAvatar(User user, ImageView avatarView) {
+        // 4️⃣ Load updated image path from target folder
+        String avatarPath = "/src/billiardsmanagement/images/avatars/" + user.getImagePath();
+        URL imageUrl = getClass().getResource(avatarPath);
+
+        if (imageUrl == null) {
+            System.err.println("❌ Avatar not found in target folder!");
+        } else {
+            System.out.println("✅ Avatar loaded: " + imageUrl);
+        }
+
+        // 5️⃣ Force JavaFX to reload the image
+        Platform.runLater(() -> {
+            avatarView.setImage(null); // Clear previous image
+            if (imageUrl != null) {
+                avatarView.setImage(new Image(imageUrl.toExternalForm(), false)); // Disable cache
+            }
+        });
     }
 
     @FXML
@@ -384,23 +503,24 @@ public class UserController {
         for (User user : userDAO.getAllUsers()) {
             if (user.getUsername().toLowerCase().contains(searchItem) ||
                     user.getFullname().toLowerCase().contains(searchItem) ||
-                   user.getPhone().contains(searchItem)) {
+                    user.getPhone().contains(searchItem)) {
                 filteredList.add(user);
             }
         }
-       tableUsers.setItems(filteredList);
+        tableUsers.setItems(filteredList);
     }
-    private void setUpSearchField(){
+
+    private void setUpSearchField() {
         searchText.textProperty().addListener((observable, oldValue, newValue) -> {
-           if(newValue == null || newValue.isEmpty()){
-               loadUsers();
-           }else{
-               try {
-                   filterUsers(newValue);
-               } catch (SQLException e) {
-                   throw new RuntimeException(e);
-               }
-           }
+            if (newValue == null || newValue.isEmpty()) {
+                loadUsers();
+            } else {
+                try {
+                    filterUsers(newValue);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         });
     }
 

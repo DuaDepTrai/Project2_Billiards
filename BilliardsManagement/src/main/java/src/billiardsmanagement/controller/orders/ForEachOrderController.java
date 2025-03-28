@@ -1429,11 +1429,27 @@ public class ForEachOrderController {
         confirmationPane.setSpacing(10); // Space between the label and button
 
         // Create a label to ask for confirmation
-        Label confirmationLabel = new Label("Do you want to finish this order?");
+        Label confirmationLabel = new Label("This action will finalize your order. \nDo you want to proceed ?");
         confirmationLabel.setStyle("-fx-font-size: 14px;");
 
         // Create a button for confirmation
         Button confirmButton = new Button("Confirm Finish Order");
+        confirmButton.setPrefWidth(130.0);
+        confirmButton.setStyle("-fx-background-color: red; -fx-text-fill: white;");
+
+// Create a cancel button
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setPrefWidth(60.0);
+        cancelButton.setStyle("-fx-background-color: gray; -fx-text-fill: white;");
+
+        HBox buttonBox = new HBox(confirmButton, cancelButton);
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.setSpacing(10.0);
+
+        cancelButton.setOnAction(e -> {
+            hideForEachPopup();
+        });
+
         confirmButton.setOnAction(e -> {
             try {
                 // Logic to finish the order
@@ -1487,7 +1503,7 @@ public class ForEachOrderController {
         });
 
         // Add the label and button to the VBox
-        confirmationPane.getChildren().addAll(confirmationLabel, confirmButton);
+        confirmationPane.getChildren().addAll(confirmationLabel, buttonBox);
         confirmationPane.setAlignment(Pos.CENTER);
 
         // Show the confirmation popup

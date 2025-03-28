@@ -20,6 +20,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -355,25 +356,55 @@ public class UpdateUserController {
         File file = fileChooser.showOpenDialog(txtFullname.getScene().getWindow());
         if (file != null) {
             try {
-                // Đọc ảnh gốc
+                // Load original image
                 Image originalImage = new Image(file.toURI().toString());
 
-                // Xử lý crop ảnh thành tỷ lệ 1:1
+                // Crop image to square
                 Image croppedImage = cropToSquare(originalImage);
 
-                // Lưu ảnh sau khi crop
+                // Save cropped image to cropped_images/ directory
                 File savedFile = saveCroppedImage(croppedImage, file.getName());
 
-                // Cập nhật đường dẫn ảnh đã lưu
+                // Update uploaded image path
                 uploadedImagePath = savedFile.getAbsolutePath();
                 lblImagePath.setText(savedFile.getName());
 
-                System.out.println("Cropped and saved image: " + uploadedImagePath);
+                System.out.println("✅ Cropped and saved image: " + uploadedImagePath);
+
+                // Transfer the cropped image to the target directory
+                copyCroppedImageToTarget(savedFile);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
+
+    private void copyCroppedImageToTarget(File croppedImageFile) {
+        try {
+            // Define source path (cropped image location)
+            Path sourcePath = croppedImageFile.toPath();
+
+            // Define target directory (inside /target)
+            Path targetDir = Paths.get("BilliardsManagement/target/classes/src/billiardsmanagement/images/avatars");
+            Path targetPath = targetDir.resolve(croppedImageFile.getName());
+
+            // Ensure directory exists before copying
+            if (!Files.exists(targetDir)) {
+                Files.createDirectories(targetDir);
+            }
+
+            // Copy image to target folder (overwrite if exists)
+            Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            System.out.println("✅ Image successfully copied to target: " + targetPath);
+        } catch (IOException e) {
+            System.out.println("❌ Error copying image to target: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("❌ Unexpected error: " + e.getMessage());
+        }
+    }
+
 
     private Image cropToSquare(Image image) {
         double width = image.getWidth();
@@ -389,7 +420,7 @@ public class UpdateUserController {
         return croppedImage;
     }
 
-    private File saveCroppedImage(Image image, String originalFileName) throws IOException {
+    private File    saveCroppedImage(Image image, String originalFileName) throws IOException {
         File directory = new File("cropped_images"); // Thư mục lưu ảnh crop
         if (!directory.exists()) {
             directory.mkdir();
