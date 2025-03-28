@@ -82,7 +82,7 @@
 /* Nội dung chính */
 .content-pane, .chart-container, .data-box, .filter-box {
     -fx-background-color: white;
-    -fx-padding: 20px;
+    -fx-padding: 5px 20px;
     -fx-border-radius: 8px;
     -fx-border-color: #D1D9E6;
 }
