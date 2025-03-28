@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import src.billiardsmanagement.controller.orders.BookingAndOrderTableListener;
 import src.billiardsmanagement.controller.orders.ForEachOrderController;
 import src.billiardsmanagement.controller.orders.OrderController;
@@ -172,12 +173,8 @@ public class MainController {
         Optional<ButtonType> result = alert.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.YES) {
-            // Đóng cửa sổ hiện tại
-            Stage stage = (Stage) logoutLabel.getScene().getWindow();
-            stage.close();
-
-            // Mở lại cửa sổ login
             try {
+                // Tạo cửa sổ đăng nhập trước
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/src/billiardsmanagement/users/login.fxml"));
                 Scene scene = new Scene(loader.load());
 
@@ -185,6 +182,15 @@ public class MainController {
                 loginStage.setScene(scene);
                 loginStage.setTitle("Login");
                 loginStage.show();
+
+                // Đóng tất cả cửa sổ hiện có, kể cả cửa sổ chính & popup
+                List<Window> openWindows = new ArrayList<>(Window.getWindows()); // Sao chép danh sách để tránh ConcurrentModificationException
+                for (Window window : openWindows) {
+                    if (window instanceof Stage && window != loginStage) {
+                        ((Stage) window).close();
+                    }
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
