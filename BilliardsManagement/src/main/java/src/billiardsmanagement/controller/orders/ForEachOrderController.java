@@ -662,8 +662,11 @@ public class ForEachOrderController {
         loadBookings();
         loadOrderDetail();
         setupPhoneAutoCompletion();
-        checkBookingStatus();
-        checkOrderStatus();
+
+        Order order = OrderDAO.getOrderByIdStatic(this.orderID);
+        if(!order.getOrderStatus().equals("Finished") && !order.getOrderStatus().equals("Paid")){
+            checkOrderStatus();
+        }
 
         // Set current timestamp in dateText
         if (orderDate != null) {
@@ -1301,8 +1304,6 @@ public class ForEachOrderController {
                 NotificationService.showNotification("Success",
                         "Booking has been stopped and updated.",
                         NotificationStatus.Success);
-                loadBookings();
-                checkOrderStatus();
                 BookingDAO.updateTableStatusAfterBooking(bookingId);
             } else {
                 NotificationService.showNotification("Error",
@@ -1334,22 +1335,22 @@ public class ForEachOrderController {
 
 
     public void checkBookingStatus() {
-        int minutesLimit = 30;
-        List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID); // Lấy danh sách booking
-
-        LocalDateTime now = LocalDateTime.now(); // Thời gian hiện tại
-
-        for (Booking booking : bookings) {
-            LocalDateTime bookingTime = booking.getStartTimeBooking(); // Lấy thời gian bắt đầu booking
-            if (bookingTime != null) { // Kiểm tra nếu booking có thời gian bắt đầu
-                long minutesPassed = Duration.between(bookingTime, now).toMinutes();
-                System.out.println("Thời gian chênh lệch: " + minutesPassed);
-                if (minutesPassed > minutesLimit && "Ordered".equals(booking.getBookingStatus())) {
-                    BookingDAO.cancelBooking(booking.getBookingId());
-                    System.out.println("Đã hủy bàn " + booking.getBookingId() + "thành công");
-                }
-            }
-        }
+//        int minutesLimit = 30;
+//        List<Booking> bookings = BookingDAO.getBookingByOrderId(orderID); // Lấy danh sách booking
+//
+//        LocalDateTime now = LocalDateTime.now(); // Thời gian hiện tại
+//
+//        for (Booking booking : bookings) {
+//            LocalDateTime bookingTime = booking.getStartTimeBooking(); // Lấy thời gian bắt đầu booking
+//            if (bookingTime != null) { // Kiểm tra nếu booking có thời gian bắt đầu
+//                long minutesPassed = Duration.between(bookingTime, now).toMinutes();
+//                System.out.println("Thời gian chênh lệch: " + minutesPassed);
+//                if (minutesPassed > minutesLimit && "Ordered".equals(booking.getBookingStatus())) {
+//                    BookingDAO.cancelBooking(booking.getBookingId());
+//                    System.out.println("Đã hủy bàn " + booking.getBookingId() + "thành công");
+//                }
+//            }
+//        }
     }
 
     public void setCustomerID(int customerId) {
@@ -1458,7 +1459,8 @@ public class ForEachOrderController {
                     boolean updateOrderSuccess = OrderDAO.updateOrderStatus(this.orderID, totalCost);
                     if (updateOrderSuccess) {
                         // Log success to console
-                        NotificationService.showNotification("Success", "Finish order successfully. There's no booking in this table.", NotificationStatus.Success);                        checkOrderStatus();
+                        NotificationService.showNotification("Success", "Finish order successfully. There's no booking in this table.", NotificationStatus.Success);
+                        checkOrderStatus();
                         initializeForEachOrderButtonsAndInformation();
                     } else {
                         // Log error to console with funny icon
@@ -1476,7 +1478,8 @@ public class ForEachOrderController {
                     boolean updateOrderSuccess = OrderDAO.updateOrderStatus(this.orderID, totalCost);
                     if (updateOrderSuccess) {
                         // Log success to console
-                        NotificationService.showNotification("Success", "Order has been finished successfully! Total cost: " + formatTotal(totalCost), NotificationStatus.Success);                        checkOrderStatus();
+                        NotificationService.showNotification("Success", "Order has been finished successfully! Total cost: " + formatTotal(totalCost), NotificationStatus.Success);
+                        checkOrderStatus();
                         initializeForEachOrderButtonsAndInformation();
                         loadBookings();
                         initializeOrderDetailColumn();
@@ -1631,7 +1634,6 @@ public class ForEachOrderController {
                     System.out.println("❌ From ForEachOrderController: orderController is null. Cannot call loadOrderList()");
                 } else {
                     orderController.loadOrderList();
-                    checkOrderStatus();
                     System.out.println("✅ From ForEachOrderController, cancelBooking(): loadOrderList() called from orderController non-null");
                     System.out.println("✅ From ForEachOrderController, cancelBooking(): checkOrderStatus() called");
                 }
