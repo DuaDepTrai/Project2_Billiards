@@ -321,11 +321,41 @@ public class AddUserController {
                 lblImagePath.setText(savedFile.getName());
 
                 System.out.println("Cropped and saved image: " + uploadedImagePath);
+
+                // Transfer the cropped image to the target directory
+                copyCroppedImageToTarget(savedFile);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
+
+    private void copyCroppedImageToTarget(File croppedImageFile) {
+        try {
+            // Define source path (cropped image location)
+            Path sourcePath = croppedImageFile.toPath();
+
+            // Define target directory (inside /target)
+            Path targetDir = Paths.get("BilliardsManagement/target/classes/src/billiardsmanagement/images/avatars");
+            Path targetPath = targetDir.resolve(croppedImageFile.getName());
+
+            // Ensure directory exists before copying
+            if (!Files.exists(targetDir)) {
+                Files.createDirectories(targetDir);
+            }
+
+            // Copy image to target folder (overwrite if exists)
+            Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            System.out.println("✅ Image successfully copied to target: " + targetPath);
+        } catch (IOException e) {
+            System.out.println("❌ Error copying image to target: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("❌ Unexpected error: " + e.getMessage());
+        }
+    }
+
 
     private Image cropToSquare(Image image) {
         double width = image.getWidth();
